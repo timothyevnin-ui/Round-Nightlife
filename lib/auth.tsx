@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (phone: string) => {
       if (!sb) return "Accounts aren't switched on yet.";
       const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "sms" } });
-      return error ? friendly(error.message) : null;
+      return error ? friendly(error.message, "send") : null;
     },
     [sb],
   );
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (phone: string, code: string) => {
       if (!sb) return "Accounts aren't switched on yet.";
       const { data, error } = await sb.auth.verifyOtp({ phone, token: code, type: "sms" });
-      if (error) return friendly(error.message);
+      if (error) return friendly(error.message, "verify");
       if (data.session) await apply(data.session);
       return null;
     },
@@ -156,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!sb || !user) return "You're not signed in.";
       const row = { id: user.id, name: name.trim(), birthday, phone: user.phone ?? null };
       const { error } = await sb.from("profiles").upsert(row, { onConflict: "id" });
-      if (error) return friendly(error.message);
+      if (error) return friendly(error.message, "profile");
       setProfile(row);
       return null;
     },
@@ -203,14 +203,26 @@ export function useAuth(): AuthState {
   return useContext(Ctx) ?? OFF;
 }
 
-/** Supabase's messages are for developers; these are for people. */
-function friendly(msg: string): string {
+/**
+ * Supabase's messages are for developers; these are for people. The original
+ * rides along after a newline, shown in small print, so a setup problem
+ * (wrong Twilio token, geo block, rate limit) can be read off the screen.
+ */
+function friendly(msg: string, stage: "send" | "verify" | "profile"): string {
+  return `${nice(msg, stage)}\n${msg}`;
+}
+
+function nice(msg: string, stage: "send" | "verify" | "profile"): string {
   const m = msg.toLowerCase();
-  if (m.includes("rate limit") || m.includes("too many")) return "Too many tries. Give it a minute and try again.";
-  if (m.includes("invalid") || m.includes("token")) return "That code didn't match. Check the text and try again, or resend.";
-  if (m.includes("expired")) return "That code expired. Tap resend for a new one.";
-  if (m.includes("sms") || m.includes("provider") || m.includes("twilio")) return "Couldn't send the text right now. Try again in a minute.";
-  if (m.includes("phone")) return "That doesn't look like a phone number we can text.";
+  if (m.includes("rate limit") || m.includes("too many") || m.includes("max send attempts")) return "Too many tries. Give it a minute and try again.";
   if (m.includes("signups not allowed")) return "New sign-ups are paused for the moment.";
-  return "Something went wrong. Try again.";
+  if (stage === "verify") {
+    if (m.includes("expired") && !m.includes("invalid")) return "That code expired. Tap resend for a new one.";
+    return "That code didn't match. Check the text and try again, or resend.";
+  }
+  if (stage === "send") {
+    if (m.includes("phone number") && (m.includes("invalid") || m.includes("format"))) return "That doesn't look like a phone number we can text.";
+    return "Couldn't send the text right now.";
+  }
+  return "Couldn't save that. Try again.";
 }

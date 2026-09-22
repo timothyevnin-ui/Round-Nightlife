@@ -347,9 +347,18 @@ const DateBox = forwardRef<HTMLInputElement, { label: string; value: string; max
 );
 
 function Err({ children }: { children: React.ReactNode }) {
+  const [head, ...rest] = String(children).split("\n");
+  const detail = rest.join(" ").trim();
   return (
-    <p className="mt-3 text-[13px]" style={{ color: "#ff8a7a" }} role="alert">
-      {children}
-    </p>
+    <div className="mt-3" role="alert">
+      <p className="text-[13px]" style={{ color: "#ff8a7a" }}>
+        {head}
+      </p>
+      {detail && detail !== head && (
+        <p className="mt-1 break-words text-[11px] leading-snug" style={{ color: "var(--chalk-35)" }}>
+          {detail}
+        </p>
+      )}
+    </div>
   );
 }
