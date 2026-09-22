@@ -40,17 +40,6 @@ export function nightSteps(): { steps: FlowStep[]; dow: number } {
     steps: [
       neighborhoodStep(),
       {
-        id: "v",
-        question: "What's the vibe?",
-        layout: "visual",
-        defaultValue: "lively",
-        options: [
-          { value: "lively", label: "Lively", sub: "Loud, social, standing", art: VIBE_ART.lively },
-          { value: "chill", label: "Chill", sub: "Sit down, stay a while", art: VIBE_ART.chill },
-          { value: "talk", label: "Can actually talk", sub: "Hear every word", art: VIBE_ART.talk },
-        ],
-      },
-      {
         id: "g",
         question: "How many?",
         layout: "numbers",
@@ -87,17 +76,6 @@ export function dateSteps(): { steps: FlowStep[]; dow: number } {
         options: [
           { value: "1", label: "Dinner, then drinks", sub: "ROUND plans the whole evening" },
           { value: "0", label: "Just drinks", sub: "The right bar, nothing else" },
-        ],
-      },
-      {
-        id: "v",
-        question: "What's the mood?",
-        layout: "visual",
-        defaultValue: "talk",
-        options: [
-          { value: "talk", label: "Can actually talk", sub: "Quiet enough for the real questions", art: VIBE_ART.talk },
-          { value: "lowlit", label: "Low-lit & cocktails", sub: "Dim room, good drinks", art: VIBE_ART.lowlit },
-          { value: "lively", label: "A little lively", sub: "Energy does the work", art: VIBE_ART.lively },
         ],
       },
       { ...t, hint: "Dinner time, if there's dinner. We'll time the rest." },

@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { Photo } from "@/components/Photo";
 import { useRoundStore } from "@/lib/store";
-import { getVenue } from "@/lib/venues";
+import { venueMap } from "@/lib/venues";
+import type { Venue } from "@/lib/types";
 import { neighborhoodName } from "@/lib/neighborhoods";
 
 type Reading = {
@@ -19,8 +20,9 @@ type Reading = {
   note: string | null;
 };
 
-export function AddView() {
+export function AddView({ venues }: { venues: Venue[] }) {
   const router = useRouter();
+  const byslug = venueMap(venues);
   const { state, toggleSaved } = useRoundStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -158,7 +160,7 @@ export function AddView() {
       {readings && (
         <section className="mt-6 flex flex-col gap-3">
           {readings.map((r, i) => {
-            const venue = r.slug ? getVenue(r.slug) : undefined;
+            const venue = r.slug ? byslug[r.slug] : undefined;
             const saved = venue ? !!state.saved[venue.slug] : false;
             return (
               <motion.div key={r.index} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card flex items-center gap-3 p-3">

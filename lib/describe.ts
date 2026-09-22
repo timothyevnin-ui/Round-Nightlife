@@ -1,4 +1,4 @@
-import type { Venue, Window } from "./types";
+import { vibeOf, type Venue, type Window } from "./types";
 import { formatHour } from "./time";
 
 const DAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -37,7 +37,7 @@ export function bestFor(v: Venue): string[] {
   const d = v.dateFit;
   const top = (Object.entries(d) as [keyof typeof d, number][]).sort((a, b) => b[1] - a[1])[0];
   if (top[1] >= 0.85) out.push({ first: "First dates", early: "A few dates in", longterm: "The long game" }[top[0]]);
-  const vibe = (Object.entries(v.vibe) as [string, number][]).sort((a, b) => b[1] - a[1])[0];
+  const vibe = (Object.entries(vibeOf(v)) as [string, number][]).sort((a, b) => b[1] - a[1])[0];
   if (vibe[1] >= 0.8) out.push({ lively: "Lively nights", chill: "Slow nights", talk: "Actual conversation" }[vibe[0]] ?? "");
   return out.filter(Boolean).slice(0, 4);
 }

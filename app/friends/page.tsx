@@ -3,14 +3,16 @@ import Link from "next/link";
 import { TabBar } from "@/components/TabBar";
 import { Photo } from "@/components/Photo";
 import { InviteButton } from "./InviteButton";
-import { VENUES } from "@/lib/venues";
+import { getVenues } from "@/lib/db";
+
+export const revalidate = 60;
 import { neighborhoodName } from "@/lib/neighborhoods";
 
 export const metadata: Metadata = { title: "Friends" };
 
-export default function FriendsPage() {
+export default async function FriendsPage() {
   // Until the friend graph exists, ROUND's own regulars keep this from being an empty room.
-  const regulars = [...VENUES].filter((v) => (v.friendsBeen ?? 0) >= 3).sort((a, b) => (b.friendsBeen ?? 0) - (a.friendsBeen ?? 0)).slice(0, 8);
+  const regulars = [...(await getVenues())].filter((v) => (v.friendsBeen ?? 0) >= 3).sort((a, b) => (b.friendsBeen ?? 0) - (a.friendsBeen ?? 0)).slice(0, 8);
 
   return (
     <>

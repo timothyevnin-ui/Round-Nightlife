@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
-import { VENUES } from "@/lib/venues";
+import { getVenues } from "@/lib/db";
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 
 export const runtime = "nodejs";
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
   if (files.length === 0) return NextResponse.json({ error: "no_images" }, { status: 400 });
 
   const client = new Anthropic({ apiKey: key });
+  const VENUES = await getVenues();
   const catalog = VENUES.map((v) => `${v.slug} | ${v.name} | ${v.neighborhood}`).join("\n");
   const hoods = NEIGHBORHOODS.map((n) => n.id).join(", ");
 

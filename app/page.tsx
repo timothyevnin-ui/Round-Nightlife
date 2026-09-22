@@ -3,6 +3,7 @@ import { TabBar } from "@/components/TabBar";
 import { Wordmark } from "@/components/Wordmark";
 import { HomeGreeting } from "@/components/HomeGreeting";
 import { ModeCard } from "@/components/ModeCard";
+import { SayIt } from "@/components/SayIt";
 
 export default function Home() {
   return (
@@ -46,9 +47,9 @@ export default function Home() {
         />
       </section>
 
-      <p className="shrink-0 pt-3 pb-1 text-center text-[11.5px]" style={{ color: "var(--chalk-35)" }}>
-        Three places. Pick one. Go.
-      </p>
+      <div className="shrink-0 pt-3 pb-1">
+        <SayIt />
+      </div>
 
       <TabBar />
     </main>

@@ -29,7 +29,7 @@ export function Flow({
 }: {
   steps: FlowStep[];
   title: string;
-  onComplete: (answers: Record<string, string>) => void;
+  onComplete: (answers: Record<string, string>, quick?: boolean) => void;
 }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
@@ -47,8 +47,8 @@ export function Flow({
   );
 
   const finish = useCallback(
-    (partial: Record<string, string>) => {
-      onComplete({ ...defaults, ...partial });
+    (partial: Record<string, string>, quick = false) => {
+      onComplete({ ...defaults, ...partial }, quick);
     },
     [defaults, onComplete],
   );
@@ -161,7 +161,7 @@ export function Flow({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.25 }}
-            onClick={() => finish(answers)}
+            onClick={() => finish(answers, true)}
             className="pressable btn-ghost mx-auto mt-8 h-12 px-6 text-[14px]"
           >
             Just tell me

@@ -13,7 +13,7 @@ export function Photo({
   children,
   rounded = "rounded-[24px]",
 }: {
-  venue: Pick<Venue, "photo" | "name">;
+  venue: Pick<Venue, "photo" | "name" | "photoUrl">;
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
@@ -27,8 +27,12 @@ export function Photo({
         background: `radial-gradient(120% 90% at 20% 0%, rgba(255,255,255,0.10), transparent 55%), linear-gradient(${angle}deg, ${from}, ${to})`,
         ...style,
       }}
-      aria-label={`${venue.name} — photo coming`}
+      aria-label={venue.photoUrl ? venue.name : `${venue.name} — photo coming`}
     >
+      {venue.photoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={venue.photoUrl} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+      )}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

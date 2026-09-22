@@ -1,4 +1,3 @@
-import { getVenue } from "./venues";
 import { isNeighborhoodId } from "./neighborhoods";
 import type { NeighborhoodId, Venue } from "./types";
 
@@ -39,16 +38,16 @@ export function encodePlan(p: PlanPayload): string {
   return toBase64Url(JSON.stringify(p));
 }
 
-export function decodePlan(code: string): Plan | null {
+export function decodePlan(code: string, venues: Record<string, Venue>): Plan | null {
   try {
     const raw = JSON.parse(fromBase64Url(code)) as PlanPayload;
     if (!raw || (raw.m !== "night" && raw.m !== "date")) return null;
     if (!isNeighborhoodId(raw.n)) return null;
     const stops = (raw.s ?? [])
       .map((s) => {
-        const bar = getVenue(s.bar);
+        const bar = venues[s.bar];
         if (!bar) return null;
-        const restaurant = s.restaurant ? getVenue(s.restaurant) : undefined;
+        const restaurant = s.restaurant ? venues[s.restaurant] : undefined;
         return { bar, restaurant, dinnerAt: s.dinnerAt, drinksAt: s.drinksAt, walk: s.walk };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);

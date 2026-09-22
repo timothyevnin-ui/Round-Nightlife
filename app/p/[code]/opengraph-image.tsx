@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { decodePlan } from "@/lib/plan";
+import { getVenues } from "@/lib/db";
+import { venueMap } from "@/lib/venues";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { formatHour } from "@/lib/time";
 
@@ -16,7 +18,7 @@ async function font(file: string) {
 /** The card that lands in the group chat. Chalk black, cobalt ring, the names in serif. */
 export default async function Image({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  const plan = decodePlan(code);
+  const plan = decodePlan(code, venueMap(await getVenues()));
   const [serif, sans] = await Promise.all([font("InstrumentSerif-Regular.woff"), font("Geist-Medium.ttf")]);
 
   const names = plan

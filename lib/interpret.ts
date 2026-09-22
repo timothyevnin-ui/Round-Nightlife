@@ -1,0 +1,189 @@
+import { ATTR_LIST, type AttrKey } from "./attrs";
+import { NEIGHBORHOODS } from "./neighborhoods";
+import { timeOptions } from "./time";
+import type { Wants } from "./questions";
+import type { DateStage, NeighborhoodId } from "./types";
+
+/**
+ * "Just say it." Turns a sentence into the same structured query the deck
+ * produces. The keyword parser runs everywhere; when an Anthropic key is set,
+ * the API route asks Claude and falls back to this if anything goes wrong.
+ */
+
+export type Interpretation = {
+  mode: "night" | "date";
+  neighborhood?: NeighborhoodId;
+  group?: number;
+  hour?: number;
+  stage?: DateStage;
+  dinner?: boolean;
+  wants: Wants;
+  /** What the parser understood, for the confirmation line. */
+  understood: string[];
+};
+
+const HOOD_ALIASES: Record<NeighborhoodId, string[]> = {
+  "west-village": ["west village", "wv", "w village", "west vill", "greenwich village", "the village"],
+  "east-village": ["east village", "ev", "e village", "east vill", "alphabet city", "st marks"],
+  "lower-east-side": ["lower east side", "les", "l.e.s", "lower east", "chinatown", "two bridges", "dimes square"],
+  "soho-nolita": ["soho", "nolita", "noho", "little italy"],
+  tribeca: ["tribeca", "fidi", "financial district"],
+  chelsea: ["chelsea", "meatpacking", "west 20s", "flatiron"],
+  williamsburg: ["williamsburg", "wburg", "w'burg", "billyburg", "bedford"],
+  greenpoint: ["greenpoint", "gp"],
+};
+
+const NUMBER_WORDS: Record<string, number> = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 11, dozen: 11, couple: 2, few: 3, handful: 5 };
+
+const NEGATORS = ["no", "not", "don't", "dont", "without", "never", "skip", "zero", "avoid", "isn't", "isnt", "aren't", "arent", "nothing"];
+
+function findNeighborhood(text: string): NeighborhoodId | undefined {
+  let best: { id: NeighborhoodId; len: number } | undefined;
+  for (const [id, aliases] of Object.entries(HOOD_ALIASES) as [NeighborhoodId, string[]][]) {
+    for (const a of aliases) {
+      const re = new RegExp(`(^|[^a-z])${a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`, "i");
+      if (re.test(text) && (!best || a.length > best.len)) best = { id, len: a.length };
+    }
+  }
+  return best?.id;
+}
+
+function findGroup(text: string): number | undefined {
+  const m = text.match(/\b(\d{1,2})\s*(of us|people|ppl|friends|of them|guys|girls|folks|heads)\b/i) ?? text.match(/\b(party|group|table)\s*(of|for)\s*(\d{1,2})\b/i);
+  if (m) {
+    const n = Number(m[3] ?? m[1]);
+    if (n >= 2 && n <= 40) return Math.min(11, n);
+  }
+  for (const [w, n] of Object.entries(NUMBER_WORDS)) {
+    if (new RegExp(`\\b${w}\\s*(of us|people|friends|of them|guys|girls)\\b`, "i").test(text)) return n;
+  }
+  if (/\b(just me and|me and my|the two of us|date|my girlfriend|my boyfriend|my wife|my husband|a girl|a guy)\b/i.test(text)) return 2;
+  if (/\b(big group|everyone|the whole|all of us|birthday|bachelor|bachelorette)\b/i.test(text)) return 9;
+  return undefined;
+}
+
+function findHour(text: string): number | undefined {
+  if (/\b(right now|now|asap|tonight now|already out)\b/i.test(text)) return timeOptions().defaultValue;
+  if (/\b(later|late night|after midnight|afters)\b/i.test(text) && !/\b\d{1,2}\s*(pm|:)/i.test(text)) return 24.5;
+  const m = text.match(/\b(at|around|by|from|@)?\s*(\d{1,2})(?::(\d{2}))?\s*(pm|p\.m\.|am|a\.m\.)?\b/i);
+  if (m) {
+    let h = Number(m[2]);
+    const mins = m[3] ? Number(m[3]) / 60 : 0;
+    const suffix = (m[4] ?? "").toLowerCase();
+    if (h >= 1 && h <= 12) {
+      if (suffix.startsWith("a")) {
+        if (h <= 4) h += 24; // 1am = 25 (after midnight tonight)
+      } else {
+        if (h <= 11) h += 12; // assume pm for 1–11
+        else if (h === 12) h = suffix.startsWith("p") ? 12 : 24;
+      }
+      return h + mins;
+    }
+    if (h >= 13 && h <= 23) return h + mins;
+  }
+  return undefined;
+}
+
+function findStage(text: string): DateStage | undefined {
+  if (/\b(first date|1st date|first time meeting|hinge|tinder|bumble|raya)\b/i.test(text)) return "first";
+  if (/\b(anniversary|long ?term|my (wife|husband|partner|girlfriend|boyfriend)|been together)\b/i.test(text)) return "longterm";
+  if (/\b(second date|third date|few dates|seeing someone|dating)\b/i.test(text)) return "early";
+  return undefined;
+}
+
+/** Keyword pass. Handles simple negation: "no line", "not a club", "don't want to wait". */
+export function interpretText(raw: string): Interpretation {
+  const text = ` ${raw.toLowerCase().replace(/\s+/g, " ").trim()} `;
+  const understood: string[] = [];
+  const wants: Wants = {};
+
+  const isDate = /\b(date|romantic|anniversary|girlfriend|boyfriend|wife|husband|partner|hinge|tinder|bumble)\b/i.test(text);
+  const mode: Interpretation["mode"] = isDate ? "date" : "night";
+
+  const neighborhood = findNeighborhood(text);
+  const group = findGroup(text);
+  const hour = findHour(text);
+  const stage = isDate ? findStage(text) : undefined;
+  const dinner = isDate ? /\b(dinner|eat|food|restaurant)\b/i.test(text) : undefined;
+
+  // Attribute keywords with a small negation window.
+  const words = text.split(" ");
+  const BREAKERS = ["but", "and", "then", "though", "although", "plus", "also", "with"];
+  const negatedAt = (idx: number) => {
+    // Look back up to three words, but never across punctuation or a conjunction.
+    for (let k = idx - 1; k >= Math.max(0, idx - 3); k--) {
+      const raw = words[k];
+      const w = raw.replace(/[^a-z']/g, "");
+      if (NEGATORS.includes(w)) return true;
+      if (/[,.;!?]$/.test(raw) || BREAKERS.includes(w)) return false;
+    }
+    return false;
+  };
+  for (const def of ATTR_LIST) {
+    for (const kw of def.keywords) {
+      const re = new RegExp(`(^|[^a-z])${kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`, "i");
+      const m = re.exec(text);
+      if (!m) continue;
+      const idx = text.slice(0, m.index + 1).split(" ").length - 1;
+      const neg = negatedAt(idx);
+      const val = neg ? -0.8 : 1;
+      wants[def.key] = Math.max(-1, Math.min(1, (wants[def.key] ?? 0) + val));
+      if (!neg) for (const o of def.opposes ?? []) wants[o] = Math.max(-1, Math.min(1, (wants[o] ?? 0) - 0.4));
+      understood.push(neg ? `not ${def.label.toLowerCase()}` : def.label.toLowerCase());
+      break;
+    }
+  }
+  if (/\b(no (line|lines|wait|waiting|queue)|not impossible|can (actually )?get in|walk (right )?in|don'?t want to wait|without (a )?(line|wait))\b/i.test(text)) {
+    wants.noLine = 1;
+    understood.push("no line");
+  }
+  if (/\b(somewhere new|never been|haven'?t been|new place|new spot)\b/i.test(text)) {
+    wants.new = 1;
+    understood.push("somewhere new");
+  }
+  if (/\b(not a club|no club|no clubs|not clubby)\b/i.test(text)) {
+    wants.scene = -0.7;
+    wants.dressy = Math.min(wants.dressy ?? 0, -0.3);
+    understood.push("not a club");
+  }
+
+  if (neighborhood) understood.unshift(NEIGHBORHOODS.find((n) => n.id === neighborhood)!.name);
+  if (group) understood.push(group >= 11 ? "11+ of you" : `${group} of you`);
+
+  return { mode, neighborhood, group, hour, stage, dinner, wants, understood: [...new Set(understood)].slice(0, 7) };
+}
+
+/** Prompt for the model-backed version; returns the same shape. */
+export function interpretPrompt(text: string) {
+  const attrs = ATTR_LIST.map((a) => `${a.key}: ${a.label}`).join("\n");
+  const hoods = NEIGHBORHOODS.map((n) => n.id).join(", ");
+  return (
+    `Turn this sentence about going out in NYC into JSON for a bar recommender.\n` +
+    `Sentence: """${text}"""\n\n` +
+    `Return only JSON: {"mode":"night"|"date","neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) or null,` +
+    `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases]}\n` +
+    `Attributes (use only these keys; positive = wants it, negative = wants to avoid it; also allowed: "noLine" for no waiting, "new" for somewhere they haven't been):\n${attrs}\n` +
+    `Be literal. Don't invent a neighborhood or group size that isn't stated.`
+  );
+}
+
+export function toResultsParams(i: Interpretation, fallbackDow: number): URLSearchParams {
+  const p = new URLSearchParams();
+  p.set("m", i.mode);
+  p.set("n", i.neighborhood ?? "west-village");
+  p.set("t", String(i.hour ?? timeOptions().defaultValue));
+  p.set("d", String(fallbackDow));
+  if (i.mode === "night") p.set("g", String(i.group ?? 4));
+  else {
+    p.set("s", i.stage ?? "early");
+    p.set("dn", i.dinner === false ? "0" : "1");
+  }
+  const w = Object.entries(i.wants)
+    .filter(([, v]) => typeof v === "number" && v !== 0)
+    .map(([k, v]) => `${k}:${Number((v as number).toFixed(2))}`)
+    .join(",");
+  if (w) p.set("w", w);
+  return p;
+}
+
+export type { AttrKey };

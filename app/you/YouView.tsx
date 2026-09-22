@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
 import { Photo } from "@/components/Photo";
 import { useRoundStore } from "@/lib/store";
-import { getVenue } from "@/lib/venues";
+import { venueMap } from "@/lib/venues";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 
@@ -17,8 +17,9 @@ const NightMap = dynamic(() => import("@/components/NightMap").then((m) => m.Nig
   ),
 });
 
-export function YouView() {
+export function YouView({ venues }: { venues: Venue[] }) {
   const { state } = useRoundStore();
+  const byslug = useMemo(() => venueMap(venues), [venues]);
   const [selected, setSelected] = useState<Venue | null>(null);
   const onSelect = useCallback((v: Venue | null) => setSelected(v), []);
 
@@ -27,11 +28,11 @@ export function YouView() {
 
   const saved = Object.entries(state.saved)
     .sort((a, b) => b[1].at.localeCompare(a[1].at))
-    .map(([slug]) => getVenue(slug))
+    .map(([slug]) => byslug[slug])
     .filter((v): v is Venue => !!v);
   const been = Object.entries(state.been)
     .sort((a, b) => b[1].at.localeCompare(a[1].at))
-    .map(([slug, e]) => ({ venue: getVenue(slug), entry: e }))
+    .map(([slug, e]) => ({ venue: byslug[slug], entry: e }))
     .filter((x): x is { venue: Venue; entry: (typeof state.been)[string] } => !!x.venue);
 
   const taste = tasteLine(been.map((b) => b.venue), state.been);
@@ -53,7 +54,7 @@ export function YouView() {
       </header>
 
       <section className="relative">
-        <NightMap saved={savedSet} been={beenSet} onSelect={onSelect} height={300} />
+        <NightMap venues={venues} saved={savedSet} been={beenSet} onSelect={onSelect} height={300} />
         <div className="pointer-events-none absolute left-4 top-4 flex gap-3 text-[11px]" style={{ color: "var(--chalk-70)" }}>
           <Legend color="#2b4dff" label="Want to go" ring />
           <Legend color="#f2f0ea" label="Been" />
@@ -212,9 +213,9 @@ function tasteLine(venues: Venue[], been: Record<string, { rating?: string }>) {
   const sums = { lively: 0, chill: 0, talk: 0 };
   const tags: Record<string, number> = {};
   for (const v of pool) {
-    sums.lively += v.vibe.lively;
-    sums.chill += v.vibe.chill;
-    sums.talk += v.vibe.talk;
+    sums.lively += v.attrs.lively;
+    sums.chill += v.attrs.chill;
+    sums.talk += v.attrs.talk;
     for (const t of v.tags) tags[t] = (tags[t] ?? 0) + 1;
   }
   const vibe = (Object.entries(sums).sort((a, b) => b[1] - a[1])[0][0] as "lively" | "chill" | "talk");

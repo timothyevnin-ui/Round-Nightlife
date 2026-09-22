@@ -6,16 +6,21 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "motion/react";
 import { Photo } from "@/components/Photo";
 import { useRoundStore } from "@/lib/store";
-import { QUIZ_SLUGS, getVenue } from "@/lib/venues";
+import { QUIZ_SLUGS, venueMap } from "@/lib/venues";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 
 type Verdict = "pass" | "want" | "been" | "loved";
 
-export function QuizView() {
+export function QuizView({ venues }: { venues: Venue[] }) {
   const router = useRouter();
   const { toggleSaved, markBeen, setQuizDone, state } = useRoundStore();
-  const deck = useMemo(() => QUIZ_SLUGS.map(getVenue).filter((v): v is Venue => !!v), []);
+  const deck = useMemo(() => {
+    const m = venueMap(venues);
+    const picked = QUIZ_SLUGS.map((s) => m[s]).filter((v): v is Venue => !!v);
+    // If the database has different places than the seed, fall back to the ten most "regular" bars.
+    return picked.length >= 6 ? picked : venues.filter((v) => v.kind === "bar").sort((a, b) => (b.friendsBeen ?? 0) - (a.friendsBeen ?? 0)).slice(0, 10);
+  }, [venues]);
   const [i, setI] = useState(0);
   const [log, setLog] = useState<Record<string, Verdict>>({});
   const [exitDir, setExitDir] = useState<1 | -1>(1);
@@ -181,9 +186,9 @@ function summarize(deck: Venue[], log: Record<string, Verdict>) {
   if (pool.length === 0) return { headline: "Picky. Respect.", body: "ROUND will start from the editorial picks and learn from where you actually go." };
   const sums = { lively: 0, chill: 0, talk: 0 };
   for (const v of pool) {
-    sums.lively += v.vibe.lively;
-    sums.chill += v.vibe.chill;
-    sums.talk += v.vibe.talk;
+    sums.lively += v.attrs.lively;
+    sums.chill += v.attrs.chill;
+    sums.talk += v.attrs.talk;
   }
   const vibe = Object.entries(sums).sort((a, b) => b[1] - a[1])[0][0] as "lively" | "chill" | "talk";
   const hoods = [...new Set(pool.map((v) => neighborhoodName(v.neighborhood)))].slice(0, 2);

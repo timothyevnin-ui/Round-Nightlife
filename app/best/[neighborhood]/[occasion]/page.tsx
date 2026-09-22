@@ -5,6 +5,9 @@ import { Wordmark } from "@/components/Wordmark";
 import { Photo } from "@/components/Photo";
 import { NEIGHBORHOODS, isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
+import { getVenues } from "@/lib/db";
+
+export const revalidate = 60;
 
 /** Server-rendered, indexable pages: the 5pm.nyc-style surface, powered by the same engine. */
 
@@ -25,7 +28,7 @@ export default async function BestPage({ params }: PageProps<"/best/[neighborhoo
   const o = OCCASION_MAP[occasion];
   if (!isNeighborhoodId(neighborhood) || !o) notFound();
   const hood = neighborhoodName(neighborhood);
-  const venues = o.pick(neighborhood);
+  const venues = o.pick(neighborhood, await getVenues());
   const others = OCCASIONS.filter((x) => x.id !== o.id);
   const hoods = NEIGHBORHOODS.filter((n) => n.id !== neighborhood);
 

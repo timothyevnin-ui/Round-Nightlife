@@ -1,4 +1,5 @@
 import type { Venue, Window } from "./types";
+import { normalizeSeed, type SeedVenue } from "./normalize";
 
 /**
  * SEED DATA — every entry is `verified: false`.
@@ -40,13 +41,14 @@ const W: Record<string, Window[]> = {
   ],
 };
 
-const bar = (v: Omit<Venue, "kind" | "verified">): Venue => ({ ...v, kind: "bar", verified: false });
-const restaurant = (v: Omit<Venue, "kind" | "verified">): Venue => ({ ...v, kind: "restaurant", verified: false });
+const bar = (v: Omit<SeedVenue, "kind" | "verified">): SeedVenue => ({ ...v, kind: "bar", verified: false });
+const restaurant = (v: Omit<SeedVenue, "kind" | "verified">): SeedVenue => ({ ...v, kind: "restaurant", verified: false });
 
-export const VENUES: Venue[] = [
+const RAW: SeedVenue[] = [
   // ───────────────────────── WEST VILLAGE ─────────────────────────
   bar({
     slug: "the-spaniard",
+    attrs: { food: 0.7, sports: 0.3, social: 0.7, late: 0.8 },
     name: "The Spaniard",
     neighborhood: "west-village",
     address: "190 W 4th St, New York, NY 10014",
@@ -62,6 +64,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "employees-only",
+    attrs: { late: 1, food: 0.6, upscale: 0.7 },
     name: "Employees Only",
     neighborhood: "west-village",
     address: "510 Hudson St, New York, NY 10014",
@@ -77,6 +80,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "dante-west-village",
+    attrs: { happyHour: 0.5, outdoor: 0.6, wine: 0.6 },
     name: "Dante West Village",
     neighborhood: "west-village",
     address: "551 Hudson St, New York, NY 10014",
@@ -92,6 +96,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "bar-pisellino",
+    attrs: { outdoor: 0.7, wine: 0.8 },
     name: "Bar Pisellino",
     neighborhood: "west-village",
     address: "52 Grove St, New York, NY 10014",
@@ -107,6 +112,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "little-branch",
+    attrs: { liveMusic: 0.9, speakeasy: 0.8 },
     name: "Little Branch",
     neighborhood: "west-village",
     address: "20 7th Ave S, New York, NY 10014",
@@ -122,6 +128,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-happiest-hour",
+    attrs: { social: 0.7, cocktails: 0.5, food: 0.6 },
     name: "The Happiest Hour",
     neighborhood: "west-village",
     address: "121 W 10th St, New York, NY 10011",
@@ -137,6 +144,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "wilfie-and-nell",
+    attrs: { sports: 0.4, food: 0.6 },
     name: "Wilfie & Nell",
     neighborhood: "west-village",
     address: "228 W 4th St, New York, NY 10014",
@@ -152,6 +160,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "fiddlesticks",
+    attrs: { sports: 1, seating: 0.8, food: 0.7, cheap: 0.6 },
     name: "Fiddlesticks",
     neighborhood: "west-village",
     address: "56 Greenwich Ave, New York, NY 10011",
@@ -166,6 +175,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "fairfax",
+    attrs: { wine: 1, food: 0.7, happyHour: 0.4 },
     name: "Fairfax",
     neighborhood: "west-village",
     address: "234 W 4th St, New York, NY 10014",
@@ -240,6 +250,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── EAST VILLAGE ─────────────────────────
   bar({
     slug: "death-and-co",
+    attrs: { upscale: 0.7 },
     name: "Death & Co",
     neighborhood: "east-village",
     address: "433 E 6th St, New York, NY 10009",
@@ -270,6 +281,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "mister-paradise",
+    attrs: { dance: 0.3, late: 0.8, social: 0.7 },
     name: "Mister Paradise",
     neighborhood: "east-village",
     address: "105 1st Ave, New York, NY 10003",
@@ -284,6 +296,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "please-dont-tell",
+    attrs: { speakeasy: 1, food: 0.6 },
     name: "Please Don't Tell",
     neighborhood: "east-village",
     address: "113 St Marks Pl, New York, NY 10009",
@@ -299,6 +312,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-wayland",
+    attrs: { liveMusic: 0.8, outdoor: 0.3, late: 0.8 },
     name: "The Wayland",
     neighborhood: "east-village",
     address: "700 E 9th St, New York, NY 10009",
@@ -313,6 +327,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "niagara",
+    attrs: { late: 1, cheap: 1, sports: 0.3, dance: 0.4 },
     name: "Niagara",
     neighborhood: "east-village",
     address: "112 Avenue A, New York, NY 10009",
@@ -327,6 +342,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "joyface",
+    attrs: { dance: 0.4, late: 0.8 },
     name: "Joyface",
     neighborhood: "east-village",
     address: "513 E 5th St, New York, NY 10009",
@@ -341,6 +357,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "von",
+    attrs: { wine: 0.8, scene: 0.5 },
     name: "Von",
     neighborhood: "east-village",
     address: "3 Bleecker St, New York, NY 10012",
@@ -386,6 +403,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── LOWER EAST SIDE ─────────────────────────
   bar({
     slug: "rays-bar",
+    attrs: { scene: 0.8, social: 0.8, late: 1, dance: 0.3 },
     name: "Ray's Bar",
     neighborhood: "lower-east-side",
     address: "177 Chrystie St, New York, NY 10002",
@@ -401,6 +419,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "attaboy",
+    attrs: { speakeasy: 0.8 },
     name: "Attaboy",
     neighborhood: "lower-east-side",
     address: "134 Eldridge St, New York, NY 10002",
@@ -416,6 +435,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-flower-shop",
+    attrs: { dance: 0.5, late: 0.9, food: 0.8, seating: 0.6 },
     name: "The Flower Shop",
     neighborhood: "lower-east-side",
     address: "107 Eldridge St, New York, NY 10002",
@@ -431,6 +451,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "clandestino",
+    attrs: { late: 1, social: 0.8, cheap: 0.9 },
     name: "Clandestino",
     neighborhood: "lower-east-side",
     address: "35 Canal St, New York, NY 10002",
@@ -445,6 +466,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "mr-fongs",
+    attrs: { dance: 0.5, late: 1, scene: 0.6 },
     name: "Mr. Fong's",
     neighborhood: "lower-east-side",
     address: "40 Market St, New York, NY 10002",
@@ -459,6 +481,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "bar-goto",
+    attrs: { food: 0.6 },
     name: "Bar Goto",
     neighborhood: "lower-east-side",
     address: "245 Eldridge St, New York, NY 10002",
@@ -473,6 +496,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-back-room",
+    attrs: { speakeasy: 1, late: 0.8 },
     name: "The Back Room",
     neighborhood: "lower-east-side",
     address: "102 Norfolk St, New York, NY 10002",
@@ -501,6 +525,7 @@ export const VENUES: Venue[] = [
   }),
   restaurant({
     slug: "kikis",
+    attrs: { cheap: 0.5, social: 0.5 },
     name: "Kiki's",
     neighborhood: "lower-east-side",
     address: "130 Division St, New York, NY 10002",
@@ -518,6 +543,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── SOHO & NOLITA ─────────────────────────
   bar({
     slug: "fanelli-cafe",
+    attrs: { classic: 1, food: 0.6, beer: 0.8 },
     name: "Fanelli Cafe",
     neighborhood: "soho-nolita",
     address: "94 Prince St, New York, NY 10012",
@@ -532,6 +558,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "ear-inn",
+    attrs: { classic: 1, liveMusic: 0.5, food: 0.6 },
     name: "Ear Inn",
     neighborhood: "soho-nolita",
     address: "326 Spring St, New York, NY 10013",
@@ -546,6 +573,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "temple-bar",
+    attrs: { upscale: 0.8, speakeasy: 0.4 },
     name: "Temple Bar",
     neighborhood: "soho-nolita",
     address: "332 Lafayette St, New York, NY 10012",
@@ -560,6 +588,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-ship",
+    attrs: { speakeasy: 0.6 },
     name: "The Ship",
     neighborhood: "soho-nolita",
     address: "158 Lafayette St, New York, NY 10013",
@@ -574,6 +603,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "sweet-and-vicious",
+    attrs: { outdoor: 1, cheap: 0.8, late: 0.8 },
     name: "Sweet & Vicious",
     neighborhood: "soho-nolita",
     address: "5 Spring St, New York, NY 10012",
@@ -588,6 +618,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "spring-lounge",
+    attrs: { happyHour: 0.7, classic: 0.7, late: 0.8 },
     name: "Spring Lounge",
     neighborhood: "soho-nolita",
     address: "48 Spring St, New York, NY 10012",
@@ -619,6 +650,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── TRIBECA ─────────────────────────
   bar({
     slug: "smith-and-mills",
+    attrs: { classic: 0.6, upscale: 0.7 },
     name: "Smith & Mills",
     neighborhood: "tribeca",
     address: "71 N Moore St, New York, NY 10013",
@@ -648,6 +680,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "walkers",
+    attrs: { classic: 0.8, food: 0.8, sports: 0.3 },
     name: "Walker's",
     neighborhood: "tribeca",
     address: "16 N Moore St, New York, NY 10013",
@@ -707,6 +740,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── CHELSEA ─────────────────────────
   bar({
     slug: "bathtub-gin",
+    attrs: { speakeasy: 1, groups: 0.6 },
     name: "Bathtub Gin",
     neighborhood: "chelsea",
     address: "132 9th Ave, New York, NY 10011",
@@ -721,6 +755,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "gallow-green",
+    attrs: { rooftop: 1, outdoor: 1, upscale: 0.8, dressy: 0.6 },
     name: "Gallow Green",
     neighborhood: "chelsea",
     address: "542 W 27th St, New York, NY 10001",
@@ -736,6 +771,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "porchlight",
+    attrs: { seating: 0.9, groups: 0.8 },
     name: "Porchlight",
     neighborhood: "chelsea",
     address: "271 11th Ave, New York, NY 10001",
@@ -750,6 +786,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-tippler",
+    attrs: { groups: 1, social: 0.7, happyHour: 0.7 },
     name: "The Tippler",
     neighborhood: "chelsea",
     address: "425 W 15th St, New York, NY 10011",
@@ -780,6 +817,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── WILLIAMSBURG ─────────────────────────
   bar({
     slug: "westlight",
+    attrs: { rooftop: 1, upscale: 0.9, dressy: 0.7, scene: 0.6 },
     name: "Westlight",
     neighborhood: "williamsburg",
     address: "111 N 12th St, Brooklyn, NY 11249",
@@ -795,6 +833,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "union-pool",
+    attrs: { dance: 0.7, liveMusic: 0.9, outdoor: 1, social: 0.9, late: 1, food: 0.6 },
     name: "Union Pool",
     neighborhood: "williamsburg",
     address: "484 Union Ave, Brooklyn, NY 11211",
@@ -809,6 +848,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-commodore",
+    attrs: { frozen: 1, food: 0.8, late: 1, cheap: 0.9 },
     name: "The Commodore",
     neighborhood: "williamsburg",
     address: "366 Metropolitan Ave, Brooklyn, NY 11211",
@@ -823,6 +863,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "maison-premiere",
+    attrs: { outdoor: 1, food: 0.8, upscale: 0.7 },
     name: "Maison Premiere",
     neighborhood: "williamsburg",
     address: "298 Bedford Ave, Brooklyn, NY 11249",
@@ -838,6 +879,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "skinny-dennis",
+    attrs: { liveMusic: 1, frozen: 0.8, cheap: 0.9, late: 1, social: 0.7 },
     name: "Skinny Dennis",
     neighborhood: "williamsburg",
     address: "152 Metropolitan Ave, Brooklyn, NY 11249",
@@ -852,6 +894,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "bar-blondeau",
+    attrs: { rooftop: 0.9, upscale: 0.9, dressy: 0.6 },
     name: "Bar Blondeau",
     neighborhood: "williamsburg",
     address: "80 Wythe Ave, Brooklyn, NY 11249",
@@ -866,6 +909,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "radegast-hall",
+    attrs: { beer: 1, seating: 1, food: 0.7, outdoor: 0.7, sports: 0.5, cheap: 0.6 },
     name: "Radegast Hall & Biergarten",
     neighborhood: "williamsburg",
     address: "113 N 3rd St, Brooklyn, NY 11249",
@@ -880,6 +924,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "clems",
+    attrs: { cheap: 1, late: 1, activity: 0.3 },
     name: "Clem's",
     neighborhood: "williamsburg",
     address: "264 Grand St, Brooklyn, NY 11211",
@@ -894,6 +939,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "the-four-horsemen",
+    attrs: { wine: 1, food: 0.9, upscale: 0.6 },
     name: "The Four Horsemen",
     neighborhood: "williamsburg",
     address: "295 Grand St, Brooklyn, NY 11211",
@@ -909,6 +955,7 @@ export const VENUES: Venue[] = [
   }),
   restaurant({
     slug: "llama-inn",
+    attrs: { rooftop: 0.7, outdoor: 0.6 },
     name: "Llama Inn",
     neighborhood: "williamsburg",
     address: "50 Withers St, Brooklyn, NY 11211",
@@ -954,6 +1001,7 @@ export const VENUES: Venue[] = [
   // ───────────────────────── GREENPOINT ─────────────────────────
   restaurant({
     slug: "bernies",
+    attrs: { social: 0.6, cocktails: 0.7 },
     name: "Bernie's",
     neighborhood: "greenpoint",
     address: "332 Driggs Ave, Brooklyn, NY 11222",
@@ -969,6 +1017,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "ramona",
+    attrs: { dance: 0.3, late: 0.8 },
     name: "Ramona",
     neighborhood: "greenpoint",
     address: "113 Franklin St, Brooklyn, NY 11222",
@@ -983,6 +1032,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "achilles-heel",
+    attrs: { classic: 0.8, outdoor: 0.5 },
     name: "Achilles Heel",
     neighborhood: "greenpoint",
     address: "180 West St, Brooklyn, NY 11222",
@@ -997,6 +1047,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "pencil-factory",
+    attrs: { classic: 0.5, happyHour: 0.6, cheap: 0.8 },
     name: "Pencil Factory",
     neighborhood: "greenpoint",
     address: "142 Franklin St, Brooklyn, NY 11222",
@@ -1011,6 +1062,7 @@ export const VENUES: Venue[] = [
   }),
   bar({
     slug: "broken-land",
+    attrs: { cheap: 0.7, late: 0.8 },
     name: "Broken Land",
     neighborhood: "greenpoint",
     address: "105 Franklin St, Brooklyn, NY 11222",
@@ -1039,10 +1091,14 @@ export const VENUES: Venue[] = [
   }),
 ];
 
-export const VENUE_MAP: Record<string, Venue> = Object.fromEntries(VENUES.map((v) => [v.slug, v]));
+/** Normalized seed — the fallback whenever no database is configured. */
+export const SEED_VENUES: Venue[] = RAW.map(normalizeSeed);
 
-export function getVenue(slug: string): Venue | undefined {
-  return VENUE_MAP[slug];
+/** @deprecated prefer getVenues() from lib/db — kept for the seed importer and tests. */
+export const VENUES = SEED_VENUES;
+
+export function venueMap(venues: Venue[]): Record<string, Venue> {
+  return Object.fromEntries(venues.map((v) => [v.slug, v]));
 }
 
 /** The ten places the taste quiz swipes through — iconic, spread across the map. */

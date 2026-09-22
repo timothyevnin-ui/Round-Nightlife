@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { VENUES } from "@/lib/venues";
 import type { Venue } from "@/lib/types";
 
 /**
@@ -16,12 +15,14 @@ const STYLE = process.env.NEXT_PUBLIC_MAP_STYLE ?? "https://tiles.openfreemap.or
 export type MarkerKind = "saved" | "been" | "all";
 
 export function NightMap({
+  venues,
   saved,
   been,
   onSelect,
   height = 320,
   focus,
 }: {
+  venues: Venue[];
   saved: Set<string>;
   been: Set<string>;
   onSelect?: (v: Venue | null) => void;
@@ -60,7 +61,7 @@ export function NightMap({
     const map = mapRef.current;
     if (!map) return;
     markersRef.current.forEach((m) => m.remove());
-    markersRef.current = VENUES.map((v) => {
+    markersRef.current = venues.map((v) => {
       const kind: MarkerKind = saved.has(v.slug) ? "saved" : been.has(v.slug) ? "been" : "all";
       const el = document.createElement("button");
       el.type = "button";
@@ -78,7 +79,7 @@ export function NightMap({
     return () => {
       map.off("click", clear);
     };
-  }, [saved, been, onSelect]);
+  }, [venues, saved, been, onSelect]);
 
   return (
     <div className="relative overflow-hidden rounded-[24px] border" style={{ height, borderColor: "var(--hairline)", background: "#0e1016" }}>

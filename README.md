@@ -11,8 +11,10 @@ Tell ROUND the kind of night, get three great places in NYC, pick one, tap GO. T
 | Surface | Route | Notes |
 | --- | --- | --- |
 | Home | `/` | Two doors: **Night out** and **Date**. Greeting reflects the phone's clock. |
-| Night out flow | `/plan/night` | Where → vibe (visual) → how many → when. One question per screen, the blue shifts per step, defaults pre-highlighted, "Just tell me" skips everything. |
-| Date flow | `/plan/date` | Where → what kind of date → dinner too? → mood → when. |
+| Night out flow | `/plan/night` | Where → how many → when, then **the deck**: six swipeable quick cards chosen for the night ("Dancing?", "Need to sit?", "Loud or talk?", "Okay with a line?", "Game on?" on game nights, "Table for all of you?" when it's 6+ …). "Just tell me" skips everything. |
+| Date flow | `/plan/date` | Where → what kind of date → dinner too? → when, then a five-card date deck. |
+| Just say it | Home | Type "six of us in the West Village, want to dance, no line" and it becomes the same query. Keyword parser always; Claude when `ANTHROPIC_API_KEY` is set. |
+| **Back office** | `/admin` | PIN-protected (`ROUND_ADMIN_PIN`). Add and edit places on your phone: tags, every attribute as No / Some / Yes, group and date fit, room, hours, Take, the catch, private notes, photo upload, verified. Saves go live within a minute. See **SUPABASE.md** to connect the database. |
 | Results | `/results?…` | Three cards: **The pick · Also great · Easy in**. Date mode returns two-stop plans (dinner → short walk → drinks). GO, Want to Go, Share on every card. |
 | Venue page | `/v/[slug]` | ROUND's Take, The catch, best for / best time / price / room, I've been + rating. Server-rendered, indexable. |
 | Plan link | `/p/[code]` | The share card. Encodes the whole plan in the URL (no database), renders a real Open Graph image for iMessage. |
@@ -24,6 +26,8 @@ Tell ROUND the kind of night, get three great places in NYC, pick one, tap GO. T
 | PWA | `manifest.webmanifest`, icons | Installs to the home screen, standalone, chalk-black theme. |
 
 Everything a user does (saves, been, ratings, GO taps, quiz) is stored locally in `localStorage` under `round:v1`. `lib/store.ts` is the seam: swap its read/write for Supabase when phone sign-in arrives and the anonymous history merges into the account.
+
+Venue data comes from Supabase when it's configured (`lib/db.ts`, cached a minute and refreshed instantly after a back-office save) and from the built-in seed otherwise.
 
 ## Run it
 
@@ -47,6 +51,8 @@ Open it on your phone: run `npm run dev -- -H 0.0.0.0` and visit your laptop's I
 | `ANTHROPIC_API_KEY` | for screenshots | Turns on **Add from screenshots**. Without it the page explains itself and everything else works. |
 | `ROUND_VISION_MODEL` | no | Defaults to `claude-haiku-4-5`. |
 | `NEXT_PUBLIC_MAP_STYLE` | no | Defaults to OpenFreeMap's Positron style, darkened with CSS. Any MapLibre style URL works. |
+| `ROUND_ADMIN_PIN` | for the back office | The PIN that opens `/admin`. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | for editing | See SUPABASE.md. Without them the app runs on the seed and the back office is read-only. |
 
 4. Add your domain. ROUND is a company, so use Vercel Pro (Hobby is non-commercial).
 
@@ -68,8 +74,12 @@ components/
   Flow.tsx                  The one-question-per-screen engine
   VenueCard, PlanCard, Actions (GO / Save / Share), Photo, NightMap, TabBar, Wordmark
 lib/
-  venues.ts                 THE DATABASE (seed, unverified)
-  engine.ts                 Deterministic scoring + diversity picks
+  venues.ts                 The seed (68 places, unverified) — the fallback and the one-tap import
+  db.ts                     Supabase reads/writes with seed fallback
+  attrs.ts                  The attribute registry (28 keys) — deck, "say it", and back office all speak this
+  questions.ts              The deck: card bank, context rules, wants encoding
+  interpret.ts              "Just say it" keyword parser + model prompt
+  engine.ts                 Deterministic scoring on wants + diversity picks
   neighborhoods.ts          Neighborhoods and adjacency
   flows.ts                  Question definitions
   plan.ts                   Plan encode/decode for share links
@@ -77,11 +87,11 @@ lib/
   time.ts, maps.ts, describe.ts, occasions.ts
 ```
 
-## The database (`lib/venues.ts`)
+## The venue data
 
-Every venue is a row with the attributes the engine actually uses:
+The back office is the way to add and edit places (no file editing). Under the hood every venue is a row with the attributes the engine actually uses:
 
-- `vibe` — `{ lively, chill, talk }`, each 0–1.
+- `attrs` — 28 attributes, each 0–1 (No / Some / Yes in the back office).
 - `groupFit` — `{ two, small (3–4), mid (5–7), big (8+) }`, 0–1.
 - `dateFit` — `{ first, early, longterm }`, 0–1.
 - `bestWindows` — day-of-week + hour ranges (hours may exceed 24 for after midnight).
@@ -94,15 +104,23 @@ Every venue is a row with the attributes the engine actually uses:
 
 The 68 seeded places are real, well-known NYC spots described from general reputation so the product can be felt. Treat every attribute, window and Take as a draft to verify against a visit and the venue's own site or Instagram. Nothing is copied from another publication. Photos are placeholder gradients until ROUND has its own photography; the `photo` field is where a real image URL goes.
 
-**To add a venue:** copy a block, fill the attributes from the form-style questions above, write a one-line Take, leave `verified: false`, and it appears in the engine, the map, the venue page, the sitemap and the best-of pages automatically.
+**To add a venue:** open `/admin` on your phone → **Add a place**. It appears in the engine, the map, the venue page, the sitemap and the best-of pages within a minute. (Developers can also add to the seed in `lib/venues.ts`.)
 
 ## The engine (`lib/engine.ts`)
 
-Night out: `score = neighborhood×0.20 + vibe×0.38 + groupFit×0.24 + timeWindow×0.18`, multiplied by a capacity penalty. Adjacent neighborhoods are allowed at 0.55. Then three slots: the top score is **The pick**; **Also great** is the next best that differs in room size or dominant vibe; **Easy in** is the best remaining place with `easyIn ≥ 0.55` and a room that fits the group.
+Every venue carries 28 attributes (0–1): lively, talk, chill, dance, liveMusic, sports, seating, outdoor, rooftop, speakeasy, classic, dive, upscale, scene, cocktails, beer, wine, frozen, food, cheap, dressy, late, happyHour, social, date, groups, activity, lgbtq. The deck and "just say it" both produce **wants**: a map of attribute → −1..1.
 
-Date: bars are scored on `dateFit×0.40 + mood×0.35 + neighborhood×0.15 + time×0.10`. With dinner, restaurants are scored the same way, and each of three restaurants is paired with the best bar within ~900 m, timed (dinner at the chosen hour, drinks about 1h45 later, walk time from distance).
+Night out: `score = neighborhood×0.18 + groupFit×0.22 + timeWindow×0.14 + prefs×0.46`, times a capacity penalty, a line penalty (when "no line" was asked for, scaled by `easyIn`), and a been-there penalty (when "somewhere new" was asked for). `prefs` is the average of `want × (attr − 0.5) × 2` over answered wants, so an unanswered attribute never counts. Then three slots: **The pick**, **Also great** (differs in room size or dominant energy), **Easy in** (best remaining place you can actually walk into).
+
+Date: `dateFit×0.38 + prefs×0.40 + neighborhood×0.12 + time×0.10`, with a small built-in lean toward date-y rooms. With dinner, three restaurants are paired with the best bar within ~900 m and timed.
+
+The weights live at the top of `engine.ts`. The card bank and the rules for which cards show (game nights, big groups, late hours) live in `lib/questions.ts`.
 
 Tune the weights there; the best-of pages and results update together.
+
+## The back office
+
+`/admin`, PIN-protected. Built for a phone. Every place has: basics (name, neighborhood, kind, address with a Find button for coordinates), ROUND's Take, the catch, private notes, a "Draft the Take from my notes" button (Claude, in the house voice, only from the facts you give it), tags, all 28 attributes as No / Some / Yes, group and date fit, room size, getting-in-at-peak, price, best hours, a photo (uploaded to Supabase Storage), verified, and a member-perk slot. "Import 68 seed" copies the built-in places into the database once.
 
 ## Things wired for later, on purpose
 

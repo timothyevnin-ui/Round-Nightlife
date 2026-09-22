@@ -1,3 +1,6 @@
+import type { AttrKey } from "./attrs";
+import type { Wants } from "./questions";
+
 export type NeighborhoodId =
   | "west-village"
   | "east-village"
@@ -8,8 +11,6 @@ export type NeighborhoodId =
   | "williamsburg"
   | "greenpoint";
 
-export type Vibe = "lively" | "chill" | "talk";
-export type DateVibe = "talk" | "lowlit" | "lively";
 export type GroupBucket = "two" | "small" | "mid" | "big"; // 2 · 3–4 · 5–7 · 8+
 export type DateStage = "first" | "early" | "longterm";
 export type Capacity = "tiny" | "small" | "medium" | "large";
@@ -22,6 +23,8 @@ export type Window = {
   from: number;
   to: number;
 };
+
+export type Attrs = Record<AttrKey, number>;
 
 export type Venue = {
   slug: string;
@@ -36,7 +39,8 @@ export type Venue = {
   /** The thing Maps doesn't know. */
   theCatch?: string;
   tags: string[];
-  vibe: Record<Vibe, number>;
+  /** 0–1 per attribute. The engine, the deck and the back office all speak this. */
+  attrs: Attrs;
   groupFit: Record<GroupBucket, number>;
   dateFit: Record<DateStage, number>;
   price: 1 | 2 | 3 | 4;
@@ -46,6 +50,8 @@ export type Venue = {
   easyIn: number;
   /** Placeholder art until real photography: two colors and an angle. */
   photo: { from: string; to: string; angle?: number };
+  /** A real photo, once one exists. */
+  photoUrl?: string;
   /** Seeded social proof for the demo; becomes real with the friend graph. */
   friendsBeen?: number;
   /** Membership perk slot — unused in V1, wired for later. */
@@ -54,24 +60,34 @@ export type Venue = {
   groupBooking?: { maxGroup: number; minSpend?: number; contact?: string };
   /** Seed data is unverified until a human has been and says yes. */
   verified: boolean;
+  /** Private notes from the back office (never rendered publicly). */
+  notes?: string;
   sources?: string[];
 };
 
+/** The three energy numbers, read off attrs. */
+export function vibeOf(v: Pick<Venue, "attrs">) {
+  return { lively: v.attrs.lively, chill: v.attrs.chill, talk: v.attrs.talk };
+}
+
 export type NightQuery = {
   neighborhood: NeighborhoodId;
-  vibe: Vibe;
   group: number; // 2..11 (11 = 11+)
   hour: number; // 24h, may be 24+ for after midnight
   dow: number; // 0..6
+  wants: Wants;
+  /** Slugs the person has already been to — used by the "somewhere new" want. */
+  been?: string[];
 };
 
 export type DateQuery = {
   neighborhood: NeighborhoodId;
   stage: DateStage;
   dinner: boolean;
-  vibe: DateVibe;
   hour: number;
   dow: number;
+  wants: Wants;
+  been?: string[];
 };
 
 export type PickLabel = "The pick" | "Also great" | "Easy in";

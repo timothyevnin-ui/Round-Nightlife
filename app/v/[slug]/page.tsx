@@ -8,15 +8,20 @@ import { BackButton } from "@/components/BackButton";
 import { bestFor, describeWindows, priceLabel } from "@/lib/describe";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { encodePlan } from "@/lib/plan";
-import { VENUES, getVenue } from "@/lib/venues";
+import { SEED_VENUES } from "@/lib/venues";
+import { getVenue } from "@/lib/db";
+import { strongAttrLabels } from "@/lib/engine";
+
+export const revalidate = 60;
+export const dynamicParams = true;
 
 export function generateStaticParams() {
-  return VENUES.map((v) => ({ slug: v.slug }));
+  return SEED_VENUES.map((v) => ({ slug: v.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/v/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const v = getVenue(slug);
+  const v = await getVenue(slug);
   if (!v) return { title: "ROUND" };
   const title = `${v.name} · ${neighborhoodName(v.neighborhood)}`;
   return {
@@ -29,7 +34,7 @@ export async function generateMetadata({ params }: PageProps<"/v/[slug]">): Prom
 
 export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
   const { slug } = await params;
-  const v = getVenue(slug);
+  const v = await getVenue(slug);
   if (!v) notFound();
   const shareCode = encodePlan({ m: "night", n: v.neighborhood, t: 21, s: [{ bar: v.slug }] });
   const facts = [
@@ -60,7 +65,7 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
           {v.name}
         </h1>
         <p className="mt-3 text-[13px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
-          {v.tags.join(" · ")}
+          {(v.tags.length ? v.tags : strongAttrLabels(v)).join(" · ")}
         </p>
 
         <VenueActions venue={v} shareUrl={`/p/${shareCode}`} />

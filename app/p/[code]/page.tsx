@@ -7,12 +7,14 @@ import { GoButton, SaveButton } from "@/components/Actions";
 import { LabelChip } from "@/components/VenueCard";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { decodePlan } from "@/lib/plan";
+import { getVenues } from "@/lib/db";
+import { venueMap } from "@/lib/venues";
 import { formatHour } from "@/lib/time";
 
 const LABELS = ["The pick", "Also great", "Easy in"] as const;
 
-function planTitle(code: string) {
-  const plan = decodePlan(code);
+async function planTitle(code: string) {
+  const plan = decodePlan(code, venueMap(await getVenues()));
   if (!plan) return null;
   const names = plan.stops.map((s) => (s.restaurant ? `${s.restaurant.name} → ${s.bar.name}` : s.bar.name));
   return { plan, names };
@@ -20,7 +22,7 @@ function planTitle(code: string) {
 
 export async function generateMetadata({ params }: PageProps<"/p/[code]">): Promise<Metadata> {
   const { code } = await params;
-  const t = planTitle(code);
+  const t = await planTitle(code);
   if (!t) return { title: "Tonight" };
   const { plan, names } = t;
   const title = names.length === 1 ? names[0] : `Tonight: ${names.join(" · ")}`;
@@ -38,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/p/[code]">): Prom
 
 export default async function PlanPage({ params }: PageProps<"/p/[code]">) {
   const { code } = await params;
-  const plan = decodePlan(code);
+  const plan = decodePlan(code, venueMap(await getVenues()));
   if (!plan) notFound();
   const multi = plan.stops.length > 1;
 
