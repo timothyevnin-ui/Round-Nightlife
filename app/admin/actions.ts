@@ -210,7 +210,7 @@ export async function draftTake(input: { name: string; neighborhood: string; kin
     const client = new Anthropic({ apiKey: key });
     const hood = isNeighborhoodId(input.neighborhood) ? neighborhoodName(input.neighborhood) : input.neighborhood;
     const res = await client.messages.create({
-      model: process.env.ROUND_TEXT_MODEL ?? "claude-haiku-4-5",
+      model: process.env.ROUND_TEXT_MODEL ?? "claude-haiku-4-5-20251001",
       max_tokens: 300,
       system:
         "You write for ROUND, a nightlife recommendation app in NYC. Voice: editorial, confident, dry, specific, warm. Never generic, never marketing, never exclamation points. " +

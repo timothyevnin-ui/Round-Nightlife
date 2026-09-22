@@ -1,12 +1,13 @@
 "use client";
 
-import { GoButton, SaveButton, ShareButton } from "@/components/Actions";
+import { GoButton, SaveButton, ShareButton, useSignInNudge } from "@/components/Actions";
 import { useRoundStore } from "@/lib/store";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 
 export function VenueActions({ venue, shareUrl }: { venue: Venue; shareUrl: string }) {
   const { state, markBeen, clearBeen } = useRoundStore();
+  const nudge = useSignInNudge("rate");
   const been = state.been[venue.slug];
   return (
     <div className="mt-6">
@@ -17,7 +18,13 @@ export function VenueActions({ venue, shareUrl }: { venue: Venue; shareUrl: stri
       <div className="mt-2.5 flex items-center gap-2.5">
         <SaveButton slug={venue.slug} source="venue" compact={false} />
         <button
-          onClick={() => (been ? clearBeen(venue.slug) : markBeen(venue.slug))}
+          onClick={() => {
+            if (been) clearBeen(venue.slug);
+            else {
+              markBeen(venue.slug);
+              nudge();
+            }
+          }}
           aria-pressed={!!been}
           className="pressable btn-ghost flex h-12 items-center gap-2 px-5 text-[14px]"
           style={been ? { background: "rgba(242,240,234,0.14)", borderColor: "rgba(242,240,234,0.3)" } : undefined}

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth";
+import { SignInSheet } from "@/components/SignInSheet";
 
 const geist = localFont({
   src: "./fonts/Geist-Variable.woff2",
@@ -52,7 +54,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geist.variable} ${instrument.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>
+          {children}
+          <SignInSheet />
+        </AuthProvider>
+      </body>
     </html>
   );
 }

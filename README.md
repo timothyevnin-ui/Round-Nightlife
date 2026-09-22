@@ -18,14 +18,15 @@ Tell ROUND the kind of night, get three great places in NYC, pick one, tap GO. T
 | Results | `/results?…` | Three cards: **The pick · Also great · Easy in**. Date mode returns two-stop plans (dinner → short walk → drinks). GO, Want to Go, Share on every card. |
 | Venue page | `/v/[slug]` | ROUND's Take, The catch, best for / best time / price / room, I've been + rating. Server-rendered, indexable. |
 | Plan link | `/p/[code]` | The share card. Encodes the whole plan in the URL (no database), renders a real Open Graph image for iMessage. |
-| YOU | `/you` | Your nightlife map (MapLibre + OpenFreeMap), Want to Go, Been with ratings, taste line. |
+| YOU | `/you` | Your nightlife map (MapLibre + OpenFreeMap), Want to Go, Been with ratings, taste line, and your account. |
+| **Accounts** | sheet, anywhere | Phone number → six-digit text → first name + birthday (21+). Asked for the first time you save or rate something, always skippable. Saves, ratings and GO taps sync to the account; signing in on a new phone merges the two histories. Supabase Auth + Twilio Verify, see **SUPABASE.md §7**. |
 | Taste quiz | `/quiz` | Ten iconic bars, swipe or tap: Pass / Want to go / Been / Loved it. Seeds the map and the taste profile. |
 | Add from screenshots | `/you/add` | Pick screenshots from the camera roll; Claude reads them and matches places to ROUND's database. Unmatched places go to a local "curation inbox". |
 | Friends | `/friends` | Honest empty state, invite button, and "ROUND's regulars" so it isn't an empty room. |
 | Best-of pages | `/best/[neighborhood]/[occasion]` | 32 server-rendered SEO pages (the 5pm.nyc-style surface), powered by the same engine. |
 | PWA | `manifest.webmanifest`, icons | Installs to the home screen, standalone, chalk-black theme. |
 
-Everything a user does (saves, been, ratings, GO taps, quiz) is stored locally in `localStorage` under `round:v1`. `lib/store.ts` is the seam: swap its read/write for Supabase when phone sign-in arrives and the anonymous history merges into the account.
+Everything a user does (saves, been, ratings, GO taps, quiz) is stored locally in `localStorage` under `round:v1`, so the app works with no account and no network. When someone signs in, `lib/auth.tsx` registers a remote adapter on the store (`lib/sync.ts`) that mirrors every write to Supabase (`saves`, `go_taps`, row-level security per user) and merges the account's history into the phone's. Sign-out clears the phone; the account keeps everything.
 
 Venue data comes from Supabase when it's configured (`lib/db.ts`, cached a minute and refreshed instantly after a back-office save) and from the built-in seed otherwise.
 
@@ -49,10 +50,10 @@ Open it on your phone: run `npm run dev -- -H 0.0.0.0` and visit your laptop's I
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | yes, in production | Absolute URL (e.g. `https://round.nyc`). Used for Open Graph images and the sitemap. |
 | `ANTHROPIC_API_KEY` | for screenshots | Turns on **Add from screenshots**. Without it the page explains itself and everything else works. |
-| `ROUND_VISION_MODEL` | no | Defaults to `claude-haiku-4-5`. |
+| `ROUND_VISION_MODEL` | no | Defaults to `claude-haiku-4-5-20251001`. |
 | `NEXT_PUBLIC_MAP_STYLE` | no | Defaults to OpenFreeMap's Positron style, darkened with CSS. Any MapLibre style URL works. |
 | `ROUND_ADMIN_PIN` | for the back office | The PIN that opens `/admin`. |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | for editing | See SUPABASE.md. Without them the app runs on the seed and the back office is read-only. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` | for editing | See SUPABASE.md. Without them the app runs on the seed and the back office is read-only. |
 
 4. Add your domain. ROUND is a company, so use Vercel Pro (Hobby is non-commercial).
 
@@ -83,7 +84,9 @@ lib/
   neighborhoods.ts          Neighborhoods and adjacency
   flows.ts                  Question definitions
   plan.ts                   Plan encode/decode for share links
-  store.ts                  Local-first user state (Supabase seam)
+  store.ts                  Local-first user state, with the remote seam
+  auth.tsx, sync.ts         Phone sign-in (Supabase Auth) and account sync
+  supabase.ts, phone.ts     Browser client; phone formatting and age check
   time.ts, maps.ts, describe.ts, occasions.ts
 ```
 
@@ -127,13 +130,13 @@ Tune the weights there; the best-of pages and results update together.
 - **GO taps are counted per venue** (`goCount` in the store). That's the receipt for partner bars.
 - **Plan links are first-class objects** (`lib/plan.ts`). "I'm in" and payments attach to them.
 - **Perk and group-booking slots** exist on every venue.
-- **The morning-after rating** exists on the venue page (Loved / Good / Meh) and populates the Been list; push notifications turn it into the next-morning nudge once phone sign-in exists.
+- **The morning-after rating** exists on the venue page (Loved / Good / Meh) and populates the Been list; with phone numbers in hand, the next-morning text is a cron job away.
 - **Structured attributes, not prose**, so user ratings can fill the matrix per venue × day × hour × group size.
 
 ## Roadmap (from the plan)
 
 1. **Now** — this build. Curate the first 60 venues (verify, photograph), tune the engine, put it in thirty people's hands, watch weekend-two retention.
-2. **V1.5** — Supabase: anonymous sessions → phone OTP (Twilio Verify), saves/ratings/plans in Postgres, the ROUND phone number (A2P registration takes a couple of weeks; start it early).
+2. **V1.5** — Done: phone OTP accounts (Twilio Verify), saves/ratings/GO taps in Postgres. Next: plans in Postgres, the ROUND phone number (A2P registration takes a couple of weeks; start it early).
 3. **V2** — Nightly census (AI calls to partner bars), "want me to call ahead?", "Did you get in?" check-in 30 minutes after GO, morning-after push.
 4. **V3** — Friends (mutual, contact matching), Out Mode, membership perks, ROUND Table.
 
@@ -145,4 +148,4 @@ Tune the weights there; the best-of pages and results update together.
 - [ ] Takes read in ROUND's voice, one sentence, no borrowed phrasing.
 - [ ] `NEXT_PUBLIC_SITE_URL` set, share a plan link into iMessage and confirm the card renders.
 - [ ] Add to Home Screen on an iPhone; confirm standalone launch and the icon.
-- [ ] Age gate (DOB) added at sign-in when accounts arrive.
+- [x] Age gate (birthday, 21+) at sign-in.

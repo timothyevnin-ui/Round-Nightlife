@@ -12,15 +12,15 @@ import type { Attrs, Capacity, Venue, Window } from "./types";
  *
  * Env:
  *   NEXT_PUBLIC_SUPABASE_URL
- *   NEXT_PUBLIC_SUPABASE_ANON_KEY   (or SUPABASE_PUBLISHABLE_KEY)
- *   SUPABASE_SERVICE_ROLE_KEY       (or SUPABASE_SECRET_KEY) — server-only, for writes
+ *   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY   (sb_publishable_…; legacy anon JWT also accepted, as NEXT_PUBLIC_SUPABASE_ANON_KEY)
+ *   SUPABASE_SECRET_KEY                    (sb_secret_…; legacy service_role JWT also accepted, as SUPABASE_SERVICE_ROLE_KEY) — server-only, for writes
  */
 
 export const VENUES_TAG = "venues";
 
 function env(name: string, ...alts: string[]) {
   for (const n of [name, ...alts]) {
-    const v = process.env[n];
+    const v = process.env[n]?.trim();
     if (v) return v;
   }
   return undefined;
@@ -28,9 +28,19 @@ function env(name: string, ...alts: string[]) {
 
 export function dbConfig() {
   const url = env("NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL")?.replace(/\/$/, "");
-  const anon = env("NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_PUBLISHABLE_KEY", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
-  const service = env("SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY");
+  const anon = env("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_ANON_KEY");
+  const service = env("SUPABASE_SECRET_KEY", "SUPABASE_SERVICE_ROLE_KEY");
   return { url, anon, service, configured: !!(url && anon), writable: !!(url && service) };
+}
+
+/**
+ * Supabase's current keys (sb_publishable_… / sb_secret_…) must be sent on the
+ * apikey header only; putting them on Authorization makes the platform try to
+ * parse them as a JWT and reject the call. The legacy anon/service_role keys
+ * are JWTs and go on both headers.
+ */
+function keyHeaders(key: string): Record<string, string> {
+  return key.startsWith("sb_") ? { apikey: key } : { apikey: key, Authorization: `Bearer ${key}` };
 }
 
 /* ───────────────────────── row ⇄ venue ───────────────────────── */
@@ -146,7 +156,7 @@ async function fetchRows(): Promise<VenueRow[] | null> {
   if (!configured) return null;
   try {
     const res = await fetch(`${url}/rest/v1/venues?select=*&order=name.asc`, {
-      headers: { apikey: anon!, Authorization: `Bearer ${anon}` },
+      headers: keyHeaders(anon!),
       next: { revalidate: 60, tags: [VENUES_TAG] },
     });
     if (!res.ok) {
@@ -184,8 +194,8 @@ export async function getVenue(slug: string): Promise<Venue | undefined> {
 
 function serviceHeaders() {
   const { url, service } = dbConfig();
-  if (!url || !service) throw new Error("Database is not configured for writes (SUPABASE_SERVICE_ROLE_KEY missing).");
-  return { url, headers: { apikey: service, Authorization: `Bearer ${service}`, "Content-Type": "application/json" } };
+  if (!url || !service) throw new Error("Database is not configured for writes (SUPABASE_SECRET_KEY missing).");
+  return { url, auth: keyHeaders(service), headers: { ...keyHeaders(service), "Content-Type": "application/json" } };
 }
 
 export async function upsertVenues(venues: Venue[]): Promise<number> {
@@ -208,12 +218,12 @@ export async function deleteVenue(slug: string): Promise<void> {
 
 /** Upload a photo to the public `photos` bucket; returns its public URL. */
 export async function uploadPhoto(slug: string, file: File): Promise<string> {
-  const { url, headers } = serviceHeaders();
+  const { url, auth } = serviceHeaders();
   const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
   const path = `${slug}-${Date.now()}.${ext}`;
   const res = await fetch(`${url}/storage/v1/object/photos/${path}`, {
     method: "POST",
-    headers: { apikey: headers.apikey, Authorization: headers.Authorization, "Content-Type": file.type || "image/jpeg", "x-upsert": "true" },
+    headers: { ...auth, "Content-Type": file.type || "image/jpeg", "x-upsert": "true" },
     body: Buffer.from(await file.arrayBuffer()),
     cache: "no-store",
   });

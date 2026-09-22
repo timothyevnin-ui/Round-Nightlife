@@ -7,7 +7,7 @@ import { ATTR_KEYS } from "@/lib/attrs";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const MODEL = process.env.ROUND_TEXT_MODEL ?? process.env.ROUND_VISION_MODEL ?? "claude-haiku-4-5";
+const MODEL = process.env.ROUND_TEXT_MODEL ?? process.env.ROUND_VISION_MODEL ?? "claude-haiku-4-5-20251001";
 
 /** POST { text } → an Interpretation. Claude when a key is set, keywords otherwise. */
 export async function POST(req: Request) {

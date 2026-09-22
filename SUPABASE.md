@@ -1,51 +1,96 @@
-# Connecting the back office (Supabase)
+# Connecting the back office (Supabase) + turning on Claude
 
-The back office at `/admin` needs a database. Supabase's free plan is plenty. About ten minutes, no code.
+The back office at `/admin` needs a database. Supabase's free plan is plenty. About ten minutes, no code. Then two minutes for the Anthropic key.
 
-## 1. Create the project
+## 1. Create the Supabase project
 
-1. Go to **supabase.com** → Sign in with GitHub → **New project**.
-2. Name it `round`, pick a strong database password (you won't need it again, but save it), region **East US (North Virginia)**. Create.
-3. Wait for it to finish provisioning (a minute or two).
+1. Go to **supabase.com** → **Start your project** → sign in with GitHub.
+2. **New project**. Organization: the default one. Name: `round`. Database password: hit **Generate a password** and save it somewhere (you won't need it day to day). Region: **East US (North Virginia)**. Plan: Free. **Create new project**.
+3. Wait for it to finish setting up (a minute or two; the dashboard says when it's ready).
 
 ## 2. Create the table
 
-1. In the left sidebar, open **SQL Editor** → **New query**.
-2. Open `supabase/schema.sql` from this repo, copy everything, paste it in, click **Run**.
-3. You should see "Success. No rows returned."
+1. Left sidebar → **SQL Editor** → **New query** (or the **+**).
+2. Open `supabase/schema.sql` from this repo, select all, copy, paste it in, click **Run** (bottom right, or ⌘/Ctrl-Enter).
+3. You should see **Success. No rows returned.** If it prints a "notice" about storage, that's fine (see the note at the bottom).
 
-## 3. Copy the keys
+## 3. Copy the three values
 
-Left sidebar → **Project Settings** (gear) → **API** (or **API Keys**).
+Left sidebar → **Project Settings** (gear, near the bottom) → **API Keys**.
 
-You need three values:
+| What you're looking for | Where | Goes into Vercel as |
+| --- | --- | --- |
+| **Project URL** (`https://xxxxxxxx.supabase.co`) | Project Settings → **Data API** (or the top of the API Keys page) | `NEXT_PUBLIC_SUPABASE_URL` |
+| **Publishable key** (`sb_publishable_…`) | API Keys → **Publishable and secret API keys** tab | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
+| **Secret key** (`sb_secret_…`) | Same tab → **Secret keys** → **Create new secret key** → name it `vercel` → **Create**. Copy it right away. | `SUPABASE_SECRET_KEY` |
 
-| Supabase calls it | Put it in Vercel as |
-| --- | --- |
-| **Project URL** (`https://xxxx.supabase.co`) | `NEXT_PUBLIC_SUPABASE_URL` |
-| **anon** public key (or **publishable** key, `sb_publishable_…`) | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
-| **service_role** secret key (or **secret** key, `sb_secret_…`) | `SUPABASE_SERVICE_ROLE_KEY` |
+The secret key can write to your database. It only ever lives on the server (Vercel), never in a text message, screenshot, or anywhere public. If you ever think it leaked, delete it in that same tab and make a new one.
 
-The service key can write to your database. It only ever lives on the server; never paste it anywhere public.
+(If your project happens to show a **Legacy API keys** tab with `anon` and `service_role` instead, those work too: put them in the same two Vercel variables.)
 
-## 4. Add them to Vercel, plus your PIN
+## 4. Get the Anthropic key
 
-Vercel → your project → **Settings → Environment Variables**. Add:
+1. Go to **console.anthropic.com** → sign in (email code or Google).
+2. **Billing** → add a card and buy a small amount of prepaid credit ($5–$10 lasts a long time: the app uses Claude Haiku, which costs a fraction of a cent per Take or question).
+3. **API Keys** → **Create Key** → name it `round-vercel` → **Create**. Copy it right away; it's shown once.
+
+This turns on **Draft the Take from my notes** in the back office, **Add from screenshots**, and the smarter version of **Just say it**. Without it, all three fall back gracefully.
+
+## 5. Add everything to Vercel
+
+Vercel → your `round-nightlife` project → **Settings** → **Environment Variables**. For each one: paste the **Key**, paste the **Value**, leave all environments checked, **Save**.
 
 | Key | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | from step 3 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | from step 3 |
-| `SUPABASE_SERVICE_ROLE_KEY` | from step 3 |
-| `ROUND_ADMIN_PIN` | any PIN you'll remember (this is the back-office password) |
-| `NEXT_PUBLIC_SITE_URL` | `https://round-nightlife.vercel.app` (if not already set) |
-| `ANTHROPIC_API_KEY` | optional: turns on "Draft the Take from my notes", screenshot reading, and smarter "just say it" |
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL from step 3 |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` from step 3 |
+| `SUPABASE_SECRET_KEY` | `sb_secret_…` from step 3 |
+| `ANTHROPIC_API_KEY` | `sk-ant-…` from step 4 |
+| `ROUND_ADMIN_PIN` | any PIN you'll remember (the back-office password), if not already set |
+| `NEXT_PUBLIC_SITE_URL` | `https://round-nightlife.vercel.app`, if not already set |
 
-Then **Deployments → ⋯ → Redeploy**.
+Then **Deployments** tab → **⋯** on the top deployment → **Redeploy** → confirm. Environment variables only take effect on a new deployment, so this step isn't optional.
 
-## 5. Open the back office
+## 6. Open the back office
 
-Go to `https://round-nightlife.vercel.app/admin`, enter your PIN, tap **Import 68 seed** once. From then on, every place you add or edit is live in the app within a minute.
+Go to `https://round-nightlife.vercel.app/admin`, enter your PIN. The banner at the top should be gone. Tap **Import 68 seed** once; the list reloads showing "68 in the database". From then on, every place you add or edit is live in the app within a minute.
+
+Quick test: open any place, change one word of the Take, Save, then open its public page (the link at the top of the editor). Then try **Draft the Take** on a place with a couple of notes.
+
+## 7. Phone sign-in (Twilio, about 10 minutes)
+
+Accounts let people keep their Want-to-go / Been / ratings across phones. Supabase handles the accounts; Twilio sends the six-digit text. Nothing in ROUND requires an account, so this can wait, but it's cheap and worth doing early.
+
+**a. Run the SQL again.** SQL Editor → paste the current `supabase/schema.sql` → **Run**. It's safe to re-run; this time it adds the `profiles`, `saves` and `go_taps` tables.
+
+**b. Twilio.**
+1. **twilio.com** → sign up (email + phone). Skip the questionnaire or answer "Verify users / OTP".
+2. **Upgrade** the account (top banner or **Billing**): add a card and $20 of credit. Trial accounts can only text numbers you've pre-approved, which is no good for real users. Each login costs about five cents.
+3. Left sidebar → **Explore Products** → **Verify** → **Services** → **Create new**. Friendly name `ROUND` (this is what the text says: "Your ROUND verification code is …"). Code length 6. Enable **SMS**. Create.
+4. Copy the **Service SID** (starts `VA…`) from the service page.
+5. Go to the **Account Dashboard** (Twilio logo, top left) and copy the **Account SID** (`AC…`) and **Auth Token** (click to reveal).
+6. Recommended, two clicks: Verify → **Settings** → **Geo permissions**: leave only United States (and Canada if you like) enabled. This blocks the fraud pattern where bots request thousands of codes to overseas numbers. Twilio's **Fraud Guard** should be on by default; leave it on.
+
+**c. Supabase.** Left sidebar → **Authentication** → **Sign In / Providers** → **Phone**.
+- **Enable Sign in with Phone**: on.
+- **SMS provider**: Twilio Verify.
+- Paste the **Account SID**, **Auth Token** and **Verify Service SID**.
+- **Save**.
+- Optional while testing: the **Test phone numbers and OTPs** box lets you set a fake number and fixed code (e.g. `12125550100=123456`) that never sends a text.
+
+**d. Nothing to add in Vercel.** The app uses the URL and publishable key it already has. Redeploy once after uploading the new code.
+
+**e. Try it.** Open any place, tap **Want to go**: the sheet asks for your number. Code, first name, birthday, done. The YOU tab shows your name; sign out and back in on another phone and your places are there.
+
+## If something's off
+
+- **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.
+- **Banner says "Almost"** → the secret key is missing or mistyped.
+- **Save fails with "Invalid JWT"** → you're on an old copy of `lib/db.ts`; upload the current one.
+- **Photo upload fails** → in Supabase, left sidebar → **Storage** → make sure there's a bucket named `photos` marked **Public**. If not, **New bucket** → name `photos` → toggle **Public bucket** on → Save.
+- **Draft the Take does nothing** → the Anthropic key is missing, or the console has no prepaid credit.
+- **"Couldn't send the text"** → Phone provider isn't enabled in Supabase, a Twilio SID/token is mistyped, or the Twilio account is still on trial. Supabase → Logs → Auth shows the exact reason.
+- **Code arrives but "didn't match"** → codes expire after 60 seconds; tap resend.
 
 ## What if I skip this?
 

@@ -1,0 +1,216 @@
+"use client";
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import type { Session, User } from "@supabase/supabase-js";
+import { accountsEnabled, getSupabase } from "./supabase";
+import { clearPersonal, mergeState, readState, setRemote } from "./store";
+import { makeRemote, pullAll, pushAll } from "./sync";
+
+/**
+ * Accounts. Phone number in, six-digit code back, a name and a birthday the
+ * first time. Nothing in ROUND requires an account; this exists so what you
+ * save follows you from phone to phone.
+ */
+
+export type Profile = { id: string; name: string; birthday: string | null; phone: string | null };
+
+export type SignInReason = "keep" | "you" | "rate" | "menu";
+
+export type AuthState = {
+  /** False when the app runs without a database: every sign-in surface hides itself. */
+  enabled: boolean;
+  /** True once we know whether there's a session. */
+  ready: boolean;
+  user: User | null;
+  profile: Profile | null;
+  /** Signed in, but the name/birthday step hasn't been finished. */
+  needsProfile: boolean;
+  sheetOpen: boolean;
+  reason: SignInReason;
+  openSignIn: (reason?: SignInReason) => void;
+  closeSignIn: () => void;
+  sendCode: (phone: string) => Promise<string | null>;
+  verifyCode: (phone: string, code: string) => Promise<string | null>;
+  saveProfile: (p: { name: string; birthday: string }) => Promise<string | null>;
+  signOut: () => Promise<void>;
+};
+
+const Ctx = createContext<AuthState | null>(null);
+
+const SKIP_KEY = "round:signin-skipped";
+
+/** Has the person dismissed the sheet this session? Then don't auto-open it again. */
+export function signInSkipped() {
+  try {
+    return window.sessionStorage.getItem(SKIP_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // `enabled` comes from env (same on server and client, so no hydration
+  // mismatch); the client itself only exists in the browser.
+  const enabled = accountsEnabled();
+  const sb = useMemo(() => getSupabase(), []);
+  const [ready, setReady] = useState(!enabled);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [reason, setReason] = useState<SignInReason>("keep");
+  const mergedFor = useRef<string | null>(null);
+
+  const loadProfile = useCallback(
+    async (u: User): Promise<Profile | null> => {
+      if (!sb) return null;
+      const { data } = await sb.from("profiles").select("id,name,birthday,phone").eq("id", u.id).maybeSingle();
+      return (data as Profile | null) ?? null;
+    },
+    [sb],
+  );
+
+  /** Once per sign-in: this phone's history goes up, the account's comes down. */
+  const merge = useCallback(
+    async (u: User) => {
+      if (!sb || mergedFor.current === u.id) return;
+      mergedFor.current = u.id;
+      try {
+        await pushAll(sb, u.id, readState());
+        mergeState(await pullAll(sb, u.id));
+      } catch (e) {
+        console.warn("[auth] merge failed", e);
+        mergedFor.current = null;
+      }
+    },
+    [sb],
+  );
+
+  const apply = useCallback(
+    async (session: Session | null) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      setRemote(makeRemote(sb!, u?.id ?? null));
+      if (u) {
+        setProfile(await loadProfile(u));
+        await merge(u);
+      } else {
+        setProfile(null);
+        mergedFor.current = null;
+      }
+      setReady(true);
+    },
+    [sb, loadProfile, merge],
+  );
+
+  useEffect(() => {
+    if (!sb) return;
+    let cancelled = false;
+    sb.auth.getSession().then(({ data }) => {
+      if (!cancelled) apply(data.session);
+    });
+    const { data: sub } = sb.auth.onAuthStateChange((event, session) => {
+      // Deferred: supabase-js holds a lock while this callback runs, and
+      // apply() makes database calls of its own.
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") window.setTimeout(() => apply(session), 0);
+    });
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, [sb, apply]);
+
+  const openSignIn = useCallback((r: SignInReason = "keep") => {
+    setReason(r);
+    setSheetOpen(true);
+  }, []);
+
+  const closeSignIn = useCallback(() => {
+    setSheetOpen(false);
+    try {
+      window.sessionStorage.setItem(SKIP_KEY, "1");
+    } catch {}
+  }, []);
+
+  const sendCode = useCallback(
+    async (phone: string) => {
+      if (!sb) return "Accounts aren't switched on yet.";
+      const { error } = await sb.auth.signInWithOtp({ phone, options: { channel: "sms" } });
+      return error ? friendly(error.message) : null;
+    },
+    [sb],
+  );
+
+  const verifyCode = useCallback(
+    async (phone: string, code: string) => {
+      if (!sb) return "Accounts aren't switched on yet.";
+      const { data, error } = await sb.auth.verifyOtp({ phone, token: code, type: "sms" });
+      if (error) return friendly(error.message);
+      if (data.session) await apply(data.session);
+      return null;
+    },
+    [sb, apply],
+  );
+
+  const saveProfile = useCallback(
+    async ({ name, birthday }: { name: string; birthday: string }) => {
+      if (!sb || !user) return "You're not signed in.";
+      const row = { id: user.id, name: name.trim(), birthday, phone: user.phone ?? null };
+      const { error } = await sb.from("profiles").upsert(row, { onConflict: "id" });
+      if (error) return friendly(error.message);
+      setProfile(row);
+      return null;
+    },
+    [sb, user],
+  );
+
+  const signOut = useCallback(async () => {
+    if (!sb) return;
+    await sb.auth.signOut();
+    clearPersonal();
+    setUser(null);
+    setProfile(null);
+    setRemote(makeRemote(sb, null));
+    mergedFor.current = null;
+  }, [sb]);
+
+  const needsProfile = !!user && (!profile || !profile.name || !profile.birthday);
+
+  const value = useMemo<AuthState>(
+    () => ({ enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut }),
+    [enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut],
+  );
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+const OFF: AuthState = {
+  enabled: false,
+  ready: true,
+  user: null,
+  profile: null,
+  needsProfile: false,
+  sheetOpen: false,
+  reason: "keep",
+  openSignIn: () => {},
+  closeSignIn: () => {},
+  sendCode: async () => "Accounts aren't switched on yet.",
+  verifyCode: async () => "Accounts aren't switched on yet.",
+  saveProfile: async () => "Accounts aren't switched on yet.",
+  signOut: async () => {},
+};
+
+export function useAuth(): AuthState {
+  return useContext(Ctx) ?? OFF;
+}
+
+/** Supabase's messages are for developers; these are for people. */
+function friendly(msg: string): string {
+  const m = msg.toLowerCase();
+  if (m.includes("rate limit") || m.includes("too many")) return "Too many tries. Give it a minute and try again.";
+  if (m.includes("invalid") || m.includes("token")) return "That code didn't match. Check the text and try again, or resend.";
+  if (m.includes("expired")) return "That code expired. Tap resend for a new one.";
+  if (m.includes("sms") || m.includes("provider") || m.includes("twilio")) return "Couldn't send the text right now. Try again in a minute.";
+  if (m.includes("phone")) return "That doesn't look like a phone number we can text.";
+  if (m.includes("signups not allowed")) return "New sign-ups are paused for the moment.";
+  return "Something went wrong. Try again.";
+}

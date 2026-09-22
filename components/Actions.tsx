@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { directionsUrl, googleMapsUrl } from "@/lib/maps";
 import { useRoundStore } from "@/lib/store";
+import { signInSkipped, useAuth } from "@/lib/auth";
 import type { Venue } from "@/lib/types";
 
 const noopSubscribe = () => () => {};
@@ -45,12 +46,16 @@ export function GoButton({
 
 export function SaveButton({ slug, source = "flow", compact = true }: { slug: string; source?: "flow" | "quiz" | "screenshot" | "venue"; compact?: boolean }) {
   const { state, toggleSaved } = useRoundStore();
+  const nudge = useSignInNudge("keep");
   const saved = !!state.saved[slug];
   const been = !!state.been[slug];
+  const toggle = () => {
+    if (toggleSaved(slug, source)) nudge();
+  };
   if (compact) {
     return (
       <button
-        onClick={() => toggleSaved(slug, source)}
+        onClick={toggle}
         aria-pressed={saved}
         aria-label={saved ? "Saved to Want to Go" : "Want to Go"}
         className="pressable flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
@@ -65,7 +70,7 @@ export function SaveButton({ slug, source = "flow", compact = true }: { slug: st
   }
   return (
     <button
-      onClick={() => toggleSaved(slug, source)}
+      onClick={toggle}
       aria-pressed={saved}
       className="pressable btn-ghost flex h-12 items-center justify-center gap-2 px-5 text-[14px]"
       style={saved ? { background: "var(--cobalt)", borderColor: "var(--cobalt)" } : undefined}
@@ -158,4 +163,16 @@ export function CheckIcon() {
       <path d="M3.5 9.5 7.25 13 14.5 5.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+/**
+ * The one moment ROUND asks for a number: right after the first thing worth
+ * keeping. Signed in, skipped this session, or no database: never fires.
+ */
+export function useSignInNudge(reason: "keep" | "rate") {
+  const { enabled, user, openSignIn } = useAuth();
+  return () => {
+    if (!enabled || user || signInSkipped()) return;
+    window.setTimeout(() => openSignIn(reason), 450);
+  };
 }

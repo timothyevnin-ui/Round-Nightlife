@@ -3,9 +3,12 @@
 import { useCallback, useSyncExternalStore } from "react";
 
 /**
- * V1 store: an anonymous, local-first record of what you've saved, been to and
- * rated. Lives in localStorage now; the same shape moves to Supabase when phone
- * sign-in arrives, and the anonymous history merges into the account.
+ * The person's own record: what they've saved, been to and rated, and how many
+ * times they tapped GO. Local-first: localStorage is always the source of
+ * truth for the screen, so everything works with no account and no network.
+ *
+ * When they're signed in, a "remote" adapter (registered by AuthProvider)
+ * mirrors every write to Supabase, and sign-in merges the two histories.
  */
 
 export type BeenEntry = { at: string; rating?: "loved" | "good" | "meh"; crowd?: "room" | "wait" | "packed" };
@@ -19,10 +22,17 @@ export type RoundState = {
   goCount: Record<string, number>; // GO taps per venue — the future partner receipt
 };
 
+export type Remote = {
+  save(slug: string, entry: SavedEntry | null): void;
+  been(slug: string, entry: BeenEntry | null): void;
+  go(slug: string): void;
+};
+
 const KEY = "round:v1";
 const EMPTY: RoundState = { saved: {}, been: {}, quizDone: false, goCount: {} };
 
 let cache: RoundState | null = null;
+let remote: Remote | null = null;
 const listeners = new Set<() => void>();
 
 function read(): RoundState {
@@ -52,15 +62,54 @@ function subscribe(l: () => void) {
   return () => listeners.delete(l);
 }
 
+/* ── the seam the account layer plugs into ── */
+
+export function setRemote(r: Remote | null) {
+  remote = r;
+}
+
+export function readState(): RoundState {
+  return read();
+}
+
+/**
+ * Merge an account's history into the local one. Union of both; a place that
+ * is "been" on either side is been (a rating beats no rating; otherwise the
+ * local entry wins), and a been place is never also "want to go".
+ */
+export function mergeState(incoming: Pick<RoundState, "saved" | "been">) {
+  const s = read();
+  const been: RoundState["been"] = { ...incoming.been };
+  for (const [slug, local] of Object.entries(s.been)) {
+    const other = been[slug];
+    been[slug] = !other || local.rating || !other.rating ? { ...other, ...local } : other;
+  }
+  const saved: RoundState["saved"] = { ...incoming.saved, ...s.saved };
+  for (const slug of Object.keys(been)) delete saved[slug];
+  write({ ...s, saved, been });
+}
+
+/** Sign-out: the account keeps everything; this phone forgets it. */
+export function clearPersonal() {
+  const s = read();
+  write({ ...s, saved: {}, been: {} });
+}
+
 export function useRoundStore() {
   const state = useSyncExternalStore(subscribe, read, () => EMPTY);
 
   const toggleSaved = useCallback((slug: string, source: SavedEntry["source"] = "venue") => {
     const s = read();
     const saved = { ...s.saved };
+    let entry: SavedEntry | null = null;
     if (saved[slug]) delete saved[slug];
-    else saved[slug] = { at: new Date().toISOString(), source };
+    else {
+      entry = { at: new Date().toISOString(), source };
+      saved[slug] = entry;
+    }
     write({ ...s, saved });
+    remote?.save(slug, entry);
+    return !!entry;
   }, []);
 
   const markBeen = useCallback((slug: string, entry: Partial<BeenEntry> = {}) => {
@@ -68,7 +117,9 @@ export function useRoundStore() {
     const prev = s.been[slug];
     const saved = { ...s.saved };
     delete saved[slug];
-    write({ ...s, saved, been: { ...s.been, [slug]: { ...prev, ...entry, at: prev?.at ?? new Date().toISOString() } } });
+    const next: BeenEntry = { ...prev, ...entry, at: prev?.at ?? new Date().toISOString() };
+    write({ ...s, saved, been: { ...s.been, [slug]: next } });
+    remote?.been(slug, next);
   }, []);
 
   const clearBeen = useCallback((slug: string) => {
@@ -76,6 +127,7 @@ export function useRoundStore() {
     const been = { ...s.been };
     delete been[slug];
     write({ ...s, been });
+    remote?.been(slug, null);
   }, []);
 
   const setQuizDone = useCallback((done: boolean) => write({ ...read(), quizDone: done }), []);
@@ -85,6 +137,7 @@ export function useRoundStore() {
   const recordGo = useCallback((slug: string) => {
     const s = read();
     write({ ...s, goCount: { ...s.goCount, [slug]: (s.goCount[slug] ?? 0) + 1 } });
+    remote?.go(slug);
   }, []);
 
   return { state, toggleSaved, markBeen, clearBeen, setQuizDone, rememberResults, recordGo };

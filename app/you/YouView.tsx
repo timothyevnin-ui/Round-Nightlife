@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
 import { Photo } from "@/components/Photo";
 import { useRoundStore } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import { prettyPhone } from "@/lib/phone";
 import { venueMap } from "@/lib/venues";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
@@ -156,12 +158,54 @@ export function YouView({ venues }: { venues: Venue[] }) {
         </div>
       </Section>
 
+      <AccountCard count={saved.length + been.length} />
+    </main>
+  );
+}
+
+function AccountCard({ count }: { count: number }) {
+  const { enabled, ready, user, profile, needsProfile, openSignIn, signOut } = useAuth();
+  if (!enabled) {
+    return (
       <p className="mt-10 text-center text-[12px] leading-relaxed" style={{ color: "var(--chalk-35)" }}>
         Everything here lives on this phone for now.
-        <br />
-        Phone sign-in keeps it across devices, coming soon.
       </p>
-    </main>
+    );
+  }
+  if (!ready) return <div className="mt-8 h-[92px]" />;
+  if (user && !needsProfile) {
+    return (
+      <section className="card mt-8 flex items-center gap-3 p-4">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full serif text-[20px]" style={{ background: "rgba(43,77,255,0.22)", color: "var(--chalk)" }}>
+          {(profile?.name ?? "?").slice(0, 1).toUpperCase()}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-medium">{profile?.name}</p>
+          <p className="truncate text-[12px]" style={{ color: "var(--chalk-55)" }}>
+            {prettyPhone(user.phone)} · saved to your account
+          </p>
+        </div>
+        <button onClick={() => signOut()} className="pressable text-[12.5px] font-medium" style={{ color: "var(--chalk-55)" }}>
+          Sign out
+        </button>
+      </section>
+    );
+  }
+  return (
+    <section className="card mt-8 p-4" style={{ borderColor: "rgba(43,77,255,0.45)" }}>
+      <p className="eyebrow" style={{ color: "#7c93ff" }}>
+        {needsProfile ? "One more step" : "This phone only"}
+      </p>
+      <p className="serif mt-1" style={{ fontSize: 24, lineHeight: 1.05 }}>
+        {needsProfile ? "Finish setting up." : count > 0 ? "Keep your map." : "Make it yours."}
+      </p>
+      <p className="mt-1.5 text-[13px] leading-snug" style={{ color: "var(--chalk-55)" }}>
+        {needsProfile ? "A first name and your birthday, and your places are locked in." : "Add your number and everything you save follows you to any phone."}
+      </p>
+      <button onClick={() => openSignIn("you")} className="pressable btn-cobalt mt-3 flex h-12 w-full items-center justify-center text-[14px]">
+        {needsProfile ? "Finish" : "Add your number"}
+      </button>
+    </section>
   );
 }
 

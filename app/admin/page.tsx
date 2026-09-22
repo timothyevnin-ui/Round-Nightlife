@@ -40,7 +40,7 @@ export default async function AdminHome() {
       )}
       {configured && !writable && (
         <div className="card mt-5 p-4 text-[13.5px] leading-snug" style={{ color: "var(--chalk-70)" }}>
-          <strong style={{ color: "var(--chalk)" }}>Almost.</strong> The database is connected for reading but <code>SUPABASE_SERVICE_ROLE_KEY</code> is missing, so saving won&apos;t work yet.
+          <strong style={{ color: "var(--chalk)" }}>Almost.</strong> The database is connected for reading but <code>SUPABASE_SECRET_KEY</code> is missing, so saving won&apos;t work yet.
         </div>
       )}
 

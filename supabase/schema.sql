@@ -53,12 +53,82 @@ alter table public.venues enable row level security;
 drop policy if exists "venues are public" on public.venues;
 create policy "venues are public" on public.venues for select using (true);
 
--- Public photo bucket for venue photography.
-insert into storage.buckets (id, name, public)
-values ('photos', 'photos', true)
-on conflict (id) do nothing;
+-- Public photo bucket for venue photography. Wrapped so the venues table above
+-- is never blocked by a storage permission quirk; if this part is skipped,
+-- create a public bucket named "photos" in Storage by hand.
+do $$
+begin
+  insert into storage.buckets (id, name, public)
+  values ('photos', 'photos', true)
+  on conflict (id) do nothing;
 
-drop policy if exists "photos are public" on storage.objects;
-create policy "photos are public" on storage.objects for select using (bucket_id = 'photos');
+  drop policy if exists "photos are public" on storage.objects;
+  create policy "photos are public" on storage.objects for select using (bucket_id = 'photos');
+exception when others then
+  raise notice 'storage step skipped (%): create a public bucket named photos in Storage', sqlerrm;
+end $$;
 
--- Later phases (accounts, saves, ratings, plans) add their tables here.
+-- ─────────────────────────────────────────────────────────────────────────
+-- Accounts (phone sign-in). Supabase Auth owns auth.users; these are ours.
+-- ─────────────────────────────────────────────────────────────────────────
+
+-- One row per person. Created the first time they sign in.
+create table if not exists public.profiles (
+  id          uuid primary key references auth.users (id) on delete cascade,
+  name        text not null default '',
+  birthday    date,
+  phone       text,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+drop trigger if exists profiles_touch on public.profiles;
+create trigger profiles_touch before update on public.profiles
+  for each row execute function public.touch_updated_at();
+
+alter table public.profiles enable row level security;
+drop policy if exists "profiles: own read"   on public.profiles;
+drop policy if exists "profiles: own insert" on public.profiles;
+drop policy if exists "profiles: own update" on public.profiles;
+create policy "profiles: own read"   on public.profiles for select using (auth.uid() = id);
+create policy "profiles: own insert" on public.profiles for insert with check (auth.uid() = id);
+create policy "profiles: own update" on public.profiles for update using (auth.uid() = id);
+
+-- Want to go / Been / rating, one row per person per place.
+create table if not exists public.saves (
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  slug        text not null,
+  state       text not null check (state in ('want', 'been')),
+  rating      text check (rating in ('loved', 'good', 'meh')),
+  source      text,
+  at          timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  primary key (user_id, slug)
+);
+
+create index if not exists saves_slug_idx on public.saves (slug);
+
+drop trigger if exists saves_touch on public.saves;
+create trigger saves_touch before update on public.saves
+  for each row execute function public.touch_updated_at();
+
+alter table public.saves enable row level security;
+drop policy if exists "saves: own all" on public.saves;
+create policy "saves: own all" on public.saves for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Every GO tap. The receipt for partner bars. Anonymous taps are allowed
+-- (user_id null); nobody can read them except the service role.
+create table if not exists public.go_taps (
+  id          bigint generated always as identity primary key,
+  user_id     uuid references auth.users (id) on delete set null,
+  slug        text not null,
+  at          timestamptz not null default now()
+);
+
+create index if not exists go_taps_slug_idx on public.go_taps (slug, at desc);
+
+alter table public.go_taps enable row level security;
+drop policy if exists "go_taps: anyone can log" on public.go_taps;
+create policy "go_taps: anyone can log" on public.go_taps for insert with check (user_id is null or auth.uid() = user_id);
+
+-- Later phases (friends, plans, census) add their tables here.

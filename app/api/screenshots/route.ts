@@ -13,7 +13,7 @@ export const maxDuration = 60;
  * too — they're the curation inbox.
  */
 
-const MODEL = process.env.ROUND_VISION_MODEL ?? "claude-haiku-4-5";
+const MODEL = process.env.ROUND_VISION_MODEL ?? "claude-haiku-4-5-20251001";
 const MAX_FILES = 10;
 const MAX_BYTES = 6 * 1024 * 1024;
 
