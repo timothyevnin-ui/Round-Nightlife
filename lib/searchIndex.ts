@@ -4,6 +4,7 @@ import type { Venue } from "./types";
 export type SearchEntry = {
   slug: string;
   name: string;
+  verified?: boolean;
   neighborhood: Venue["neighborhood"];
   kind: Venue["kind"];
   tags: string[];
@@ -27,6 +28,7 @@ export function toSearchEntry(v: Venue): SearchEntry {
     tags: v.tags.slice(0, 3),
     price: v.price,
     hot: v.hot || undefined,
+    verified: v.verified || undefined,
     photo: v.photo,
     photoUrl: v.photoUrl,
     lat: v.lat,

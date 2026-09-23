@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
+import { VerifiedMark } from "./VerifiedMark";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { LabelChip } from "./VenueCard";
 import { neighborhoodName } from "@/lib/neighborhoods";
@@ -71,6 +72,7 @@ function Stop({ eyebrow, venue }: { eyebrow: string; venue: DatePlan["bar"] }) {
         <p className="eyebrow">{eyebrow}</p>
         <h3 className="serif mt-0.5 truncate" style={{ fontSize: 24, lineHeight: 1.1, letterSpacing: "-0.015em" }}>
           {venue.name}
+          {venue.verified && <VerifiedMark size={17} className="ml-1.5" />}
         </h3>
         <p className="mt-0.5 line-clamp-2 text-[13.5px] leading-snug" style={{ color: "var(--chalk-70)" }}>
           {venue.take}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { VerifiedLine, VerifiedMark } from "@/components/VerifiedMark";
 import { Photo } from "@/components/Photo";
 import { TrackView } from "@/components/TrackView";
 import { FriendsChip } from "@/components/VenueCard";
@@ -71,10 +72,12 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
         </p>
         <h1 className="serif mt-2" style={{ fontSize: 38, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
           {v.name}
+          {v.verified && <VerifiedMark size={26} className="ml-2.5" />}
         </h1>
         <p className="mt-3 text-[13px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
           {(v.tags.length ? v.tags : strongAttrLabels(v)).join(" · ")}
         </p>
+        <VerifiedLine verified={!!v.verified} />
 
         <VenueActions venue={v} shareUrl={`/p/${shareCode}`} />
 
@@ -140,11 +143,6 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
           </Link>
         </div>
 
-        {process.env.NODE_ENV !== "production" && !v.verified && (
-          <p className="mt-6 text-center text-[11px]" style={{ color: "var(--chalk-35)" }}>
-            Seed entry · not yet verified
-          </p>
-        )}
       </div>
     </main>
   );

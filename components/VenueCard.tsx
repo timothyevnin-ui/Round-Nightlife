@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
+import { VerifiedMark } from "./VerifiedMark";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { PickLabel, Venue } from "@/lib/types";
@@ -75,6 +76,7 @@ export function VenueCard({
         <Link href={`/v/${venue.slug}`} className="block">
           <h2 className="serif" style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
             {venue.name}
+            {venue.verified && <VerifiedMark size={20} className="ml-2" />}
           </h2>
           <p className="mt-1 text-[13px]" style={{ color: "var(--chalk-55)" }}>
             {neighborhoodName(venue.neighborhood)}

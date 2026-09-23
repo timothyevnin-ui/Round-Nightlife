@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
+import { VerifiedMark } from "./VerifiedMark";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { LabelChip, FriendsChip } from "./VenueCard";
 import { neighborhoodName } from "@/lib/neighborhoods";
@@ -70,6 +71,7 @@ export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: 
         <Link href={`/v/${venue.slug}`} className="block">
           <h2 className="serif" style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
             {venue.name}
+            {venue.verified && <VerifiedMark size={20} className="ml-2" />}
           </h2>
           <p className="mt-1 text-[13px]" style={{ color: "var(--ink-55)" }}>
             {neighborhoodName(venue.neighborhood)} · {venue.tags.slice(0, 3).join(" · ")}
@@ -149,6 +151,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
           <Link href={`/v/${bar.slug}`} className="block">
             <h2 className="serif" style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
               {bar.name}
+              {bar.verified && <VerifiedMark size={20} className="ml-2" />}
             </h2>
             <p className="mt-1 text-[13px]" style={{ color: "var(--ink-55)" }}>
               {neighborhoodName(bar.neighborhood)} · {bar.tags.slice(0, 3).join(" · ")}
@@ -194,6 +197,7 @@ function Stop({ eyebrow, venue, big }: { eyebrow: string; venue: Venue; big?: bo
       <p className="eyebrow">{eyebrow}</p>
       <h3 className="serif mt-0.5" style={{ fontSize: big ? 26 : 21, lineHeight: 1.1, letterSpacing: "-0.015em" }}>
         {venue.name}
+        {venue.verified && <VerifiedMark size={big ? 18 : 16} className="ml-1.5" />}
       </h3>
       <p className={`mt-0.5 ${big ? "" : "line-clamp-2"} text-[13.5px] leading-snug`} style={{ color: "var(--ink-70)" }}>
         {venue.take}

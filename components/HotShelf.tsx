@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
+import { VerifiedMark } from "./VerifiedMark";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 
@@ -81,6 +82,7 @@ export function HotShelf({ venues, compact = false }: { venues: Venue[]; compact
                   </p>
                   <h3 className="serif mt-1.5" style={{ fontSize: 24, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
                     {v.name}
+                    {v.verified && <VerifiedMark size={17} className="ml-1.5" />}
                   </h3>
                   <p className="mt-2 line-clamp-3 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
                     {hook(v)}
