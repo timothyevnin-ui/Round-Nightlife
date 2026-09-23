@@ -6,6 +6,8 @@ import { neighborhoodName, isNeighborhoodId } from "@/lib/neighborhoods";
 import { countBy, listGoTaps, listProfiles } from "@/lib/studio";
 import { listSuggestions } from "@/lib/suggestions";
 import { DashboardActions } from "./DashboardActions";
+import { DbHealth } from "./DbHealth";
+import { checkDatabase, sqlEditorUrl } from "@/lib/health";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +20,7 @@ export default async function Dashboard() {
   const byName = new Map(venues.map((v) => [v.slug, v.name]));
   const name = (slug: string) => byName.get(slug) ?? slug;
 
+  const health = await checkDatabase();
   let ev: EventRow[] = [];
   let evProblem: string | undefined;
   let taps: { slug: string }[] = [];
@@ -82,6 +85,8 @@ export default async function Dashboard() {
           <strong>Almost.</strong> Reading works but <code>SUPABASE_SECRET_KEY</code> is missing, so nothing can be saved or logged.
         </div>
       )}
+
+      <DbHealth health={health} editorUrl={sqlEditorUrl()} />
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} />
 

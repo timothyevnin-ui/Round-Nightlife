@@ -1,0 +1,62 @@
+import "server-only";
+import { dbConfig, serviceHeaders } from "./db";
+
+/**
+ * Is the database the shape this version of the code expects? Probes each
+ * table and the newer columns with the secret key and names exactly what's
+ * missing, so the fix is always "run schema.sql", never a mystery.
+ */
+
+export type HealthItem = { key: string; label: string; what: string; ok: boolean; detail?: string };
+export type Health = { configured: boolean; writable: boolean; items: HealthItem[]; missing: HealthItem[]; checkedAt: string };
+
+const PROBES: { key: string; label: string; what: string; path: string }[] = [
+  { key: "venues", label: "Places", what: "the venues table", path: "venues?select=slug&limit=1" },
+  { key: "venues.story", label: "What's hot + stories", what: "the hot, hot_rank and story columns on venues (V4)", path: "venues?select=hot,hot_rank,story&limit=1" },
+  { key: "venues.photo_credit", label: "Photo credits", what: "the photo_credit column on venues (V5)", path: "venues?select=photo_credit&limit=1" },
+  { key: "profiles", label: "Accounts", what: "the profiles table (V3)", path: "profiles?select=id&limit=1" },
+  { key: "saves", label: "Saves and ratings", what: "the saves table (V3)", path: "saves?select=slug&limit=1" },
+  { key: "go_taps", label: "GO taps", what: "the go_taps table (V3)", path: "go_taps?select=slug&limit=1" },
+  { key: "suggestions", label: "Recommendations inbox", what: "the suggestions table (V5)", path: "suggestions?select=id&limit=1" },
+  { key: "events", label: "Activity log", what: "the events table (V7)", path: "events?select=id&limit=1" },
+];
+
+function explain(status: number, text: string): string {
+  if (status === 404 || /relation .* does not exist|Could not find the table/i.test(text)) return "table missing";
+  const col = text.match(/Could not find the '([a-z_]+)' column|column "?([a-z_.]+)"? does not exist/i);
+  if (col) return `column ${col[1] ?? col[2]} missing`;
+  return `${status}: ${text.slice(0, 120)}`;
+}
+
+export async function checkDatabase(): Promise<Health> {
+  const { configured, writable } = dbConfig();
+  const checkedAt = new Date().toISOString();
+  if (!writable) return { configured, writable, items: [], missing: [], checkedAt };
+  const { url, headers } = serviceHeaders();
+  const items: HealthItem[] = await Promise.all(
+    PROBES.map(async (p) => {
+      try {
+        const res = await fetch(`${url}/rest/v1/${p.path}`, { headers, cache: "no-store" });
+        if (res.ok) return { key: p.key, label: p.label, what: p.what, ok: true };
+        return { key: p.key, label: p.label, what: p.what, ok: false, detail: explain(res.status, await res.text()) };
+      } catch (e) {
+        return { key: p.key, label: p.label, what: p.what, ok: false, detail: e instanceof Error ? e.message : "unreachable" };
+      }
+    }),
+  );
+  // Storage bucket for photos.
+  try {
+    const res = await fetch(`${url}/storage/v1/bucket/photos`, { headers, cache: "no-store" });
+    items.push({ key: "photos", label: "Photo uploads", what: "the public photos bucket in Storage", ok: res.ok, detail: res.ok ? undefined : "bucket missing" });
+  } catch {
+    items.push({ key: "photos", label: "Photo uploads", what: "the public photos bucket in Storage", ok: false, detail: "unreachable" });
+  }
+  return { configured, writable, items, missing: items.filter((i) => !i.ok), checkedAt };
+}
+
+/** https://supabase.com/dashboard/project/<ref>/sql/new, from the project URL. */
+export function sqlEditorUrl(): string | null {
+  const url = dbConfig().url;
+  const m = url?.match(/^https:\/\/([a-z0-9]+)\.supabase\.co/i);
+  return m ? `https://supabase.com/dashboard/project/${m[1]}/sql/new` : null;
+}

@@ -59,6 +59,6 @@ export async function submitRecommendation(p: RecommendPayload): Promise<Recomme
     return { ok: true };
   } catch (e) {
     console.error("[recommend]", e);
-    return { ok: false, error: "Couldn't send that right now. Try again in a minute." };
+    return { ok: false, error: "Couldn't send that. That's on our end, not yours." };
   }
 }
