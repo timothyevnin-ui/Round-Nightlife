@@ -137,9 +137,9 @@ const HIT_WORD: Partial<Record<AttrKey, string>> = {
   speakeasy: "Hidden",
   classic: "Old New York",
   dive: "Proper dive",
-  upscale: "Nice",
+  upscale: "Bougie",
   cheap: "Cheap",
-  dressy: "Dress up",
+  dressy: "Bougie crowd",
   late: "Late",
   food: "Food",
   social: "Meet people",
@@ -386,27 +386,34 @@ export function strongAttrLabels(venue: Venue, max = 4): string[] {
 
 /* ───────────────────────── NEAR ME ───────────────────────── */
 
-export type NearQuery = { lat: number; lng: number; hour: number; dow: number; wants?: Wants; radius?: number };
+export type NearQuery = { lat: number; lng: number; hour: number; dow: number; wants?: Wants; radius?: number; /** The place they're standing at, if it's one of ours: never recommended to itself. */ exclude?: string };
 
 export type NearPick = NightPick & { meters: number; walkMinutes: number };
 
 /**
- * Bars within a short walk of a point, best first. Distance matters most,
- * then whether the room is good right now, then how easy it is to get in.
+ * Bars within a short walk of a point, best first.
+ *
+ * With no specifics ("bars near Bayard's"), the ranking system does the
+ * talking: verified places first, then how close, then ROUND's score, with
+ * "good right now" as a tiebreak. With specifics, what they asked for
+ * matters as much as the walk.
  */
 export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUNT): NearPick[] {
   const radius = q.radius ?? 1500;
   const wants = q.wants ?? {};
+  const hasWants = Object.keys(wants).length > 0;
   const scored = venues
-    .filter((v) => v.kind === "bar")
+    .filter((v) => v.kind === "bar" && v.slug !== q.exclude)
     .map((venue) => {
       const meters = haversineMeters(q, venue);
       if (meters > radius) return null;
       const near = 1 - meters / radius;
       const time = timeScore(venue, q.hour, q.dow);
       const { score: prefs, hits } = prefsScore(venue, wants);
-      const hasWants = Object.keys(wants).length > 0;
-      const score = (near * 0.5 + time * 0.25 + venue.easyIn * 0.1 + (hasWants ? prefs : 0.5) * 0.15) * verifiedBoost(venue);
+      const rating = typeof venue.score === "number" ? venue.score / 100 : 0.65;
+      const score = hasWants
+        ? (near * 0.4 + time * 0.2 + prefs * 0.25 + rating * 0.1 + venue.easyIn * 0.05) * verifiedBoost(venue)
+        : (near * 0.45 + time * 0.15 + rating * 0.2 + (venue.verified ? 0.15 : 0) + venue.easyIn * 0.05) * scoreBoost(venue);
       return { venue, meters, score, hits, time };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null)

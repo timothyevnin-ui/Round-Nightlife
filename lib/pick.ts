@@ -4,7 +4,7 @@ import { ATTRS, type AttrKey } from "./attrs";
 import { haversineMeters, isDaytime } from "./engine";
 import { NEIGHBORHOODS, neighborhoodName } from "./neighborhoods";
 import { allowModelCall } from "./ratelimit";
-import type { Wants } from "./questions";
+import { CARDS, type Wants } from "./questions";
 import { formatHour } from "./time";
 import { weekSummary } from "./hours";
 import type { DatePlan, DateStage, NeighborhoodId, NightPick, PickLabel, Venue } from "./types";
@@ -21,7 +21,7 @@ import type { DatePlan, DateStage, NeighborhoodId, NightPick, PickLabel, Venue }
 export const PICK_MODEL = process.env.ROUND_PICK_MODEL ?? "claude-sonnet-5";
 const FALLBACK_MODEL = "claude-haiku-4-5-20251001";
 const TIMEOUT_MS = Number(process.env.ROUND_PICK_TIMEOUT_MS ?? 9000);
-const CACHE_TTL_MS = 15 * 60 * 1000;
+const CACHE_TTL_MS = Number(process.env.ROUND_PICK_MEMO_MS ?? 15 * 60_000);
 
 export type PickMode = "night" | "date" | "dinner" | "near" | "around";
 
@@ -33,7 +33,7 @@ export type PickRequest = {
   said?: string;
   neighborhood?: NeighborhoodId;
   /** Somewhere they're standing or named: a street, a landmark, a venue. */
-  place?: { label: string; lat: number; lng: number };
+  place?: { label: string; lat: number; lng: number; /** When the spot is one of ours. */ slug?: string };
   /** A ROUND place they named ("like Bar Primi but louder"). */
   anchor?: Venue;
   group?: number;
@@ -44,7 +44,9 @@ export type PickRequest = {
   wants: Wants;
   been?: string[];
   /** The person's own taste, when they've rated things (from the taste cookie). */
-  taste?: { loves: string[]; nevers: string[]; tags: string[] };
+  taste?: { loves: string[]; nevers: string[]; tags: string[]; usual?: [string, string][] };
+  /** Their first name, when signed in. */
+  name?: string;
 };
 
 export type Picked = { slug: string; why: string; label?: PickLabel; then?: string };
@@ -123,8 +125,22 @@ function wantsWords(wants: Wants): { want: string[]; avoid: string[] } {
 function requestWords(r: PickRequest, hints: string[]): string {
   const lines: string[] = [];
   const day = isDaytime(r.hour);
-  const when = `${DAY[r.dow] ?? "tonight"} around ${formatHour(r.hour, true)}${r.hour >= 24 ? " (after midnight)" : day ? " (DAYTIME: they want somewhere good in daylight right now — outside, a game on, a deal, sun, a long afternoon; do not send them to a room that only works at 11pm, and weigh the 'good in daylight' score heavily)" : ""}`;
-  if (r.mode === "near") lines.push(`They are at ${r.place?.label ?? "a spot"} and want somewhere within a short walk, ${when}.`);
+  const chapter =
+    r.hour >= 24
+      ? " (after midnight: the night is in full swing; late-open rooms, energy, no first-stop places)"
+      : day
+        ? " (DAYTIME: they want somewhere good in daylight right now — outside, a game on, a deal, sun, a long afternoon; do not send them to a room that only works at 11pm, and weigh the 'good in daylight' score heavily)"
+        : r.hour < 20.5
+          ? " (EARLY EVENING: the night is getting started, not peaking — think first stop: a seat, a drink you can talk over, a deal, maybe food; a room that is dead until 11 is a miss now, and nobody is dancing at 7:45)"
+          : r.hour < 22.5
+            ? " (MID EVENING: the night is finding its pulse — lively rooms that are already going by 9, places that build toward later; a sleepy first-stop bar is a miss now)"
+            : " (LATE: the night itself — energy, dancing if they want it, rooms that are good at midnight and open late)";
+  const when = `${DAY[r.dow] ?? "tonight"} around ${formatHour(r.hour, true)}${chapter}`;
+  if (r.mode === "near") {
+    const vague = !Object.keys(r.wants).length;
+    lines.push(`They are at ${r.place?.label ?? "a spot"} and want somewhere within a short walk, ${when}.${r.place?.slug ? ` (${r.place.slug} is where they're standing; never pick it.)` : ""}`);
+    if (vague) lines.push(`They gave no specifics, just the spot, so ROUND's ranking system decides: ✓ VERIFIED places first, then the shortest walk, then ROUND score. The hints below are already in that order (each with its walk time); keep it unless a place is clearly wrong for the hour.`);
+  }
   else if (r.mode === "around" && r.anchor) lines.push(`They named ${r.anchor.name} (${r.anchor.slug}). Lead with it, then build the night around it: places that fit the same DNA plus what they asked for. ${when}.`);
   else if (r.mode === "date") lines.push(`A date, ${{ first: "first date", early: "a few dates in", longterm: "long-term couple" }[r.stage ?? "early"]}, ${r.dinner ? "dinner then drinks" : "drinks only"}, ${r.neighborhood ? `in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
   else if (r.mode === "dinner") lines.push(`Dinner and drinks for a group of ${r.group ?? 4}${r.neighborhood ? ` in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
@@ -140,7 +156,10 @@ function requestWords(r: PickRequest, hints: string[]): string {
     const words = t.tags.map((k) => ATTRS[k as AttrKey]?.label ?? k);
     if (t.loves.length) lines.push(`This person's own ladder, best first (places they'd go back to): ${t.loves.join(", ")}. Read what those places are and lean toward that taste${words.length ? `; the words they use for rooms they loved: ${words.join(", ")}` : ""}.`);
     if (t.nevers.length) lines.push(`Never again, in their words: ${t.nevers.join(", ")}. Do not pick these, and be wary of places just like them.`);
+    const usual = (t.usual ?? []).map(([id, label]) => `${CARDS.find((c) => c.id === id)?.prompt ?? id} → ${label}`);
+    if (usual.length) lines.push(`How they usually answer ROUND's quick questions (a pattern, learned over their nights out; tonight's answers above win if they differ): ${usual.join("; ")}.`);
   }
+  if (r.name) lines.push(`Their first name is ${r.name}. You may use it once in "heard" if it reads naturally ("${r.name}, we heard…"); never in a "why".`);
   if (hints.length) lines.push(`ROUND's rules engine ranked these first (a hint, not an order): ${hints.join(", ")}.`);
   return lines.join("\n");
 }
@@ -165,7 +184,7 @@ function instructions(r: PickRequest, count: number): string {
 const memo = new Map<string, { at: number; value: PickResult }>();
 
 function memoKey(r: PickRequest, slugs: string[]): string {
-  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.taste ?? null, r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
+  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.taste ?? null, r.name ?? "", r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
 }
 
 /**

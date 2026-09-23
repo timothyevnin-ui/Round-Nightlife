@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { RealMap } from "./RealMap";
@@ -38,13 +38,17 @@ export function Flow({
 }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
+  const indexRef = useRef(index);
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [pending, setPending] = useState<string | null>(null);
   const [draft, setDraft] = useState<string | null>(null);
   const advancing = useRef(false);
 
-  const step = steps[index];
+  const step = steps[Math.min(index, steps.length - 1)];
   const glow = WALK[Math.min(index, WALK.length - 1)];
 
   const defaults = useMemo(
@@ -69,14 +73,16 @@ export function Flow({
       window.setTimeout(() => {
         advancing.current = false;
         setPending(null);
-        if (index === steps.length - 1) finish(next);
+        // Decide from where the flow actually is now, not from the render this handler came from:
+        // a handler from an earlier step must never push the index past the last step.
+        if (indexRef.current >= steps.length - 1) finish(next);
         else {
           setDirection(1);
-          setIndex((i) => i + 1);
+          setIndex((i) => Math.min(i + 1, steps.length - 1));
         }
       }, 170);
     },
-    [answers, finish, index, step.id, steps.length],
+    [answers, finish, step.id, steps.length],
   );
 
   const back = useCallback(() => {

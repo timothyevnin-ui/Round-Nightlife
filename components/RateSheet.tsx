@@ -195,7 +195,7 @@ export function RateSheet({ venue, names, open, onClose }: { venue: Pick<Venue, 
                 </Panel>
               )}
               {step === "done" && (
-                <Panel key="done" eyebrow="Noted" title={place !== null && place >= 0 ? `#${place + 1} on your ladder.` : verdict === "never" ? "Never again. Understood." : "It was fine. Noted."} sub={place !== null && place >= 0 ? "Your favorites push their way up ROUND's picks." : "ROUND won't send you back."}>
+                <Panel key="done" eyebrow="Noted" title={place !== null && place >= 0 ? `#${place + 1} on your ladder.` : verdict === "never" ? "Never again. Understood." : "It was fine. Noted."} sub={place !== null && place >= 0 ? "ROUND just got a little smarter about you. Your favorites push their way up its picks." : verdict === "never" ? "ROUND won't send you back, and it learned something about what you don't want." : "Noted, and remembered. Every rating makes the next pick sharper."}>
                   <div className="mt-5 flex gap-2">
                     <Link href="/you#ladder" className="pressable btn-ghost flex h-12 flex-1 items-center justify-center text-[15px]" onClick={close}>
                       See your ladder

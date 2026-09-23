@@ -39,6 +39,8 @@ export type RoundState = {
   goCount: Record<string, number>; // GO taps per venue — the future partner receipt
   /** Your ladder: the places you'd go back to, best first (slugs). */
   ladder: string[];
+  /** How you've answered the quick ones, by card id → answer label → times. ROUND learns your usual. */
+  usual?: Record<string, Record<string, number>>;
 };
 
 export type Remote = {
@@ -97,8 +99,11 @@ function syncTasteCookie(s: RoundState) {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
       .map(([t]) => t);
-    const value = `l=${loves.join(",")};n=${nevers.join(",")};t=${tags.join(",")}`;
-    const empty = !loves.length && !nevers.length && !tags.length;
+    const usual = usualAnswers(s)
+      .slice(0, 8)
+      .map(([id, label]) => `${id}:${label.replace(/[^a-zA-Z0-9 -]/g, "").replace(/ /g, "_")}`);
+    const value = `l=${loves.join(",")};n=${nevers.join(",")};t=${tags.join(",")};u=${usual.join(",")}`;
+    const empty = !loves.length && !nevers.length && !tags.length && !usual.length;
     document.cookie = `${TASTE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${empty ? 0 : 31536000}; SameSite=Lax`;
   } catch {
     /* ignore */
@@ -108,6 +113,21 @@ function syncTasteCookie(s: RoundState) {
 function subscribe(l: () => void) {
   listeners.add(l);
   return () => listeners.delete(l);
+}
+
+/**
+ * Your usual answers: a card you've answered the same way at least twice, and
+ * more often than any other way. [cardId, label] pairs, most-answered first.
+ */
+export function usualAnswers(s: RoundState = read()): [string, string][] {
+  const out: [string, string, number][] = [];
+  for (const [id, counts] of Object.entries(s.usual ?? {})) {
+    const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const [label, n] = entries[0] ?? ["", 0];
+    const total = entries.reduce((t, [, c]) => t + c, 0);
+    if (n >= 2 && n / total >= 0.6) out.push([id, label, n]);
+  }
+  return out.sort((a, b) => b[2] - a[2]).map(([id, label]) => [id, label]);
 }
 
 /* ── the seam the account layer plugs into ── */
@@ -204,6 +224,14 @@ export function useRoundStore() {
     return ladder.indexOf(slug);
   }, []);
 
+  /** A quick one answered: ROUND remembers, and next time marks your usual. */
+  const remember = useCallback((cardId: string, label: string) => {
+    const s = read();
+    const card = { ...(s.usual?.[cardId] ?? {}) };
+    card[label] = (card[label] ?? 0) + 1;
+    write({ ...s, usual: { ...(s.usual ?? {}), [cardId]: card } });
+  }, []);
+
   const setQuizDone = useCallback((done: boolean) => write({ ...read(), quizDone: done }), []);
 
   const rememberResults = useCallback((path: string) => write({ ...read(), lastResults: path }), []);
@@ -214,5 +242,5 @@ export function useRoundStore() {
     remote?.go(slug);
   }, []);
 
-  return { state, toggleSaved, markBeen, clearBeen, rate, setQuizDone, rememberResults, recordGo };
+  return { state, toggleSaved, markBeen, clearBeen, rate, remember, setQuizDone, rememberResults, recordGo };
 }

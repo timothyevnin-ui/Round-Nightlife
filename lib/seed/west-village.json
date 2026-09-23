@@ -1644,5 +1644,124 @@
   },
   "barFood": true,
   "cuisine": "Wings & pitchers"
+ },
+ {
+  "slug": "white-horse-tavern",
+  "kind": "bar",
+  "name": "White Horse Tavern",
+  "neighborhood": "west-village",
+  "address": "567 Hudson St, New York, NY 10014",
+  "lat": 40.7352,
+  "lng": -74.0066,
+  "take": "The 1880 corner tavern on Hudson: wood, tile, sidewalk tables, a pint of something honest, and a hundred and forty years of people arguing at the bar.",
+  "theCatch": "It's a landmark, so the sidewalk fills with tourists on a nice afternoon and the inside is small. Go in, not out, if you want the real thing.",
+  "tags": [
+   "Old New York",
+   "Beer",
+   "Outdoor",
+   "Hudson St"
+  ],
+  "vibe": {
+   "lively": 0.5,
+   "chill": 0.6,
+   "talk": 0.7
+  },
+  "attrs": {
+   "classic": 1.0,
+   "beer": 0.9,
+   "talk": 0.7,
+   "chill": 0.6,
+   "outdoor": 0.8,
+   "seating": 0.6,
+   "cheap": 0.5,
+   "lively": 0.5,
+   "late": 0.5,
+   "social": 0.5,
+   "groups": 0.5,
+   "food": 0.6,
+   "daytime": 0.85,
+   "date": 0.45,
+   "dive": 0.35
+  },
+  "groupFit": {
+   "two": 0.8,
+   "small": 0.8,
+   "mid": 0.6,
+   "big": 0.35
+  },
+  "dateFit": {
+   "first": 0.55,
+   "early": 0.6,
+   "longterm": 0.6
+  },
+  "price": 2,
+  "capacity": "medium",
+  "bestWindows": "everyNight",
+  "easyIn": 0.7,
+  "sources": [
+   "https://whitehorsetavern1880.com/"
+  ],
+  "notes": "Hudson at W 11th. Opened 1880; the Dylan Thomas story is on the wall. Sidewalk seating in season; a proper bar inside; pub food. Busy on sunny weekend afternoons.",
+  "barFood": true,
+  "cuisine": "Pub food"
+ },
+ {
+  "slug": "bayards-ale-house",
+  "kind": "bar",
+  "name": "Bayard's Ale House",
+  "neighborhood": "west-village",
+  "address": "533 Hudson St, New York, NY 10014",
+  "lat": 40.7339,
+  "lng": -74.0057,
+  "take": "A neighborhood ale house on Hudson with the game on, a long tap list, and a burger that's a reason on its own. Nobody's performing anything.",
+  "theCatch": "Big games pack it wall to wall; on a quiet night it's just a good pub. Know which one you're walking into.",
+  "tags": [
+   "Sports",
+   "Beer",
+   "Burgers",
+   "Hudson St"
+  ],
+  "vibe": {
+   "lively": 0.6,
+   "chill": 0.55,
+   "talk": 0.55
+  },
+  "attrs": {
+   "sports": 0.9,
+   "beer": 0.9,
+   "food": 0.85,
+   "lively": 0.6,
+   "chill": 0.55,
+   "talk": 0.55,
+   "seating": 0.6,
+   "groups": 0.7,
+   "social": 0.55,
+   "cheap": 0.5,
+   "late": 0.55,
+   "classic": 0.4,
+   "daytime": 0.75,
+   "date": 0.3
+  },
+  "groupFit": {
+   "two": 0.6,
+   "small": 0.85,
+   "mid": 0.8,
+   "big": 0.6
+  },
+  "dateFit": {
+   "first": 0.3,
+   "early": 0.4,
+   "longterm": 0.45
+  },
+  "price": 2,
+  "capacity": "medium",
+  "bestWindows": "everyNight",
+  "easyIn": 0.65,
+  "sources": [
+   "https://www.bayardsalehouse.com/"
+  ],
+  "notes": "Hudson at Charles. Taps, TVs, burgers; a neighborhood pub that fills for big games. Two blocks from the White Horse.",
+  "barFood": true,
+  "cuisine": "Burgers"
  }
 ]

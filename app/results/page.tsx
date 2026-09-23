@@ -9,8 +9,8 @@ import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { applyToBarPlans, applyToNight, applyToPlans, pickWithClaude, type PickRequest, type PickResult } from "@/lib/pick";
 import { encodePlan, type PlanPayload } from "@/lib/plan";
 import { ipFrom } from "@/lib/ratelimit";
-import { parseTaste } from "@/lib/taste";
-import { TASTE_COOKIE } from "@/lib/tasteCookie";
+import { parseName, parseTaste } from "@/lib/taste";
+import { NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
 import { formatHour } from "@/lib/time";
 import type { DatePlan, DateStage, Mode, NightPick } from "@/lib/types";
@@ -59,8 +59,10 @@ export default async function ResultsPage(props: PageProps<"/results">) {
       }),
     );
   const ip = ipFrom(await headers());
-  const taste = parseTaste((await cookies()).get(TASTE_COOKIE)?.value);
-  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said" | "ip" | "taste"> = { hour, dow, wants, been, said, ip, taste };
+  const jar = await cookies();
+  const taste = parseTaste(jar.get(TASTE_COOKIE)?.value);
+  const name = parseName(jar.get(NAME_COOKIE)?.value);
+  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said" | "ip" | "taste" | "name"> = { hour, dow, wants, been, said, ip, taste, name };
 
   if (m === "near") {
     const lat = num(sp.lat, NaN);
@@ -68,9 +70,11 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) redirect("/near");
     const at = str(sp.at);
     const n = str(sp.n);
-    const twelve = recommendNear({ lat, lng, hour, dow, wants }, venues, HINTS);
+    // "Near Bayard's": Bayard's itself is where they are, not a pick.
+    const standingAt = at ? venues.find((v) => v.name.toLowerCase() === at.toLowerCase() && haversineMeters({ lat, lng }, v) < 60)?.slug : undefined;
+    const twelve = recommendNear({ lat, lng, hour, dow, wants, exclude: standingAt }, venues, HINTS);
     const ai = await pickWithClaude(
-      { ...base, mode: "near", place: { label: at ?? "here", lat, lng }, neighborhood: isNeighborhoodId(n) ? n : twelve[0]?.venue.neighborhood, group: num(sp.g, 0) || undefined },
+      { ...base, mode: "near", place: { label: at ?? "here", lat, lng, slug: standingAt }, neighborhood: isNeighborhoodId(n) ? n : twelve[0]?.venue.neighborhood, group: num(sp.g, 0) || undefined },
       venues,
       twelve.map((p) => ({ slug: p.venue.slug })),
     );

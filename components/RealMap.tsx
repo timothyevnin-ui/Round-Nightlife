@@ -22,80 +22,7 @@ const FALLBACK: StyleSpecification = {
   layers: [{ id: "paper", type: "background", paint: { "background-color": "#e6dfcd" } }],
 };
 
-type LngLat = [number, number];
-
-/** Hand-traced along the streets people actually use as the borders. Roughly ±100 m. */
-const SHAPES: Record<NeighborhoodId, LngLat[]> = {
-  "west-village": [
-    [-74.0046, 40.7407], // 14th & 9th Ave
-    [-73.9967, 40.7378], // 14th & 6th Ave
-    [-73.991, 40.7356], // Union Sq West
-    [-73.996, 40.7254], // Broadway & Houston
-    [-74.003, 40.7279], // 6th Ave & Houston
-    [-74.0116, 40.7291], // Houston & the river
-    [-74.0108, 40.7345],
-    [-74.0098, 40.7395], // Gansevoort & the river
-    [-74.0058, 40.7385], // Gansevoort & 9th Ave
-  ],
-  "east-village": [
-    [-73.99, 40.7345], // 14th & 4th Ave
-    [-73.9735, 40.7284], // 14th & the river
-    [-73.9765, 40.7195], // Houston & the river
-    [-73.9926, 40.7245], // Houston & Bowery
-    [-73.9917, 40.73], // Astor Place
-  ],
-  "lower-east-side": [
-    [-73.9926, 40.7245], // Houston & Bowery
-    [-73.9765, 40.7195], // Houston & the river
-    [-73.9845, 40.7125],
-    [-73.9895, 40.7085], // under the Manhattan Bridge
-    [-73.9965, 40.7152], // Canal & Bowery
-  ],
-  "soho-nolita": [
-    [-74.003, 40.7279], // 6th Ave & Houston
-    [-73.996, 40.7254], // Broadway & Houston
-    [-73.9926, 40.7245], // Bowery & Houston
-    [-73.9965, 40.7152], // Canal & Bowery
-    [-74.0004, 40.719], // Canal & Broadway
-    [-74.0052, 40.7226], // Canal & 6th Ave
-  ],
-  tribeca: [
-    [-74.0112, 40.7248], // Canal & the river
-    [-74.0052, 40.7226], // Canal & 6th Ave
-    [-74.0004, 40.719], // Canal & Broadway
-    [-74.0067, 40.7143], // Chambers & Broadway
-    [-74.013, 40.7167], // Chambers & the river
-  ],
-  chelsea: [
-    [-74.0098, 40.7395], // Gansevoort & the river
-    [-74.0058, 40.7385], // Gansevoort & 9th Ave
-    [-74.0046, 40.7407], // 14th & 9th Ave
-    [-73.9967, 40.7378], // 14th & 6th Ave
-    [-73.9895, 40.7477], // 30th & 6th Ave
-    [-74.0058, 40.7545], // 30th & the river
-    [-74.0085, 40.747],
-  ],
-  williamsburg: [
-    [-73.9615, 40.7255], // Bushwick Inlet
-    [-73.9545, 40.7212], // McCarren Park, Bedford & N 12th
-    [-73.947, 40.719], // Meeker & the BQE
-    [-73.9425, 40.712], // BQE & Metropolitan
-    [-73.9475, 40.703], // Broadway & Flushing
-    [-73.9625, 40.7095], // Williamsburg Bridge
-    [-73.9675, 40.7145], // Domino Park
-    [-73.9645, 40.72],
-  ],
-  greenpoint: [
-    [-73.9615, 40.7255], // Bushwick Inlet
-    [-73.9545, 40.7212], // McCarren Park corner
-    [-73.9495, 40.7245], // Nassau & Manhattan Ave
-    [-73.9425, 40.7265], // Nassau & the BQE
-    [-73.939, 40.733], // Newtown Creek, Kingsland
-    [-73.9485, 40.7378], // Newtown Creek
-    [-73.9605, 40.7372], // the north tip
-    [-73.9615, 40.7305], // Transmitter Park
-  ],
-};
+import { SHAPES, type LngLat } from "@/lib/shapes";
 
 const LABELS: Record<NeighborhoodId, LngLat> = {
   chelsea: [-73.9995, 40.7455],
@@ -130,9 +57,10 @@ function bounds(): [LngLat, LngLat] {
 const INK = "#16213a";
 const TOMATO = "#d9482b";
 
-export function RealMap({ value, onSelect, height = 360 }: { value?: NeighborhoodId; onSelect: (id: NeighborhoodId) => void; height?: number }) {
+export function RealMap({ value, onSelect, height = 360, pin }: { value?: NeighborhoodId; onSelect: (id: NeighborhoodId) => void; height?: number; pin?: { lat: number; lng: number } | null }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const pinRef = useRef<Marker | null>(null);
   const labelsRef = useRef<Map<NeighborhoodId, HTMLDivElement>>(new Map());
   const selectRef = useRef(onSelect);
   const [ready, setReady] = useState(false);
@@ -230,6 +158,23 @@ export function RealMap({ value, onSelect, height = 360 }: { value?: Neighborhoo
       labels.clear();
     };
   }, []);
+
+  // The pin: where an address landed. A tomato dot with a paper ring, so it reads at a glance.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    if (!pin) {
+      pinRef.current?.remove();
+      pinRef.current = null;
+      return;
+    }
+    if (!pinRef.current) {
+      const el = document.createElement("div");
+      el.setAttribute("data-map-pin", "1");
+      el.style.cssText = "width:14px;height:14px;border-radius:999px;background:#e3412f;border:2.5px solid #f6f1e6;box-shadow:0 1px 4px rgba(22,33,58,0.35);pointer-events:none";
+      pinRef.current = new Marker({ element: el, anchor: "center" }).setLngLat([pin.lng, pin.lat]).addTo(map);
+    } else pinRef.current.setLngLat([pin.lng, pin.lat]);
+  }, [pin, ready]);
 
   useEffect(() => {
     const map = mapRef.current;

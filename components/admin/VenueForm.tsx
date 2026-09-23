@@ -243,8 +243,8 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
       const r = await lookupAddress(d.address);
       if ("error" in r) setMsg({ kind: "err", text: r.error });
       else {
-        setD((x) => ({ ...x, lat: r.lat, lng: r.lng }));
-        setGeo(r.label);
+        setD((x) => ({ ...x, lat: r.lat, lng: r.lng, neighborhood: r.neighborhood ?? x.neighborhood }));
+        setGeo(r.neighborhood ? `${r.label} → ${NEIGHBORHOODS.find((n) => n.id === r.neighborhood)?.name ?? r.neighborhood}` : r.label);
       }
     });
 

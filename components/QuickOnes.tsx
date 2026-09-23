@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { applyAnswer, nextCard, type Card, type Wants } from "@/lib/questions";
+import { usualAnswers, useRoundStore } from "@/lib/store";
 
 /**
  * The quick ones. Each question types itself out, then two or three buttons
@@ -18,8 +19,12 @@ export function QuickOnes({ title, cards, onBack, onDone }: { title: string; car
   const remaining = cards.slice(i).filter((c) => !c.showIf || c.showIf(wants)).length;
   const total = answered + remaining;
 
+  const { state, remember } = useRoundStore();
+  const usual = useMemo(() => Object.fromEntries(usualAnswers(state)), [state]);
+  const usualFor = (id: string): string | undefined => usual[id];
   const answer = (a: number | "skip") => {
     if (!card) return;
+    if (a !== "skip") remember(card.id, card.options[a].label);
     const next = applyAnswer(wants, card, a);
     const count = answered + (a === "skip" ? 0 : 1);
     setWants(next);
@@ -63,7 +68,7 @@ export function QuickOnes({ title, cards, onBack, onDone }: { title: string; car
         <div className="flex flex-1 flex-col justify-center py-8">
           <AnimatePresence mode="wait">
             {card ? (
-              <Question key={card.id} card={card} onAnswer={answer} />
+              <Question key={card.id} card={card} onAnswer={answer} usual={usualFor(card.id)} />
             ) : (
               <motion.p key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="serif text-center" style={{ fontSize: 34 }}>
                 Got it.
@@ -85,7 +90,7 @@ export function QuickOnes({ title, cards, onBack, onDone }: { title: string; car
   );
 }
 
-function Question({ card, onAnswer }: { card: Card; onAnswer: (i: number) => void }) {
+function Question({ card, onAnswer, usual }: { card: Card; onAnswer: (i: number) => void; usual?: string }) {
   const typed = useTypewriter(card.prompt);
   const ready = typed.length >= card.prompt.length;
   return (
@@ -98,16 +103,26 @@ function Question({ card, onAnswer }: { card: Card; onAnswer: (i: number) => voi
         className={`mt-8 grid gap-3 ${card.options.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}
         style={{ pointerEvents: ready ? "auto" : "none" }}
       >
-        {card.options.map((o, k) => (
-          <button
-            key={o.label}
-            onClick={() => onAnswer(k)}
-            className="pressable min-w-[120px] flex h-16 items-center justify-center rounded-full border px-4 text-[17px] font-semibold"
-            style={k === 0 ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline-strong)" }}
-          >
-            {o.label}
-          </button>
-        ))}
+        {card.options.map((o, k) => {
+          // Your usual answer leads (ink), the way the first option normally does.
+          const lead = usual ? o.label === usual : k === 0;
+          return (
+            <button
+              key={o.label}
+              onClick={() => onAnswer(k)}
+              className="pressable relative flex h-16 min-w-[120px] items-center justify-center rounded-full border px-4 text-[17px] font-semibold"
+              style={lead ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline-strong)" }}
+              data-usual={o.label === usual ? "1" : undefined}
+            >
+              {o.label}
+              {o.label === usual && (
+                <span className="absolute -top-2 right-3 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide" style={{ background: "var(--tomato)", color: "var(--on-photo)" }}>
+                  usually
+                </span>
+              )}
+            </button>
+          );
+        })}
       </motion.div>
     </motion.div>
   );

@@ -10,7 +10,7 @@ export const ATTR_GROUPS = [
   { id: "room", label: "The room" },
   { id: "music", label: "Music & sport" },
   { id: "drinks", label: "Drinks & food" },
-  { id: "money", label: "Money & dress" },
+  { id: "money", label: "Money & bougie" },
   { id: "when", label: "When" },
   { id: "who", label: "Who it's for" },
 ] as const;
@@ -84,7 +84,8 @@ export const ATTRS: Record<AttrKey, AttrDef> = {
   frozen: { key: "frozen", label: "Frozen drinks", group: "drinks", hint: "Slushies, margs, the machine.", keywords: ["frozen", "slushie", "slushy", "marg", "margs", "margarita", "daiquiri"] },
   food: { key: "food", label: "Real food", group: "drinks", hint: "You can eat here without regret.", keywords: ["food", "eat", "dinner", "fries", "burger", "burgers", "oysters", "snacks", "hungry", "pizza", "tacos", "wings"] },
   cheap: { key: "cheap", label: "Cheap drinks", group: "money", hint: "Under $10 a drink, mostly.", keywords: ["cheap", "budget", "broke", "affordable", "inexpensive", "deal", "deals", "under"], opposes: ["upscale"] },
-  dressy: { key: "dressy", label: "Dressed up", group: "money", hint: "You'd feel wrong in sneakers.", keywords: ["dressed", "dressy", "dress up", "dressed up", "heels", "suit", "glam"], opposes: ["dive"] },
+  // No dress codes in ROUND. This is the "people dressed for it" half of bougie: a scene you'd put a shirt on for.
+  dressy: { key: "dressy", label: "Bougie crowd", group: "money", hint: "People came dressed for it.", keywords: ["dressed", "dressy", "dress up", "dressed up", "heels", "suit", "glam", "bougie", "boujee", "bouje"], opposes: ["dive"] },
   late: { key: "late", label: "Late night (2am+)", group: "when", hint: "Still going at 2.", keywords: ["late", "late night", "2am", "3am", "4am", "after hours", "all night", "afters", "last call"] },
   happyHour: { key: "happyHour", label: "Good happy hour", group: "when", hint: "A real deal before 8.", keywords: ["happy hour", "hh", "after work", "5pm", "6pm", "early"] },
   social: { key: "social", label: "Meet new people", group: "who", hint: "Strangers talk to each other here.", keywords: ["meet", "meet people", "single", "singles", "mingle", "social", "flirty", "strangers", "new people"] },

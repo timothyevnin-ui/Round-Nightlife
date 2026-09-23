@@ -11,7 +11,7 @@ const EXAMPLES = [
   "Six of us in the West Village, want to dance but not a club, no line",
   "First date in Williamsburg, quiet, low light, around 9",
   "Cheap dive in the East Village where we can watch the game",
-  "Rooftop in Brooklyn for four, dressed up, cocktails",
+  "Rooftop in Brooklyn for four, a little bougie, cocktails",
 ];
 
 /** "Just say it" — a sentence in, the same three places out. */

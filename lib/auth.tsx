@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Session, User } from "@supabase/supabase-js";
 import { accountsEnabled, getSupabase } from "./supabase";
 import { clearPersonal, mergeState, readState, setRemote } from "./store";
+import { setNameCookie } from "./tasteCookie";
 import { makeRemote, pullAll, pushAll } from "./sync";
 
 /**
@@ -105,10 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(u);
       setRemote(makeRemote(sb!, u?.id ?? null));
       if (u) {
-        setProfile(await loadProfile(u));
+        const p = await loadProfile(u);
+        setProfile(p);
+        setNameCookie(p?.name);
         await merge(u);
       } else {
         setProfile(null);
+        setNameCookie(null);
         mergedFor.current = null;
       }
       setReady(true);
@@ -172,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await sb.from("profiles").upsert(row, { onConflict: "id" });
       if (error) return friendly(error.message, "profile");
       setProfile((p) => ({ ...(p ?? {}), ...row }));
+      setNameCookie(row.name);
       return null;
     },
     [sb, user],
@@ -183,6 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (opts?.forget && user) await sb.from("profiles").delete().eq("id", user.id);
     await sb.auth.signOut();
     clearPersonal();
+    setNameCookie(null);
     setUser(null);
     setProfile(null);
     setRemote(makeRemote(sb, null));

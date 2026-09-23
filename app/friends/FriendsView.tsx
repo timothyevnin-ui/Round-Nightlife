@@ -102,8 +102,8 @@ const SELL = [
   },
   {
     key: "ladder",
-    t: "Rank your spots. Climb the ladder.",
-    s: "Your favorites push their way up ROUND's picks. Loud opinions welcome.",
+    t: "It only gets smarter.",
+    s: "Every answer, every rating, every never-again teaches ROUND what you like. Rank your spots; your ladder shapes every pick.",
     icon: <Ladder />,
   },
   {

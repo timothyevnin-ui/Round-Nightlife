@@ -7,6 +7,7 @@ import { Wordmark } from "./Wordmark";
 import { WhenChip } from "./WhenChip";
 import { ModeCard } from "./ModeCard";
 import { SayIt } from "./SayIt";
+import { useAuth } from "@/lib/auth";
 
 /**
  * The front door. Two doors side by side, a third for dinner with the group,
@@ -19,6 +20,9 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0.25]);
   const y = useTransform(scrollYProgress, [0, 1], [0, 40]);
   const cueOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  // Signed in, ROUND knows your name and says it. The tiles below never change.
+  const { profile } = useAuth();
+  const first = (profile?.name ?? "").trim().split(/\s+/)[0] ?? "";
 
   return (
     <div ref={ref} className="relative flex flex-col" style={{ minHeight: "min(calc(100dvh - var(--tab-height) - env(safe-area-inset-bottom, 0px) - 44px), 760px)" }}>
@@ -32,10 +36,10 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
 
         <section className="pt-4 pb-3">
           <WhenChip />
-          <h1 className="serif mt-2" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
+          <h1 className="serif mt-2" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em" }} data-hello={first || undefined}>
             Where should
             <br />
-            we go?
+            we go{first ? `, ${first}` : ""}?
           </h1>
         </section>
 

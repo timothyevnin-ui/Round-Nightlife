@@ -45,7 +45,7 @@ export const REC_QUESTIONS_RESTAURANT: RecQuestion[] = [
   { id: "kitchen", prompt: "Kitchen open late?", short: "Late kitchen", options: [{ label: "Past midnight", attrs: { late: 1 } }, { label: "Closes by 11", attrs: { late: 0.1 } }] },
   { id: "dateish", prompt: "Date night material?", short: "Date", options: [{ label: "Yes", attrs: { date: 1 }, dateFit: 0.85 }, { label: "More of a group place", attrs: { date: 0.3, groups: 0.8 }, groupBig: 0.85 }] },
   { id: "pour", prompt: "Wine list or cocktails?", short: "Pour", options: [{ label: "Wine", attrs: { wine: 1 } }, { label: "Cocktails", attrs: { cocktails: 1 } }, { label: "Both", attrs: { wine: 0.7, cocktails: 0.7 } }] },
-  { id: "dress", prompt: "Dressy?", short: "Dress", options: [{ label: "Dress up", attrs: { dressy: 1, upscale: 0.6 } }, { label: "Jeans are fine", attrs: { dressy: 0.1 } }] },
+  { id: "bougie", prompt: "Bougie or chill?", short: "Bougie", options: [{ label: "Bougie", attrs: { upscale: 1, scene: 0.5, dressy: 0.7 } }, { label: "Chill", attrs: { chill: 1, upscale: 0.1, dressy: 0.1 } }] },
   { id: "eight", prompt: "Can eight of you sit together?", short: "Big table", options: [{ label: "Yes", attrs: { groups: 1 }, groupBig: 0.85, capacity: "large" }, { label: "No", attrs: { groups: 0.1 }, groupBig: 0.15 }] },
   { id: "outsidep", prompt: "Outside seating?", short: "Outside", options: [{ label: "Yes", attrs: { outdoor: 1 } }, { label: "No", attrs: { outdoor: 0 } }] },
 ];

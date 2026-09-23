@@ -10,9 +10,10 @@ import { questionsFor, type RecOption, type RecQuestion } from "@/lib/recommendQ
 import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
+import { neighborhoodAt } from "@/lib/shapes";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
-import type { Attrs, Capacity, Hours, Venue, Window } from "@/lib/types";
+import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, Window } from "@/lib/types";
 import { cleanHours } from "@/lib/hours";
 import { slugify } from "@/lib/slug";
 import { setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
@@ -295,19 +296,22 @@ function pickGradient(slug: string) {
 }
 
 /** Address → coordinates via OpenStreetMap's Nominatim (free, low volume, back office only). */
-export async function lookupAddress(address: string): Promise<{ lat: number; lng: number; label: string } | { error: string }> {
+export async function lookupAddress(address: string): Promise<{ lat: number; lng: number; label: string; neighborhood: NeighborhoodId | null } | { error: string }> {
   try {
     await guard();
     const q = address.trim();
     if (!q) return { error: "Type an address first." };
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q + (/new york|brooklyn|ny\b/i.test(q) ? "" : ", New York, NY"))}`, {
+    const base = process.env.ROUND_GEOCODER_URL ?? "https://nominatim.openstreetmap.org/search";
+    const res = await fetch(`${base}?format=json&limit=1&q=${encodeURIComponent(q + (/new york|brooklyn|ny\b/i.test(q) ? "" : ", New York, NY"))}`, {
       headers: { "User-Agent": "ROUND back office (nightlife app; contact via site)" },
       cache: "no-store",
     });
     if (!res.ok) return { error: `Lookup failed (${res.status}).` };
     const json = (await res.json()) as { lat: string; lon: string; display_name: string }[];
     if (!json[0]) return { error: "Couldn't find that address." };
-    return { lat: Number(json[0].lat), lng: Number(json[0].lon), label: json[0].display_name };
+    const lat = Number(json[0].lat);
+    const lng = Number(json[0].lon);
+    return { lat, lng, label: json[0].display_name, neighborhood: neighborhoodAt(lat, lng) };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Lookup failed." };
   }
@@ -346,7 +350,7 @@ export async function nextQuestion(input: { name: string; kind: "bar" | "restaur
       system:
         "You help the founder of ROUND, a NYC nightlife app, describe a place by asking one short question at a time, the way the app asks people about their night. " +
         "Each answer is a button, and each button maps to the app's attributes (0 = not at all, 1 = very). Your job is to ask the single most useful question that is NOT already answered or implied. " +
-        "Rules: never ask what's implied (yes to dancing implies loud, so ask DJ or band instead; yes to live music: ask whether people sit and listen or stand and sing along; a restaurant gets restaurant questions: reservations, noise, shared plates, price per head, late kitchen, date-or-group, wine-or-cocktails, dress). " +
+        "Rules: never ask what's implied (yes to dancing implies loud, so ask DJ or band instead; yes to live music: ask whether people sit and listen or stand and sing along; a restaurant gets restaurant questions: reservations, noise, shared plates, price per head, late kitchen, date-or-group, wine-or-cocktails, bougie-or-chill). Never ask about dress codes or what to wear: ROUND doesn't do dress codes; the question is whether the room is bougie or chill. " +
         "Keep the founder's voice: plain, quick, a little dry. Prompt ≤ 9 words. Two or three options, labels ≤ 4 words. Stop (done: true) when the important things are covered, usually after 7–10 questions. " +
         `Attributes you may set: ${attrList}. You may also set price (1–4), easyIn (0–1, how easy to walk in at peak), groupBig (0–1, fit for 8+), dateFit (0–1), capacity (tiny|small|medium|large). ` +
         'Respond with JSON only: {"done": false, "id": "short-id", "prompt": "…", "short": "≤ 12 chars", "options": [{"label": "…", "attrs": {key: 0..1}, "price"?: n, "easyIn"?: n, "groupBig"?: n, "dateFit"?: n, "capacity"?: "…"}]} or {"done": true}.',

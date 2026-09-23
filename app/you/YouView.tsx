@@ -5,7 +5,9 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "motion/react";
 import { Photo } from "@/components/Photo";
-import { useRoundStore } from "@/lib/store";
+import { useRoundStore, usualAnswers, type RoundState } from "@/lib/store";
+import { CARDS } from "@/lib/questions";
+import { ROOM_TAGS } from "@/components/RateSheet";
 import { useAuth } from "@/lib/auth";
 import { prettyPhone } from "@/lib/phone";
 import { venueMap } from "@/lib/venues";
@@ -109,6 +111,8 @@ export function YouView({ venues }: { venues: Venue[] }) {
           Search a bar
         </span>
       </Link>
+
+      <Learned state={state} byslug={byslug} />
 
       <section className="mt-3 grid grid-cols-2 gap-3">
         <Link href="/recommend" className="pressable card flex min-h-[124px] flex-col justify-between p-4">
@@ -243,6 +247,60 @@ function AccountCard({ count }: { count: number }) {
       <button onClick={() => openSignIn("you")} className="pressable btn-cobalt mt-3 flex h-12 w-full items-center justify-center text-[14px]">
         {needsProfile ? "Finish" : "Add your number"}
       </button>
+    </section>
+  );
+}
+
+/**
+ * What ROUND knows about you so far, in plain words: your ladder, the words
+ * you use, how you usually answer, what you never want again. It's the
+ * receipt for "it only gets smarter": every night adds a line.
+ */
+function Learned({ state, byslug }: { state: RoundState; byslug: Record<string, Venue> }) {
+  const { profile } = useAuth();
+  const ladder = (state.ladder ?? []).filter((x) => !!byslug[x]);
+  const nevers = Object.entries(state.been).filter(([, e]) => e.verdict === "never").map(([slug]) => byslug[slug]?.name ?? slug);
+  const counts: Record<string, number> = {};
+  for (const e of Object.values(state.been)) if (e.verdict === "again" || e.verdict === "back") for (const t of e.tags ?? []) counts[t] = (counts[t] ?? 0) + 1;
+  const words = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([k]) => ROOM_TAGS.find((t) => t.key === k)?.label ?? k);
+  const usual = usualAnswers(state)
+    .slice(0, 4)
+    .map(([id, label]) => `${(CARDS.find((c) => c.id === id)?.prompt ?? id).replace(/\?$/, "")} → ${label}`);
+  const lines: string[] = [];
+  if (profile?.name) lines.push(`Your name is ${profile.name.trim().split(/\s+/)[0]}.`);
+  if (ladder.length) lines.push(`${ladder.length} ${ladder.length === 1 ? "place" : "places"} on your ladder; ${byslug[ladder[0]]?.name ?? ladder[0]} is your #1.`);
+  if (words.length) lines.push(`Rooms you love are ${words.map((w) => w.toLowerCase()).join(", ")}.`);
+  if (usual.length) lines.push(`You usually say: ${usual.join("; ")}.`);
+  if (nevers.length) lines.push(`Never again: ${nevers.join(", ")}.`);
+  const n = lines.length;
+  return (
+    <section className="mt-6 rounded-[24px] border p-4" style={{ borderColor: "var(--hairline)", background: "var(--surface)" }} data-learned={n}>
+      <div className="flex items-baseline justify-between">
+        <p className="eyebrow">What ROUND knows about you</p>
+        <span className="text-[12px]" style={{ color: "var(--chalk-35)" }}>
+          {n === 0 ? "nothing yet" : `${n} ${n === 1 ? "thing" : "things"}`}
+        </span>
+      </div>
+      {n === 0 ? (
+        <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--chalk-55)" }}>
+          Answer the quick ones, rate a place, sign in. Every one of those makes the next pick sharper. It only gets smarter.
+        </p>
+      ) : (
+        <ul className="mt-2 grid gap-1.5">
+          {lines.map((l) => (
+            <li key={l} className="flex gap-2 text-[13.5px] leading-snug">
+              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "var(--tomato)" }} aria-hidden />
+              <span>{l}</span>
+            </li>
+          ))}
+          <li className="pl-3.5 text-[12px]" style={{ color: "var(--chalk-35)" }}>
+            Every answer and every rating adds a line. It only gets smarter.
+          </li>
+        </ul>
+      )}
     </section>
   );
 }

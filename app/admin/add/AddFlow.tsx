@@ -8,7 +8,7 @@ import { RealMap } from "@/components/RealMap";
 import { TypedHeading, useTypewriter } from "@/components/QuickOnes";
 import { HoursEditor } from "@/components/admin/HoursEditor";
 import { ScoreBadge } from "@/components/Score";
-import { fillFromWeb, nextQuestion, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { fillFromWeb, lookupAddress, nextQuestion, saveVenue, type SavePayload } from "@/app/admin/actions";
 import { SUGGESTED_TAGS } from "@/lib/attrs";
 import { weekSummary } from "@/lib/hours";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
@@ -37,6 +37,26 @@ export function AddFlow({ writable }: { writable: boolean }) {
   const [name, setName] = useState("");
   const [hood, setHood] = useState<NeighborhoodId | undefined>();
   const [address, setAddress] = useState("");
+  const [pin, setPin] = useState<{ lat: number; lng: number; label: string } | null>(null);
+  const [looking, setLooking] = useState(false);
+  const [lookNote, setLookNote] = useState<string | null>(null);
+  // Type an address and, a beat later, ROUND finds it: the pin lands and the neighborhood picks itself.
+  useEffect(() => {
+    const q = address.trim();
+    if (q.length < 8 || pin?.label === q) return;
+    const t = window.setTimeout(async () => {
+      setLooking(true);
+      const r = await lookupAddress(q);
+      setLooking(false);
+      if ("error" in r) return setLookNote(r.error);
+      setPin({ lat: r.lat, lng: r.lng, label: q });
+      if (r.neighborhood) {
+        setHood(r.neighborhood);
+        setLookNote(`Found it: ${neighborhoodName(r.neighborhood)}. Pin set.`);
+      } else setLookNote("Found it, but it's outside the neighborhoods ROUND covers. Pick the nearest one.");
+    }, 700);
+    return () => window.clearTimeout(t);
+  }, [address, pin?.label]);
   const [kind, setKind] = useState<"bar" | "kitchen" | "restaurant">("bar");
   const [cuisine, setCuisine] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -110,6 +130,8 @@ export function AddFlow({ writable }: { writable: boolean }) {
       cuisine: kind === "bar" ? "" : cuisine,
       neighborhood: hood ?? "",
       address: address.trim(),
+      lat: pin?.lat ?? null,
+      lng: pin?.lng ?? null,
       take: take.trim(),
       theCatch: theCatch.trim() || undefined,
       tags,
@@ -127,7 +149,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
       readTags: true,
       notes: answers.said?.length ? `Answered in Studio: ${answers.said.join(" · ")}.` : undefined,
     };
-  }, [name, kind, cuisine, hood, address, take, theCatch, tags, answers, verified, hours, score, daytime, dayDeal]);
+  }, [name, kind, cuisine, hood, address, pin, take, theCatch, tags, answers, verified, hours, score, daytime, dayDeal]);
 
   const save = async () => {
     if (!writable) return setError("Connect Supabase first (SUPABASE.md); nothing can be saved yet.");
@@ -181,20 +203,20 @@ export function AddFlow({ writable }: { writable: boolean }) {
         {step === "where" && (
           <Screen key="where">
             <Prompt text="Where is it?" />
-            <div className="mt-5 overflow-hidden rounded-[24px] border" style={{ borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
-              <RealMap value={hood} onSelect={setHood} height={280} />
+            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street address (151 Bleecker St)" autoComplete="street-address" className="mt-5 w-full rounded-[16px] border px-4 text-[15px] outline-none" style={{ height: 52, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-address />
+            <p className="mt-2 min-h-[18px] text-[12px]" style={{ color: lookNote && /^Found it:/.test(lookNote) ? "var(--pine)" : "var(--chalk-35)" }} data-look-note aria-live="polite">
+              {looking ? "Finding it…" : lookNote ?? "Type the address and ROUND finds the neighborhood and drops the pin."}
+            </p>
+            <div className="mt-3 overflow-hidden rounded-[24px] border" style={{ borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
+              <RealMap value={hood} onSelect={setHood} height={250} pin={pin} />
             </div>
             <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5">
               {NEIGHBORHOODS.map((n) => (
-                <button key={n.id} onClick={() => setHood(n.id)} className="pressable flex h-9 shrink-0 items-center rounded-full border px-3.5 text-[13px] font-medium" style={hood === n.id ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline)" }}>
+                <button key={n.id} onClick={() => setHood(n.id)} aria-pressed={hood === n.id} className="pressable flex h-9 shrink-0 items-center rounded-full border px-3.5 text-[13px] font-medium" style={hood === n.id ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline)" }}>
                   {n.short}
                 </button>
               ))}
             </div>
-            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street address (151 Bleecker St)" className="mt-4 w-full rounded-[16px] border px-4 text-[15px] outline-none" style={{ height: 52, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} />
-            <p className="mt-2 text-[12px]" style={{ color: "var(--chalk-35)" }}>
-              The pin lands from the address; you can nudge it in the editor after.
-            </p>
             <NextButton onClick={next} disabled={!hood} label={hood ? `It's in ${neighborhoodName(hood)}` : "Pick a neighborhood"} />
           </Screen>
         )}
