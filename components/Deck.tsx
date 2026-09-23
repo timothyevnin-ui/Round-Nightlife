@@ -113,26 +113,26 @@ function SwipeCard({ card, top, exitDir, onSwipe }: { card: Card; top: boolean; 
     >
       <div
         className="grain relative flex h-full w-full flex-col justify-end overflow-hidden rounded-[28px] p-6"
-        style={{ background: `linear-gradient(${card.art.angle ?? 160}deg, ${card.art.from}, ${card.art.to})` }}
+        style={{ background: `linear-gradient(${card.art.angle ?? 160}deg, ${card.art.from}, ${card.art.to})`, color: "var(--on-photo)", boxShadow: "0 18px 40px -24px rgba(22,33,58,0.6)" }}
       >
         <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(80% 60% at 80% 10%, rgba(255,255,255,0.16), transparent 60%), linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.45) 100%)" }} />
         <motion.span style={{ opacity: rightOpacity }} className="absolute left-5 top-5 rounded-full px-3 py-1.5 text-[12px] font-semibold tracking-[0.14em] uppercase" >
-          <span className="rounded-full px-3 py-1.5" style={{ background: "var(--cobalt)", color: "var(--chalk)" }}>{rightLabel}</span>
+          <span className="rounded-full px-3 py-1.5" style={{ background: "var(--tomato)", color: "var(--on-photo)" }}>{rightLabel}</span>
         </motion.span>
         <motion.span style={{ opacity: leftOpacity }} className="absolute right-5 top-5 rounded-full px-3 py-1.5 text-[12px] font-semibold tracking-[0.14em] uppercase">
-          <span className="rounded-full px-3 py-1.5" style={{ background: "rgba(11,12,16,0.75)", color: "var(--chalk)" }}>{leftLabel}</span>
+          <span className="rounded-full px-3 py-1.5" style={{ background: "rgba(22,33,58,0.78)", color: "var(--on-photo)" }}>{leftLabel}</span>
         </motion.span>
         <div className="relative">
           <p className="serif" style={{ fontSize: 40, lineHeight: 1, letterSpacing: "-0.02em" }}>
             {card.prompt}
           </p>
           {card.sub && (
-            <p className="mt-2 max-w-[28ch] text-[15px] leading-snug" style={{ color: "rgba(242,240,234,0.82)" }}>
+            <p className="mt-2 max-w-[28ch] text-[15px] leading-snug" style={{ color: "var(--on-photo-80)" }}>
               {card.sub}
             </p>
           )}
           {card.kind === "either" && (
-            <p className="mt-3 text-[12px] font-medium tracking-wide" style={{ color: "rgba(242,240,234,0.6)" }}>
+            <p className="mt-3 text-[12px] font-medium tracking-wide" style={{ color: "var(--on-photo-60)" }}>
               ← {card.a?.label} · {card.b?.label} →
             </p>
           )}
@@ -150,7 +150,7 @@ function Verdict({ label, onClick, kind }: { label: string; onClick: () => void;
       style={
         kind === "yes"
           ? { background: "var(--chalk)", color: "var(--chalk-black)", borderColor: "var(--chalk)" }
-          : { background: "rgba(242,240,234,0.06)", color: "var(--chalk)", borderColor: "var(--hairline-strong)" }
+          : { background: "var(--ink-6)", color: "var(--ink)", borderColor: "var(--hairline-strong)" }
       }
     >
       {label}

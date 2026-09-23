@@ -82,13 +82,13 @@ export function NightMap({
   }, [venues, saved, been, onSelect]);
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] border" style={{ height, borderColor: "var(--hairline)", background: "#0e1016" }}>
+    <div className="relative overflow-hidden rounded-[24px] border" style={{ height, borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(242,240,234,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(242,240,234,0.035) 1px, transparent 1px)",
+            "linear-gradient(rgba(22,33,58,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(22,33,58,0.06) 1px, transparent 1px)",
           backgroundSize: "28px 28px",
         }}
       />

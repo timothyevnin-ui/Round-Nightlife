@@ -14,7 +14,7 @@ export type NeighborhoodId =
 export type GroupBucket = "two" | "small" | "mid" | "big"; // 2 · 3–4 · 5–7 · 8+
 export type DateStage = "first" | "early" | "longterm";
 export type Capacity = "tiny" | "small" | "medium" | "large";
-export type Mode = "night" | "date";
+export type Mode = "night" | "date" | "dinner";
 
 export type Window = {
   /** 0 = Sunday … 6 = Saturday */
@@ -63,6 +63,12 @@ export type Venue = {
   /** Private notes from the back office (never rendered publicly). */
   notes?: string;
   sources?: string[];
+  /** On the home page's "What's hot right now" shelf. */
+  hot?: boolean;
+  /** Lower comes first on the shelf. */
+  hotRank?: number;
+  /** The long read: ROUND's write-up, paragraphs separated by blank lines. */
+  story?: string;
 };
 
 /** The three energy numbers, read off attrs. */
@@ -90,7 +96,17 @@ export type DateQuery = {
   been?: string[];
 };
 
-export type PickLabel = "The pick" | "Also great" | "Easy in";
+/** Dinner and drinks for a group: a restaurant that fits everyone, then a bar nearby. */
+export type DinnerQuery = {
+  neighborhood: NeighborhoodId;
+  group: number;
+  hour: number;
+  dow: number;
+  wants: Wants;
+  been?: string[];
+};
+
+export type PickLabel = "The pick" | "Also great" | "Easy in" | "Wildcard" | "Sleeper" | "Late one" | "Splurge" | "Cheap and good" | "Big room" | "Classic";
 
 export type NightPick = {
   venue: Venue;

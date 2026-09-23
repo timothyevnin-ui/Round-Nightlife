@@ -73,6 +73,9 @@ function blank(): Draft {
     bestWindows: WINDOW_PRESETS[0].windows,
     verified: false,
     friendsBeen: 0,
+    hot: false,
+    hotRank: null,
+    story: "",
   };
 }
 
@@ -101,6 +104,9 @@ function fromVenue(v: Venue): Draft {
     friendsBeen: v.friendsBeen ?? 0,
     photoUrl: v.photoUrl,
     perk: v.perk,
+    hot: !!v.hot,
+    hotRank: v.hotRank ?? null,
+    story: v.story ?? "",
   };
 }
 
@@ -179,7 +185,7 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
 
   return (
     <main className="screen pb-24">
-      <header className="sticky top-0 z-30 -mx-5 flex items-center justify-between px-5 py-3" style={{ background: "rgba(11,12,16,0.92)", backdropFilter: "blur(12px)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}>
+      <header className="sticky top-0 z-30 -mx-5 flex items-center justify-between px-5 py-3" style={{ background: "rgba(243,237,224,0.92)", backdropFilter: "blur(12px)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}>
         <Link href="/admin" className="pressable -ml-2 flex h-11 w-11 items-center justify-center rounded-full" aria-label="Back">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <path d="M13.5 5 8 11l5.5 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
@@ -380,6 +386,34 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
         </div>
       </Section>
 
+      {/* ── What's hot ── */}
+      <Section title="What's hot right now" hint="The shelf on the home page. Flip it on, write the story, and it's live within a minute.">
+        <Row label="On the shelf">
+          <Toggle on={!!d.hot} onChange={(v) => set("hot", v)} />
+        </Row>
+        <Row label="Order on the shelf (1 = first)">
+          <input
+            type="number"
+            min={1}
+            max={99}
+            value={d.hotRank ?? ""}
+            onChange={(e) => set("hotRank", e.target.value === "" ? null : Number(e.target.value))}
+            className="h-10 w-20 rounded-full border px-3 text-center text-[14px] outline-none"
+            style={inputStyle}
+            placeholder="—"
+          />
+        </Row>
+        <Field label="The story" hint="The long read: why this place, right now. Your voice, a few paragraphs, blank line between them. This is the blog.">
+          <TextArea
+            value={d.story ?? ""}
+            onChange={(v) => set("story", v)}
+            placeholder={"Nobody talks about the back room, which is the point.\n\nGo on a Tuesday…"}
+            rows={10}
+            max={8000}
+          />
+        </Field>
+      </Section>
+
       {/* ── Status ── */}
       <Section title="Status">
         <Row label="Verified — you've been, and it's right">
@@ -422,7 +456,7 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
 
 /* ───────────────────────── bits ───────────────────────── */
 
-const inputStyle = { background: "rgba(242,240,234,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" } as const;
+const inputStyle = { background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" } as const;
 const selectCls = "h-12 w-full appearance-none rounded-[14px] border px-4 text-[15px] outline-none";
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
@@ -534,8 +568,8 @@ function Tri({ value, onChange }: { value: number; onChange: (v: number) => void
                 ? o.v === 1
                   ? { background: "var(--cobalt)", borderColor: "var(--cobalt)", color: "var(--chalk)" }
                   : o.v === 0.5
-                    ? { background: "rgba(242,240,234,0.18)", borderColor: "rgba(242,240,234,0.3)", color: "var(--chalk)" }
-                    : { background: "rgba(242,240,234,0.08)", borderColor: "rgba(242,240,234,0.25)", color: "var(--chalk)" }
+                    ? { background: "rgba(22,33,58,0.18)", borderColor: "rgba(22,33,58,0.3)", color: "var(--chalk)" }
+                    : { background: "rgba(22,33,58,0.08)", borderColor: "rgba(22,33,58,0.25)", color: "var(--chalk)" }
                 : { borderColor: "var(--hairline)", color: "var(--chalk-35)" }
             }
           >
@@ -549,7 +583,7 @@ function Tri({ value, onChange }: { value: number; onChange: (v: number) => void
 
 function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)} className="pressable relative h-8 w-14 shrink-0 rounded-full transition-colors" style={{ background: on ? "var(--cobalt)" : "rgba(242,240,234,0.12)" }}>
+    <button type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)} className="pressable relative h-8 w-14 shrink-0 rounded-full transition-colors" style={{ background: on ? "var(--cobalt)" : "rgba(22,33,58,0.12)" }}>
       <span className="absolute top-1 h-6 w-6 rounded-full transition-all" style={{ left: on ? 28 : 4, background: "var(--chalk)" }} />
     </button>
   );

@@ -49,12 +49,12 @@ export function SayIt() {
       <button
         onClick={() => setOpen(true)}
         className="pressable flex w-full items-center gap-3 rounded-full border px-4 text-left"
-        style={{ height: 52, borderColor: "var(--hairline-strong)", background: "rgba(242,240,234,0.04)" }}
+        style={{ height: 52, borderColor: "var(--hairline-strong)", background: "rgba(22,33,58,0.04)" }}
         aria-label="Just say what kind of night"
       >
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(242,240,234,0.1)" }}>
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(22,33,58,0.1)" }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-            <path d="M2 11.5l1-3.5L9.5 1.5l2.5 2.5L5.5 10.5 2 11.5Z" stroke="#F2F0EA" strokeWidth="1.3" strokeLinejoin="round" />
+            <path d="M2 11.5l1-3.5L9.5 1.5l2.5 2.5L5.5 10.5 2 11.5Z" stroke="#16213A" strokeWidth="1.3" strokeLinejoin="round" />
           </svg>
         </span>
         <span className="truncate text-[14px]" style={{ color: "var(--chalk-55)" }}>
@@ -64,7 +64,7 @@ export function SayIt() {
 
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(11,12,16,0.7)", backdropFilter: "blur(6px)" }} onClick={() => !busy && setOpen(false)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={() => !busy && setOpen(false)}>
             <motion.div
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -93,7 +93,7 @@ export function SayIt() {
                 rows={3}
                 maxLength={400}
                 className="mt-4 w-full resize-none rounded-[18px] border p-4 text-[16px] leading-snug outline-none"
-                style={{ background: "rgba(242,240,234,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
+                style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
               />
               <AnimatePresence>
                 {understood && (

@@ -30,7 +30,7 @@ export const VIBE_ART = {
   lively: { from: "#3a1a2a", to: "#c04a6a", angle: 155 },
   chill: { from: "#0f2a1e", to: "#2f7a5a", angle: 165 },
   talk: { from: "#1c160a", to: "#8a6a2a", angle: 160 },
-  lowlit: { from: "#0f1a5c", to: "#2b4dff", angle: 165 },
+  lowlit: { from: "#16213a", to: "#2e4470", angle: 165 },
 } as const;
 
 export function nightSteps(): { steps: FlowStep[]; dow: number } {
@@ -79,6 +79,25 @@ export function dateSteps(): { steps: FlowStep[]; dow: number } {
         ],
       },
       { ...t, hint: "Dinner time, if there's dinner. We'll time the rest." },
+    ],
+  };
+}
+
+/** Dinner and drinks for a group: where, how many, when. The deck does the rest. */
+export function dinnerSteps(): { steps: FlowStep[]; dow: number } {
+  const { step: t, dow } = timeStep();
+  return {
+    dow,
+    steps: [
+      neighborhoodStep(),
+      {
+        id: "g",
+        question: "How many for dinner?",
+        layout: "numbers",
+        defaultValue: "4",
+        options: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => ({ value: String(n), label: n === 11 ? "11+" : String(n) })),
+      },
+      { ...t, question: "Dinner at?", hint: "ROUND times the bar for after." },
     ],
   };
 }

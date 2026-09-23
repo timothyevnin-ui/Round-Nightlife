@@ -10,12 +10,14 @@ Tell ROUND the kind of night, get three great places in NYC, pick one, tap GO. T
 
 | Surface | Route | Notes |
 | --- | --- | --- |
-| Home | `/` | Two doors: **Night out** and **Date**. Greeting reflects the phone's clock. |
-| Night out flow | `/plan/night` | Where → how many → when, then **the deck**: six swipeable quick cards chosen for the night ("Dancing?", "Need to sit?", "Loud or talk?", "Okay with a line?", "Game on?" on game nights, "Table for all of you?" when it's 6+ …). "Just tell me" skips everything. |
+| Home | `/` | Three doors: **Night out** and **Date night** side by side, **Dinner & drinks** for the group underneath. Scroll and the hero eases back into **What's hot right now**: the places with a story behind them, written in the back office. |
+| What's hot | `/hot` | The full shelf. Every entry links to its story on the venue page. |
+| Night out flow | `/plan/night` | Where → how many → when, then **the deck**: six swipeable quick cards chosen for the night ("Are we dancing?", "Loud or can-hear-yourself?", "Sitting or standing?", "Would you wait in a line?", "Is there a game on?" on game nights, "How late are we going?" late, "Is it someone's birthday?" for groups …). "Just tell me" skips everything. |
 | Date flow | `/plan/date` | Where → what kind of date → dinner too? → when, then a five-card date deck. |
+| Dinner & drinks | `/plan/dinner` | For a group: where → how many for dinner → dinner time, then a deck about the table ("Sharing plates or everyone orders?", "Loud and fun or nice and calm?", "Splurge or split the check easy?", "After dinner: dancing or a nightcap?"). Results are two-stop plans sized for the group. |
 | Just say it | Home | Type "six of us in the West Village, want to dance, no line" and it becomes the same query. Keyword parser always; Claude when `ANTHROPIC_API_KEY` is set. |
-| **Back office** | `/admin` | PIN-protected (`ROUND_ADMIN_PIN`). Add and edit places on your phone: tags, every attribute as No / Some / Yes, group and date fit, room, hours, Take, the catch, private notes, photo upload, verified. Saves go live within a minute. See **SUPABASE.md** to connect the database. |
-| Results | `/results?…` | Three cards: **The pick · Also great · Easy in**. Date mode returns two-stop plans (dinner → short walk → drinks). GO, Want to Go, Share on every card. |
+| **Back office** | `/admin` | PIN-protected (`ROUND_ADMIN_PIN`). Add and edit places on your phone: tags, every attribute as No / Some / Yes, group and date fit, room, hours, Take, the catch, private notes, photo upload, verified, and **What's hot right now** (on the shelf, order, and the story: the blog). Saves go live within a minute. See **SUPABASE.md** to connect the database. |
+| Results | `/results?…` | **Six cards you swipe through**: The pick · Also great · Easy in, then three more with a reason each (Late one, Cheap and good, Splurge, Big room, Classic, Sleeper). Each card has the photo, the Take, the catch, price, room, getting in, best time, and GO / Want to Go / Share. Date and Dinner modes return two-stop plans. |
 | Venue page | `/v/[slug]` | ROUND's Take, The catch, best for / best time / price / room, I've been + rating. Server-rendered, indexable. |
 | Plan link | `/p/[code]` | The share card. Encodes the whole plan in the URL (no database), renders a real Open Graph image for iMessage. |
 | YOU | `/you` | Your nightlife map (MapLibre + OpenFreeMap), Want to Go, Been with ratings, taste line, and your account. |
@@ -90,6 +92,10 @@ lib/
   time.ts, maps.ts, describe.ts, occasions.ts
 ```
 
+## The look
+
+Cream paper, navy ink, hunter green, a red stripe. Tokens live at the top of `app/globals.css` (`--paper`, `--ink`, `--pine`, `--tomato`, `--butter`); photos and question cards stay deep and saturated so they read as pictures against the paper, and anything drawn on them uses `--on-photo`. The old `--chalk*`/`--cobalt` names are aliased to the new ones so nothing breaks.
+
 ## The venue data
 
 The back office is the way to add and edit places (no file editing). Under the hood every venue is a row with the attributes the engine actually uses:
@@ -104,6 +110,7 @@ The back office is the way to add and edit places (no file editing). Under the h
 - `theCatch` — the thing Maps doesn't know ("line after 9:30 on Thursdays").
 - `perk`, `groupBooking` — empty slots for the membership and ROUND Table phases.
 - `verified` — **every seed entry is `false`.** Flip it after a visit.
+- `hot`, `hotRank`, `story` — the "What's hot right now" shelf and the long-form write-up behind each entry. Six seed entries have draft stories (`lib/stories.ts`) so the shelf has a shape; rewrite them.
 
 The 68 seeded places are real, well-known NYC spots described from general reputation so the product can be felt. Treat every attribute, window and Take as a draft to verify against a visit and the venue's own site or Instagram. Nothing is copied from another publication. Photos are placeholder gradients until ROUND has its own photography; the `photo` field is where a real image URL goes.
 
@@ -117,7 +124,9 @@ Night out: `score = neighborhood×0.18 + groupFit×0.22 + timeWindow×0.14 + pre
 
 Date: `dateFit×0.38 + prefs×0.40 + neighborhood×0.12 + time×0.10`, with a small built-in lean toward date-y rooms. With dinner, three restaurants are paired with the best bar within ~900 m and timed.
 
-The weights live at the top of `engine.ts`. The card bank and the rules for which cards show (game nights, big groups, late hours) live in `lib/questions.ts`.
+The weights live at the top of `engine.ts`. Dinner & drinks (groups): restaurants scored on `neighborhood×0.18 + groupFit×0.32 + time×0.12 + prefs×0.38` with the capacity penalty, each paired with the best bar within ~900 m that also fits the group.
+
+Every mode returns six: the best, a genuinely different second, one you can walk into, then the next best with a one-word reason each. The card bank and the rules for which cards show (game nights, big groups, late hours) live in `lib/questions.ts`.
 
 Tune the weights there; the best-of pages and results update together.
 

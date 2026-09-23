@@ -57,6 +57,10 @@ Go to `https://round-nightlife.vercel.app/admin`, enter your PIN. The banner at 
 
 Quick test: open any place, change one word of the Take, Save, then open its public page (the link at the top of the editor). Then try **Draft the Take** on a place with a couple of notes.
 
+## 6b. After any code update: run the SQL again
+
+Whenever a new version of the code adds fields (the "What's hot" shelf and stories did), paste the current `supabase/schema.sql` into the SQL Editor and **Run** it again. It only adds what's missing; nothing is lost. If you skip this, saving a place in the back office fails with a "column does not exist" message.
+
 ## 7. Phone sign-in (Twilio, about 10 minutes)
 
 Accounts let people keep their Want-to-go / Been / ratings across phones. Supabase handles the accounts; Twilio sends the six-digit text. Nothing in ROUND requires an account, so this can wait, but it's cheap and worth doing early.

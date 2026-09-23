@@ -34,7 +34,13 @@ create table if not exists public.venues (
   updated_at    timestamptz not null default now()
 );
 
+-- Added later: the "What's hot right now" shelf and the long-form write-up.
+alter table public.venues add column if not exists hot      boolean not null default false;
+alter table public.venues add column if not exists hot_rank integer;
+alter table public.venues add column if not exists story    text;
+
 create index if not exists venues_neighborhood_idx on public.venues (neighborhood);
+create index if not exists venues_hot_idx on public.venues (hot) where hot;
 create index if not exists venues_verified_idx on public.venues (verified);
 
 -- Keep updated_at honest.

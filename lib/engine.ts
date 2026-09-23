@@ -1,7 +1,7 @@
 import { NEIGHBORHOOD_MAP } from "./neighborhoods";
 import { ATTRS, type AttrKey } from "./attrs";
 import type { Wants } from "./questions";
-import type { DatePlan, DateQuery, GroupBucket, NightPick, NightQuery, PickLabel, Venue, Window } from "./types";
+import type { DatePlan, DateQuery, DinnerQuery, GroupBucket, NightPick, NightQuery, PickLabel, Venue, Window } from "./types";
 
 /**
  * Deterministic scoring. No AI, no black box: every number below is a knob.
@@ -125,14 +125,77 @@ const HIT_WORD: Partial<Record<AttrKey, string>> = {
   scene: "Sceney",
   happyHour: "Happy hour",
   date: "Date-y",
-  lgbtq: "Queer night",
 };
 
 /* ───────────────────────── NIGHT OUT ───────────────────────── */
 
-export function recommendNight(q: NightQuery, venues: Venue[]): NightPick[] {
+/** How many cards a results carousel shows. */
+export const RESULT_COUNT = 6;
+
+type Scored = { venue: Venue; score: number; hits: AttrKey[]; group: number };
+
+/** A label for slots four through six: what makes this one different. */
+function flavorLabel(venue: Venue, taken: Set<PickLabel>): PickLabel {
+  const a = venue.attrs;
+  const candidates: [boolean, PickLabel][] = [
+    [a.late >= 0.85, "Late one"],
+    [a.cheap >= 0.85, "Cheap and good"],
+    [a.upscale >= 0.85, "Splurge"],
+    [venue.capacity === "large", "Big room"],
+    [a.classic >= 0.85, "Classic"],
+  ];
+  for (const [ok, label] of candidates) if (ok && !taken.has(label)) return label;
+  return taken.has("Sleeper") ? "Wildcard" : "Sleeper";
+}
+
+const dominant = (v: Venue) => (["lively", "chill", "talk"] as AttrKey[]).sort((a, b) => v.attrs[b] - v.attrs[a])[0];
+
+/**
+ * Turn a ranked list into a carousel: the best, a genuinely different second,
+ * something you can walk into, then the next best with a reason each.
+ */
+function diversify(scored: Scored[], bucket: GroupBucket, count: number): { s: Scored; label: PickLabel }[] {
+  if (scored.length === 0) return [];
+  const out: { s: Scored; label: PickLabel }[] = [];
+  const used = new Set<string>();
+  const take = (s: Scored | undefined, label: PickLabel) => {
+    if (!s || used.has(s.venue.slug)) return;
+    used.add(s.venue.slug);
+    out.push({ s, label });
+  };
+
+  const first = scored[0];
+  take(first, "The pick");
+
+  take(
+    scored.find((s) => !used.has(s.venue.slug) && (s.venue.capacity !== first.venue.capacity || dominant(s.venue) !== dominant(first.venue))) ??
+      scored.find((s) => !used.has(s.venue.slug)),
+    "Also great",
+  );
+
+  take(
+    scored
+      .filter((s) => !used.has(s.venue.slug))
+      .map((s) => ({ ...s, easyScore: s.score * (0.5 + 0.5 * s.venue.easyIn) }))
+      .filter((s) => s.venue.easyIn >= 0.55 && (bucket === "two" || s.venue.capacity !== "tiny"))
+      .sort((a, b) => b.easyScore - a.easyScore)[0] ?? scored.find((s) => !used.has(s.venue.slug)),
+    "Easy in",
+  );
+
+  const taken = new Set<PickLabel>();
+  for (const s of scored) {
+    if (out.length >= count) break;
+    if (used.has(s.venue.slug)) continue;
+    const label = flavorLabel(s.venue, taken);
+    taken.add(label);
+    take(s, label);
+  }
+  return out.slice(0, count);
+}
+
+export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_COUNT): NightPick[] {
   const bucket = groupBucket(q.group);
-  const scored = venues
+  const scored: Scored[] = venues
     .filter((v) => v.kind === "bar")
     .map((venue) => {
       const nb = neighborhoodScore(venue, q.neighborhood);
@@ -144,14 +207,10 @@ export function recommendNight(q: NightQuery, venues: Venue[]): NightPick[] {
       const score = base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been);
       return { venue, score, hits, group };
     })
-    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .filter((x): x is Scored => x !== null)
     .sort((a, b) => b.score - a.score);
 
-  if (scored.length === 0) return [];
-
-  const picks: NightPick[] = [];
-  const used = new Set<string>();
-  const why = (s: (typeof scored)[number], label: PickLabel) => {
+  const why = (s: Scored, label: PickLabel) => {
     const parts = s.hits.slice(0, 2).map((h) => HIT_WORD[h]).filter(Boolean) as string[];
     if (s.group >= 0.8 && parts.length < 3) parts.push(`Good for ${groupWord(q.group)}`);
     if (label === "Easy in") parts.push("Room to walk in");
@@ -159,28 +218,7 @@ export function recommendNight(q: NightQuery, venues: Venue[]): NightPick[] {
     return parts.slice(0, 3).join(" · ");
   };
 
-  const first = scored[0];
-  picks.push({ venue: first.venue, label: "The pick", score: first.score, why: why(first, "The pick") });
-  used.add(first.venue.slug);
-
-  const dominant = (v: Venue) => (["lively", "chill", "talk"] as AttrKey[]).sort((a, b) => v.attrs[b] - v.attrs[a])[0];
-  const second =
-    scored.find((s) => !used.has(s.venue.slug) && (s.venue.capacity !== first.venue.capacity || dominant(s.venue) !== dominant(first.venue))) ??
-    scored.find((s) => !used.has(s.venue.slug));
-  if (second) {
-    picks.push({ venue: second.venue, label: "Also great", score: second.score, why: why(second, "Also great") });
-    used.add(second.venue.slug);
-  }
-
-  const easy =
-    scored
-      .filter((s) => !used.has(s.venue.slug))
-      .map((s) => ({ ...s, easyScore: s.score * (0.5 + 0.5 * s.venue.easyIn) }))
-      .filter((s) => s.venue.easyIn >= 0.55 && (bucket === "two" || s.venue.capacity !== "tiny"))
-      .sort((a, b) => b.easyScore - a.easyScore)[0] ?? scored.find((s) => !used.has(s.venue.slug));
-  if (easy) picks.push({ venue: easy.venue, label: "Easy in", score: easy.score, why: why(easy, "Easy in") });
-
-  return picks;
+  return diversify(scored, bucket, count).map(({ s, label }) => ({ venue: s.venue, label, score: s.score, why: why(s, label) }));
 }
 
 /* ───────────────────────── DATE ───────────────────────── */
@@ -199,57 +237,48 @@ function scoreDateVenue(venue: Venue, q: DateQuery, weights: { fit: number; pref
   return { score, hits };
 }
 
-export function recommendDate(q: DateQuery, venues: Venue[]): DatePlan[] {
-  const bars = venues
+export function recommendDate(q: DateQuery, venues: Venue[], count = RESULT_COUNT): DatePlan[] {
+  const bars: Scored[] = venues
     .filter((v) => v.kind === "bar")
     .map((venue) => ({ venue, r: scoreDateVenue(venue, q, { fit: 0.38, prefs: 0.4, nb: 0.12, time: 0.1 }) }))
     .filter((x): x is { venue: Venue; r: { score: number; hits: AttrKey[] } } => x.r !== null)
-    .map((x) => ({ venue: x.venue, score: x.r.score, hits: x.r.hits }))
+    .map((x) => ({ venue: x.venue, score: x.r.score, hits: x.r.hits, group: x.venue.groupFit.two }))
     .sort((a, b) => b.score - a.score);
 
   const hitWords = (hits: AttrKey[]) => hits.slice(0, 2).map((h) => HIT_WORD[h]).filter(Boolean) as string[];
 
   if (!q.dinner) {
-    const labels: PickLabel[] = ["The pick", "Also great", "Easy in"];
-    const chosen: typeof bars = [];
-    for (const b of bars) {
-      if (chosen.length === 3) break;
-      if (chosen.length === 2) {
-        const easy = bars.find((x) => !chosen.includes(x) && x.venue.easyIn >= 0.5);
-        chosen.push(easy ?? b);
-        break;
-      }
-      chosen.push(b);
-    }
-    return chosen.map((c, i) => ({
-      bar: c.venue,
-      label: labels[i],
-      score: c.score,
+    return diversify(bars, "two", count).map(({ s, label }) => ({
+      bar: s.venue,
+      label,
+      score: s.score,
       drinksAt: q.hour,
-      why: [STAGE_WORD[q.stage], ...hitWords(c.hits), labels[i] === "Easy in" ? "Room to walk in" : null].filter(Boolean).slice(0, 3).join(" · "),
+      why: [STAGE_WORD[q.stage], ...hitWords(s.hits), label === "Easy in" ? "Room to walk in" : null].filter(Boolean).slice(0, 3).join(" · "),
     }));
   }
 
-  const restaurants = venues
+  const restaurants: Scored[] = venues
     .filter((v) => v.kind === "restaurant")
     .map((venue) => ({ venue, r: scoreDateVenue(venue, q, { fit: 0.45, prefs: 0.3, nb: 0.15, time: 0.1 }) }))
     .filter((x): x is { venue: Venue; r: { score: number; hits: AttrKey[] } } => x.r !== null)
-    .map((x) => ({ venue: x.venue, score: x.r.score, hits: x.r.hits }))
+    .map((x) => ({ venue: x.venue, score: x.r.score, hits: x.r.hits, group: x.venue.groupFit.two }))
     .sort((a, b) => b.score - a.score);
 
+  return pairWithBars(diversify(restaurants, "two", count), bars, q.hour, (r, bar, walk) =>
+    [STAGE_WORD[q.stage], ...hitWords([...r.hits, ...bar.hits]), `${walk} min walk between`].slice(0, 3).join(" · "),
+  );
+}
+
+/** Each restaurant gets the best bar within a short walk; bars aren't reused. */
+function pairWithBars(
+  picks: { s: Scored; label: PickLabel }[],
+  bars: Scored[],
+  dinnerAt: number,
+  why: (r: Scored, bar: Scored, walk: number) => string,
+): DatePlan[] {
   const plans: DatePlan[] = [];
   const usedBars = new Set<string>();
-  const labels: PickLabel[] = ["The pick", "Also great", "Easy in"];
-
-  const pick: typeof restaurants = restaurants.slice(0, 2);
-  const easyRestaurant = restaurants.find((r) => r.venue.easyIn >= 0.45 && !pick.includes(r));
-  if (easyRestaurant) pick.push(easyRestaurant);
-  else {
-    const next = restaurants.find((r) => !pick.includes(r));
-    if (next) pick.push(next);
-  }
-
-  pick.forEach((r, i) => {
+  for (const { s: r, label } of picks) {
     const candidates = bars
       .filter((b) => !usedBars.has(b.venue.slug))
       .map((b) => ({ ...b, dist: haversineMeters(r.venue, b.venue) }))
@@ -257,25 +286,49 @@ export function recommendDate(q: DateQuery, venues: Venue[]): DatePlan[] {
       .map((b) => ({ ...b, combined: b.score * (1 - Math.min(b.dist, 900) / 3000) }))
       .sort((a, b) => b.combined - a.combined);
     const bar = candidates[0] ?? bars.find((b) => !usedBars.has(b.venue.slug)) ?? bars[0];
-    if (!bar) return;
+    if (!bar) continue;
     usedBars.add(bar.venue.slug);
     const dist = haversineMeters(r.venue, bar.venue);
     const walk = Math.max(2, Math.round(dist / 80));
-    const dinnerAt = q.hour;
     const drinksAt = Math.round((dinnerAt + 1.75) * 4) / 4;
-    plans.push({
-      restaurant: r.venue,
-      bar: bar.venue,
-      label: labels[i],
-      score: r.score,
-      dinnerAt,
-      drinksAt,
-      walkMinutes: walk,
-      why: [STAGE_WORD[q.stage], ...hitWords([...r.hits, ...bar.hits]), `${walk} min walk between`].slice(0, 3).join(" · "),
-    });
-  });
-
+    plans.push({ restaurant: r.venue, bar: bar.venue, label, score: r.score, dinnerAt, drinksAt, walkMinutes: walk, why: why(r, bar, walk) });
+  }
   return plans;
+}
+
+/* ───────────────────────── DINNER & DRINKS (groups) ───────────────────────── */
+
+/**
+ * A restaurant that fits everyone, then a bar nearby that fits everyone too.
+ * Group fit and room size matter most; the deck's wants (share plates, loud or
+ * calm, splurge, dancing after) steer both stops.
+ */
+export function recommendDinner(q: DinnerQuery, venues: Venue[], count = RESULT_COUNT): DatePlan[] {
+  const bucket = groupBucket(q.group);
+  const score = (venue: Venue, w: { nb: number; group: number; time: number; prefs: number }): Scored | null => {
+    const nb = neighborhoodScore(venue, q.neighborhood);
+    if (nb === null) return null;
+    const group = venue.groupFit[bucket];
+    const time = timeScore(venue, q.hour, q.dow);
+    const { score: prefs, hits } = prefsScore(venue, q.wants);
+    const base = nb * w.nb + group * w.group + time * w.time + prefs * w.prefs;
+    return { venue, score: base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been), hits, group };
+  };
+  const restaurants = venues
+    .filter((v) => v.kind === "restaurant")
+    .map((v) => score(v, { nb: 0.18, group: 0.32, time: 0.12, prefs: 0.38 }))
+    .filter((x): x is Scored => x !== null)
+    .sort((a, b) => b.score - a.score);
+  const bars = venues
+    .filter((v) => v.kind === "bar")
+    .map((v) => score(v, { nb: 0.14, group: 0.3, time: 0.14, prefs: 0.42 }))
+    .filter((x): x is Scored => x !== null)
+    .sort((a, b) => b.score - a.score);
+
+  const hitWords = (hits: AttrKey[]) => hits.slice(0, 2).map((h) => HIT_WORD[h]).filter(Boolean) as string[];
+  return pairWithBars(diversify(restaurants, bucket, count), bars, q.hour, (r, bar, walk) =>
+    [`Table for ${groupWord(q.group)}`, ...hitWords([...r.hits, ...bar.hits]), `${walk} min walk between`].slice(0, 3).join(" · "),
+  );
 }
 
 /** Labels for the attribute chips on venue pages, derived from strong attrs. */

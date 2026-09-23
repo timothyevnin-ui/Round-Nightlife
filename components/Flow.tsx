@@ -20,7 +20,7 @@ export type FlowStep = {
   defaultValue?: string;
 };
 
-const BLUES = ["var(--blue-1)", "var(--blue-2)", "var(--blue-3)", "var(--blue-4)", "var(--blue-5)"];
+const WALK = ["var(--walk-1)", "var(--walk-2)", "var(--walk-3)", "var(--walk-4)", "var(--walk-5)"];
 
 export function Flow({
   steps,
@@ -39,7 +39,7 @@ export function Flow({
   const advancing = useRef(false);
 
   const step = steps[index];
-  const glow = BLUES[Math.min(index, BLUES.length - 1)];
+  const glow = WALK[Math.min(index, WALK.length - 1)];
 
   const defaults = useMemo(
     () => Object.fromEntries(steps.map((s) => [s.id, s.defaultValue ?? s.options[0]?.value])),
@@ -182,11 +182,11 @@ const variants = {
 function glowToRgba(i: number) {
   // blue-1 … blue-5 as rgba glows; deeper at the start, brighter as you go.
   const glows = [
-    "rgba(22, 40, 154, 0.55)",
-    "rgba(29, 55, 196, 0.55)",
-    "rgba(43, 77, 255, 0.50)",
-    "rgba(63, 107, 255, 0.46)",
-    "rgba(95, 140, 255, 0.42)",
+    "rgba(31, 74, 60, 0.30)",
+    "rgba(31, 74, 60, 0.24)",
+    "rgba(46, 107, 82, 0.22)",
+    "rgba(22, 33, 58, 0.20)",
+    "rgba(46, 68, 112, 0.20)",
   ];
   return glows[Math.min(i, glows.length - 1)];
 }
@@ -208,8 +208,8 @@ function Options({
     v === current
       ? { background: "var(--chalk)", color: "var(--chalk-black)", borderColor: "var(--chalk)" }
       : v === suggested
-        ? { background: "rgba(242,240,234,0.08)", color: "var(--chalk)", borderColor: "rgba(242,240,234,0.55)" }
-        : { background: "rgba(242,240,234,0.06)", color: "var(--chalk)", borderColor: "var(--hairline)" };
+        ? { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--ink-55)" }
+        : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline)" };
 
   if (step.layout === "grid") {
     return (
@@ -264,7 +264,8 @@ function Options({
               className={`${base} grain relative flex h-[104px] items-end overflow-hidden rounded-[22px] border p-4`}
               style={{
                 background: `linear-gradient(${art.angle ?? 160}deg, ${art.from}, ${art.to})`,
-                borderColor: selected ? "var(--chalk)" : isSuggested ? "rgba(242,240,234,0.45)" : "transparent",
+                color: "var(--on-photo)",
+                borderColor: selected ? "var(--ink)" : isSuggested ? "var(--ink-35)" : "transparent",
                 boxShadow: selected ? "0 0 0 1.5px var(--chalk) inset" : "none",
               }}
             >
@@ -277,7 +278,7 @@ function Options({
                   {o.label}
                 </div>
                 {o.sub && (
-                  <div className="mt-1 text-[13px]" style={{ color: "rgba(242,240,234,0.75)" }}>
+                  <div className="mt-1 text-[13px]" style={{ color: "var(--on-photo-80)" }}>
                     {o.sub}
                   </div>
                 )}

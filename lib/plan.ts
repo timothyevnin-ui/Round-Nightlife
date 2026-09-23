@@ -9,7 +9,7 @@ import type { NeighborhoodId, Venue } from "./types";
 export type PlanStop = { restaurant?: string; bar: string; dinnerAt?: number; drinksAt?: number; walk?: number };
 
 export type PlanPayload = {
-  m: "night" | "date";
+  m: "night" | "date" | "dinner";
   n: NeighborhoodId;
   t: number; // hour
   g?: number; // group size
@@ -41,7 +41,7 @@ export function encodePlan(p: PlanPayload): string {
 export function decodePlan(code: string, venues: Record<string, Venue>): Plan | null {
   try {
     const raw = JSON.parse(fromBase64Url(code)) as PlanPayload;
-    if (!raw || (raw.m !== "night" && raw.m !== "date")) return null;
+    if (!raw || (raw.m !== "night" && raw.m !== "date" && raw.m !== "dinner")) return null;
     if (!isNeighborhoodId(raw.n)) return null;
     const stops = (raw.s ?? [])
       .map((s) => {

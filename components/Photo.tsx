@@ -25,6 +25,7 @@ export function Photo({
       className={`grain relative overflow-hidden ${rounded} ${className}`}
       style={{
         background: `radial-gradient(120% 90% at 20% 0%, rgba(255,255,255,0.10), transparent 55%), linear-gradient(${angle}deg, ${from}, ${to})`,
+        color: "var(--on-photo)",
         ...style,
       }}
       aria-label={venue.photoUrl ? venue.name : `${venue.name} — photo coming`}

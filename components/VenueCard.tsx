@@ -13,10 +13,10 @@ export function LabelChip({ label }: { label: PickLabel | string }) {
     <span
       className="inline-flex h-7 items-center rounded-full px-3 text-[11px] font-semibold tracking-[0.12em] uppercase"
       style={{
-        background: isPick ? "var(--chalk)" : "rgba(11,12,16,0.55)",
-        color: isPick ? "var(--chalk-black)" : "var(--chalk)",
+        background: isPick ? "var(--paper)" : "rgba(22,33,58,0.55)",
+        color: isPick ? "var(--ink)" : "var(--on-photo)",
         backdropFilter: "blur(10px)",
-        border: isPick ? "none" : "1px solid rgba(242,240,234,0.18)",
+        border: isPick ? "none" : "1px solid rgba(246,241,231,0.22)",
       }}
     >
       {label}
@@ -29,11 +29,11 @@ export function FriendsChip({ count }: { count?: number }) {
   return (
     <span
       className="inline-flex h-7 items-center gap-1.5 rounded-full pl-2 pr-3 text-[12px] font-medium"
-      style={{ background: "rgba(11,12,16,0.55)", backdropFilter: "blur(10px)", border: "1px solid rgba(242,240,234,0.18)" }}
+      style={{ background: "rgba(22,33,58,0.55)", backdropFilter: "blur(10px)", border: "1px solid rgba(246,241,231,0.22)", color: "var(--on-photo)" }}
     >
       <span className="flex -space-x-1.5" aria-hidden>
         {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
-          <span key={i} className="h-4 w-4 rounded-full border" style={{ background: ["#5f8cff", "#c04a6a", "#2f7a5a"][i % 3], borderColor: "#0b0c10" }} />
+          <span key={i} className="h-4 w-4 rounded-full border" style={{ background: ["#e8694a", "#f2c14e", "#2e6b52"][i % 3], borderColor: "#16213a" }} />
         ))}
       </span>
       {count === 1 ? "1 friend has been" : `${count} friends have been`}

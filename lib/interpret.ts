@@ -11,7 +11,7 @@ import type { DateStage, NeighborhoodId } from "./types";
  */
 
 export type Interpretation = {
-  mode: "night" | "date";
+  mode: "night" | "date" | "dinner";
   neighborhood?: NeighborhoodId;
   group?: number;
   hour?: number;
@@ -98,13 +98,14 @@ export function interpretText(raw: string): Interpretation {
   const wants: Wants = {};
 
   const isDate = /\b(date|romantic|anniversary|girlfriend|boyfriend|wife|husband|partner|hinge|tinder|bumble)\b/i.test(text);
-  const mode: Interpretation["mode"] = isDate ? "date" : "night";
+  const wantsDinner = /\b(dinner|restaurant|eat first|eat somewhere|hungry|reservation|table for)\b/i.test(text);
+  const mode: Interpretation["mode"] = isDate ? "date" : wantsDinner ? "dinner" : "night";
 
   const neighborhood = findNeighborhood(text);
   const group = findGroup(text);
   const hour = findHour(text);
   const stage = isDate ? findStage(text) : undefined;
-  const dinner = isDate ? /\b(dinner|eat|food|restaurant)\b/i.test(text) : undefined;
+  const dinner = isDate ? wantsDinner : undefined;
 
   // Attribute keywords with a small negation window.
   const words = text.split(" ");
@@ -160,7 +161,7 @@ export function interpretPrompt(text: string) {
   return (
     `Turn this sentence about going out in NYC into JSON for a bar recommender.\n` +
     `Sentence: """${text}"""\n\n` +
-    `Return only JSON: {"mode":"night"|"date","neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) or null,` +
+    `Return only JSON: {"mode":"night"|"date"|"dinner" (dinner = a group wants to eat first, then drinks),"neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) or null,` +
     `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases]}\n` +
     `Attributes (use only these keys; positive = wants it, negative = wants to avoid it; also allowed: "noLine" for no waiting, "new" for somewhere they haven't been):\n${attrs}\n` +
     `Be literal. Don't invent a neighborhood or group size that isn't stated.`
@@ -173,7 +174,7 @@ export function toResultsParams(i: Interpretation, fallbackDow: number): URLSear
   p.set("n", i.neighborhood ?? "west-village");
   p.set("t", String(i.hour ?? timeOptions().defaultValue));
   p.set("d", String(fallbackDow));
-  if (i.mode === "night") p.set("g", String(i.group ?? 4));
+  if (i.mode === "night" || i.mode === "dinner") p.set("g", String(i.group ?? 4));
   else {
     p.set("s", i.stage ?? "early");
     p.set("dn", i.dinner === false ? "0" : "1");

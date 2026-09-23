@@ -41,7 +41,7 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: "rgba(11,12,16,0.72)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }}
       onClick={onClose}
       role="dialog"
       aria-modal
@@ -175,7 +175,7 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
         <p className="mt-2 text-[14px] leading-snug" style={{ color: "var(--chalk-55)" }}>
           {c.sub}
         </p>
-        <div className="mt-5 flex items-center gap-2 rounded-[18px] border px-4" style={{ background: "rgba(242,240,234,0.05)", borderColor: "var(--hairline-strong)", height: 60 }}>
+        <div className="mt-5 flex items-center gap-2 rounded-[18px] border px-4" style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", height: 60 }}>
           {!phoneInput.trim().startsWith("+") && (
             <span className="text-[20px]" style={{ color: "var(--chalk-35)" }}>
               +1
@@ -247,7 +247,7 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
           }}
           placeholder="••••••"
           className="mt-5 w-full rounded-[18px] border bg-transparent text-center outline-none"
-          style={{ height: 64, background: "rgba(242,240,234,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", fontSize: 30, letterSpacing: "0.35em" }}
+          style={{ height: 64, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", fontSize: 30, letterSpacing: "0.35em" }}
         />
         {error && <Err>{error}</Err>}
         <button onClick={() => verify(code)} disabled={code.length !== 6 || busy} className="pressable btn-primary mt-4 flex h-14 w-full items-center justify-center text-[16px]" style={{ opacity: code.length !== 6 || busy ? 0.55 : 1 }}>
@@ -288,7 +288,7 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
             placeholder="Tim"
             maxLength={40}
             className="mt-2 w-full rounded-[18px] border px-4 text-[20px] outline-none"
-            style={{ height: 58, background: "rgba(242,240,234,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
+            style={{ height: 58, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
           />
         </label>
         <div className="mt-4">
@@ -340,7 +340,7 @@ const DateBox = forwardRef<HTMLInputElement, { label: string; value: string; max
         onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, max))}
         onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
         className="w-full rounded-[18px] border text-center text-[20px] outline-none"
-        style={{ height: 58, background: "rgba(242,240,234,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", letterSpacing: "0.04em" }}
+        style={{ height: 58, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", letterSpacing: "0.04em" }}
       />
     );
   },
@@ -351,7 +351,7 @@ function Err({ children }: { children: React.ReactNode }) {
   const detail = rest.join(" ").trim();
   return (
     <div className="mt-3" role="alert">
-      <p className="text-[13px]" style={{ color: "#ff8a7a" }}>
+      <p className="text-[13px]" style={{ color: "var(--tomato-deep)" }}>
         {head}
       </p>
       {detail && detail !== head && (

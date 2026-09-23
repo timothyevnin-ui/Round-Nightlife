@@ -60,7 +60,7 @@ export function SaveButton({ slug, source = "flow", compact = true }: { slug: st
         aria-label={saved ? "Saved to Want to Go" : "Want to Go"}
         className="pressable flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
         style={{
-          background: saved ? "var(--cobalt)" : "rgba(242,240,234,0.06)",
+          background: saved ? "var(--cobalt)" : "rgba(22,33,58,0.06)",
           borderColor: saved ? "var(--cobalt)" : "var(--hairline)",
         }}
       >
@@ -120,7 +120,7 @@ export function ShareButton({
         onClick={share}
         aria-label="Share"
         className="pressable flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
-        style={{ background: "rgba(242,240,234,0.06)", borderColor: "var(--hairline)" }}
+        style={{ background: "rgba(22,33,58,0.06)", borderColor: "var(--hairline)" }}
       >
         {copied ? <CheckIcon /> : <ShareIcon />}
       </button>

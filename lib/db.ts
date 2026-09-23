@@ -71,10 +71,13 @@ export type VenueRow = {
   verified: boolean;
   notes: string | null;
   sources: string[] | null;
+  hot: boolean | null;
+  hot_rank: number | null;
+  story: string | null;
 };
 
 const CAPACITIES: Capacity[] = ["tiny", "small", "medium", "large"];
-const DEFAULT_PHOTO = { from: "#161922", to: "#3a4150", angle: 180 };
+const DEFAULT_PHOTO = { from: "#1f2a3a", to: "#4a5a6e", angle: 180 };
 
 export function rowToVenue(r: VenueRow): Venue | null {
   if (!r.slug || !r.name || !isNeighborhoodId(r.neighborhood)) return null;
@@ -116,6 +119,9 @@ export function rowToVenue(r: VenueRow): Venue | null {
     verified: !!r.verified,
     notes: r.notes ?? undefined,
     sources: r.sources ?? undefined,
+    hot: !!r.hot,
+    hotRank: typeof r.hot_rank === "number" ? r.hot_rank : undefined,
+    story: r.story ?? undefined,
   };
 }
 
@@ -146,6 +152,9 @@ export function venueToRow(v: Venue): VenueRow {
     verified: v.verified,
     notes: v.notes ?? null,
     sources: v.sources ?? null,
+    hot: !!v.hot,
+    hot_rank: v.hotRank ?? null,
+    story: v.story ?? null,
   };
 }
 

@@ -1,5 +1,6 @@
 import type { Venue, Window } from "./types";
 import { normalizeSeed, type SeedVenue } from "./normalize";
+import { SEED_STORIES } from "./stories";
 
 /**
  * SEED DATA — every entry is `verified: false`.
@@ -14,8 +15,8 @@ import { normalizeSeed, type SeedVenue } from "./normalize";
  */
 
 const P = {
-  ink: { from: "#0f1a5c", to: "#2b4dff", angle: 160 },
-  night: { from: "#0b0c10", to: "#1d37c4", angle: 200 },
+  ink: { from: "#16213a", to: "#2e4470", angle: 160 },
+  night: { from: "#0f1b17", to: "#1f4a3c", angle: 200 },
   amber: { from: "#2b1d0c", to: "#8a6320", angle: 170 },
   wine: { from: "#2a0f1c", to: "#7a2444", angle: 150 },
   forest: { from: "#0c2419", to: "#1f5a3f", angle: 165 },
@@ -1092,7 +1093,10 @@ const RAW: SeedVenue[] = [
 ];
 
 /** Normalized seed — the fallback whenever no database is configured. */
-export const SEED_VENUES: Venue[] = RAW.map(normalizeSeed);
+export const SEED_VENUES: Venue[] = RAW.map(normalizeSeed).map((v) => {
+  const hot = SEED_STORIES[v.slug];
+  return hot ? { ...v, hot: true, hotRank: hot.rank, story: hot.story } : v;
+});
 
 /** @deprecated prefer getVenues() from lib/db — kept for the seed importer and tests. */
 export const VENUES = SEED_VENUES;

@@ -20,7 +20,7 @@ export function TabBar() {
       <div
         className="mx-auto max-w-md"
         style={{
-          background: "linear-gradient(180deg, rgba(11,12,16,0) 0%, rgba(11,12,16,0.92) 30%, #0b0c10 100%)",
+          background: "linear-gradient(180deg, rgba(243,237,224,0) 0%, rgba(243,237,224,0.94) 30%, #f3ede0 100%)",
           paddingTop: 18,
         }}
       >
@@ -34,7 +34,7 @@ export function TabBar() {
                 href={t.href}
                 className="pressable flex flex-col items-center justify-center gap-1 min-w-[72px]"
                 aria-current={active ? "page" : undefined}
-                style={{ color: active ? "var(--chalk)" : "var(--chalk-35)" }}
+                style={{ color: active ? "var(--ink)" : "var(--ink-35)" }}
               >
                 <Icon active={active} />
                 <span className="text-[11px] font-medium tracking-wide">{t.label}</span>
@@ -51,7 +51,7 @@ function HomeIcon({ active }: { active: boolean }) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} />
-      {active && <circle cx="12" cy="12" r="3" fill="var(--cobalt-bright)" />}
+      {active && <circle cx="12" cy="12" r="3" fill="var(--tomato)" />}
     </svg>
   );
 }
