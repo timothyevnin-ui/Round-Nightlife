@@ -222,10 +222,8 @@ create trigger profiles_hash before insert or update of phone on public.profiles
   for each row execute function public.profiles_hash_phone();
 update public.profiles set phone = phone where phone_hash is null and phone is not null;
 
--- What other people may see of a profile: never the phone.
-create or replace view public.people with (security_invoker = false) as
-  select id, name, is_public from public.profiles;
-grant select on public.people to authenticated;
+-- What other people may see of a profile: never the phone. (The view itself is
+-- defined once, in V14 below, after the about-you columns it shows exist.)
 
 -- One row per direction. 'following' = accepted; 'pending' = asked, not yet accepted.
 create table if not exists public.friends (
@@ -379,8 +377,11 @@ alter table public.profiles add column if not exists fav_restaurant text;
 alter table public.profiles add column if not exists fun            jsonb not null default '{}'::jsonb;
 alter table public.profiles add column if not exists avatar_url     text;
 
--- Friends can see a face and a hometown (never a phone, never a birthday).
-create or replace view public.people with (security_invoker = false) as
+-- Friends can see a face and where you live (never a phone, never a birthday).
+-- Dropped and recreated rather than replaced: Postgres won't let a view lose
+-- or reorder columns in place, and this file is meant to be re-run.
+drop view if exists public.people;
+create view public.people with (security_invoker = false) as
   select id, name, is_public, avatar_url, hometown from public.profiles;
 grant select on public.people to authenticated;
 
