@@ -11,7 +11,7 @@ import { useRoundStore } from "@/lib/store";
 import type { DatePlan, Mode, NightPick } from "@/lib/types";
 
 type Props = {
-  mode: Mode;
+  mode: Mode | "near";
   summary: string[];
   editHref: string;
   code: string;
@@ -20,7 +20,7 @@ type Props = {
   groupWord?: string;
 };
 
-const TITLE: Record<Mode, string> = { night: "Night out", date: "Date", dinner: "Dinner & drinks" };
+const TITLE: Record<Mode | "near", string> = { night: "Night out", date: "Date", dinner: "Dinner & drinks", near: "Near me" };
 
 export function ResultsView({ mode, summary, editHref, code, night, plans, groupWord }: Props) {
   const router = useRouter();
@@ -30,10 +30,11 @@ export function ResultsView({ mode, summary, editHref, code, night, plans, group
     rememberResults(window.location.pathname + window.location.search);
   }, [rememberResults]);
 
-  const items = mode === "night" ? night ?? [] : plans ?? [];
+  const bars = mode === "night" || mode === "near";
+  const items = bars ? night ?? [] : plans ?? [];
   const count = items.length;
   const labels = items.map((i) => i.label);
-  const headline = count === 0 ? "Nothing yet." : mode === "night" ? `${WORD[count] ?? count} places.` : `${WORD[count] ?? count} plans.`;
+  const headline = count === 0 ? (mode === "near" ? "Nothing close enough." : "Nothing yet.") : bars ? `${WORD[count] ?? count} ${mode === "near" ? "nearby" : "places"}.` : `${WORD[count] ?? count} plans.`;
 
   return (
     <main className="screen mx-auto w-full max-w-md pb-16" style={{ overflowX: "clip" }}>
@@ -69,13 +70,13 @@ export function ResultsView({ mode, summary, editHref, code, night, plans, group
 
       {count > 0 ? (
         <Carousel count={count} labels={labels}>
-          {mode === "night"
+          {bars
             ? night!.map((p, i) => <ResultCard key={p.venue.slug} venue={p.venue} label={p.label} why={p.why} shareUrl={`/p/${p.shareCode}`} index={i} />)
             : plans!.map((p, i) => <PlanResultCard key={`${p.restaurant?.slug ?? ""}-${p.bar.slug}`} plan={p} shareUrl={`/p/${p.shareCode}`} index={i} groupWord={groupWord} />)}
         </Carousel>
       ) : (
         <div className="card p-6 text-[15px]" style={{ color: "var(--ink-70)" }}>
-          ROUND doesn&apos;t cover that combination yet. Try a neighborhood next door.
+          {mode === "near" ? "No ROUND bars within a fifteen-minute walk of there yet. Try an address in the West Village, East Village, LES, SoHo, Tribeca, Chelsea, Williamsburg or Greenpoint." : "ROUND doesn't cover that combination yet. Try a neighborhood next door."}
         </div>
       )}
 
@@ -83,13 +84,13 @@ export function ResultsView({ mode, summary, editHref, code, night, plans, group
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-8 flex flex-col items-center gap-3">
           <ShareButton
             compact={false}
-            label={mode === "night" ? "Send these to the group chat" : "Send the plans"}
+            label={bars ? "Send these to the group chat" : "Send the plans"}
             url={`/p/${code}`}
             title="Tonight — ROUND"
-            text={mode === "night" ? "ROUND says one of these." : "ROUND planned the evening."}
+            text={bars ? "ROUND says one of these." : "ROUND planned the evening."}
           />
           <p className="text-[12px]" style={{ color: "var(--ink-35)" }}>
-            {mode === "night" ? "They tap one. You go." : "One link. The whole evening."}
+            {bars ? "They tap one. You go." : "One link. The whole evening."}
           </p>
         </motion.div>
       )}

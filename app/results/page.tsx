@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { recommendDate, recommendDinner, recommendNight } from "@/lib/engine";
+import { recommendDate, recommendDinner, recommendNear, recommendNight } from "@/lib/engine";
 import { getVenues } from "@/lib/db";
 import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { encodePlan, type PlanPayload } from "@/lib/plan";
@@ -31,15 +31,29 @@ function planStops(plans: DatePlan[]) {
 export default async function ResultsPage(props: PageProps<"/results">) {
   const sp = await props.searchParams;
   const m = str(sp.m);
-  const mode: Mode = m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
-  const n = str(sp.n);
-  if (!isNeighborhoodId(n)) redirect(`/plan/${mode}`);
   const hour = num(sp.t, 21);
   const dow = num(sp.d, new Date().getDay());
   const wants = decodeWants(str(sp.w));
   const been = (str(sp.b) ?? "").split(",").filter(Boolean);
   const venues = await getVenues();
   const wantChips = describeWants(wants);
+
+  if (m === "near") {
+    const lat = num(sp.lat, NaN);
+    const lng = num(sp.lng, NaN);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) redirect("/near");
+    const picks = recommendNear({ lat, lng, hour, dow, wants }, venues, 8);
+    const payload: PlanPayload = { m: "night", n: picks[0]?.venue.neighborhood ?? "west-village", t: hour, s: picks.map((p) => ({ bar: p.venue.slug })) };
+    const code = encodePlan(payload);
+    const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
+    const at = str(sp.at);
+    const summary = [at ? `Near ${at}` : "Near you", formatHour(hour, true), ...wantChips];
+    return <ResultsView mode="near" summary={summary} editHref="/near" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+  }
+
+  const mode: Mode = m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
+  const n = str(sp.n);
+  if (!isNeighborhoodId(n)) redirect(`/plan/${mode}`);
 
   if (mode === "night") {
     const group = Math.min(11, Math.max(2, num(sp.g, 4)));

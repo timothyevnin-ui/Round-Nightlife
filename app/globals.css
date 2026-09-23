@@ -227,3 +227,45 @@ input, textarea { user-select: text; -webkit-user-select: text; }
 .round-marker[data-kind="been"] {
   width: 16px; height: 16px; background: #16213a; border: 2px solid #f3ede0;
 }
+
+/* The evening dial (a range input with a filled track) */
+.dial {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 36px;
+  background: transparent;
+}
+.dial::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(246,241,231,0.95) var(--pct), rgba(246,241,231,0.22) var(--pct));
+}
+.dial::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(246,241,231,0.22);
+}
+.dial::-moz-range-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(246,241,231,0.95);
+}
+.dial::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  margin-top: -11px;
+  border-radius: 999px;
+  background: #f6f1e7;
+  border: 3px solid #16213a;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+.dial::-moz-range-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #f6f1e7;
+  border: 3px solid #16213a;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}

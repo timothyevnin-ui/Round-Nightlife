@@ -6,12 +6,14 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, adminPin, isAdmin, pinMatches, signPin } from "@/lib/adminAuth";
 import { ATTR_KEYS, ATTR_LIST } from "@/lib/attrs";
-import { dbConfig, deleteVenue as dbDelete, getVenues, upsertVenues, uploadPhoto, VENUES_TAG } from "@/lib/db";
+import { dbConfig, deleteVenue as dbDelete, getVenues, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
+import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
 import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
 import { slugify } from "@/lib/slug";
+import { setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
 
 /* ───────────────────────── auth ───────────────────────── */
 
@@ -69,6 +71,9 @@ export type SavePayload = {
   hot?: boolean;
   hotRank?: number | null;
   story?: string;
+  photoCredit?: string;
+  /** Set when the place is being added from a recommendation; marks it "added" on save. */
+  suggestionId?: string;
 };
 
 export type SaveResult = { ok: true; slug: string } | { ok: false; error: string };
@@ -125,6 +130,7 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       bestWindows: Array.isArray(p.bestWindows) && p.bestWindows.length ? p.bestWindows : existing?.bestWindows ?? [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 26 }],
       photo: existing?.photo ?? pickGradient(slug),
       photoUrl,
+      photoCredit: photoUrl && !(photo instanceof File && photo.size > 0) ? p.photoCredit?.trim() || undefined : undefined,
       friendsBeen: Number.isFinite(Number(p.friendsBeen)) ? Number(p.friendsBeen) : existing?.friendsBeen,
       perk: p.perk?.trim() || existing?.perk,
       groupBooking: existing?.groupBooking,
@@ -138,6 +144,7 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
     await upsertVenues([venue]);
     if (p.originalSlug && p.originalSlug !== slug) await dbDelete(p.originalSlug);
     updateTag(VENUES_TAG);
+    if (p.suggestionId) await setSuggestionStatus(p.suggestionId, "added", slug).catch((e) => console.warn("[admin] couldn't mark the suggestion", e));
     return { ok: true, slug };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Save failed." };
@@ -162,6 +169,30 @@ export async function importSeed(): Promise<SaveResult> {
     const n = await upsertVenues(SEED_VENUES);
     updateTag(VENUES_TAG);
     return { ok: true, slug: String(n) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Import failed." };
+  }
+}
+
+/**
+ * Put the six starter stories on the shelf. Only touches places that exist in
+ * the database and have no story yet, so a rewritten story is never clobbered.
+ */
+export async function importStories(): Promise<SaveResult> {
+  try {
+    await guard();
+    const { SEED_STORIES } = await import("@/lib/stories");
+    const { getVenues } = await import("@/lib/db");
+    const current = await getVenues();
+    const updates: Venue[] = [];
+    for (const v of current) {
+      const seed = SEED_STORIES[v.slug];
+      if (!seed || v.story) continue;
+      updates.push({ ...v, hot: true, hotRank: seed.rank, story: seed.story });
+    }
+    if (updates.length) await upsertVenues(updates);
+    updateTag(VENUES_TAG);
+    return { ok: true, slug: String(updates.length) };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Import failed." };
   }
@@ -239,6 +270,44 @@ export async function draftTake(input: { name: string; neighborhood: string; kin
     return { take: (json.take ?? "").trim(), theCatch: (json.theCatch ?? "").trim() };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Draft failed." };
+  }
+}
+
+/* ───────────────────────── photos from Wikimedia Commons ───────────────────────── */
+
+/** Free-license photos of a place. Only the famous ones tend to be there. */
+export async function findPhotos(query: string): Promise<{ photos: CommonsPhoto[] } | { error: string }> {
+  try {
+    await guard();
+    const photos = await searchCommons(query, 12);
+    return { photos };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Search failed." };
+  }
+}
+
+/** Copy a Commons photo into our own bucket and return the URL + the credit line to store with it. */
+export async function adoptPhoto(input: { slug: string; thumb: string; credit: string }): Promise<{ photoUrl: string; photoCredit: string } | { error: string }> {
+  try {
+    await guard();
+    const slug = (input.slug || "place").replace(/[^a-z0-9-]/g, "") || "place";
+    const { bytes, contentType } = await fetchCommonsBytes(input.thumb);
+    const photoUrl = await uploadPhotoBytes(slug, bytes, contentType);
+    return { photoUrl, photoCredit: input.credit.trim().slice(0, 160) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't use that photo." };
+  }
+}
+
+/* ───────────────────────── recommendations inbox ───────────────────────── */
+
+export async function markSuggestion(id: string, status: SuggestionStatus): Promise<SaveResult> {
+  try {
+    await guard();
+    await setSuggestionStatus(id, status);
+    return { ok: true, slug: id };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't update that." };
   }
 }
 

@@ -34,7 +34,7 @@ The secret key can write to your database. It only ever lives on the server (Ver
 2. **Billing** → add a card and buy a small amount of prepaid credit ($5–$10 lasts a long time: the app uses Claude Haiku, which costs a fraction of a cent per Take or question).
 3. **API Keys** → **Create Key** → name it `round-vercel` → **Create**. Copy it right away; it's shown once.
 
-This turns on **Draft the Take from my notes** in the back office, **Add from screenshots**, and the smarter version of **Just say it**. Without it, all three fall back gracefully.
+This turns on **Draft the Take from my notes** in the back office and the smarter version of **Just say it**. Without it, both fall back gracefully.
 
 ## 5. Add everything to Vercel
 

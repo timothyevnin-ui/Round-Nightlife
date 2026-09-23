@@ -7,7 +7,7 @@ import { Photo } from "@/components/Photo";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 import type { VenueSource } from "@/lib/db";
-import { importSeed } from "./actions";
+import { importSeed, importStories } from "./actions";
 
 export function AdminList({ venues, source, dbCount, writable }: { venues: Venue[]; source: VenueSource; dbCount: number; writable: boolean }) {
   const router = useRouter();
@@ -33,6 +33,15 @@ export function AdminList({ venues, source, dbCount, writable }: { venues: Venue
       if (r.ok) router.refresh();
     });
 
+  const runStories = () =>
+    start(async () => {
+      const r = await importStories();
+      setMsg(r.ok ? (Number(r.slug) ? `${r.slug} starter stories on the shelf. Rewrite them in your voice.` : "Nothing to add: those places already have stories, or aren't in the database.") : r.error);
+      if (r.ok) router.refresh();
+    });
+
+  const shelfEmpty = !venues.some((v) => v.hot);
+
   return (
     <section className="mt-5">
       <div className="flex gap-2">
@@ -54,6 +63,11 @@ export function AdminList({ venues, source, dbCount, writable }: { venues: Venue
         <p className="mt-2 text-[12px]" style={{ color: "var(--chalk-35)" }}>
           Live from the database · {dbCount} rows
         </p>
+      )}
+      {writable && source === "db" && shelfEmpty && (
+        <button onClick={runStories} disabled={pending} className="pressable mt-3 flex h-11 w-full items-center justify-center rounded-full border px-4 text-[13px] font-medium" style={{ borderColor: "rgba(217,72,43,0.5)", color: "var(--tomato)", opacity: pending ? 0.6 : 1 }}>
+          {pending ? "Working…" : "Put the 6 starter stories on the What's hot shelf"}
+        </button>
       )}
 
       <input
