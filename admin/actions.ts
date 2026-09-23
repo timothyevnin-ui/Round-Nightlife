@@ -167,6 +167,30 @@ export async function importSeed(): Promise<SaveResult> {
   }
 }
 
+/**
+ * Put the six starter stories on the shelf. Only touches places that exist in
+ * the database and have no story yet, so a rewritten story is never clobbered.
+ */
+export async function importStories(): Promise<SaveResult> {
+  try {
+    await guard();
+    const { SEED_STORIES } = await import("@/lib/stories");
+    const { getVenues } = await import("@/lib/db");
+    const current = await getVenues();
+    const updates: Venue[] = [];
+    for (const v of current) {
+      const seed = SEED_STORIES[v.slug];
+      if (!seed || v.story) continue;
+      updates.push({ ...v, hot: true, hotRank: seed.rank, story: seed.story });
+    }
+    if (updates.length) await upsertVenues(updates);
+    updateTag(VENUES_TAG);
+    return { ok: true, slug: String(updates.length) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Import failed." };
+  }
+}
+
 /* ───────────────────────── helpers ───────────────────────── */
 
 const GRADIENTS = [
