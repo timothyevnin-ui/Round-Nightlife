@@ -7,7 +7,7 @@ import { ATTR_GROUPS, ATTR_LIST, SUGGESTED_TAGS, type AttrKey } from "@/lib/attr
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 import { slugify } from "@/lib/slug";
 import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
-import { adoptPhoto, draftTake, findPhotos, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { adoptPhoto, draftFromNotes, draftTake, findPhotos, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
 import type { CommonsPhoto } from "@/lib/commons";
 
 /* ───────────────────────── presets ───────────────────────── */
@@ -156,6 +156,41 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
   const [aiPending, startAi] = useTransition();
   const [geo, setGeo] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [quick, setQuick] = useState<{ notes: string; busy: boolean; done: string | null }>({ notes: "", busy: false, done: null });
+
+  const draftAll = () =>
+    startAi(async () => {
+      setQuick((q) => ({ ...q, busy: true, done: null }));
+      setMsg(null);
+      const r = await draftFromNotes(quick.notes);
+      if (r.error || !r.draft) {
+        setQuick((q) => ({ ...q, busy: false }));
+        setMsg({ kind: "err", text: r.error ?? "Nothing came back." });
+        return;
+      }
+      const dr = r.draft;
+      setD((x) => ({
+        ...x,
+        name: dr.name ?? x.name,
+        kind: dr.kind ?? x.kind,
+        neighborhood: dr.neighborhood ?? x.neighborhood,
+        address: dr.address ?? x.address,
+        take: dr.take ?? x.take,
+        theCatch: dr.theCatch ?? x.theCatch,
+        tags: dr.tags?.length ? dr.tags : x.tags,
+        attrs: { ...x.attrs, ...(dr.attrs ?? {}) },
+        groupFit: dr.groupFit ?? x.groupFit,
+        dateFit: dr.dateFit ?? x.dateFit,
+        price: dr.price ?? x.price,
+        capacity: dr.capacity ?? x.capacity,
+        easyIn: dr.easyIn ?? x.easyIn,
+        bestWindows: dr.bestWindowsResolved ?? x.bestWindows,
+        notes: [x.notes, quick.notes].filter(Boolean).join("\n\n"),
+      }));
+      const filled = ["name", "address", "take", "theCatch", "tags", "attrs", "price", "capacity", "easyIn", "bestWindows"].filter((k) => (dr as Record<string, unknown>)[k] !== undefined);
+      setQuick({ notes: "", busy: false, done: `Filled in ${filled.length} things. Read it over, tap Find on the address, then Save.` });
+    });
+
   const [finder, setFinder] = useState<{ open: boolean; q: string; results: CommonsPhoto[] | null; busy: boolean; using: string | null; error: string | null }>({ open: false, q: "", results: null, busy: false, using: null, error: null });
   const isNew = !venue;
   const preset = useMemo(() => presetFor(d.bestWindows), [d.bestWindows]);
@@ -257,7 +292,7 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
 
   return (
     <main className="screen pb-24">
-      <header className="sticky top-0 z-30 -mx-5 flex items-center justify-between px-5 py-3" style={{ background: "rgba(243,237,224,0.92)", backdropFilter: "blur(12px)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}>
+      <header className="sticky top-0 z-30 -mx-5 flex items-center justify-between px-5 py-3 lg:mx-0 lg:px-0" style={{ background: "rgba(243,237,224,0.92)", backdropFilter: "blur(12px)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}>
         <Link href="/admin" className="pressable -ml-2 flex h-11 w-11 items-center justify-center rounded-full" aria-label="Back">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <path d="M13.5 5 8 11l5.5 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
@@ -283,6 +318,20 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
         <div className="card mt-4 p-4 text-[13.5px]" style={{ color: msg.kind === "ok" ? "var(--chalk)" : "#ff8a8a", borderColor: msg.kind === "ok" ? "var(--cobalt)" : "rgba(255,138,138,0.4)" }}>
           {msg.text}
         </div>
+      )}
+
+      {isNew && (
+        <Section title="Start from your notes" hint="Paste what you'd text a friend: where it is, what it was like, what it cost, when it fills up. Claude fills the form; you fix what's wrong and Save.">
+          <TextArea value={quick.notes} onChange={(v) => setQuick((q) => ({ ...q, notes: v }))} placeholder={"The Red Lion, 151 Bleecker. Went Thurs with 6, cover band, cheap pitchers, packed by 10, no line before 9…"} rows={5} max={4000} />
+          <button onClick={draftAll} disabled={aiPending || quick.notes.trim().length < 10} className="pressable btn-accent flex h-12 items-center justify-center px-5 text-[14.5px]" style={{ opacity: aiPending || quick.notes.trim().length < 10 ? 0.55 : 1 }}>
+            {quick.busy ? "Reading your notes…" : "Draft the whole place"}
+          </button>
+          {quick.done && (
+            <p className="text-[13px]" style={{ color: "var(--pine)" }}>
+              {quick.done}
+            </p>
+          )}
+        </Section>
       )}
 
       {/* ── Basics ── */}

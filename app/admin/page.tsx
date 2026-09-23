@@ -1,70 +1,223 @@
 import Link from "next/link";
-import { Wordmark } from "@/components/Wordmark";
 import { requireAdmin } from "@/lib/adminAuth";
 import { dbConfig, getVenuesWithSource } from "@/lib/db";
+import { listEvents, topBySlug, topByText, type EventRow } from "@/lib/events";
+import { neighborhoodName, isNeighborhoodId } from "@/lib/neighborhoods";
+import { countBy, listGoTaps, listProfiles } from "@/lib/studio";
 import { listSuggestions } from "@/lib/suggestions";
-import { AdminList } from "./AdminList";
-import { logout } from "./actions";
+import { DashboardActions } from "./DashboardActions";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminHome() {
+const DAYS = 7;
+
+export default async function Dashboard() {
   await requireAdmin();
   const { venues, source, dbCount } = await getVenuesWithSource();
   const { configured, writable } = dbConfig();
+  const byName = new Map(venues.map((v) => [v.slug, v.name]));
+  const name = (slug: string) => byName.get(slug) ?? slug;
+
+  let ev: EventRow[] = [];
+  let evProblem: string | undefined;
+  let taps: { slug: string }[] = [];
+  let profileCount = 0;
+  let waiting = 0;
+  if (writable) {
+    const [events, tapsRes, profiles, w] = await Promise.all([
+      listEvents({ sinceDays: DAYS, limit: 1000 }).then((rows) => ({ rows }), (e: Error) => ({ rows: [] as EventRow[], problem: e.message })),
+      listGoTaps(DAYS),
+      listProfiles(1000),
+      listSuggestions("new").then((l) => l.length).catch(() => -1),
+    ]);
+    ev = events.rows;
+    evProblem = "problem" in events ? events.problem : undefined;
+    taps = tapsRes.rows;
+    profileCount = profiles.rows.length;
+    waiting = w;
+  }
+
   const verified = venues.filter((v) => v.verified).length;
-  const waiting = writable ? await listSuggestions("new").then((l) => l.length).catch(() => -1) : 0;
+  const hot = venues.filter((v) => v.hot).length;
+  const goTop = countBy(taps, (t) => t.slug, 8);
+  const viewTop = topBySlug(ev, "view", 8);
+  const saveTop = topBySlug(ev, "save", 8);
+  const searches = topByText(
+    ev.filter((e) => e.kind === "search" && !(e.data as { picked?: boolean }).picked),
+    "search",
+    10,
+  );
+  const misses = ev.filter((e) => e.kind === "search" && (e.data as { hits?: number }).hits === 0);
+  const missTop = topByText(misses, "search", 6);
+  const sayit = ev.filter((e) => e.kind === "sayit").slice(0, 12);
+  const hoods = countBy(
+    ev.filter((e) => e.kind === "results"),
+    (e) => {
+      const n = (e.data as { neighborhood?: string }).neighborhood;
+      return isNeighborhoodId(n) ? neighborhoodName(n) : (e.data as { mode?: string }).mode === "near" ? "Near me" : null;
+    },
+    8,
+  );
+  const results = ev.filter((e) => e.kind === "results").length;
+  const searchesN = ev.filter((e) => e.kind === "search" && !(e.data as { picked?: boolean }).picked).length;
 
   return (
-    <main className="screen pb-16">
-      <header className="flex items-center justify-between pt-5 pb-2">
-        <Wordmark />
-        <form action={logout}>
-          <button className="pressable text-[12px]" style={{ color: "var(--chalk-35)" }}>
-            Sign out
-          </button>
-        </form>
-      </header>
-
-      <section className="pt-5">
-        <p className="eyebrow">Back office</p>
-        <h1 className="serif mt-1" style={{ fontSize: 38, lineHeight: 1.02 }}>
-          {venues.length} places.
-          <br />
-          <span style={{ color: "var(--chalk-55)" }}>{verified} verified.</span>
-        </h1>
-      </section>
+    <main className="screen pb-16 pt-6">
+      <p className="eyebrow">ROUND Studio</p>
+      <h1 className="serif mt-1" style={{ fontSize: 38, lineHeight: 1.02 }}>
+        {venues.length} places.
+        <br />
+        <span style={{ color: "var(--ink-55)" }}>
+          {verified} verified · {hot} on the shelf.
+        </span>
+      </h1>
 
       {!configured && (
-        <div className="card mt-5 p-4 text-[13.5px] leading-snug" style={{ color: "var(--chalk-70)" }}>
-          <strong style={{ color: "var(--chalk)" }}>Read-only.</strong> You&apos;re looking at the built-in seed. Connect Supabase (see SUPABASE.md) and this becomes editable.
+        <div className="card mt-5 p-4 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
+          <strong>Read-only.</strong> You&apos;re looking at the built-in list. Connect Supabase (SUPABASE.md) and everything here becomes live.
         </div>
       )}
       {configured && !writable && (
-        <div className="card mt-5 p-4 text-[13.5px] leading-snug" style={{ color: "var(--chalk-70)" }}>
-          <strong style={{ color: "var(--chalk)" }}>Almost.</strong> The database is connected for reading but <code>SUPABASE_SECRET_KEY</code> is missing, so saving won&apos;t work yet.
+        <div className="card mt-5 p-4 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
+          <strong>Almost.</strong> Reading works but <code>SUPABASE_SECRET_KEY</code> is missing, so nothing can be saved or logged.
         </div>
       )}
 
-      <Link href="/admin/suggestions" className="pressable card mt-5 flex items-center justify-between p-4">
-        <div>
-          <p className="text-[15px] font-medium">Recommendations</p>
-          <p className="mt-0.5 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
-            {waiting > 0 ? `${waiting} waiting for a look` : waiting === 0 ? "Nothing new. People send these from the home page." : "Run schema.sql again to turn the inbox on."}
-          </p>
-        </div>
-        <span className="flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[13px] font-semibold" style={waiting > 0 ? { background: "var(--tomato)", color: "var(--on-photo)" } : { background: "var(--ink-6)", color: "var(--ink-35)" }}>
-          {waiting > 0 ? waiting : "→"}
-        </span>
-      </Link>
+      <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} />
 
-      <AdminList venues={venues} source={source} dbCount={dbCount} writable={writable} />
+      <section className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat n={taps.length} label={`GO taps · ${DAYS}d`} />
+        <Stat n={results} label={`Results shown · ${DAYS}d`} />
+        <Stat n={searchesN} label={`Searches · ${DAYS}d`} />
+        <Stat n={profileCount} label="Accounts" />
+      </section>
 
-      <p className="mt-10 text-center text-[12px]" style={{ color: "var(--chalk-35)" }}>
-        <Link href="/" className="underline">
-          Back to ROUND
+      {evProblem && (
+        <p className="mt-4 text-[13px]" style={{ color: "var(--tomato-deep)" }}>
+          {evProblem}
+        </p>
+      )}
+
+      <section className="mt-8 grid gap-6 lg:grid-cols-2">
+        <Panel title="Most tapped GO" hint={`Last ${DAYS} days`}>
+          <Ranked rows={goTop.map((r) => ({ label: name(r.key), href: `/admin/v/${r.key}`, n: r.count }))} empty="No GO taps yet." />
+        </Panel>
+        <Panel title="Most opened" hint="Venue pages">
+          <Ranked rows={viewTop.map((r) => ({ label: name(r.slug), href: `/admin/v/${r.slug}`, n: r.count }))} empty="Nothing opened yet." />
+        </Panel>
+        <Panel title="Most saved" hint="Want to go">
+          <Ranked rows={saveTop.map((r) => ({ label: name(r.slug), href: `/admin/v/${r.slug}`, n: r.count }))} empty="No saves yet." />
+        </Panel>
+        <Panel title="Where people ask about" hint="Neighborhood on results">
+          <Ranked rows={hoods.map((r) => ({ label: r.key, n: r.count }))} empty="No results shown yet." />
+        </Panel>
+        <Panel title="What people search" hint="Top phrases">
+          <Ranked rows={searches.map((r) => ({ label: r.q, n: r.count }))} empty="No searches yet." />
+          {missTop.length > 0 && (
+            <div className="mt-4">
+              <p className="eyebrow" style={{ color: "var(--tomato)" }}>
+                Searched, not on ROUND
+              </p>
+              <div className="mt-2">
+                <Ranked rows={missTop.map((r) => ({ label: r.q, n: r.count }))} empty="" />
+              </div>
+            </div>
+          )}
+        </Panel>
+        <Panel title="Just said" hint="Latest, with what we understood">
+          {sayit.length === 0 ? (
+            <Empty>Nothing typed yet.</Empty>
+          ) : (
+            <ul className="flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
+              {sayit.map((e) => {
+                const d = e.data as { understood?: string[]; engine?: string; near?: boolean };
+                return (
+                  <li key={e.id} className="py-2.5">
+                    <p className="text-[14px]">&ldquo;{e.q}&rdquo;</p>
+                    <p className="mt-0.5 text-[12px]" style={{ color: "var(--ink-55)" }}>
+                      {(d.understood ?? []).join(" · ") || "nothing understood"}
+                      {e.slug ? ` · ${d.near ? "near " : ""}${name(e.slug)}` : ""}
+                      {d.engine ? ` · ${d.engine}` : ""}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
+      </section>
+
+      <p className="mt-10 text-[12px]" style={{ color: "var(--ink-35)" }}>
+        <Link href="/admin/activity" className="underline">
+          Everything, in order →
         </Link>
       </p>
     </main>
+  );
+}
+
+function Stat({ n, label }: { n: number; label: string }) {
+  return (
+    <div className="stat">
+      <p className="n">{n}</p>
+      <p className="mt-1 text-[12px]" style={{ color: "var(--ink-55)" }}>
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function Panel({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section className="card p-5">
+      <div className="flex items-baseline justify-between">
+        <h2 className="serif" style={{ fontSize: 22, lineHeight: 1.1 }}>
+          {title}
+        </h2>
+        {hint && (
+          <span className="text-[11.5px]" style={{ color: "var(--ink-35)" }}>
+            {hint}
+          </span>
+        )}
+      </div>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+function Ranked({ rows, empty }: { rows: { label: string; href?: string; n: number }[]; empty: string }) {
+  if (!rows.length) return empty ? <Empty>{empty}</Empty> : null;
+  const max = Math.max(...rows.map((r) => r.n));
+  return (
+    <ol className="flex flex-col gap-2">
+      {rows.map((r, i) => (
+        <li key={`${r.label}-${i}`} className="flex items-center gap-3">
+          <span className="w-4 shrink-0 text-right text-[12px]" style={{ color: "var(--ink-35)" }}>
+            {i + 1}
+          </span>
+          <div className="min-w-0 flex-1">
+            {r.href ? (
+              <Link href={r.href} className="block truncate text-[14px] underline-offset-2 hover:underline">
+                {r.label}
+              </Link>
+            ) : (
+              <p className="truncate text-[14px]">{r.label}</p>
+            )}
+            <div className="mt-1 h-1 rounded-full" style={{ background: "var(--ink-6)" }}>
+              <div className="h-1 rounded-full" style={{ width: `${Math.max(6, (r.n / max) * 100)}%`, background: "var(--tomato)" }} />
+            </div>
+          </div>
+          <span className="w-8 shrink-0 text-right text-[13px] font-semibold">{r.n}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function Empty({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[13px]" style={{ color: "var(--ink-35)" }}>
+      {children}
+    </p>
   );
 }

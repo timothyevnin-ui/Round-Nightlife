@@ -8,7 +8,7 @@ import { ADMIN_COOKIE, adminPin, isAdmin, pinMatches, signPin } from "@/lib/admi
 import { ATTR_KEYS, ATTR_LIST } from "@/lib/attrs";
 import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
-import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
+import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
 import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
@@ -327,6 +327,146 @@ export async function draftTake(input: { name: string; neighborhood: string; kin
     return { take: (json.take ?? "").trim(), theCatch: (json.theCatch ?? "").trim() };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Draft failed." };
+  }
+}
+
+/* ───────────────────────── notes → a whole place (Claude) ───────────────────────── */
+
+export type DraftedPlace = {
+  name?: string;
+  kind?: "bar" | "restaurant";
+  neighborhood?: string;
+  address?: string;
+  take?: string;
+  theCatch?: string;
+  tags?: string[];
+  attrs?: Partial<Attrs>;
+  groupFit?: Venue["groupFit"];
+  dateFit?: Venue["dateFit"];
+  price?: number;
+  capacity?: Capacity;
+  easyIn?: number;
+  bestWindows?: "everyNight" | "weekendLate" | "earlyEvening" | "dinner" | "cocktailHours" | "brooklynLate";
+};
+
+const WINDOW_PRESETS: Record<NonNullable<DraftedPlace["bestWindows"]>, Window[]> = {
+  everyNight: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 26 }],
+  weekendLate: [
+    { days: [4, 5, 6], from: 21, to: 27 },
+    { days: [0, 1, 2, 3], from: 19, to: 25 },
+  ],
+  earlyEvening: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 17, to: 23 }],
+  dinner: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 23 }],
+  cocktailHours: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 19, to: 25 }],
+  brooklynLate: [
+    { days: [4, 5, 6], from: 21, to: 28 },
+    { days: [0, 1, 2, 3], from: 19, to: 26 },
+  ],
+};
+
+/**
+ * Paste raw thoughts about a place ("went to X on Bleecker Thurs, packed by
+ * 10, $9 beers, back room, DJ after 11…") and get the whole form filled in.
+ * Only from what's in the notes; the founder still reads it before saving.
+ */
+export async function draftFromNotes(notes: string): Promise<{ draft?: DraftedPlace & { bestWindowsResolved?: Window[] }; error?: string }> {
+  try {
+    await guard();
+    const key = process.env.ANTHROPIC_API_KEY;
+    if (!key) return { error: "Add ANTHROPIC_API_KEY to the deployment to draft with AI." };
+    const text = notes.trim().slice(0, 4000);
+    if (text.length < 10) return { error: "Give it a few more words." };
+    const hoods = NEIGHBORHOODS.map((n) => `${n.id} (${n.name})`).join(", ");
+    const attrs = ATTR_LIST.map((a) => `${a.key}: ${a.label} — ${a.hint}`).join("\n");
+    const client = new Anthropic({ apiKey: key });
+    const res = await client.messages.create({
+      model: process.env.ROUND_TEXT_MODEL ?? "claude-haiku-4-5-20251001",
+      max_tokens: 900,
+      system:
+        "You turn a founder's raw notes about one NYC bar or restaurant into a structured entry for ROUND, a nightlife recommendation app. " +
+        "Voice for take and theCatch: editorial, confident, dry, specific, warm; one sentence each; no exclamation points; never marketing. " +
+        "Use ONLY facts in the notes. Never invent an address, hours, prices or history: leave a field out if the notes don't support it. " +
+        "Attributes are 0, 0.5 or 1 (no / some / yes) and only for traits the notes speak to. Respond with JSON only.",
+      messages: [
+        {
+          role: "user",
+          content:
+            `Notes: """${text}"""\n\n` +
+            `Return JSON with any of: {"name": string, "kind": "bar"|"restaurant", "neighborhood": one of [${hoods}] or omit, "address": string, ` +
+            `"take": string (max 28 words), "theCatch": string (max 22 words, practical: lines, when to go, what to order), "tags": [2-4 short labels], ` +
+            `"attrs": {key: 0|0.5|1}, "groupFit": {"two","small","mid","big": 0-1}, "dateFit": {"first","early","longterm": 0-1}, ` +
+            `"price": 1-4 (1 under $10 drinks, 2 $10-16, 3 $17-24, 4 splurge), "capacity": "tiny"|"small"|"medium"|"large", ` +
+            `"easyIn": 0.85 walk in | 0.65 usually fine | 0.4 often a wait | 0.15 good luck, "bestWindows": "everyNight"|"weekendLate"|"earlyEvening"|"dinner"|"cocktailHours"|"brooklynLate"}\n` +
+            `Attribute keys:\n${attrs}`,
+        },
+      ],
+    });
+    const out = res.content.map((c) => (c.type === "text" ? c.text : "")).join("");
+    const json = JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as DraftedPlace;
+    const draft: DraftedPlace & { bestWindowsResolved?: Window[] } = {};
+    if (typeof json.name === "string") draft.name = json.name.trim().slice(0, 80);
+    if (json.kind === "bar" || json.kind === "restaurant") draft.kind = json.kind;
+    if (isNeighborhoodId(json.neighborhood)) draft.neighborhood = json.neighborhood;
+    if (typeof json.address === "string") draft.address = json.address.trim().slice(0, 160);
+    if (typeof json.take === "string") draft.take = json.take.trim().slice(0, 220);
+    if (typeof json.theCatch === "string") draft.theCatch = json.theCatch.trim().slice(0, 160);
+    if (Array.isArray(json.tags)) draft.tags = json.tags.map(String).map((t) => t.trim()).filter(Boolean).slice(0, 4);
+    if (json.attrs && typeof json.attrs === "object") {
+      const a: Partial<Attrs> = {};
+      for (const k of ATTR_KEYS) {
+        const v = (json.attrs as Record<string, unknown>)[k];
+        if (typeof v === "number") a[k] = clamp01(v, 0);
+      }
+      draft.attrs = a;
+    }
+    const fit = (o: unknown, keys: string[]) => (o && typeof o === "object" && keys.every((k) => typeof (o as Record<string, unknown>)[k] === "number") ? (o as Record<string, number>) : undefined);
+    const g = fit(json.groupFit, ["two", "small", "mid", "big"]);
+    if (g) draft.groupFit = { two: clamp01(g.two), small: clamp01(g.small), mid: clamp01(g.mid), big: clamp01(g.big) };
+    const d = fit(json.dateFit, ["first", "early", "longterm"]);
+    if (d) draft.dateFit = { first: clamp01(d.first), early: clamp01(d.early), longterm: clamp01(d.longterm) };
+    if ([1, 2, 3, 4].includes(Number(json.price))) draft.price = Number(json.price);
+    if (json.capacity && ["tiny", "small", "medium", "large"].includes(json.capacity)) draft.capacity = json.capacity;
+    if (typeof json.easyIn === "number") draft.easyIn = clamp01(json.easyIn, 0.5);
+    if (json.bestWindows && json.bestWindows in WINDOW_PRESETS) {
+      draft.bestWindows = json.bestWindows;
+      draft.bestWindowsResolved = WINDOW_PRESETS[json.bestWindows];
+    }
+    return { draft };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Draft failed." };
+  }
+}
+
+/* ───────────────────────── Studio: flags and stories ───────────────────────── */
+
+/** Flip verified / on-the-shelf for one or many places, touching nothing else. */
+export async function setFlags(slugs: string[], patch: { verified?: boolean; hot?: boolean }): Promise<SaveResult> {
+  try {
+    await guard();
+    const { venues } = await getVenuesFresh();
+    const set = new Set(slugs);
+    const changed = venues.filter((v) => set.has(v.slug)).map((v) => ({ ...v, ...(patch.verified !== undefined ? { verified: patch.verified } : {}), ...(patch.hot !== undefined ? { hot: patch.hot } : {}) }));
+    if (changed.length) await upsertVenues(changed);
+    updateTag(VENUES_TAG);
+    return { ok: true, slug: String(changed.length) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't update." };
+  }
+}
+
+/** Save a story (the blog) and its shelf settings for one place. */
+export async function saveStory(slug: string, input: { story: string; hot: boolean; hotRank: number | null }): Promise<SaveResult> {
+  try {
+    await guard();
+    const { venues } = await getVenuesFresh();
+    const v = venues.find((x) => x.slug === slug);
+    if (!v) return { ok: false, error: "That place isn't in the database." };
+    const story = input.story.trim().slice(0, 12000);
+    await upsertVenues([{ ...v, story: story || undefined, hot: !!input.hot, hotRank: Number.isFinite(Number(input.hotRank)) && input.hotRank !== null ? Number(input.hotRank) : undefined }]);
+    updateTag(VENUES_TAG);
+    return { ok: true, slug };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't save the story." };
   }
 }
 

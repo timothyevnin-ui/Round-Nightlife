@@ -65,6 +65,7 @@ What each update needed:
 
 - **V4** added the "What's hot" shelf and the story (`hot`, `hot_rank`, `story`).
 - **V5** adds the **recommendations inbox** (a new `suggestions` table: nobody can read it from the app, only the back office) and a **photo credit** column (`photo_credit`, for pictures that come from Wikimedia Commons).
+- **V7** adds the **activity log** (an `events` table: what people typed into "just say it", what they searched, which results they saw, which pages they opened). The Studio dashboard and Activity page read from it. Until you run the SQL, the app works the same and the Studio says the table is missing.
 
 Saving a place still works if you forget: the server notices a column the database doesn't have yet, saves without it, and logs a warning. But the inbox at `/admin/suggestions` and "Know a spot we don't?" on the home page need the table, so run the SQL once after uploading V5.
 

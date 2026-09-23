@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { isAdmin } from "@/lib/adminAuth";
+import { StudioShell } from "./StudioShell";
 
-export const metadata: Metadata = { title: "Back office", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "ROUND Studio", robots: { index: false, follow: false } };
 
-export default function AdminLayout({ children }: LayoutProps<"/admin">) {
-  return <div className="mx-auto w-full max-w-md">{children}</div>;
+export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
+  const signedIn = await isAdmin();
+  return <StudioShell signedIn={signedIn}>{children}</StudioShell>;
 }

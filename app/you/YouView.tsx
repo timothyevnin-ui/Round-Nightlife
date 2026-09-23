@@ -96,7 +96,17 @@ export function YouView({ venues }: { venues: Venue[] }) {
         </p>
       )}
 
-      <section className="mt-6 grid grid-cols-2 gap-3">
+      <Link href="/search" className="pressable mt-6 flex h-12 items-center gap-3 rounded-full border px-4" style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)" }} aria-label="Search a bar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+          <circle cx="7" cy="7" r="4.5" stroke="#16213A" strokeWidth="1.6" />
+          <path d="M10.5 10.5 14 14" stroke="#16213A" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+        <span className="truncate text-[14px]" style={{ color: "var(--ink-55)" }}>
+          Search a bar
+        </span>
+      </Link>
+
+      <section className="mt-3 grid grid-cols-2 gap-3">
         <Link href="/recommend" className="pressable card flex min-h-[124px] flex-col justify-between p-4">
           <RecommendIcon />
           <div>

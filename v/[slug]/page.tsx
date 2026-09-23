@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Photo } from "@/components/Photo";
+import { TrackView } from "@/components/TrackView";
 import { FriendsChip } from "@/components/VenueCard";
 import { VenueActions } from "./VenueActions";
 import { BackButton } from "@/components/BackButton";
@@ -47,6 +48,7 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
 
   return (
     <main className="mx-auto w-full max-w-md pb-14">
+      <TrackView slug={v.slug} />
       <div className="relative">
         <Photo venue={v} rounded="rounded-none" className="aspect-[4/5] w-full" credit>
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" }}>

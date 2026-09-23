@@ -1,20 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
+import { matchVenues } from "@/lib/match";
+import { neighborhoodName } from "@/lib/neighborhoods";
 import { timeOptions } from "@/lib/time";
+import { track } from "@/lib/track";
+import type { NeighborhoodId } from "@/lib/types";
+
+export type NearPlace = { slug: string; name: string; neighborhood: NeighborhoodId; lat: number; lng: number };
 
 /**
- * Near me. Either the phone's location or a typed address; both end up on the
- * results carousel with bars sorted by the walk.
+ * Near me. The phone's location, the bar you're standing in, or an address;
+ * all end up on the results carousel with bars sorted by the walk. Typing
+ * the name of a place ROUND knows uses its pin directly, no geocoder.
  */
-export function NearView() {
+export function NearView({ places }: { places: NearPlace[] }) {
   const router = useRouter();
   const [busy, setBusy] = useState<"gps" | "address" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [address, setAddress] = useState("");
+  const matches = useMemo(() => (address.trim().length >= 2 ? matchVenues(address, places, 4).map((m) => m.venue) : []), [address, places]);
 
   const go = (lat: number, lng: number, label?: string) => {
     const { dow, defaultValue } = timeOptions();
@@ -37,11 +45,20 @@ export function NearView() {
     );
   };
 
+  const goToPlace = (p: NearPlace) => {
+    track("near", { q: address.trim(), slug: p.slug, data: { via: "place" } });
+    go(p.lat, p.lng, p.name);
+  };
+
   const lookup = async () => {
     if (!address.trim() || busy) return;
+    // A place we know wins over the geocoder ("I'm at Bar Primi").
+    const exact = matches[0];
+    if (exact) return goToPlace(exact);
     setBusy("address");
     setError(null);
     try {
+      track("near", { q: address.trim(), data: { via: "address" } });
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(address.trim())}`);
       const json = (await res.json()) as { lat?: number; lng?: number; label?: string; error?: string };
       if (!res.ok || json.lat === undefined || json.lng === undefined) throw new Error(json.error ?? "Couldn't find that.");
@@ -93,18 +110,37 @@ export function NearView() {
         </div>
 
         <label className="block">
-          <span className="eyebrow">An address or a corner</span>
+          <span className="eyebrow">The bar you&apos;re at, or an address</span>
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && lookup()}
-            placeholder="Bleecker & 7th, or 151 Bleecker St"
+            placeholder="Bar Primi, or 151 Bleecker St"
             className="mt-2 w-full rounded-[18px] border px-4 text-[17px] outline-none"
             style={{ height: 58, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
           />
         </label>
+        {matches.length > 0 && (
+          <ul className="mt-2 overflow-hidden rounded-[18px] border" style={{ borderColor: "var(--hairline)", background: "var(--surface)" }} aria-label="Places that match">
+            {matches.map((p) => (
+              <li key={p.slug} className="border-t first:border-t-0" style={{ borderColor: "var(--hairline)" }}>
+                <button onClick={() => goToPlace(p)} className="pressable flex w-full items-center justify-between px-4 py-3 text-left">
+                  <span>
+                    <span className="serif text-[18px]">{p.name}</span>
+                    <span className="ml-2 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+                      {neighborhoodName(p.neighborhood)}
+                    </span>
+                  </span>
+                  <span className="text-[12.5px] font-semibold" style={{ color: "var(--tomato)" }}>
+                    I&apos;m here
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         <button onClick={lookup} disabled={!address.trim() || !!busy} className="pressable btn-primary mt-3 flex h-14 w-full items-center justify-center text-[16px]" style={{ opacity: !address.trim() || busy ? 0.55 : 1 }}>
-          {busy === "address" ? "Looking…" : "Show bars near there"}
+          {busy === "address" ? "Looking…" : matches[0] ? `Bars near ${matches[0].name}` : "Show bars near there"}
         </button>
 
         {error && (
