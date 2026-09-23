@@ -33,6 +33,7 @@ const LABELS: Record<NeighborhoodId, LngLat> = {
   tribeca: [-74.0088, 40.7182],
   williamsburg: [-73.955, 40.7135],
   greenpoint: [-73.951, 40.731],
+  "murray-hill": [-73.978, 40.7445],
 };
 
 function shapesGeoJson(): GeoJSON.FeatureCollection {

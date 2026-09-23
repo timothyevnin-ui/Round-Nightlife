@@ -10,7 +10,7 @@ import { questionsFor, type RecOption, type RecQuestion } from "@/lib/recommendQ
 import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
-import { neighborhoodAt } from "@/lib/shapes";
+import { geocode } from "@/lib/geocode";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
 import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, Window } from "@/lib/types";
@@ -295,23 +295,15 @@ function pickGradient(slug: string) {
   return GRADIENTS[h % GRADIENTS.length];
 }
 
-/** Address → coordinates via OpenStreetMap's Nominatim (free, low volume, back office only). */
+/** Address → coordinates, the same geocoder the app uses (lib/geocode.ts). */
 export async function lookupAddress(address: string): Promise<{ lat: number; lng: number; label: string; neighborhood: NeighborhoodId | null } | { error: string }> {
   try {
     await guard();
     const q = address.trim();
     if (!q) return { error: "Type an address first." };
-    const base = process.env.ROUND_GEOCODER_URL ?? "https://nominatim.openstreetmap.org/search";
-    const res = await fetch(`${base}?format=json&limit=1&q=${encodeURIComponent(q + (/new york|brooklyn|ny\b/i.test(q) ? "" : ", New York, NY"))}`, {
-      headers: { "User-Agent": "ROUND back office (nightlife app; contact via site)" },
-      cache: "no-store",
-    });
-    if (!res.ok) return { error: `Lookup failed (${res.status}).` };
-    const json = (await res.json()) as { lat: string; lon: string; display_name: string }[];
-    if (!json[0]) return { error: "Couldn't find that address." };
-    const lat = Number(json[0].lat);
-    const lng = Number(json[0].lon);
-    return { lat, lng, label: json[0].display_name, neighborhood: neighborhoodAt(lat, lng) };
+    const hit = await geocode(q, { anywhere: true });
+    if (!hit) return { error: "Couldn't find that address." };
+    return hit;
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Lookup failed." };
   }

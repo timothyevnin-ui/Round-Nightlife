@@ -584,7 +584,7 @@ function Who({ p, privateTag }: { p: Person; privateTag?: boolean }) {
         )}
         {p.hometown && (
           <span className="block truncate text-[12px]" style={{ color: "var(--ink-55)" }}>
-            From {p.hometown}
+            Lives in {p.hometown}
           </span>
         )}
       </span>

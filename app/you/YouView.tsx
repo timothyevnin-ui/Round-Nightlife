@@ -9,7 +9,7 @@ import { useRoundStore, usualAnswers, type RoundState } from "@/lib/store";
 import { CARDS } from "@/lib/questions";
 import { ROOM_TAGS } from "@/components/RateSheet";
 import { useAuth } from "@/lib/auth";
-import { AboutYou, Avatar, FUN } from "@/components/AboutYou";
+import { AboutYou, Avatar } from "@/components/AboutYou";
 import { prettyPhone } from "@/lib/phone";
 import { venueMap } from "@/lib/venues";
 import { neighborhoodName } from "@/lib/neighborhoods";
@@ -218,10 +218,7 @@ function AccountCard({ count }: { count: number }) {
   }
   if (!ready) return <div className="mt-8 h-[92px]" />;
   if (user && !needsProfile) {
-    const about = [profile?.hometown ? `From ${profile.hometown}` : null, profile?.fav_bar ? `Favorite bar: ${profile.fav_bar}` : null, profile?.fav_restaurant ? `Favorite restaurant: ${profile.fav_restaurant}` : null].filter(Boolean) as string[];
-    const fun = Object.entries(profile?.fun ?? {})
-      .map(([k, v]) => ({ q: FUN.find((f) => f.key === k)?.prompt.replace(/\?$/, ""), v }))
-      .filter((x) => x.q && x.v);
+    const about = [profile?.fav_bar ? `Favorite bar: ${profile.fav_bar}` : null, profile?.fav_restaurant ? `Favorite restaurant: ${profile.fav_restaurant}` : null, profile?.hometown ? `Lives in ${profile.hometown}` : null].filter(Boolean) as string[];
     return (
       <section className="card mt-8 p-4" data-account-card>
         <div className="flex items-center gap-3">
@@ -233,21 +230,14 @@ function AccountCard({ count }: { count: number }) {
             </p>
           </div>
           <button onClick={() => setEditing(true)} className="pressable btn-ghost h-9 px-3 text-[12.5px]" data-edit-about>
-            {about.length || fun.length || profile?.avatar_url ? "Edit" : "About you"}
+            {about.length || profile?.avatar_url ? "Edit" : "About you"}
           </button>
         </div>
-        {(about.length > 0 || fun.length > 0) && (
+        {about.length > 0 && (
           <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--hairline)" }} data-about-lines>
-            {about.length > 0 && (
-              <p className="text-[13px] leading-snug" style={{ color: "var(--chalk-70, var(--chalk))" }}>
-                {about.join(" · ")}
-              </p>
-            )}
-            {fun.length > 0 && (
-              <p className="mt-1 text-[12.5px] leading-snug" style={{ color: "var(--chalk-55)" }}>
-                {fun.map((x) => `${x.q}: ${x.v}`).join(" · ")}
-              </p>
-            )}
+            <p className="text-[13px] leading-snug" style={{ color: "var(--chalk-70, var(--chalk))" }}>
+              {about.join(" · ")}
+            </p>
           </div>
         )}
         <div className="mt-3 flex justify-end">
@@ -305,12 +295,18 @@ function Learned({ state, byslug }: { state: RoundState; byslug: Record<string, 
     .slice(0, 4)
     .map(([id, label]) => `${(CARDS.find((c) => c.id === id)?.prompt ?? id).replace(/\?$/, "")} → ${label}`);
   const lines: string[] = [];
-  if (profile?.name) lines.push(`Your name is ${profile.name.trim().split(/\s+/)[0]}${profile.hometown ? `, from ${profile.hometown}` : ""}.`);
+  if (profile?.name) lines.push(`Your name is ${profile.name.trim().split(/\s+/)[0]}${profile.hometown ? `; you live in ${profile.hometown}` : ""}.`);
   if (profile?.fav_bar) lines.push(`Your favorite bar is ${profile.fav_bar}${profile.fav_bar_slug ? "; your picks lean that way" : ""}.`);
   if (ladder.length) lines.push(`${ladder.length} ${ladder.length === 1 ? "place" : "places"} on your ladder; ${byslug[ladder[0]]?.name ?? ladder[0]} is your #1.`);
   if (words.length) lines.push(`Rooms you love are ${words.map((w) => w.toLowerCase()).join(", ")}.`);
   if (usual.length) lines.push(`You usually say: ${usual.join("; ")}.`);
   if (nevers.length) lines.push(`Never again: ${nevers.join(", ")}.`);
+  const went = Object.entries(state.goCount ?? {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([slug]) => byslug[slug]?.name)
+    .filter(Boolean);
+  if (went.length) lines.push(`You've tapped GO at ${went.join(", ")}; ROUND reads those rooms too.`);
   const n = lines.length;
   return (
     <section className="mt-6 rounded-[24px] border p-4" style={{ borderColor: "var(--hairline)", background: "var(--surface)" }} data-learned={n}>

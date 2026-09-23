@@ -411,8 +411,11 @@ export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUN
       const time = timeScore(venue, q.hour, q.dow);
       const { score: prefs, hits } = prefsScore(venue, wants);
       const rating = typeof venue.score === "number" ? venue.score / 100 : 0.65;
+      // With specifics: the walk and the fit lead, but a verified, high-scored room that fits still
+      // edges an unverified one that fits a little better ("near Bleecker, dancing" → our picks first,
+      // then the nearby rooms that match). Without: verified, then the walk, then ROUND's score.
       const score = hasWants
-        ? (near * 0.4 + time * 0.2 + prefs * 0.25 + rating * 0.1 + venue.easyIn * 0.05) * verifiedBoost(venue)
+        ? (near * 0.35 + prefs * 0.3 + time * 0.1 + rating * 0.15 + (venue.verified ? 0.1 : 0)) * scoreBoost(venue)
         : (near * 0.45 + time * 0.15 + rating * 0.2 + (venue.verified ? 0.15 : 0) + venue.easyIn * 0.05) * scoreBoost(venue);
       return { venue, meters, score, hits, time };
     })

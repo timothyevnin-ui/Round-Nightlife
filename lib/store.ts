@@ -102,8 +102,12 @@ function syncTasteCookie(s: RoundState) {
     const usual = usualAnswers(s)
       .slice(0, 8)
       .map(([id, label]) => `${id}:${label.replace(/[^a-zA-Z0-9 -]/g, "").replace(/ /g, "_")}`);
-    const value = `l=${loves.join(",")};n=${nevers.join(",")};t=${tags.join(",")};u=${usual.join(",")}`;
-    const empty = !loves.length && !nevers.length && !tags.length && !usual.length;
+    const went = Object.entries(s.goCount ?? {})
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([slug]) => slug);
+    const value = `l=${loves.join(",")};n=${nevers.join(",")};t=${tags.join(",")};u=${usual.join(",")};g=${went.join(",")}`;
+    const empty = !loves.length && !nevers.length && !tags.length && !usual.length && !went.length;
     document.cookie = `${TASTE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${empty ? 0 : 31536000}; SameSite=Lax`;
   } catch {
     /* ignore */

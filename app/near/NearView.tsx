@@ -110,12 +110,12 @@ export function NearView({ places }: { places: NearPlace[] }) {
         </div>
 
         <label className="block">
-          <span className="eyebrow">The bar you&apos;re at, or an address</span>
+          <span className="eyebrow">Where you are: a bar, a restaurant, an address, anywhere</span>
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && lookup()}
-            placeholder="Bar Primi, or 151 Bleecker St"
+            placeholder="Bar Primi, Rubirosa, 151 Bleecker St, Grand Central…"
             className="mt-2 w-full rounded-[18px] border px-4 text-[17px] outline-none"
             style={{ height: 58, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
           />

@@ -6,6 +6,8 @@ import { isNeighborhoodId } from "@/lib/neighborhoods";
 import { ATTR_KEYS } from "@/lib/attrs";
 import { getVenues } from "@/lib/db";
 import { allowModelCall, ipFrom } from "@/lib/ratelimit";
+import { geocode, looksLikeAddress } from "@/lib/geocode";
+import { matchVenues, nameScore, normalizeName } from "@/lib/match";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -28,6 +30,34 @@ function nycPoint(x: unknown): { label: string; lat: number; lng: number } | und
   return { label, lat, lng };
 }
 
+/**
+ * "Near X" where X isn't one of ours: an address, a restaurant, a park, a
+ * corner. The geocoder settles the point. It wins outright for a street
+ * address; for a named place it wins when it clearly found that name, and
+ * otherwise Claude's own coordinates (good for landmarks) stand.
+ */
+async function settlePlace(text: string, guess: { label: string; lat: number; lng: number } | undefined, venues: { name: string }[]): Promise<{ label: string; lat: number; lng: number } | undefined> {
+  const said = spotInText(text);
+  const label = guess?.label ?? said;
+  if (!label) return guess;
+  // Never geocode one of our own places (the venue path handles those).
+  if (matchVenues(label, venues, 1).length) return guess;
+  const hit = await geocode(label);
+  if (!hit) return guess;
+  if (!guess || looksLikeAddress(label) || nameScore(normalizeName(label), hit.label) >= 0.55) return { label: hit.label, lat: hit.lat, lng: hit.lng };
+  return guess;
+}
+
+/** "near 34 E 4th St", "by Rubirosa", "I'm at the Bedford L", "around Grand Central" → the thing after the lead-in. */
+function spotInText(text: string): string | undefined {
+  const m = /\b(?:near|by|around|at|outside|next to|close to|from)\s+(?:the\s+)?([A-Za-z0-9][A-Za-z0-9 .'&-]{2,50}?)(?=\s*(?:,|\.|;|\band\b|\bfor\b|\bwith\b|\baround\b|\bat\s+\d|\btonight\b|\btn\b|\btomorrow\b|\bthis\b|\bwe\b|\bi\b|$))/i.exec(text);
+  if (!m) return undefined;
+  const spot = m[1].trim().replace(/\s+(st|street|ave|avenue)\.?$/i, (x) => x);
+  // Neighborhood names are handled by the neighborhood pass, not the geocoder.
+  if (/^(the )?(west village|east village|village|les|lower east side|soho|nolita|tribeca|chelsea|williamsburg|greenpoint|murray hill|kips bay|city|bar|bars|restaurant)$/i.test(spot)) return undefined;
+  return spot.length >= 3 ? spot : undefined;
+}
+
 /** POST { text } → an Interpretation. Claude when a key is set, keywords otherwise. */
 export async function POST(req: Request) {
   let text = "";
@@ -45,14 +75,20 @@ export async function POST(req: Request) {
   const key = process.env.ANTHROPIC_API_KEY;
   const log = (i: Interpretation, engine: string) =>
     after(() => logEvent({ kind: "sayit", q: text, slug: i.venue?.slug ?? null, data: { engine, mode: i.mode, neighborhood: i.neighborhood ?? null, near: !!i.near, place: i.place?.label ?? null, wants: Object.keys(i.wants), understood: i.understood } }));
-  if (!key) {
-    log(keyword, "keywords");
+  const keywordsOnly = async (engine: string) => {
+    if (!keyword.venue) {
+      const place = await settlePlace(text, undefined, forMatch);
+      if (place) {
+        keyword.place = place;
+        keyword.near = true;
+        keyword.understood = [`near ${place.label}`, ...keyword.understood].slice(0, 7);
+      }
+    }
+    log(keyword, engine);
     return NextResponse.json({ interpretation: keyword, engine: "keywords" });
-  }
-  if (!allowModelCall(ipFrom(req.headers))) {
-    log(keyword, "keywords-ratelimited");
-    return NextResponse.json({ interpretation: keyword, engine: "keywords" });
-  }
+  };
+  if (!key) return keywordsOnly("keywords");
+  if (!allowModelCall(ipFrom(req.headers))) return keywordsOnly("keywords-ratelimited");
 
   try {
     const client = new Anthropic({ apiKey: key, timeout: 12000, maxRetries: 0 });
@@ -95,7 +131,7 @@ export async function POST(req: Request) {
       understood: Array.isArray(json.understood) && json.understood.length ? json.understood.map(String).slice(0, 7) : keyword.understood,
       venue,
       near,
-      place: venue ? undefined : nycPoint(json.place),
+      place: venue ? undefined : await settlePlace(text, nycPoint(json.place), forMatch),
     };
     if (venue && !isNeighborhoodId(json.neighborhood)) merged.neighborhood = venue.neighborhood;
     if (venue && !merged.understood.some((u) => u.toLowerCase().includes(venue.name.toLowerCase()))) merged.understood = [near ? `near ${venue.name}` : venue.name, ...merged.understood].slice(0, 7);
@@ -104,7 +140,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ interpretation: merged, engine: "claude" });
   } catch (e) {
     console.error("[interpret] model failed, using keywords", e);
-    log(keyword, "keywords-fallback");
-    return NextResponse.json({ interpretation: keyword, engine: "keywords" });
+    return keywordsOnly("keywords-fallback");
   }
 }

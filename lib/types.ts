@@ -9,7 +9,8 @@ export type NeighborhoodId =
   | "tribeca"
   | "chelsea"
   | "williamsburg"
-  | "greenpoint";
+  | "greenpoint"
+  | "murray-hill";
 
 export type GroupBucket = "two" | "small" | "mid" | "big"; // 2 · 3–4 · 5–7 · 8+
 export type DateStage = "first" | "early" | "longterm";

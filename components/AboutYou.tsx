@@ -8,19 +8,13 @@ import { suggestPlaces, type PlaceSuggestion } from "@/app/you/actions";
 
 /**
  * A few quick ones after sign-in, and the same screens behind "Edit" on YOU:
- * a photo, where you're from, your favorite bar and restaurant, and three
- * fun ones. Every one can be skipped; every answer saves as you go, so
- * closing halfway through loses nothing.
+ * a photo, your favorite bar, your favorite restaurant, where you live.
+ * Every one can be skipped; every answer saves as you go, so closing halfway
+ * through loses nothing.
  */
 
-export const FUN: { key: string; prompt: string; options?: string[]; placeholder?: string }[] = [
-  { key: "drink", prompt: "Your drink order?", placeholder: "Tequila soda, a Guinness, whatever's on tap…" },
-  { key: "closer", prompt: "First to leave, or last call?", options: ["First to leave", "Somewhere in between", "Last call"] },
-  { key: "karaoke", prompt: "Your karaoke song?", placeholder: "Be honest." },
-];
-
-type QKey = "photo" | "hometown" | "fav_bar" | "fav_restaurant" | "fun:drink" | "fun:closer" | "fun:karaoke";
-const ORDER: QKey[] = ["photo", "hometown", "fav_bar", "fav_restaurant", "fun:drink", "fun:closer", "fun:karaoke"];
+type QKey = "photo" | "fav_bar" | "fav_restaurant" | "hometown";
+const ORDER: QKey[] = ["photo", "fav_bar", "fav_restaurant", "hometown"];
 
 export function AboutYou({ onDone, intro }: { onDone: () => void; intro?: boolean }) {
   const { profile, saveAbout, uploadAvatar } = useAuth();
@@ -44,13 +38,6 @@ export function AboutYou({ onDone, intro }: { onDone: () => void; intro?: boolea
     }
     return true;
   };
-  const saveFun = async (k: string, v: string) => {
-    const fun = { ...(profile?.fun ?? {}) };
-    if (v.trim()) fun[k] = v.trim().slice(0, 80);
-    else delete fun[k];
-    return save({ fun });
-  };
-
   return (
     <div data-about-you data-step={key}>
       <div className="flex items-baseline justify-between">
@@ -72,18 +59,9 @@ export function AboutYou({ onDone, intro }: { onDone: () => void; intro?: boolea
       <AnimatePresence mode="wait">
         <motion.div key={key} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8, transition: { duration: 0.14 } }} transition={{ duration: 0.2 }}>
           {key === "photo" && <PhotoQ current={profile?.avatar_url ?? null} onSave={async (file) => { setBusy(true); const r = await uploadAvatar(file); if (r.url) await saveAbout({ avatar_url: r.url }); setBusy(false); if (r.error) { setError(r.error); return false; } return true; }} onNext={next} busy={busy} />}
-          {key === "hometown" && <TextQ prompt="Where are you from?" placeholder="Westchester, Ohio, Queens…" initial={profile?.hometown ?? ""} onSave={(v) => save({ hometown: v })} onNext={next} busy={busy} />}
           {key === "fav_bar" && <PlaceQ prompt="Favorite bar in the city?" placeholder="Start typing; we'll find it" kind="bar" initial={profile?.fav_bar ?? ""} onSave={(name, slug) => save({ fav_bar: name, fav_bar_slug: slug ?? null })} onNext={next} busy={busy} />}
           {key === "fav_restaurant" && <PlaceQ prompt="Favorite restaurant?" placeholder="Anywhere. Doesn't have to be on ROUND" kind="restaurant" initial={profile?.fav_restaurant ?? ""} onSave={(name) => save({ fav_restaurant: name })} onNext={next} busy={busy} />}
-          {key.startsWith("fun:") &&
-            (() => {
-              const q = FUN.find((f) => f.key === key.slice(4))!;
-              return q.options ? (
-                <PickQ prompt={q.prompt} options={q.options} initial={profile?.fun?.[q.key] ?? ""} onSave={(v) => saveFun(q.key, v)} onNext={next} busy={busy} />
-              ) : (
-                <TextQ prompt={q.prompt} placeholder={q.placeholder ?? ""} initial={profile?.fun?.[q.key] ?? ""} onSave={(v) => saveFun(q.key, v)} onNext={next} busy={busy} />
-              );
-            })()}
+          {key === "hometown" && <TextQ prompt="Where do you live?" placeholder="Murray Hill, Williamsburg, Hoboken…" initial={profile?.hometown ?? ""} onSave={(v) => save({ hometown: v })} onNext={next} busy={busy} />}
         </motion.div>
       </AnimatePresence>
       {error && (
@@ -142,31 +120,6 @@ function TextQ({ prompt, placeholder, initial, onSave, onNext, busy }: { prompt:
         data-about-input
       />
       <NextButton onClick={go} label={v.trim() ? (busy ? "Saving…" : "Next") : "Skip"} disabled={busy} />
-    </>
-  );
-}
-
-function PickQ({ prompt, options, initial, onSave, onNext, busy }: { prompt: string; options: string[]; initial: string; onSave: (v: string) => Promise<boolean>; onNext: () => void; busy: boolean }) {
-  const [v, setV] = useState(initial);
-  return (
-    <>
-      <Prompt text={prompt} />
-      <div className="mt-4 grid gap-2">
-        {options.map((o) => (
-          <button
-            key={o}
-            onClick={async () => {
-              setV(o);
-              if (await onSave(o)) onNext();
-            }}
-            disabled={busy}
-            className="pressable flex h-13 items-center justify-center rounded-full border text-[16px] font-semibold"
-            style={{ height: 52, ...(v === o ? { background: "var(--chalk)", color: "var(--surface)", borderColor: "var(--chalk)" } : { background: "transparent", color: "var(--chalk)", borderColor: "var(--hairline-strong)" }) }}
-          >
-            {o}
-          </button>
-        ))}
-      </div>
     </>
   );
 }

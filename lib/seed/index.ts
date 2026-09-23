@@ -10,6 +10,7 @@ import tribeca from "./tribeca.json";
 import chelsea from "./chelsea.json";
 import williamsburg from "./williamsburg.json";
 import greenpoint from "./greenpoint.json";
+import murrayHill from "./murray-hill.json";
 
 /**
  * The researched places (V6): one JSON file per neighborhood, written from
@@ -120,6 +121,6 @@ function seedHours(h: Researched["hours"]): Hours | undefined {
   return cleanHours(h.map((d) => d ?? null));
 }
 
-const FILES = [westVillage, eastVillage, lowerEastSide, sohoNolita, tribeca, chelsea, williamsburg, greenpoint] as unknown as Researched[][];
+const FILES = [westVillage, eastVillage, lowerEastSide, sohoNolita, tribeca, chelsea, williamsburg, greenpoint, murrayHill] as unknown as Researched[][];
 
 export const RESEARCHED: SeedVenue[] = FILES.flat().map(toSeed);

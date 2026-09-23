@@ -1,0 +1,119 @@
+[
+ {
+  "slug": "the-ginger-man",
+  "kind": "bar",
+  "name": "The Ginger Man",
+  "neighborhood": "murray-hill",
+  "address": "149 E 36th St, New York, NY 10016",
+  "lat": 40.7477,
+  "lng": -73.9774,
+  "take": "The long wood bar with sixty-odd taps that Murray Hill has been meeting at since the nineties. Beer people, after-work people, a back room that fills on game nights.",
+  "theCatch": "It's a beer bar first; the cocktails are an afterthought. Weeknights after 6 the front bar is three deep with the office crowd.",
+  "tags": [
+   "Beer",
+   "After work",
+   "Sports",
+   "Big group"
+  ],
+  "vibe": {
+   "lively": 0.65,
+   "chill": 0.45,
+   "talk": 0.5
+  },
+  "attrs": {
+   "beer": 1.0,
+   "lively": 0.65,
+   "social": 0.6,
+   "groups": 0.8,
+   "sports": 0.6,
+   "seating": 0.55,
+   "talk": 0.5,
+   "chill": 0.45,
+   "food": 0.6,
+   "classic": 0.55,
+   "late": 0.5,
+   "cheap": 0.35,
+   "date": 0.3,
+   "daytime": 0.5
+  },
+  "groupFit": {
+   "two": 0.55,
+   "small": 0.8,
+   "mid": 0.85,
+   "big": 0.75
+  },
+  "dateFit": {
+   "first": 0.3,
+   "early": 0.4,
+   "longterm": 0.4
+  },
+  "price": 2,
+  "capacity": "large",
+  "bestWindows": "everyNight",
+  "easyIn": 0.6,
+  "sources": [
+   "https://www.gingerman-ny.com/"
+  ],
+  "notes": "Starter entry for the neighborhood; check it's still open and verify in person. E 36th between Lex and 3rd. Sixty-plus taps, cask ales, a long list; pub food; back room with tables.",
+  "barFood": true,
+  "cuisine": "Pub food"
+ },
+ {
+  "slug": "middle-branch",
+  "kind": "bar",
+  "name": "Middle Branch",
+  "neighborhood": "murray-hill",
+  "address": "154 E 33rd St, New York, NY 10016",
+  "lat": 40.7455,
+  "lng": -73.9791,
+  "take": "A proper cocktail bar on a block that mostly does pitchers: two floors, low light, drinks made the careful way, and a piano some nights. The grown-up option in Murray Hill.",
+  "theCatch": "Small, and it fills by 10 on weekends; come early or expect to stand upstairs. Not the place for a loud group of eight.",
+  "tags": [
+   "Cocktails",
+   "Date",
+   "Low light",
+   "Live music"
+  ],
+  "vibe": {
+   "lively": 0.4,
+   "chill": 0.7,
+   "talk": 0.75
+  },
+  "attrs": {
+   "cocktails": 1.0,
+   "date": 0.85,
+   "talk": 0.75,
+   "chill": 0.7,
+   "upscale": 0.65,
+   "seating": 0.6,
+   "liveMusic": 0.45,
+   "classic": 0.5,
+   "speakeasy": 0.4,
+   "lively": 0.4,
+   "late": 0.6,
+   "groups": 0.25,
+   "cheap": 0.1,
+   "daytime": 0.15
+  },
+  "groupFit": {
+   "two": 0.9,
+   "small": 0.7,
+   "mid": 0.35,
+   "big": 0.1
+  },
+  "dateFit": {
+   "first": 0.85,
+   "early": 0.85,
+   "longterm": 0.8
+  },
+  "price": 3,
+  "capacity": "small",
+  "bestWindows": "cocktailHours",
+  "easyIn": 0.45,
+  "sources": [
+   "https://www.middlebranchnyc.com/"
+  ],
+  "notes": "Starter entry for the neighborhood; check it's still open and verify in person. E 33rd between Lex and 3rd, from the Little Branch / Milk & Honey family. Two floors; jazz some nights; classic cocktails.",
+  "barFood": false
+ }
+]

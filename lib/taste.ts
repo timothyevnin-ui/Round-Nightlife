@@ -1,7 +1,7 @@
 import "server-only";
 
 /** What the results page knows about the person's taste, from the round_taste cookie. */
-export type Taste = { loves: string[]; nevers: string[]; tags: string[]; /** [card id, answer label] — how they usually answer the quick ones. */ usual: [string, string][] };
+export type Taste = { loves: string[]; nevers: string[]; tags: string[]; /** [card id, answer label] — how they usually answer the quick ones. */ usual: [string, string][]; /** Places they've tapped GO on, most often first. */ went: string[] };
 
 const SLUG = /^[a-z0-9-]{1,60}$/;
 const KEYW = /^[a-zA-Z]{1,24}$/;
@@ -14,20 +14,21 @@ export function parseTaste(raw: string | undefined | null): Taste | undefined {
   } catch {
     /* keep raw */
   }
-  const out: Taste = { loves: [], nevers: [], tags: [], usual: [] };
+  const out: Taste = { loves: [], nevers: [], tags: [], usual: [], went: [] };
   for (const part of value.split(";")) {
     const [k, v] = part.split("=");
     const items = (v ?? "").split(",").filter(Boolean).slice(0, 10);
     if (k === "l") out.loves = items.filter((x) => SLUG.test(x));
     if (k === "n") out.nevers = items.filter((x) => SLUG.test(x));
     if (k === "t") out.tags = items.filter((x) => KEYW.test(x));
+    if (k === "g") out.went = items.filter((x) => SLUG.test(x));
     if (k === "u")
       out.usual = items
         .map((x) => x.split(":"))
         .filter((p): p is [string, string] => p.length === 2 && /^[a-z0-9-]{1,24}$/.test(p[0]) && /^[a-zA-Z0-9_-]{1,24}$/.test(p[1]))
         .map(([id, label]) => [id, label.replace(/_/g, " ")]);
   }
-  return out.loves.length || out.nevers.length || out.tags.length || out.usual.length ? out : undefined;
+  return out.loves.length || out.nevers.length || out.tags.length || out.usual.length || out.went.length ? out : undefined;
 }
 
 /** The first name from the round_name cookie, or nothing. */

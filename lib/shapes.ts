@@ -54,6 +54,12 @@ export const SHAPES: Record<NeighborhoodId, LngLat[]> = {
     [-74.0058, 40.7545], // 30th & the river
     [-74.0085, 40.747],
   ],
+  "murray-hill": [
+    [-73.9871, 40.7405], // 23rd & Madison
+    [-73.979, 40.7517], // 42nd & Madison
+    [-73.968, 40.7478], // 42nd & the river
+    [-73.974, 40.7365], // 23rd & the river
+  ],
   williamsburg: [
     [-73.9615, 40.7255], // Bushwick Inlet
     [-73.9545, 40.7212], // McCarren Park, Bedford & N 12th

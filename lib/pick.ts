@@ -44,7 +44,7 @@ export type PickRequest = {
   wants: Wants;
   been?: string[];
   /** The person's own taste, when they've rated things (from the taste cookie). */
-  taste?: { loves: string[]; nevers: string[]; tags: string[]; usual?: [string, string][] };
+  taste?: { loves: string[]; nevers: string[]; tags: string[]; usual?: [string, string][]; went?: string[] };
   /** Their first name, when signed in. */
   name?: string;
   /** Their favorite bar in the city, when it's one of ours (slug). */
@@ -87,6 +87,8 @@ function venueLine(v: Venue): string {
     `  ${"$".repeat(v.price)} · ${v.capacity} room · ${groups} · walk-in ${v.easyIn >= 0.7 ? "easy" : v.easyIn >= 0.45 ? "possible" : "hard"} · ${windowWord(v)}${dateWord ? ` · ${dateWord}` : ""}`,
     `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}${v.cuisine || v.barFood ? ` · food: ${v.cuisine ?? "yes"}${v.barFood ? " (bar with a kitchen)" : ""}` : ""}${v.hours ? ` · hours: ${weekSummary(v.hours)}` : ""} · in daylight: ${v.attrs.daytime >= 0.7 ? "good" : v.attrs.daytime >= 0.4 ? "fine" : "no"}${v.dayDeal ? ` · day deal: ${v.dayDeal}` : ""}`,
     `  ${v.take}${v.theCatch ? ` Catch: ${v.theCatch}` : ""}`,
+    ...(v.notes?.trim() ? [`  ROUND's private notes (for you, never shown to users): ${v.notes.replace(/\s+/g, " ").trim().slice(0, 320)}`] : []),
+    ...(v.story?.trim() ? [`  From the write-up: ${v.story.replace(/\s+/g, " ").trim().slice(0, 240)}`] : []),
   ].join("\n");
 }
 
@@ -95,7 +97,7 @@ export function buildCatalog(venues: Venue[]): string {
   // A cheap fingerprint of everything that goes into the text.
   let h = 5381;
   for (const v of [...venues].sort((a, b) => a.slug.localeCompare(b.slug))) {
-    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}`;
+    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}|${v.notes ?? ""}|${v.story ?? ""}`;
     for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
   }
   const key = `${venues.length}:${h}`;
@@ -142,6 +144,7 @@ function requestWords(r: PickRequest, hints: string[]): string {
     const vague = !Object.keys(r.wants).length;
     lines.push(`They are at ${r.place?.label ?? "a spot"} and want somewhere within a short walk, ${when}.${r.place?.slug ? ` (${r.place.slug} is where they're standing; never pick it.)` : ""}`);
     if (vague) lines.push(`They gave no specifics, just the spot, so ROUND's ranking system decides: ✓ VERIFIED places first, then the shortest walk, then ROUND score. The hints below are already in that order (each with its walk time); keep it unless a place is clearly wrong for the hour.`);
+    else lines.push(`Two tiers. First: the places ROUND stands behind (✓ VERIFIED, high ROUND score) within a short walk that fit what they asked for. Then: the nearby places that fit the description best, closest first. A verified room that fits well beats an unverified one that fits slightly better. Never pick a room that doesn't fit at all just because it's close.`);
   }
   else if (r.mode === "around" && r.anchor) lines.push(`They named ${r.anchor.name} (${r.anchor.slug}). Lead with it, then build the night around it: places that fit the same DNA plus what they asked for. ${when}.`);
   else if (r.mode === "date") lines.push(`A date, ${{ first: "first date", early: "a few dates in", longterm: "long-term couple" }[r.stage ?? "early"]}, ${r.dinner ? "dinner then drinks" : "drinks only"}, ${r.neighborhood ? `in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
@@ -160,6 +163,7 @@ function requestWords(r: PickRequest, hints: string[]): string {
     if (t.nevers.length) lines.push(`Never again, in their words: ${t.nevers.join(", ")}. Do not pick these, and be wary of places just like them.`);
     const usual = (t.usual ?? []).map(([id, label]) => `${CARDS.find((c) => c.id === id)?.prompt ?? id} → ${label}`);
     if (usual.length) lines.push(`How they usually answer ROUND's quick questions (a pattern, learned over their nights out; tonight's answers above win if they differ): ${usual.join("; ")}.`);
+    if (t.went?.length) lines.push(`Places they've tapped GO on before (they went, or meant to): ${t.went.join(", ")}. That's their taste in action; read those rooms and lean toward that DNA, but don't just send them back unless it fits tonight.`);
   }
   if (r.name) lines.push(`Their first name is ${r.name}. You may use it once in "heard" if it reads naturally ("${r.name}, we heard…"); never in a "why".`);
   if (r.favorite) lines.push(`Their favorite bar in the city is ${r.favorite}: read what that place is in the catalog and lean toward rooms with that DNA when the request leaves room for it. Don't pick it just because it's their favorite unless it fits tonight.`);
