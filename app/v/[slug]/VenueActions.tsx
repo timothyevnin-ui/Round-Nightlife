@@ -1,16 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { GoButton, SaveButton, ShareButton, useSignInNudge } from "@/components/Actions";
+import { RateSheet, VERDICTS } from "@/components/RateSheet";
 import { useRoundStore } from "@/lib/store";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 
-export function VenueActions({ venue, shareUrl }: { venue: Venue; shareUrl: string }) {
+export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUrl: string; names: Record<string, string> }) {
   const { state, markBeen, clearBeen } = useRoundStore();
   const nudge = useSignInNudge("rate");
+  const [rating, setRating] = useState(false);
   const been = state.been[venue.slug];
+  const verdict = been?.verdict ? VERDICTS.find((v) => v.key === been.verdict) : undefined;
+  const ladderAt = (state.ladder ?? []).indexOf(venue.slug);
   return (
-    <div className="mt-6">
+    <div className="mt-5">
       <div className="flex items-center gap-2.5">
         <GoButton venue={venue} className="flex-1" />
         <ShareButton url={shareUrl} title={`${venue.name} — ROUND`} text={`${venue.name}, ${neighborhoodName(venue.neighborhood)}. ${venue.take}`} />
@@ -35,33 +40,29 @@ export function VenueActions({ venue, shareUrl }: { venue: Venue; shareUrl: stri
           {been ? "Been" : "I've been"}
         </button>
       </div>
-      {been && (
-        <div className="mt-4">
-          <p className="eyebrow">Your rating</p>
-          <div className="mt-2 flex gap-2">
-            {(
-              [
-                ["loved", "Loved it"],
-                ["good", "Good"],
-                ["meh", "Meh"],
-              ] as const
-            ).map(([val, label]) => (
-              <button
-                key={val}
-                onClick={() => markBeen(venue.slug, { rating: val })}
-                className="pressable flex h-11 flex-1 items-center justify-center rounded-full border text-[14px] font-medium"
-                style={
-                  been.rating === val
-                    ? { background: "var(--chalk)", color: "var(--chalk-black)", borderColor: "var(--chalk)" }
-                    : { background: "rgba(22,33,58,0.06)", borderColor: "var(--hairline)" }
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+      <button onClick={() => setRating(true)} className="pressable mt-2.5 flex h-12 w-full items-center justify-between gap-3 rounded-full border px-5 text-[14px] font-medium" style={{ borderColor: verdict ? "var(--ink)" : "var(--hairline-strong)", background: verdict ? "rgba(22,33,58,0.06)" : "transparent" }} data-rate-button>
+        <span className="flex min-w-0 items-center gap-2">
+          <Ring />
+          <span className="truncate">{verdict ? verdict.label : `Rate this ${venue.kind === "restaurant" ? "spot" : "bar"}`}</span>
+        </span>
+        <span className="shrink-0 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+          {verdict ? (ladderAt >= 0 ? `#${ladderAt + 1} on your ladder` : "Change") : "Four taps"}
+        </span>
+      </button>
+      {been?.note && (
+        <p className="serif mt-3 text-[17px] leading-snug" style={{ color: "var(--ink-70)" }}>
+          &ldquo;{been.note}&rdquo;
+        </p>
       )}
+      <RateSheet venue={venue} names={names} open={rating} onClose={() => setRating(false)} />
     </div>
+  );
+}
+
+function Ring() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <circle cx="8" cy="8" r="6" stroke="var(--tomato)" strokeWidth="2.2" />
+    </svg>
   );
 }

@@ -24,7 +24,7 @@ export default async function Dashboard() {
   const health = await checkDatabase();
   let ev: EventRow[] = [];
   let evProblem: string | undefined;
-  let taps: { slug: string }[] = [];
+  let taps: { slug: string; at: string }[] = [];
   let profileCount = 0;
   let waiting = 0;
   if (writable) {
@@ -67,6 +67,24 @@ export default async function Dashboard() {
   const byClaude = resultEvents.filter((e) => (e.data as { engine?: string }).engine === "claude");
   const claudeMs = byClaude.length ? Math.round(byClaude.reduce((a, e) => a + Number((e.data as { ms?: number }).ms ?? 0), 0) / byClaude.length) : 0;
   const claudeOn = !!process.env.ANTHROPIC_API_KEY;
+
+  // Did the pick land? A results page "landed" if one of the places it showed
+  // got a GO tap or a save within the next three hours.
+  const LANDED_MS = 3 * 3600e3;
+  const outcomes = [
+    ...ev.filter((e) => e.kind === "save" && e.slug).map((e) => ({ slug: e.slug as string, t: new Date(e.at).getTime() })),
+    ...taps.map((t) => ({ slug: t.slug, t: new Date(t.at).getTime() })),
+  ];
+  const landedOn = (e: EventRow) => {
+    const shown = ((e.data as { shown?: string[] }).shown ?? []) as string[];
+    const t0 = new Date(e.at).getTime();
+    return outcomes.find((o) => shown.includes(o.slug) && o.t >= t0 && o.t <= t0 + LANDED_MS);
+  };
+  const byRules = resultEvents.filter((e) => (e.data as { engine?: string }).engine !== "claude");
+  const landedClaude = byClaude.filter(landedOn).length;
+  const landedRules = byRules.filter(landedOn).length;
+  const landedTop = countBy(resultEvents.map(landedOn).filter((o): o is { slug: string; t: number } => !!o), (o) => o.slug, 6);
+  const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : "—");
   const searchesN = ev.filter((e) => e.kind === "search" && !(e.data as { picked?: boolean }).picked).length;
 
   return (
@@ -147,6 +165,36 @@ export default async function Dashboard() {
                 <Ranked rows={missTop.map((r) => ({ label: r.q, n: r.count }))} empty="" />
               </div>
             </div>
+          )}
+        </Panel>
+        <Panel title="Did the pick land?" hint="A GO tap or a save within 3 hours of the results">
+          {results === 0 ? (
+            <Empty>No results shown yet.</Empty>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="stat">
+                  <p className="n">{pct(landedClaude, byClaude.length)}</p>
+                  <p className="mt-1 text-[12px]" style={{ color: "var(--ink-55)" }}>
+                    Claude&apos;s picks · {landedClaude} of {byClaude.length}
+                  </p>
+                </div>
+                <div className="stat">
+                  <p className="n">{pct(landedRules, byRules.length)}</p>
+                  <p className="mt-1 text-[12px]" style={{ color: "var(--ink-55)" }}>
+                    Rules only · {landedRules} of {byRules.length}
+                  </p>
+                </div>
+              </div>
+              {landedTop.length > 0 && (
+                <div className="mt-4">
+                  <p className="eyebrow">Picks that landed</p>
+                  <div className="mt-2">
+                    <Ranked rows={landedTop.map((r) => ({ label: name(r.key), href: `/admin/v/${r.key}`, n: r.count }))} empty="" />
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </Panel>
         <Panel title="Just said" hint="Latest, with what we understood">

@@ -7,7 +7,11 @@ import { ATTR_GROUPS, ATTR_LIST, SUGGESTED_TAGS, type AttrKey } from "@/lib/attr
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 import { slugify } from "@/lib/slug";
 import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
-import { adoptPhoto, draftFromNotes, draftTake, findPhotos, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { adoptPhoto, draftFromNotes, draftTake, fillFromWeb, findPhotos, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { HoursEditor } from "./HoursEditor";
+import { ScoreBadge } from "@/components/Score";
+import { weekSummary } from "@/lib/hours";
+import { shrinkPhoto } from "@/lib/photo";
 import type { CommonsPhoto } from "@/lib/commons";
 
 /* ───────────────────────── presets ───────────────────────── */
@@ -110,6 +114,10 @@ function blank(): Draft {
     hot: false,
     hotRank: null,
     story: "",
+    hours: null,
+    barFood: false,
+    cuisine: "",
+    score: null,
   };
 }
 
@@ -142,6 +150,10 @@ function fromVenue(v: Venue): Draft {
     hot: !!v.hot,
     hotRank: v.hotRank ?? null,
     story: v.story ?? "",
+    hours: v.hours ?? null,
+    barFood: !!v.barFood,
+    cuisine: v.cuisine ?? "",
+    score: typeof v.score === "number" ? v.score : null,
   };
 }
 
@@ -275,6 +287,32 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
         setMsg({ kind: "ok", text: "Photo's in. Hit Save to keep it." });
       }
     });
+  };
+
+  const [site, setSite] = useState("");
+  const [reading, setReading] = useState(false);
+  const [readNote, setReadNote] = useState<string | null>(null);
+  const readSite = async () => {
+    if (!site.trim()) return;
+    setReading(true);
+    setReadNote(null);
+    const r = await fillFromWeb({ url: site, name: d.name, address: d.address });
+    setReading(false);
+    if (r.error || !r.fill) return setReadNote(r.error ?? "Nothing found.");
+    const found: string[] = [];
+    if (r.fill.hours) {
+      set("hours", r.fill.hours);
+      found.push(`hours (${weekSummary(r.fill.hours)})`);
+    }
+    if (r.fill.cuisine && !d.cuisine) {
+      set("cuisine", r.fill.cuisine);
+      found.push(`food: ${r.fill.cuisine}`);
+    }
+    if (r.fill.barFood === true && d.kind === "bar" && !d.barFood) {
+      set("barFood", true);
+      found.push("it has a kitchen");
+    }
+    setReadNote(found.length ? `Got ${found.join(", ")}.` : `Read the page but it doesn't post hours. ${r.fill.summary ?? ""}`);
   };
 
   const pickPhoto = async (f: File | null) => {
@@ -483,6 +521,42 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
       </Section>
 
       {/* ── Photo ── */}
+      {/* ── Hours, food, score ── */}
+      <Section title="Hours, food, score" hint="What shows on the card under the name: the posted hours (tonight's, with the week a tap away), what kind of food, and ROUND's score.">
+        <Field label="Fill in from the web" hint="Paste the place's own website. Claude reads the hours and the food off it; nothing is guessed.">
+          <div className="flex gap-2">
+            <input value={site} onChange={(e) => setSite(e.target.value)} placeholder="https://…" className="h-12 flex-1 rounded-[14px] border px-4 text-[15px] outline-none" style={inputStyle} />
+            <button type="button" onClick={readSite} disabled={reading || !site.trim()} className="pressable btn-ghost h-12 px-4 text-[14px]" style={{ opacity: reading || !site.trim() ? 0.5 : 1 }}>
+              {reading ? "Reading…" : "Read it"}
+            </button>
+          </div>
+          {readNote && (
+            <p className="mt-2 text-[13px]" style={{ color: "var(--chalk-70)" }}>
+              {readNote}
+            </p>
+          )}
+        </Field>
+        <Field label="Posted hours">
+          <HoursEditor value={d.hours ?? undefined} onChange={(h) => set("hours", h ?? null)} />
+        </Field>
+        <Row label={d.kind === "restaurant" ? "It's a restaurant (food is the point)" : "Bar with a kitchen (real food menu)"}>
+          <Toggle on={d.kind === "restaurant" ? true : !!d.barFood} onChange={(v) => d.kind !== "restaurant" && set("barFood", v)} />
+        </Row>
+        <Field label="What kind of food" hint="Shows first in the keywords line: Italian, Cheesesteaks, Tacos.">
+          <input value={d.cuisine ?? ""} onChange={(e) => set("cuisine", e.target.value)} placeholder={d.kind === "restaurant" || d.barFood ? "Cheesesteaks" : "Leave blank for drinks-only"} className="h-12 w-full rounded-[14px] border px-4 text-[15px] outline-none" style={inputStyle} />
+        </Field>
+        <Field label="ROUND's score" hint="How much we like it, out of 100. Sits in the ring next to ROUND says; blank means no score shows.">
+          <div className="flex items-center gap-4">
+            <ScoreBadge score={d.score ?? undefined} size={56} />
+            <input type="range" min={0} max={100} value={d.score ?? 75} onChange={(e) => set("score", Number(e.target.value))} className="flex-1" style={{ accentColor: "var(--tomato)" }} aria-label="ROUND's score" />
+            <input type="number" min={0} max={100} value={d.score ?? ""} onChange={(e) => set("score", e.target.value === "" ? null : Math.max(0, Math.min(100, Number(e.target.value))))} placeholder="—" className="h-11 w-20 rounded-[12px] border px-3 text-center text-[15px] outline-none" style={inputStyle} />
+            <button type="button" onClick={() => set("score", null)} className="pressable text-[12.5px]" style={{ color: "var(--chalk-55)" }}>
+              clear
+            </button>
+          </div>
+        </Field>
+      </Section>
+
       <Section title="Photo" hint="Yours is best: shot at night, in the room, no filters. Or find a free-to-use one from Wikimedia Commons; the credit rides along.">
         <div className="flex items-center gap-4">
           <div className="grain relative h-24 w-24 shrink-0 overflow-hidden rounded-[18px]" style={{ background: "linear-gradient(160deg, #161922, #3a4150)" }}>
@@ -651,25 +725,6 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
  * upload is quick and never trips the server's request-size limit. Keeps EXIF
  * orientation (createImageBitmap honours it) and returns a JPEG.
  */
-async function shrinkPhoto(file: File, maxEdge = 1600, quality = 0.86): Promise<File> {
-  if (!/^image\//.test(file.type)) return file;
-  if (file.size < 600 * 1024 && file.type !== "image/heic") return file;
-  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" } as ImageBitmapOptions);
-  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
-  const w = Math.round(bitmap.width * scale);
-  const h = Math.round(bitmap.height * scale);
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return file;
-  ctx.drawImage(bitmap, 0, 0, w, h);
-  bitmap.close?.();
-  const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
-  if (!blob) return file;
-  return new File([blob], file.name.replace(/\.[a-z0-9]+$/i, "") + ".jpg", { type: "image/jpeg" });
-}
-
 /* ───────────────────────── bits ───────────────────────── */
 
 const inputStyle = { background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" } as const;

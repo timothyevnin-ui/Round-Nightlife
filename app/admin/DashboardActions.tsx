@@ -21,7 +21,7 @@ export function DashboardActions({ writable, source, dbCount, shelfEmpty, waitin
   return (
     <section className="mt-5">
       <div className="flex flex-wrap gap-2">
-        <Link href="/admin/new" className="pressable btn-primary flex h-11 items-center px-5 text-[14px]">
+        <Link href="/admin/add" className="pressable btn-primary flex h-11 items-center px-5 text-[14px]">
           + Add a place
         </Link>
         <Link href="/admin/suggestions" className="pressable btn-ghost flex h-11 items-center gap-2 px-4 text-[14px]">

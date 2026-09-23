@@ -5,13 +5,15 @@ import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, adminPin, isAdmin, pinMatches, signPin } from "@/lib/adminAuth";
-import { ATTR_KEYS, ATTR_LIST } from "@/lib/attrs";
+import { ATTR_KEYS, ATTR_LIST, SUGGESTED_TAGS } from "@/lib/attrs";
+import { questionsFor, type RecOption, type RecQuestion } from "@/lib/recommendQuestions";
 import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
-import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
+import type { Attrs, Capacity, Hours, Venue, Window } from "@/lib/types";
+import { cleanHours } from "@/lib/hours";
 import { slugify } from "@/lib/slug";
 import { setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
 
@@ -74,6 +76,13 @@ export type SavePayload = {
   photoCredit?: string;
   /** Set when the place is being added from a recommendation; marks it "added" on save. */
   suggestionId?: string;
+  /** V11 */
+  /** Let Claude turn custom tags into attribute nudges on save (the add flow does this). */
+  readTags?: boolean;
+  hours?: Hours | null;
+  barFood?: boolean;
+  cuisine?: string;
+  score?: number | null;
 };
 
 export type SaveResult = { ok: true; slug: string } | { ok: false; error: string };
@@ -92,6 +101,11 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
 
     const attrs: Attrs = emptyAttrs();
     for (const k of ATTR_KEYS) attrs[k] = clamp01(p.attrs?.[k], existing?.attrs[k] ?? 0);
+    if (p.readTags) {
+      // Custom tags → attributes, only where nothing explicit was answered.
+      const nudges = await tagsToAttrs(p.tags ?? []);
+      for (const [k, v] of Object.entries(nudges) as [keyof Attrs, number][]) if (typeof p.attrs?.[k] !== "number") attrs[k] = Math.max(attrs[k], v);
+    }
 
     let photoUrl = p.photoUrl?.trim() || existing?.photoUrl;
     const photo = formData.get("photo");
@@ -139,6 +153,10 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       hot: !!p.hot,
       hotRank: Number.isFinite(Number(p.hotRank)) && p.hotRank !== null && p.hotRank !== undefined ? Number(p.hotRank) : undefined,
       story: p.story?.trim() || undefined,
+      hours: p.hours === undefined ? existing?.hours : cleanHours(p.hours),
+      barFood: p.barFood === undefined ? existing?.barFood : !!p.barFood,
+      cuisine: p.cuisine === undefined ? existing?.cuisine : p.cuisine.trim().slice(0, 40) || undefined,
+      score: p.score === undefined ? existing?.score : typeof p.score === "number" && Number.isFinite(p.score) ? Math.max(0, Math.min(100, Math.round(p.score))) : undefined,
     };
 
     await upsertVenues([venue]);
@@ -290,6 +308,189 @@ export async function lookupAddress(address: string): Promise<{ lat: number; lng
     return { lat: Number(json[0].lat), lng: Number(json[0].lon), label: json[0].display_name };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Lookup failed." };
+  }
+}
+
+/* ───────────────────────── questions that think ───────────────────────── */
+
+export type NextQuestion = { question?: RecQuestion; done?: boolean; source: "claude" | "bank"; error?: string };
+
+const OPTION_KEYS = ["price", "easyIn", "groupBig", "dateFit", "capacity"] as const;
+
+/**
+ * The next question to ask about a place, given everything answered so far.
+ * With a key, Claude writes it: it skips what's already implied (a yes to
+ * live music makes "loud?" pointless; ask whether people sit and listen or
+ * stand and sing), asks restaurant things of restaurants, and never asks
+ * more than ten. Without a key, the fixed bank asks in order. Either way the
+ * answer lands in the same attribute fields the algorithm reads.
+ */
+export async function nextQuestion(input: { name: string; kind: "bar" | "restaurant"; barFood?: boolean; cuisine?: string; tags: string[]; said: string[]; asked: number; attrs: Partial<Attrs> }): Promise<NextQuestion> {
+  try {
+    await guard();
+    const bank = questionsFor(input.kind);
+    const key = process.env.ANTHROPIC_API_KEY;
+    if (input.asked >= 10) return { done: true, source: key ? "claude" : "bank" };
+    if (!key) {
+      const q = bank[input.asked];
+      return q ? { question: q, source: "bank" } : { done: true, source: "bank" };
+    }
+    const client = new Anthropic({ apiKey: key, timeout: 12000, maxRetries: 0 });
+    const attrList = ATTR_LIST.map((a) => `${a.key} (${a.label})`).join(", ");
+    const known = (Object.entries(input.attrs) as [string, number][]).filter(([, v]) => typeof v === "number").map(([k, v]) => `${k}=${v}`).join(", ");
+    const res = await client.messages.create({
+      model: process.env.ROUND_TEXT_MODEL ?? "claude-sonnet-5",
+      max_tokens: 400,
+      system:
+        "You help the founder of ROUND, a NYC nightlife app, describe a place by asking one short question at a time, the way the app asks people about their night. " +
+        "Each answer is a button, and each button maps to the app's attributes (0 = not at all, 1 = very). Your job is to ask the single most useful question that is NOT already answered or implied. " +
+        "Rules: never ask what's implied (yes to dancing implies loud, so ask DJ or band instead; yes to live music: ask whether people sit and listen or stand and sing along; a restaurant gets restaurant questions: reservations, noise, shared plates, price per head, late kitchen, date-or-group, wine-or-cocktails, dress). " +
+        "Keep the founder's voice: plain, quick, a little dry. Prompt ≤ 9 words. Two or three options, labels ≤ 4 words. Stop (done: true) when the important things are covered, usually after 7–10 questions. " +
+        `Attributes you may set: ${attrList}. You may also set price (1–4), easyIn (0–1, how easy to walk in at peak), groupBig (0–1, fit for 8+), dateFit (0–1), capacity (tiny|small|medium|large). ` +
+        'Respond with JSON only: {"done": false, "id": "short-id", "prompt": "…", "short": "≤ 12 chars", "options": [{"label": "…", "attrs": {key: 0..1}, "price"?: n, "easyIn"?: n, "groupBig"?: n, "dateFit"?: n, "capacity"?: "…"}]} or {"done": true}.',
+      messages: [
+        {
+          role: "user",
+          content:
+            `Place: ${input.name} — ${input.kind}${input.barFood ? " with a kitchen" : ""}${input.cuisine ? `, ${input.cuisine}` : ""}.\n` +
+            `Tags the founder gave: ${input.tags.join(", ") || "none"}.\n` +
+            `Asked so far (${input.asked}): ${input.said.join(" · ") || "nothing yet"}.\n` +
+            `Attributes already set: ${known || "none"}.\n` +
+            `Ask the next question, or say done.`,
+        },
+      ],
+    });
+    const out = res.content.map((c) => (c.type === "text" ? c.text : "")).join("");
+    const json = JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as { done?: boolean; id?: string; prompt?: string; short?: string; options?: unknown };
+    if (json.done) return { done: true, source: "claude" };
+    const options: RecOption[] = (Array.isArray(json.options) ? json.options : [])
+      .map((o) => {
+        if (!o || typeof o !== "object") return null;
+        const x = o as Record<string, unknown>;
+        const label = typeof x.label === "string" ? x.label.trim().slice(0, 28) : "";
+        if (!label) return null;
+        const attrs: Partial<Attrs> = {};
+        if (x.attrs && typeof x.attrs === "object") for (const [k, v] of Object.entries(x.attrs as Record<string, unknown>)) if ((ATTR_KEYS as readonly string[]).includes(k) && typeof v === "number") attrs[k as keyof Attrs] = clamp01(v, 0);
+        const opt: RecOption = { label, attrs };
+        for (const k of OPTION_KEYS) {
+          const v = x[k];
+          if (k === "capacity") {
+            if (typeof v === "string" && ["tiny", "small", "medium", "large"].includes(v)) opt.capacity = v as RecOption["capacity"];
+          } else if (k === "price") {
+            if (typeof v === "number" && v >= 1 && v <= 4) opt.price = Math.round(v) as 1 | 2 | 3 | 4;
+          } else if (typeof v === "number") opt[k] = clamp01(v, 0.5);
+        }
+        return opt;
+      })
+      .filter((o): o is RecOption => !!o)
+      .slice(0, 3);
+    const prompt = typeof json.prompt === "string" ? json.prompt.trim().slice(0, 80) : "";
+    if (!prompt || options.length < 2) {
+      const q = bank[input.asked];
+      return q ? { question: q, source: "bank" } : { done: true, source: "bank" };
+    }
+    const id = (typeof json.id === "string" && json.id.trim() ? json.id.trim() : prompt).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 24) || `q${input.asked}`;
+    return { question: { id, prompt, short: typeof json.short === "string" ? json.short.slice(0, 12) : prompt.slice(0, 12), options }, source: "claude" };
+  } catch (e) {
+    const bank = questionsFor(input.kind);
+    const q = bank[input.asked];
+    return q ? { question: q, source: "bank", error: e instanceof Error ? e.message : "model failed" } : { done: true, source: "bank" };
+  }
+}
+
+/**
+ * Tags the founder typed that aren't in the app's list ("dim lighting",
+ * "niche") mean something. Claude turns them into attribute nudges so the
+ * rules engine understands them too; Claude's own picking reads the tags as
+ * words anyway. Answered attributes always win over a nudge.
+ */
+const tagMemo = new Map<string, Partial<Attrs>>();
+export async function tagsToAttrs(tags: string[]): Promise<Partial<Attrs>> {
+  const key = process.env.ANTHROPIC_API_KEY;
+  const unknown = tags.map((t) => t.trim()).filter((t) => t && !SUGGESTED_TAGS.some((s) => s.toLowerCase() === t.toLowerCase()));
+  if (!key || !unknown.length) return {};
+  const memoKey = unknown.map((t) => t.toLowerCase()).sort().join("|");
+  const hit = tagMemo.get(memoKey);
+  if (hit) return hit;
+  try {
+    const client = new Anthropic({ apiKey: key, timeout: 10000, maxRetries: 0 });
+    const res = await client.messages.create({
+      model: process.env.ROUND_TEXT_MODEL ?? "claude-sonnet-5",
+      max_tokens: 300,
+      system: `Map descriptive tags for a bar or restaurant onto these attributes (0–1, only when the tag clearly implies it; leave out anything it doesn't): ${ATTR_LIST.map((a) => `${a.key} (${a.label})`).join(", ")}. Respond with JSON only: {attributeKey: number}. Example: "dim lighting" → {"date": 0.7, "chill": 0.5, "lively": 0.2}.`,
+      messages: [{ role: "user", content: `Tags: ${unknown.join(", ")}` }],
+    });
+    const out = res.content.map((c) => (c.type === "text" ? c.text : "")).join("");
+    const json = JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as Record<string, unknown>;
+    const attrs: Partial<Attrs> = {};
+    for (const [k, v] of Object.entries(json)) if ((ATTR_KEYS as readonly string[]).includes(k) && typeof v === "number") attrs[k as keyof Attrs] = clamp01(v, 0);
+    tagMemo.set(memoKey, attrs);
+    return attrs;
+  } catch (e) {
+    console.warn("[admin] tagsToAttrs failed", e);
+    return {};
+  }
+}
+
+/**
+ * "Fill in from the web": read the place's own site and pull out the posted
+ * hours, what kind of food, and whether the bar has a kitchen. Claude does the
+ * reading; nothing is guessed (unknown stays null). Needs ANTHROPIC_API_KEY.
+ */
+export type WebFill = { hours?: Hours | null; cuisine?: string | null; barFood?: boolean | null; summary?: string; source: string };
+
+export async function fillFromWeb(input: { url: string; name: string; address?: string }): Promise<{ fill?: WebFill; error?: string }> {
+  try {
+    await guard();
+    const key = process.env.ANTHROPIC_API_KEY;
+    if (!key) return { error: "Add ANTHROPIC_API_KEY to the deployment to read the web." };
+    let url = input.url.trim();
+    if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+    let text = "";
+    try {
+      const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; ROUND/1.0; +https://round.nyc)" }, signal: AbortSignal.timeout(8000), redirect: "follow" });
+      if (!res.ok) return { error: `That site answered ${res.status}.` };
+      const html = (await res.text()).slice(0, 400000);
+      text = html
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+        .replace(/<\/(p|div|li|tr|h[1-6]|br|section|article)>/gi, "\n")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/[ \t]+/g, " ")
+        .replace(/\n\s*\n+/g, "\n")
+        .trim()
+        .slice(0, 24000);
+    } catch (e) {
+      return { error: `Couldn't reach that site (${e instanceof Error ? e.message : "network"}).` };
+    }
+    if (text.length < 80) return { error: "That page has no readable text (many bar sites are one big image). Type the hours in instead." };
+    const client = new Anthropic({ apiKey: key, timeout: 20000, maxRetries: 0 });
+    const res = await client.messages.create({
+      model: process.env.ROUND_TEXT_MODEL ?? "claude-sonnet-5",
+      max_tokens: 500,
+      system:
+        "You read a bar or restaurant's website and extract facts for a nightlife app. Use only what the page says. Never guess. " +
+        'Respond with JSON only: {"hours": [7 entries, Sunday first, each {"open":"HH:MM","close":"HH:MM"} in 24h or null when closed] or null when the page does not state hours, "cuisine": short string like "Italian" or "Cheesesteaks" or null, "barFood": true if a bar with a real food menu / kitchen, false if clearly drinks-only, null if unclear, "summary": one plain sentence of what the page says the place is (max 25 words)}. ' +
+        "Closing times after midnight are written as small hours (2am = \"02:00\"). If hours are given as a single range for every day, repeat it seven times. If only weekday/weekend splits are given, map them to the right days.",
+      messages: [{ role: "user", content: `Place: ${input.name}${input.address ? ` at ${input.address}` : ""}.\nPage (${url}):\n"""${text}"""` }],
+    });
+    const out = res.content.map((c) => (c.type === "text" ? c.text : "")).join("");
+    const json = JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as { hours?: unknown; cuisine?: unknown; barFood?: unknown; summary?: unknown };
+    const hours = cleanHours(json.hours) ?? null;
+    return {
+      fill: {
+        hours,
+        cuisine: typeof json.cuisine === "string" && json.cuisine.trim() ? json.cuisine.trim().slice(0, 40) : null,
+        barFood: typeof json.barFood === "boolean" ? json.barFood : null,
+        summary: typeof json.summary === "string" ? json.summary.slice(0, 200) : undefined,
+        source: url,
+      },
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't read that page." };
   }
 }
 
@@ -512,4 +713,13 @@ export async function adminStatus() {
   await guard();
   const { configured, writable } = dbConfig();
   return { configured, writable };
+}
+
+/** Is this browser signed into Studio? Never throws; the venue page asks before showing its Studio bar. */
+export async function isStudio(): Promise<boolean> {
+  try {
+    return await isAdmin();
+  } catch {
+    return false;
+  }
 }

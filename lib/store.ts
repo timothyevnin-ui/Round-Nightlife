@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { TASTE_COOKIE } from "./tasteCookie";
 
 /**
  * The person's own record: what they've saved, been to and rated, and how many
@@ -11,7 +12,23 @@ import { useCallback, useSyncExternalStore } from "react";
  * mirrors every write to Supabase, and sign-in merges the two histories.
  */
 
-export type BeenEntry = { at: string; rating?: "loved" | "good" | "meh"; crowd?: "room" | "wait" | "packed" };
+export type Verdict = "again" | "back" | "fine" | "never";
+export type BeenEntry = {
+  at: string;
+  rating?: "loved" | "good" | "meh";
+  crowd?: "room" | "wait" | "packed";
+  /** "Rate this bar": the verdict in words. */
+  verdict?: Verdict;
+  /** What the room was, in the person's words (attribute keys). */
+  tags?: string[];
+  /** One line for the group chat. */
+  note?: string;
+};
+
+/** The rating that the old parts of the app (taste profile, sync) understand. */
+export function verdictToRating(v: Verdict | undefined): BeenEntry["rating"] | undefined {
+  return v === "again" ? "loved" : v === "back" ? "good" : v ? "meh" : undefined;
+}
 export type SavedEntry = { at: string; source?: "flow" | "quiz" | "screenshot" | "venue" };
 
 export type RoundState = {
@@ -20,16 +37,19 @@ export type RoundState = {
   quizDone: boolean;
   lastResults?: string; // path to the last results page, for the subway
   goCount: Record<string, number>; // GO taps per venue — the future partner receipt
+  /** Your ladder: the places you'd go back to, best first (slugs). */
+  ladder: string[];
 };
 
 export type Remote = {
   save(slug: string, entry: SavedEntry | null): void;
   been(slug: string, entry: BeenEntry | null): void;
   go(slug: string): void;
+  ladder(order: string[]): void;
 };
 
 const KEY = "round:v1";
-const EMPTY: RoundState = { saved: {}, been: {}, quizDone: false, goCount: {} };
+const EMPTY: RoundState = { saved: {}, been: {}, quizDone: false, goCount: {}, ladder: [] };
 
 let cache: RoundState | null = null;
 let remote: Remote | null = null;
@@ -54,7 +74,35 @@ function write(next: RoundState) {
   } catch {
     /* private mode etc. — state still lives in memory for the session */
   }
+  syncTasteCookie(next);
   listeners.forEach((l) => l());
+}
+
+/**
+ * A compact read of your taste that the results page (server) can see:
+ * the top of your ladder, your never-agains, and the words you use for the
+ * rooms you liked. No names, no numbers, just slugs and attribute keys.
+ */
+function syncTasteCookie(s: RoundState) {
+  if (typeof document === "undefined") return;
+  try {
+    const loves = (s.ladder ?? []).slice(0, 8);
+    const nevers = Object.entries(s.been)
+      .filter(([, e]) => e.verdict === "never")
+      .map(([slug]) => slug)
+      .slice(0, 8);
+    const counts: Record<string, number> = {};
+    for (const [slug, e] of Object.entries(s.been)) if (e.verdict === "again" || e.verdict === "back") for (const t of e.tags ?? []) counts[t] = (counts[t] ?? 0) + (slug ? 1 : 0);
+    const tags = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([t]) => t);
+    const value = `l=${loves.join(",")};n=${nevers.join(",")};t=${tags.join(",")}`;
+    const empty = !loves.length && !nevers.length && !tags.length;
+    document.cookie = `${TASTE_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${empty ? 0 : 31536000}; SameSite=Lax`;
+  } catch {
+    /* ignore */
+  }
 }
 
 function subscribe(l: () => void) {
@@ -77,7 +125,7 @@ export function readState(): RoundState {
  * is "been" on either side is been (a rating beats no rating; otherwise the
  * local entry wins), and a been place is never also "want to go".
  */
-export function mergeState(incoming: Pick<RoundState, "saved" | "been">) {
+export function mergeState(incoming: Pick<RoundState, "saved" | "been"> & { ladder?: string[] }) {
   const s = read();
   const been: RoundState["been"] = { ...incoming.been };
   for (const [slug, local] of Object.entries(s.been)) {
@@ -86,13 +134,15 @@ export function mergeState(incoming: Pick<RoundState, "saved" | "been">) {
   }
   const saved: RoundState["saved"] = { ...incoming.saved, ...s.saved };
   for (const slug of Object.keys(been)) delete saved[slug];
-  write({ ...s, saved, been });
+  // Ladder: the account's order first, then anything only this phone ranked.
+  const ladder = [...(incoming.ladder ?? []), ...(s.ladder ?? []).filter((x) => !(incoming.ladder ?? []).includes(x))].filter((x) => been[x]);
+  write({ ...s, saved, been, ladder });
 }
 
 /** Sign-out: the account keeps everything; this phone forgets it. */
 export function clearPersonal() {
   const s = read();
-  write({ ...s, saved: {}, been: {} });
+  write({ ...s, saved: {}, been: {}, ladder: [] });
 }
 
 export function useRoundStore() {
@@ -126,8 +176,32 @@ export function useRoundStore() {
     const s = read();
     const been = { ...s.been };
     delete been[slug];
-    write({ ...s, been });
+    const ladder = (s.ladder ?? []).filter((x) => x !== slug);
+    write({ ...s, been, ladder });
     remote?.been(slug, null);
+    if (ladder.length !== (s.ladder ?? []).length) remote?.ladder(ladder);
+  }, []);
+
+  /**
+   * "Rate this bar": records the verdict, the tags and the note, and puts the
+   * place on your ladder at `position` (0 = the top) when it's one you'd go
+   * back to; a "fine" or "never" comes off the ladder.
+   */
+  const rate = useCallback((slug: string, entry: { verdict: Verdict; tags?: string[]; note?: string }, position?: number) => {
+    const s = read();
+    const prev = s.been[slug];
+    const saved = { ...s.saved };
+    delete saved[slug];
+    const next: BeenEntry = { ...prev, ...entry, rating: verdictToRating(entry.verdict), at: prev?.at ?? new Date().toISOString() };
+    let ladder = (s.ladder ?? []).filter((x) => x !== slug);
+    if (entry.verdict === "again" || entry.verdict === "back") {
+      const at = Math.max(0, Math.min(ladder.length, position ?? ladder.length));
+      ladder = [...ladder.slice(0, at), slug, ...ladder.slice(at)];
+    }
+    write({ ...s, saved, been: { ...s.been, [slug]: next }, ladder });
+    remote?.been(slug, next);
+    remote?.ladder(ladder);
+    return ladder.indexOf(slug);
   }, []);
 
   const setQuizDone = useCallback((done: boolean) => write({ ...read(), quizDone: done }), []);
@@ -140,5 +214,5 @@ export function useRoundStore() {
     remote?.go(slug);
   }, []);
 
-  return { state, toggleSaved, markBeen, clearBeen, setQuizDone, rememberResults, recordGo };
+  return { state, toggleSaved, markBeen, clearBeen, rate, setQuizDone, rememberResults, recordGo };
 }

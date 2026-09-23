@@ -26,6 +26,8 @@ export type Card = {
   options: Option[];
   /** Show only when the context matches. */
   when?: (ctx: DeckContext) => boolean;
+  /** Show only when the answers so far make it worth asking (a yes to dancing makes "loud?" redundant). */
+  showIf?: (wants: Wants) => boolean;
   /** Always included when `when` passes, in this order; the rest rotate. */
   order?: number;
   mode: DeckMode[];
@@ -59,6 +61,19 @@ const beforeMidnight = (c: DeckContext) => c.hour < 24;
 export const CARDS: Card[] = [
   /* ── Night out: the fixed run ── */
   { id: "dance", prompt: "Do you want to dance?", options: YES_NO({ dance: 1, lively: 0.5, talk: -0.5 }, { dance: -0.6 }), order: 1, mode: ["night"] },
+  // Said yes to dancing: "loud?" answers itself, so ask what kind of dancing instead.
+  {
+    id: "band",
+    prompt: "DJ or a band?",
+    options: [
+      { label: "DJ", wants: { dance: 0.3, scene: 0.2, liveMusic: -0.3 } },
+      { label: "A band", wants: { liveMusic: 1 } },
+      { label: "Either", wants: {} },
+    ],
+    showIf: (w) => (w.dance ?? 0) > 0,
+    order: 2,
+    mode: ["night"],
+  },
   {
     id: "loud",
     prompt: "Loud or not?",
@@ -66,7 +81,20 @@ export const CARDS: Card[] = [
       { label: "Loud", wants: { lively: 1, talk: -0.6 } },
       { label: "Not loud", wants: { talk: 1, lively: -0.6 } },
     ],
+    showIf: (w) => (w.dance ?? 0) <= 0,
     order: 2,
+    mode: ["night"],
+  },
+  // Live music, but which kind of night: a room that listens, or one that shouts along.
+  {
+    id: "listen",
+    prompt: "Sit and listen, or stand and sing along?",
+    options: [
+      { label: "Sit and listen", wants: { seating: 1, talk: 0.4, lively: -0.3 } },
+      { label: "Sing along", wants: { lively: 0.8, seating: -0.4 } },
+    ],
+    showIf: (w) => (w.liveMusic ?? 0) > 0,
+    order: 3,
     mode: ["night"],
   },
   {
@@ -76,6 +104,7 @@ export const CARDS: Card[] = [
       { label: "Seats", wants: { seating: 1, chill: 0.3 } },
       { label: "Standing", wants: { seating: -0.4, lively: 0.3 } },
     ],
+    showIf: (w) => (w.dance ?? 0) <= 0 && (w.liveMusic ?? 0) <= 0,
     order: 3,
     mode: ["night"],
   },
@@ -255,7 +284,18 @@ export function pickDeck(ctx: DeckContext, size = 8, seed = Date.now()): Card[] 
   let s = seed % 2147483647;
   const rnd = () => (s = (s * 48271) % 2147483647) / 2147483647;
   const shuffled = [...rest].sort(() => rnd() - 0.5);
-  return [...fixed, ...shuffled].slice(0, size);
+  // Branching cards share an `order` slot; only one of each slot ever shows, so the deck can carry a spare.
+  const slots = new Set(fixed.map((c) => c.order));
+  return [...fixed, ...shuffled].slice(0, size + (fixed.length - slots.size));
+}
+
+/** The next card worth asking, given what's been answered so far. */
+export function nextCard(cards: Card[], from: number, wants: Wants): number {
+  for (let k = from; k < cards.length; k++) {
+    const c = cards[k];
+    if (!c.showIf || c.showIf(wants)) return k;
+  }
+  return cards.length;
 }
 
 /** Merge a card answer (an option index, or skip) into the running wants. */

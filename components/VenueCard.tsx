@@ -4,6 +4,9 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
 import { VerifiedMark } from "./VerifiedMark";
+import { HoursLine } from "./Hours";
+import { ScoreBadge } from "./Score";
+import { keywordLine } from "@/lib/describe";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { PickLabel, Venue } from "@/lib/types";
@@ -74,20 +77,37 @@ export function VenueCard({
 
       <div className="px-5 pb-5 pt-4">
         <Link href={`/v/${venue.slug}`} className="block">
-          <h2 className="serif" style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow" style={{ color: "var(--tomato)" }}>
+                ROUND says
+              </p>
+              <p className="serif mt-1" style={{ fontSize: 18, lineHeight: 1.3 }}>
+                {venue.take}
+              </p>
+            </div>
+            <ScoreBadge score={venue.score} size={46} className="mt-0.5" />
+          </div>
+          <h2 className="serif mt-4" style={{ fontSize: 27, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
             {venue.name}
             {venue.verified && <VerifiedMark size={20} className="ml-2" />}
           </h2>
-          <p className="mt-1 text-[13px]" style={{ color: "var(--chalk-55)" }}>
-            {neighborhoodName(venue.neighborhood)}
-          </p>
-          <p className="mt-3 text-[15px] leading-[1.45]" style={{ color: "var(--chalk-70)" }}>
-            {venue.take}
+          <p className="mt-1 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
+            {keywordLine(venue)}
           </p>
         </Link>
-        {(why || venue.tags.length > 0) && (
-          <p className="mt-3 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
-            {why || venue.tags.join(" · ")}
+        {why && (
+          <p className="mt-3 text-[13.5px] leading-snug" style={{ color: "var(--chalk-70)" }}>
+            {why}
+          </p>
+        )}
+        <HoursLine hours={venue.hours} className="mt-3" />
+        {venue.theCatch && (
+          <p className="mt-3 text-[12.5px] leading-snug" style={{ color: "var(--chalk-55)" }}>
+            <span className="font-semibold" style={{ color: "var(--chalk-70)" }}>
+              Heads up.
+            </span>{" "}
+            {venue.theCatch}
           </p>
         )}
 

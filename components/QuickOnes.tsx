@@ -3,17 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { applyAnswer, type Card, type Wants } from "@/lib/questions";
+import { applyAnswer, nextCard, type Card, type Wants } from "@/lib/questions";
 
 /**
  * The quick ones. Each question types itself out, then two or three buttons
  * appear. Tap one, the next question types. No cards, no swiping, no thinking.
  */
 export function QuickOnes({ title, cards, onBack, onDone }: { title: string; cards: Card[]; onBack: () => void; onDone: (wants: Wants, answered: number) => void }) {
-  const [i, setI] = useState(0);
+  const [i, setI] = useState(() => nextCard(cards, 0, {}));
   const [wants, setWants] = useState<Wants>({});
   const [answered, setAnswered] = useState(0);
   const card = cards[i];
+  // What's left to ask, given the answers so far (branching cards drop out as they become redundant).
+  const remaining = cards.slice(i).filter((c) => !c.showIf || c.showIf(wants)).length;
+  const total = answered + remaining;
 
   const answer = (a: number | "skip") => {
     if (!card) return;
@@ -21,8 +24,9 @@ export function QuickOnes({ title, cards, onBack, onDone }: { title: string; car
     const count = answered + (a === "skip" ? 0 : 1);
     setWants(next);
     setAnswered(count);
-    if (i + 1 >= cards.length) window.setTimeout(() => onDone(next, count), 220);
-    setI(i + 1);
+    const k = nextCard(cards, i + 1, next);
+    if (k >= cards.length) window.setTimeout(() => onDone(next, count), 220);
+    setI(k);
   };
 
   return (
@@ -46,13 +50,13 @@ export function QuickOnes({ title, cards, onBack, onDone }: { title: string; car
         <div className="flex items-baseline justify-between">
           <p className="eyebrow">Quick ones</p>
           <span className="text-[12px] font-medium" style={{ color: "var(--ink-35)" }}>
-            {Math.min(i + 1, cards.length)} of {cards.length}
+            {Math.min(answered + 1, total)} of {total}
           </span>
         </div>
         {/* Progress */}
         <div className="mt-3 flex gap-1" aria-hidden>
-          {cards.map((c, k) => (
-            <span key={c.id} className="block h-1 flex-1 rounded-full transition-colors duration-300" style={{ background: k < i ? "var(--ink)" : k === i ? "var(--tomato)" : "var(--ink-10)" }} />
+          {Array.from({ length: total }).map((_, k) => (
+            <span key={k} className="block h-1 flex-1 rounded-full transition-colors duration-300" style={{ background: k < answered ? "var(--ink)" : k === answered ? "var(--tomato)" : "var(--ink-10)" }} />
           ))}
         </div>
 

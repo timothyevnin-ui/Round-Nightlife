@@ -39,7 +39,7 @@ export async function submitRecommendation(p: RecommendPayload): Promise<Recomme
     }
     const answers: SuggestionAnswers = {
       attrs,
-      price: [1, 2, 3].includes(Number(p.answers?.price)) ? (Number(p.answers.price) as 1 | 2 | 3) : undefined,
+      price: [1, 2, 3, 4].includes(Number(p.answers?.price)) ? (Number(p.answers.price) as 1 | 2 | 3 | 4) : undefined,
       easyIn: typeof p.answers?.easyIn === "number" ? clamp01(p.answers.easyIn, 0.5) : undefined,
       groupBig: typeof p.answers?.groupBig === "number" ? clamp01(p.answers.groupBig, 0.5) : undefined,
       dateFit: typeof p.answers?.dateFit === "number" ? clamp01(p.answers.dateFit, 0.5) : undefined,

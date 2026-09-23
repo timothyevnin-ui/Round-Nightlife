@@ -1,4 +1,5 @@
-import type { NeighborhoodId, Window } from "../types";
+import type { DayHours, Hours, NeighborhoodId, Window } from "../types";
+import { cleanHours, everyDay } from "../hours";
 import type { SeedVenue } from "../normalize";
 import { isNeighborhoodId } from "../neighborhoods";
 import westVillage from "./west-village.json";
@@ -38,6 +39,11 @@ type Researched = {
   easyIn: number;
   sources?: string[];
   notes?: string;
+  /** Posted hours: 7 entries Sunday-first, {open, close} or null; or "every": {open, close} for the same every night. */
+  hours?: (DayHours | undefined)[] | { every: { open: string; close: string } };
+  barFood?: boolean;
+  cuisine?: string;
+  score?: number;
 };
 
 const WINDOWS: Record<string, Window[]> = {
@@ -101,7 +107,17 @@ function toSeed(r: Researched): SeedVenue {
     verified: false,
     sources: r.sources,
     notes: r.notes,
+    hours: seedHours(r.hours),
+    barFood: !!r.barFood,
+    cuisine: r.cuisine?.trim() || undefined,
+    score: typeof r.score === "number" ? Math.max(0, Math.min(100, Math.round(r.score))) : undefined,
   };
+}
+
+function seedHours(h: Researched["hours"]): Hours | undefined {
+  if (!h) return undefined;
+  if (!Array.isArray(h)) return everyDay(h.every.open, h.every.close);
+  return cleanHours(h.map((d) => d ?? null));
 }
 
 const FILES = [westVillage, eastVillage, lowerEastSide, sohoNolita, tribeca, chelsea, williamsburg, greenpoint] as unknown as Researched[][];

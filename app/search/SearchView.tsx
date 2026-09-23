@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { Photo } from "@/components/Photo";
 import { VerifiedMark } from "@/components/VerifiedMark";
+import { ScoreChip } from "@/components/Score";
 import { matchVenues, normalizeName } from "@/lib/match";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import type { SearchEntry } from "@/lib/searchIndex";
@@ -134,6 +135,11 @@ function Row({ e, onOpen }: { e: SearchEntry; onOpen: (e: SearchEntry) => void }
           <p className="serif truncate" style={{ fontSize: 20, lineHeight: 1.1 }}>
             {e.name}
             {e.verified && <VerifiedMark size={15} className="ml-1.5" />}
+            {typeof e.score === "number" && (
+              <span className="ml-2 align-middle">
+                <ScoreChip score={e.score} />
+              </span>
+            )}
           </p>
           <p className="truncate text-[12.5px]" style={{ color: "var(--ink-55)" }}>
             {neighborhoodName(e.neighborhood)} · {e.kind === "restaurant" ? "Restaurant" : "Bar"} · {"$".repeat(e.price)}

@@ -120,8 +120,8 @@ const SELL = [
   },
   {
     key: "picks",
-    t: "Coming: your friends' picks. And your favorite people's.",
-    s: "Where the group actually went last Saturday, not what an ad says.",
+    t: "Coming: your friends' picks. And your favorite micro-celebrities' spots.",
+    s: "Where the group actually went last Saturday, and where the people you follow actually drink.",
     icon: (
       <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
         <path d="M17 4l3.2 8.3L29 15.5l-8.8 3.2L17 27l-3.2-8.3L5 15.5l8.8-3.2z" stroke="var(--tomato)" strokeWidth="2.2" strokeLinejoin="round" />
@@ -164,29 +164,29 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
             Friends
           </p>
         </header>
-        <section className="flex flex-1 flex-col pt-7">
-          <h1 className="serif" style={{ fontSize: 44, lineHeight: 1.02, letterSpacing: "-0.02em", minHeight: "1.1em", color: "var(--paper)" }} aria-label={first}>
+        <section className="flex flex-1 flex-col pt-5">
+          <h1 className="serif" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em", minHeight: "1.1em", color: "var(--paper)" }} aria-label={first}>
             {t1}
             <span aria-hidden className="inline-block align-baseline" style={{ width: 3, height: "0.85em", marginLeft: 3, background: done1 ? "transparent" : "var(--tomato)", transform: "translateY(0.1em)" }} />
           </h1>
           {done1 && <SecondLine text={second} />}
-          <motion.ul initial="hidden" animate={done1 ? "show" : "hidden"} variants={{ show: { transition: { staggerChildren: 0.16, delayChildren: 1.0 } } }} className="mt-7 flex flex-col gap-2.5">
+          <motion.ul initial="hidden" animate={done1 ? "show" : "hidden"} variants={{ show: { transition: { staggerChildren: 0.16, delayChildren: 1.0 } } }} className="mt-5 flex flex-col gap-2">
             {SELL.map((b) => (
               <motion.li
                 key={b.key}
                 variants={{ hidden: { opacity: 0, y: 18, rotate: -1.2 }, show: { opacity: 1, y: 0, rotate: 0 } }}
                 transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                className="flex items-center gap-4 rounded-[22px] px-4 py-3"
+                className="flex items-center gap-3.5 rounded-[20px] px-3.5 py-2.5"
                 style={{ background: "rgba(246,241,231,0.07)", border: "1px solid rgba(246,241,231,0.12)", backdropFilter: "blur(6px)" }}
               >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px]" style={{ background: "rgba(22,33,58,0.55)", border: "1px solid rgba(246,241,231,0.1)" }}>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px]" style={{ background: "rgba(22,33,58,0.55)", border: "1px solid rgba(246,241,231,0.1)" }}>
                   {b.icon}
                 </span>
                 <span className="min-w-0">
-                  <span className="serif block" style={{ fontSize: 21, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--paper)" }}>
+                  <span className="serif block" style={{ fontSize: 19, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--paper)" }}>
                     {b.t}
                   </span>
-                  <span className="mt-1 block text-[13px] leading-snug" style={{ color: "var(--on-photo-60)" }}>
+                  <span className="mt-0.5 block text-[12.5px] leading-snug" style={{ color: "var(--on-photo-60)" }}>
                     {b.s}
                   </span>
                 </span>
@@ -197,22 +197,21 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
             initial={{ opacity: 0, y: 14 }}
             animate={done1 ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 2.0, type: "spring", stiffness: 220, damping: 26 }}
-            className="sticky mt-auto pt-7"
-            style={{ bottom: "calc(var(--tab-height) + env(safe-area-inset-bottom, 0px) + 24px)", background: "linear-gradient(180deg, rgba(22,33,58,0) 0%, rgba(22,33,58,0.92) 28%, var(--ink) 100%)", paddingBottom: 4 }}
+            className="mt-auto pt-5"
           >
             <motion.button
               onClick={onAdd}
-              className="pressable flex h-[58px] w-full items-center justify-center rounded-full text-[18px] font-semibold"
+              className="pressable flex h-14 w-full items-center justify-center rounded-full text-[17px] font-semibold"
               style={{ background: "var(--tomato)", color: "var(--on-photo)", boxShadow: "0 0 0 1px rgba(246,241,231,0.08), 0 18px 48px -12px rgba(217,72,43,0.75)" }}
               animate={{ boxShadow: ["0 18px 48px -12px rgba(217,72,43,0.75)", "0 18px 64px -8px rgba(217,72,43,0.95)", "0 18px 48px -12px rgba(217,72,43,0.75)"] }}
               transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
             >
               Add my number
             </motion.button>
-            <button onClick={onLater} className="pressable mx-auto mt-3 block text-[13.5px] font-medium" style={{ color: "var(--on-photo-60)" }}>
+            <button onClick={onLater} className="pressable mx-auto mt-2.5 block text-[13.5px] font-medium" style={{ color: "var(--on-photo-60)" }}>
               Maybe later
             </button>
-            <p className="mt-4 text-center text-[11.5px] leading-relaxed" style={{ color: "rgba(246,241,231,0.42)" }}>
+            <p className="mt-2.5 text-center text-[11.5px] leading-relaxed" style={{ color: "rgba(246,241,231,0.42)" }}>
               One text with a code. Never marketing texts. 21+ only.
             </p>
           </motion.div>
@@ -225,7 +224,7 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
 function SecondLine({ text }: { text: string }) {
   const typed = useTypewriter(text, 34);
   return (
-    <h2 className="serif mt-2" style={{ fontSize: 28, lineHeight: 1.1, letterSpacing: "-0.015em", color: "var(--on-photo-80)", minHeight: "1.2em" }} aria-label={text}>
+    <h2 className="serif mt-2" style={{ fontSize: 24, lineHeight: 1.1, letterSpacing: "-0.015em", color: "var(--on-photo-80)", minHeight: "1.2em" }} aria-label={text}>
       {typed}
       <span aria-hidden className="inline-block align-baseline" style={{ width: 3, height: "0.8em", marginLeft: 3, background: typed.length >= text.length ? "transparent" : "var(--tomato)", transform: "translateY(0.1em)" }} />
     </h2>

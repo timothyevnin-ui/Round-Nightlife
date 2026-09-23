@@ -3,8 +3,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import { ATTRS, type AttrKey } from "./attrs";
 import { haversineMeters } from "./engine";
 import { NEIGHBORHOODS, neighborhoodName } from "./neighborhoods";
+import { allowModelCall } from "./ratelimit";
 import type { Wants } from "./questions";
 import { formatHour } from "./time";
+import { weekSummary } from "./hours";
 import type { DatePlan, DateStage, NeighborhoodId, NightPick, PickLabel, Venue } from "./types";
 
 /**
@@ -25,6 +27,8 @@ export type PickMode = "night" | "date" | "dinner" | "near" | "around";
 
 export type PickRequest = {
   mode: PickMode;
+  /** Who's asking (for the rate limit); null skips the per-caller limit. */
+  ip?: string | null;
   /** The sentence they typed, when there is one. */
   said?: string;
   neighborhood?: NeighborhoodId;
@@ -39,6 +43,8 @@ export type PickRequest = {
   dinner?: boolean;
   wants: Wants;
   been?: string[];
+  /** The person's own taste, when they've rated things (from the taste cookie). */
+  taste?: { loves: string[]; nevers: string[]; tags: string[] };
 };
 
 export type Picked = { slug: string; why: string; label?: PickLabel; then?: string };
@@ -73,9 +79,9 @@ function venueLine(v: Venue): string {
   const groups = fit.big >= 0.75 ? "big groups fine" : fit.mid >= 0.75 ? "up to 7" : fit.small >= 0.7 ? "2–4" : "twos";
   const dateWord = v.dateFit.first >= 0.7 ? "first-date safe" : v.dateFit.longterm >= 0.7 ? "good for couples" : v.dateFit.first <= 0.25 ? "not a date place" : "";
   return [
-    `• ${v.slug} — ${v.name} (${v.kind}, ${neighborhoodName(v.neighborhood)}, ${street})`,
+    `• ${v.slug} — ${v.name} (${v.kind}${v.barFood ? " with a kitchen" : ""}, ${neighborhoodName(v.neighborhood)}, ${street})${v.verified ? " ✓ VERIFIED" : ""}${typeof v.score === "number" ? ` · ROUND score ${v.score}/100` : ""}`,
     `  ${"$".repeat(v.price)} · ${v.capacity} room · ${groups} · walk-in ${v.easyIn >= 0.7 ? "easy" : v.easyIn >= 0.45 ? "possible" : "hard"} · ${windowWord(v)}${dateWord ? ` · ${dateWord}` : ""}`,
-    `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}`,
+    `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}${v.cuisine || v.barFood ? ` · food: ${v.cuisine ?? "yes"}${v.barFood ? " (bar with a kitchen)" : ""}` : ""}${v.hours ? ` · hours: ${weekSummary(v.hours)}` : ""}`,
     `  ${v.take}${v.theCatch ? ` Catch: ${v.theCatch}` : ""}`,
   ].join("\n");
 }
@@ -85,7 +91,7 @@ export function buildCatalog(venues: Venue[]): string {
   // A cheap fingerprint of everything that goes into the text.
   let h = 5381;
   for (const v of [...venues].sort((a, b) => a.slug.localeCompare(b.slug))) {
-    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}`;
+    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}`;
     for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
   }
   const key = `${venues.length}:${h}`;
@@ -96,7 +102,7 @@ export function buildCatalog(venues: Venue[]): string {
     `You are ROUND, a nightlife guide for New York. Below is every place ROUND covers: the slug, what it is, where, price ($ cheap … $$$$ splurge), room size, group fit, how hard the door is, when it's good, what it's known for (is / isn't), and ROUND's own take and catch.\n` +
     `Neighborhoods: ${hoods}.\n\n` +
     sorted.map(venueLine).join("\n") +
-    `\n\nOnly ever recommend places from this list, by slug. Never invent a place.`;
+    `\n\n✓ VERIFIED means someone from ROUND has been and stands behind the entry; everything else is researched but unvisited. "ROUND score" is how much we like a place, 0–100; between two places that fit equally, prefer the higher score. Only ever recommend places from this list, by slug. Never invent a place.`;
   catalogCache = { key, text };
   return text;
 }
@@ -128,6 +134,12 @@ function requestWords(r: PickRequest, hints: string[]): string {
   if (avoid.length) lines.push(`They want to avoid: ${avoid.join(", ")}.`);
   if (r.said) lines.push(`In their own words: "${r.said.replace(/"/g, "'").slice(0, 300)}". The words win over the tags above if they disagree.`);
   if (r.been?.length) lines.push(`They've already been to: ${r.been.slice(0, 20).join(", ")}${(r.wants.new ?? 0) > 0 ? " (they asked for somewhere new)" : ""}.`);
+  if (r.taste) {
+    const t = r.taste;
+    const words = t.tags.map((k) => ATTRS[k as AttrKey]?.label ?? k);
+    if (t.loves.length) lines.push(`This person's own ladder, best first (places they'd go back to): ${t.loves.join(", ")}. Read what those places are and lean toward that taste${words.length ? `; the words they use for rooms they loved: ${words.join(", ")}` : ""}.`);
+    if (t.nevers.length) lines.push(`Never again, in their words: ${t.nevers.join(", ")}. Do not pick these, and be wary of places just like them.`);
+  }
   if (hints.length) lines.push(`ROUND's rules engine ranked these first (a hint, not an order): ${hints.join(", ")}.`);
   return lines.join("\n");
 }
@@ -139,6 +151,7 @@ function instructions(r: PickRequest, count: number): string {
     `Match what they actually asked for over what merely scores well; a place that nails their one stated need beats a generally great place that doesn't. ` +
     `Stay in the neighborhood they asked for unless something next door is clearly the better answer for their request. Keep the list varied: not six of the same room. ` +
     `If they named a specific place that's in the catalog, it goes first. ` +
+    `Verified places (✓) are ROUND's own word: when a verified and an unverified place fit about equally, the verified one goes first, and a verified place that fits well should not lose to an unverified one that fits about as well. Never pick a verified place that doesn't fit what they asked; the check is trust, not a thumb on the scale. ` +
     `For each, "why" is one line, ≤ 14 words, in ROUND's voice: specific and honest about why it fits this request tonight (never generic praise, never a warning dressed as praise). ` +
     `"label" is one of: ${LABELS.map((l) => `"${l}"`).join(", ")} for slots 2–${count} (slot 1 is always "The pick"), each used once and only when true. ` +
     `Also return "heard": ≤ 10 words, what you understood they want, in plain language (no slugs).\n` +
@@ -151,7 +164,7 @@ function instructions(r: PickRequest, count: number): string {
 const memo = new Map<string, { at: number; value: PickResult }>();
 
 function memoKey(r: PickRequest, slugs: string[]): string {
-  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
+  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.taste ?? null, r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
 }
 
 /**
@@ -161,7 +174,7 @@ function memoKey(r: PickRequest, slugs: string[]): string {
  */
 export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { slug: string; then?: string }[], count = 6): Promise<PickResult> {
   const t0 = Date.now();
-  const rules: PickResult = { picks: ranked.slice(0, count).map((p) => ({ slug: p.slug, why: "", then: p.then })), engine: "rules", ms: 0 };
+  const rules: PickResult = { picks: ranked.filter((p) => !r.taste?.nevers.includes(p.slug)).slice(0, count).map((p) => ({ slug: p.slug, why: "", then: p.then })), engine: "rules", ms: 0 };
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return { ...rules, note: "no key" };
   if (venues.length === 0) return { ...rules, note: "no venues" };
@@ -169,6 +182,7 @@ export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { 
   const mk = memoKey(r, ranked.map((p) => p.slug));
   const hit = memo.get(mk);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return { ...hit.value, ms: Date.now() - t0 };
+  if (!allowModelCall(r.ip)) return { ...rules, note: "rate limited" };
 
   const bySlug = new Map(venues.map((v) => [v.slug, v]));
   const hints = ranked.slice(0, 12).map((p) => {
@@ -223,6 +237,7 @@ export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { 
       const slug = typeof p.slug === "string" ? p.slug.trim() : "";
       const v = bySlug.get(slug);
       if (!v || used.has(slug)) continue;
+      if (r.taste?.nevers.includes(slug)) continue;
       if (pairs ? v.kind !== "restaurant" : v.kind !== "bar") continue;
       if (r.mode === "near" && r.place && haversineMeters(r.place, v) > 2000) continue; // "near" means near
       used.add(slug);
@@ -232,9 +247,10 @@ export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { 
       if (picks.length >= count) break;
     }
     // Claude may return fewer than asked; the rules engine fills the rest.
+    // (Never-agains are dropped before anything else.)
     for (const p of ranked) {
       if (picks.length >= count) break;
-      if (used.has(p.slug)) continue;
+      if (used.has(p.slug) || r.taste?.nevers.includes(p.slug)) continue;
       used.add(p.slug);
       picks.push({ slug: p.slug, why: "", then: p.then });
     }
@@ -257,10 +273,14 @@ function clean(s: string): string {
 /* ───────────────────────── applying the answer ───────────────────────── */
 
 /** Reorder the rules engine's bar picks to Claude's answer; keep engine labels/why where Claude gave none. */
-export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick): NightPick[] {
-  if (result.engine !== "claude") return lead ? [lead, ...rulesPicks.filter((p) => p.venue.slug !== lead.venue.slug)].slice(0, rulesPicks.length || 6) : rulesPicks;
-  const bySlug = new Map(venues.map((v) => [v.slug, v]));
+export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = 6): NightPick[] {
   const fromRules = new Map(rulesPicks.map((p) => [p.venue.slug, p]));
+  if (result.engine !== "claude") {
+    // The engine's own order, minus anything the person said never again to.
+    const kept = result.picks.map((p) => fromRules.get(p.slug)).filter((p): p is NightPick => !!p && p.venue.slug !== lead?.venue.slug);
+    return (lead ? [lead, ...kept] : kept).slice(0, count);
+  }
+  const bySlug = new Map(venues.map((v) => [v.slug, v]));
   const taken = new Set<PickLabel>();
   const out: NightPick[] = [];
   if (lead) {
@@ -277,14 +297,14 @@ export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues
     taken.add(label);
     out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "" });
   }
-  return out;
+  return out.slice(0, count);
 }
 
 /** Same for plans (restaurant + bar). Claude's "then" bar wins if it's a real bar within a walk; else the engine's pairing. */
-export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], bars: Venue[]): DatePlan[] {
-  if (result.engine !== "claude") return rulesPlans;
-  const bySlug = new Map(venues.map((v) => [v.slug, v]));
+export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], bars: Venue[], count = 6): DatePlan[] {
   const fromRules = new Map(rulesPlans.map((p) => [p.restaurant?.slug ?? p.bar.slug, p]));
+  if (result.engine !== "claude") return result.picks.map((p) => fromRules.get(p.slug)).filter((p): p is DatePlan => !!p).slice(0, count);
+  const bySlug = new Map(venues.map((v) => [v.slug, v]));
   const taken = new Set<PickLabel>();
   const usedBars = new Set<string>();
   const out: DatePlan[] = [];
@@ -306,14 +326,14 @@ export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues:
     const drinksAt = prior?.drinksAt ?? template?.drinksAt ?? (dinnerAt ?? 20) + 1.75;
     out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "" });
   }
-  return out.length ? out : rulesPlans;
+  return (out.length ? out : rulesPlans).slice(0, count);
 }
 
 /** Bars-only plans (a date without dinner): reorder like night picks but keep the DatePlan shape. */
-export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[]): DatePlan[] {
-  if (result.engine !== "claude") return rulesPlans;
-  const bySlug = new Map(venues.map((v) => [v.slug, v]));
+export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], count = 6): DatePlan[] {
   const fromRules = new Map(rulesPlans.map((p) => [p.bar.slug, p]));
+  if (result.engine !== "claude") return result.picks.map((p) => fromRules.get(p.slug)).filter((p): p is DatePlan => !!p).slice(0, count);
+  const bySlug = new Map(venues.map((v) => [v.slug, v]));
   const taken = new Set<PickLabel>();
   const out: DatePlan[] = [];
   const template = rulesPlans[0];
@@ -326,7 +346,7 @@ export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venu
     taken.add(label);
     out.push({ bar, label, score: prior?.score ?? 0.5, drinksAt: prior?.drinksAt ?? template?.drinksAt ?? 21, why: p.why || prior?.why || "" });
   }
-  return out.length ? out : rulesPlans;
+  return (out.length ? out : rulesPlans).slice(0, count);
 }
 
 function nextLabel(taken: Set<PickLabel>): PickLabel {

@@ -5,6 +5,7 @@ export type SearchEntry = {
   slug: string;
   name: string;
   verified?: boolean;
+  score?: number;
   neighborhood: Venue["neighborhood"];
   kind: Venue["kind"];
   tags: string[];
@@ -29,6 +30,7 @@ export function toSearchEntry(v: Venue): SearchEntry {
     price: v.price,
     hot: v.hot || undefined,
     verified: v.verified || undefined,
+    score: v.score,
     photo: v.photo,
     photoUrl: v.photoUrl,
     lat: v.lat,

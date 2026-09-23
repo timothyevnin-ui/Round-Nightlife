@@ -71,6 +71,22 @@ export function prefsScore(venue: Venue, wants: Wants): { score: number; hits: A
   return { score: (sum / weight + 1) / 2, hits };
 }
 
+/**
+ * A verified place (someone from ROUND has been, and the entry is right) wins
+ * a tie and edges a near-tie. Big enough to break ties, small enough that a
+ * verified place can't beat a clearly better fit.
+ */
+export const VERIFIED_BOOST = 1.08;
+export function verifiedBoost(venue: Venue): number {
+  return (venue.verified ? VERIFIED_BOOST : 1) * scoreBoost(venue);
+}
+
+/** ROUND's score nudges the order: 95 is about +5%, 55 about −5%, unscored is neutral. */
+export function scoreBoost(venue: Venue): number {
+  if (typeof venue.score !== "number") return 1;
+  return 1 + Math.max(-0.06, Math.min(0.06, (venue.score - 75) / 400));
+}
+
 function linePenalty(venue: Venue, wants: Wants): number {
   const w = wants.noLine ?? 0;
   if (w <= 0) return 1;
@@ -206,7 +222,7 @@ export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_CO
       const time = timeScore(venue, q.hour, q.dow);
       const { score: prefs, hits } = prefsScore(venue, q.wants);
       const base = nb * W.nb + group * W.group + time * W.time + prefs * W.prefs;
-      const score = base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been);
+      const score = base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been) * verifiedBoost(venue);
       return { venue, score, hits, group };
     })
     .filter((x): x is Scored => x !== null)
@@ -253,7 +269,7 @@ function scoreDateVenue(venue: Venue, q: DateQuery, weights: { fit: number; pref
   const wants: Wants = { date: 0.4, ...q.wants };
   const { score: prefs, hits } = prefsScore(venue, wants);
   const time = timeScore(venue, q.hour, q.dow);
-  const score = (fit * weights.fit + prefs * weights.prefs + nb * weights.nb + time * weights.time) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been);
+  const score = (fit * weights.fit + prefs * weights.prefs + nb * weights.nb + time * weights.time) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been) * verifiedBoost(venue);
   return { score, hits };
 }
 
@@ -332,7 +348,7 @@ export function recommendDinner(q: DinnerQuery, venues: Venue[], count = RESULT_
     const time = timeScore(venue, q.hour, q.dow);
     const { score: prefs, hits } = prefsScore(venue, q.wants);
     const base = nb * w.nb + group * w.group + time * w.time + prefs * w.prefs;
-    return { venue, score: base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been), hits, group };
+    return { venue, score: base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been) * verifiedBoost(venue), hits, group };
   };
   const restaurants = venues
     .filter((v) => v.kind === "restaurant")
@@ -382,7 +398,7 @@ export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUN
       const time = timeScore(venue, q.hour, q.dow);
       const { score: prefs, hits } = prefsScore(venue, wants);
       const hasWants = Object.keys(wants).length > 0;
-      const score = near * 0.5 + time * 0.25 + venue.easyIn * 0.1 + (hasWants ? prefs : 0.5) * 0.15;
+      const score = (near * 0.5 + time * 0.25 + venue.easyIn * 0.1 + (hasWants ? prefs : 0.5) * 0.15) * verifiedBoost(venue);
       return { venue, meters, score, hits, time };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null)

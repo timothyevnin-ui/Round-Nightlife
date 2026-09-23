@@ -37,6 +37,10 @@ export function YouView({ venues }: { venues: Venue[] }) {
     .map(([slug, e]) => ({ venue: byslug[slug], entry: e }))
     .filter((x): x is { venue: Venue; entry: (typeof state.been)[string] } => !!x.venue);
 
+  const ladder = (state.ladder ?? [])
+    .map((slug) => ({ venue: byslug[slug], entry: state.been[slug] }))
+    .filter((x): x is { venue: Venue; entry: (typeof state.been)[string] } => !!x.venue && !!x.entry);
+
   const taste = tasteLine(been.map((b) => b.venue), state.been);
 
   return (
@@ -147,6 +151,30 @@ export function YouView({ venues }: { venues: Venue[] }) {
         </div>
       </Section>
 
+      <div id="ladder" className="scroll-mt-4" />
+      <Section title="Your ladder" count={ladder.length} empty="Rate a place you've been and it takes its spot here, best first. Your ladder shapes ROUND's picks for you.">
+        <ol className="flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
+          {ladder.map(({ venue, entry }, i) => (
+            <li key={venue.slug}>
+              <Link href={`/v/${venue.slug}`} className="pressable flex items-center gap-3 py-3" style={{ borderColor: "var(--hairline)" }}>
+                <span className="serif w-7 shrink-0 text-right" style={{ fontSize: 22, color: i === 0 ? "var(--tomato)" : "var(--chalk-35)" }}>
+                  {i + 1}
+                </span>
+                <Photo venue={venue} rounded="rounded-[12px]" className="h-12 w-12 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="serif truncate" style={{ fontSize: 19, lineHeight: 1.1 }}>
+                    {venue.name}
+                  </p>
+                  <p className="truncate text-[12px]" style={{ color: "var(--chalk-55)" }}>
+                    {entry.note ? `“${entry.note}”` : entry.verdict === "again" ? "Take me back tonight" : "I'd go back"}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </Section>
+
       <Section title="Been" count={been.length} empty="Places you've been, rated the morning after, become your ranked list.">
         <div className="flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
           {been.map(({ venue, entry }) => (
@@ -160,8 +188,8 @@ export function YouView({ venues }: { venues: Venue[] }) {
                   {neighborhoodName(venue.neighborhood)}
                 </p>
               </div>
-              <span className="text-[12px] font-medium" style={{ color: entry.rating ? "var(--chalk)" : "var(--chalk-35)" }}>
-                {entry.rating === "loved" ? "Loved" : entry.rating === "good" ? "Good" : entry.rating === "meh" ? "Meh" : "Rate"}
+              <span className="text-[12px] font-medium" style={{ color: entry.verdict || entry.rating ? "var(--chalk)" : "var(--chalk-35)" }}>
+                {entry.verdict === "again" ? "Take me back" : entry.verdict === "back" ? "I'd go back" : entry.verdict === "fine" ? "Fine" : entry.verdict === "never" ? "Never again" : entry.rating === "loved" ? "Loved" : entry.rating === "good" ? "Good" : entry.rating === "meh" ? "Meh" : "Rate"}
               </span>
             </Link>
           ))}

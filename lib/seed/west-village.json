@@ -849,7 +849,9 @@
    "https://www.atly.com/united-states/new-york/new-york/west-village/best-bar-live-sports",
    "https://toast.app/r/wogies-bar-grill-west-village-39-greenwich-avenue"
   ],
-  "notes": "39 Greenwich Ave, below street level; Sun-Thu 11:30am-2am, Fri-Sat till 3am. Philadelphia-sports bar: cheesesteaks, wings, house-baked bread, $6 well drinks at happy hour, booths and tables plus TVs. Packed for Eagles games, quiet otherwise. Open 20-plus years."
+  "notes": "39 Greenwich Ave, below street level; Sun-Thu 11:30am-2am, Fri-Sat till 3am. Philadelphia-sports bar: cheesesteaks, wings, house-baked bread, $6 well drinks at happy hour, booths and tables plus TVs. Packed for Eagles games, quiet otherwise. Open 20-plus years.",
+  "barFood": true,
+  "cuisine": "Cheesesteaks"
  },
  {
   "slug": "down-the-hatch",
@@ -1333,7 +1335,15 @@
   "sources": [
    "https://www.redlionnyc.com/"
   ],
-  "notes": "Bleecker at Thompson. Bands nightly from around 9-10pm; rock and pop covers, occasionally originals. Open till 4am. Sports on the TVs earlier in the evening. Two bars, a small stage, standing room that turns into a dance floor."
+  "notes": "Bleecker at Thompson. Bands nightly from around 9-10pm; rock and pop covers, occasionally originals. Open till 4am. Sports on the TVs earlier in the evening. Two bars, a small stage, standing room that turns into a dance floor.",
+  "hours": {
+   "every": {
+    "open": "12:00",
+    "close": "04:00"
+   }
+  },
+  "barFood": true,
+  "cuisine": "Pub food"
  },
  {
   "slug": "the-bitter-end",
@@ -1436,7 +1446,37 @@
   "sources": [
    "https://www.clubgroovenyc.com/"
   ],
-  "notes": "MacDougal between Bleecker and W 3rd. Live R&B, funk and soul nightly; two-drink minimum, small cover some weekend nights. Open till roughly 3am on weekends."
+  "notes": "MacDougal between Bleecker and W 3rd. Live R&B, funk and soul nightly; two-drink minimum, small cover some weekend nights. Open till roughly 3am on weekends.",
+  "hours": [
+   {
+    "open": "18:00",
+    "close": "02:00"
+   },
+   {
+    "open": "18:00",
+    "close": "02:00"
+   },
+   {
+    "open": "18:00",
+    "close": "02:00"
+   },
+   {
+    "open": "18:00",
+    "close": "02:00"
+   },
+   {
+    "open": "18:00",
+    "close": "02:00"
+   },
+   {
+    "open": "18:00",
+    "close": "03:00"
+   },
+   {
+    "open": "18:00",
+    "close": "03:00"
+   }
+  ]
  },
  {
   "slug": "cafe-wha",
@@ -1488,7 +1528,9 @@
   "sources": [
    "https://cafewha.com/"
   ],
-  "notes": "Basement club at MacDougal and Minetta Lane, open since 1959. Reservations with a cover charge, tables with a food menu; the Café Wha? house band plays rock, soul and pop covers most nights, with themed nights (Brazilian, funk) on others."
+  "notes": "Basement club at MacDougal and Minetta Lane, open since 1959. Reservations with a cover charge, tables with a food menu; the Café Wha? house band plays rock, soul and pop covers most nights, with themed nights (Brazilian, funk) on others.",
+  "barFood": true,
+  "cuisine": "Bar menu"
  },
  {
   "slug": "terra-blues",
@@ -1593,6 +1635,14 @@
   "sources": [
    "https://www.offthewagonnyc.com/"
   ],
-  "notes": "MacDougal just north of Bleecker. Long happy hours with pitcher and pint deals, beer pong and pool in the back, TVs everywhere, a DJ late on Fridays and Saturdays; open till 4am."
+  "notes": "MacDougal just north of Bleecker. Long happy hours with pitcher and pint deals, beer pong and pool in the back, TVs everywhere, a DJ late on Fridays and Saturdays; open till 4am.",
+  "hours": {
+   "every": {
+    "open": "12:00",
+    "close": "04:00"
+   }
+  },
+  "barFood": true,
+  "cuisine": "Wings & pitchers"
  }
 ]

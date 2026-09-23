@@ -5,6 +5,7 @@ import { interpretPrompt, interpretText, type Interpretation } from "@/lib/inter
 import { isNeighborhoodId } from "@/lib/neighborhoods";
 import { ATTR_KEYS } from "@/lib/attrs";
 import { getVenues } from "@/lib/db";
+import { allowModelCall, ipFrom } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -46,6 +47,10 @@ export async function POST(req: Request) {
     after(() => logEvent({ kind: "sayit", q: text, slug: i.venue?.slug ?? null, data: { engine, mode: i.mode, neighborhood: i.neighborhood ?? null, near: !!i.near, place: i.place?.label ?? null, wants: Object.keys(i.wants), understood: i.understood } }));
   if (!key) {
     log(keyword, "keywords");
+    return NextResponse.json({ interpretation: keyword, engine: "keywords" });
+  }
+  if (!allowModelCall(ipFrom(req.headers))) {
+    log(keyword, "keywords-ratelimited");
     return NextResponse.json({ interpretation: keyword, engine: "keywords" });
   }
 

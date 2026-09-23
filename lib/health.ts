@@ -23,6 +23,10 @@ const PROBES: { key: string; label: string; what: string; path: string }[] = [
   { key: "people", label: "Finding friends by name", what: "the people view (V8)", path: "people?select=id&limit=1" },
   { key: "friends", label: "Friends", what: "the friends table and its functions (V8)", path: "friends?select=user_id&limit=1" },
   { key: "checkins", label: "Where friends are", what: "the checkins table (V8)", path: "checkins?select=user_id&limit=1" },
+  { key: "venues.hours", label: "Hours, food and ROUND's score", what: "the hours, bar_food, cuisine and score columns on venues (V11)", path: "venues?select=hours,bar_food,cuisine,score&limit=1" },
+  { key: "saves.verdict", label: "Rate this bar", what: "the verdict, tags, rank and note columns on saves (V11)", path: "saves?select=verdict,tags,rank,note&limit=1" },
+  { key: "venue_tags", label: "What people say a place is", what: "the venue_tags view (V11)", path: "venue_tags?select=slug&limit=1" },
+  { key: "venue_scores", label: "The crowd's score", what: "the venue_scores view (V11)", path: "venue_scores?select=slug&limit=1" },
 ];
 
 function explain(status: number, text: string): string {

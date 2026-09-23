@@ -3,7 +3,8 @@ import { SEED_VENUES } from "./venues";
 import { emptyAttrs, clamp01 } from "./normalize";
 import { ATTR_KEYS } from "./attrs";
 import { isNeighborhoodId } from "./neighborhoods";
-import type { Attrs, Capacity, Venue, Window } from "./types";
+import type { Attrs, Capacity, Hours, Venue, Window } from "./types";
+import { cleanHours } from "./hours";
 
 /**
  * Venue data. Reads come from Supabase's REST endpoint when it's configured
@@ -39,7 +40,7 @@ export function dbConfig() {
  * parse them as a JWT and reject the call. The legacy anon/service_role keys
  * are JWTs and go on both headers.
  */
-function keyHeaders(key: string): Record<string, string> {
+export function keyHeaders(key: string): Record<string, string> {
   return key.startsWith("sb_") ? { apikey: key } : { apikey: key, Authorization: `Bearer ${key}` };
 }
 
@@ -75,6 +76,10 @@ export type VenueRow = {
   hot: boolean | null;
   hot_rank: number | null;
   story: string | null;
+  hours?: Hours | null;
+  bar_food?: boolean | null;
+  cuisine?: string | null;
+  score?: number | null;
 };
 
 const CAPACITIES: Capacity[] = ["tiny", "small", "medium", "large"];
@@ -124,9 +129,12 @@ export function rowToVenue(r: VenueRow): Venue | null {
     hot: !!r.hot,
     hotRank: typeof r.hot_rank === "number" ? r.hot_rank : undefined,
     story: r.story ?? undefined,
+    score: typeof r.score === "number" && r.score >= 0 && r.score <= 100 ? Math.round(r.score) : undefined,
+    hours: cleanHours(r.hours),
+    barFood: !!r.bar_food,
+    cuisine: typeof r.cuisine === "string" && r.cuisine.trim() ? r.cuisine.trim().slice(0, 40) : undefined,
   };
 }
-
 export function venueToRow(v: Venue): VenueRow {
   return {
     slug: v.slug,
@@ -158,6 +166,10 @@ export function venueToRow(v: Venue): VenueRow {
     hot: !!v.hot,
     hot_rank: v.hotRank ?? null,
     story: v.story ?? null,
+    score: typeof v.score === "number" ? v.score : null,
+    hours: v.hours ?? null,
+    bar_food: !!v.barFood,
+    cuisine: v.cuisine ?? null,
   };
 }
 

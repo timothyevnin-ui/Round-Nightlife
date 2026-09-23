@@ -329,4 +329,42 @@ grant execute on function public.befriend(uuid) to authenticated;
 grant execute on function public.accept_friend(uuid) to authenticated;
 grant execute on function public.unfriend(uuid) to authenticated;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V11. Hours, food, and a rating that's more than stars.
+-- ─────────────────────────────────────────────────────────────────────────
+
+-- Posted hours (7 entries, Sunday first, {open, close} or null), whether a
+-- bar has a real food menu, and what kind of food.
+alter table public.venues add column if not exists hours    jsonb;
+alter table public.venues add column if not exists bar_food boolean not null default false;
+alter table public.venues add column if not exists cuisine  text;
+-- ROUND's score: how much we like it, 0–100 (think Tomatometer, but it's ours).
+alter table public.venues add column if not exists score    integer check (score between 0 and 100);
+
+-- "Rate this bar": a verdict in words, what the room was (feeds the
+-- algorithm), where it sits on the person's own ladder, and one line.
+alter table public.saves add column if not exists verdict text check (verdict in ('again', 'back', 'fine', 'never'));
+alter table public.saves add column if not exists tags    text[];
+alter table public.saves add column if not exists rank    integer;
+alter table public.saves add column if not exists note    text;
+
+-- What people say a place is: counts per tag, readable by anyone (no user ids).
+create or replace view public.venue_tags with (security_invoker = false) as
+  select slug, unnest(tags) as tag, count(*)::int as n
+  from public.saves
+  where state = 'been' and tags is not null
+  group by slug, tag;
+grant select on public.venue_tags to anon, authenticated;
+
+-- The crowd: how many rated a place, and how many of them would go back.
+create or replace view public.venue_scores with (security_invoker = false) as
+  select slug,
+         count(*)::int as n,
+         sum(case when verdict in ('again', 'back') then 1 else 0 end)::int as back,
+         sum(case when verdict = 'again' then 1 else 0 end)::int as again
+  from public.saves
+  where state = 'been' and verdict is not null
+  group by slug;
+grant select on public.venue_scores to anon, authenticated;
+
 -- Later phases (plans, census) add their tables here.

@@ -6,13 +6,18 @@ import { Photo } from "@/components/Photo";
 import { TrackView } from "@/components/TrackView";
 import { FriendsChip } from "@/components/VenueCard";
 import { VenueActions } from "./VenueActions";
+import { StudioBar } from "@/components/StudioBar";
 import { BackButton } from "@/components/BackButton";
-import { bestFor, describeWindows, priceLabel } from "@/lib/describe";
+import { priceLabel } from "@/lib/describe";
+import { HoursLine, HoursWeek } from "@/components/Hours";
+import { CrowdLine, ScoreBadge } from "@/components/Score";
+import { crowdScores } from "@/lib/crowd";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { encodePlan } from "@/lib/plan";
 import { SEED_VENUES } from "@/lib/venues";
-import { getVenue } from "@/lib/db";
+import { getVenue, getVenues } from "@/lib/db";
 import { strongAttrLabels } from "@/lib/engine";
+import type { Venue } from "@/lib/types";
 import { storyParagraphs } from "@/lib/hot";
 
 export const revalidate = 60;
@@ -40,12 +45,8 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
   const v = await getVenue(slug);
   if (!v) notFound();
   const shareCode = encodePlan({ m: "night", n: v.neighborhood, t: 21, s: [{ bar: v.slug }] });
-  const facts = [
-    { k: "Best for", v: bestFor(v).join(" · ") || "Tonight" },
-    { k: "Best time", v: describeWindows(v.bestWindows) },
-    { k: "Price", v: priceLabel(v.price) },
-    { k: "Room", v: { tiny: "Tiny", small: "Small", medium: "Medium", large: "Big" }[v.capacity] },
-  ];
+  const [all, crowd] = await Promise.all([getVenues(), crowdScores([v.slug])]);
+  const names: Record<string, string> = Object.fromEntries(all.map((x) => [x.slug, x.name]));
 
   return (
     <main className="mx-auto w-full max-w-md pb-14">
@@ -61,40 +62,58 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
         </Photo>
       </div>
 
-      <div className="screen" style={{ minHeight: 0, paddingTop: 22 }}>
-        <p className="eyebrow">
-          {neighborhoodName(v.neighborhood)} · {v.kind === "restaurant" ? "Restaurant" : "Bar"}
+      <div className="screen" style={{ minHeight: 0, paddingTop: 20 }}>
+        {/* ROUND says, first: the reason this place is on the list. */}
+        <section className="flex items-start gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow" style={{ color: "var(--tomato)" }}>
+              ROUND says
+            </p>
+            <p className="serif mt-1.5" style={{ fontSize: 24, lineHeight: 1.25 }}>
+              {v.take}
+            </p>
+            <CrowdLine crowd={crowd[v.slug]} className="mt-2" />
+          </div>
+          <ScoreBadge score={v.score} size={64} className="mt-1" />
+        </section>
+
+        <p className="eyebrow mt-7">
+          {neighborhoodName(v.neighborhood)} · {kindWord(v)}
           {v.hot && (
             <span className="ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em]" style={{ background: "var(--tomato)", color: "var(--on-photo)" }}>
               HOT RIGHT NOW
             </span>
           )}
         </p>
-        <h1 className="serif mt-2" style={{ fontSize: 38, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
+        <h1 className="serif mt-1.5" style={{ fontSize: 38, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
           {v.name}
           {v.verified && <VerifiedMark size={26} className="ml-2.5" />}
         </h1>
-        <p className="mt-3 text-[13px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
-          {(v.tags.length ? v.tags : strongAttrLabels(v)).join(" · ")}
+        <p className="mt-2.5 text-[13px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
+          {keywords(v).join(" · ")}
         </p>
         <VerifiedLine verified={!!v.verified} />
 
-        <VenueActions venue={v} shareUrl={`/p/${shareCode}`} />
+        <VenueActions venue={v} shareUrl={`/p/${shareCode}`} names={names} />
+        <StudioBar slug={v.slug} verified={!!v.verified} />
 
-        <section className="mt-9">
-          <p className="eyebrow">ROUND&apos;s Take</p>
-          <p className="serif mt-2" style={{ fontSize: 24, lineHeight: 1.25 }}>
-            {v.take}
-          </p>
-        </section>
+        {v.hours && (
+          <section className="mt-7 border-t pt-5" style={{ borderColor: "var(--hairline)" }}>
+            <p className="eyebrow">Hours</p>
+            <div className="mt-2">
+              <HoursLine hours={v.hours} expandable={false} />
+              <HoursWeek hours={v.hours} className="mt-3" />
+            </div>
+          </section>
+        )}
 
         {v.theCatch && (
-          <section className="mt-7">
-            <p className="eyebrow">The catch</p>
-            <p className="mt-2 text-[15.5px] leading-[1.5]" style={{ color: "var(--chalk-70)" }}>
-              {v.theCatch}
-            </p>
-          </section>
+          <p className="mt-5 text-[13.5px] leading-snug" style={{ color: "var(--ink-55)" }} data-catch>
+            <span className="font-semibold" style={{ color: "var(--ink-70)" }}>
+              Heads up.
+            </span>{" "}
+            {v.theCatch}
+          </p>
         )}
 
         {storyParagraphs(v.story).length > 0 && (
@@ -112,28 +131,10 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
           </section>
         )}
 
-        <section className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
-          {facts.map((f) => (
-            <div key={f.k}>
-              <p className="eyebrow">{f.k}</p>
-              <p className="mt-1.5 text-[14.5px] leading-snug" style={{ color: "var(--chalk-70)" }}>
-                {f.v}
-              </p>
-            </div>
-          ))}
-        </section>
-
         <section className="mt-7 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
           <p className="eyebrow">Address</p>
           <p className="mt-1.5 text-[14.5px]" style={{ color: "var(--chalk-70)" }}>
             {v.address}
-          </p>
-        </section>
-
-        <section className="card mt-8 p-5">
-          <p className="eyebrow">Friend notes</p>
-          <p className="mt-2 text-[14.5px] leading-snug" style={{ color: "var(--chalk-55)" }}>
-            What your friends thought shows up here once they&apos;re on ROUND. Until then, ROUND&apos;s Take is the note.
           </p>
         </section>
 
@@ -146,4 +147,15 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
       </div>
     </main>
   );
+}
+
+/** "Bar", "Bar · kitchen", "Restaurant". */
+function kindWord(v: Venue) {
+  return v.kind === "restaurant" ? "Restaurant" : v.barFood ? "Bar · kitchen" : "Bar";
+}
+
+/** The keywords line: what kind of food, the tags (or the strongest attributes), the price. */
+function keywords(v: Venue): string[] {
+  const words = [...(v.cuisine ? [v.cuisine] : []), ...(v.tags.length ? v.tags : strongAttrLabels(v))];
+  return [...new Set(words)].slice(0, 5).concat(priceLabel(v.price));
 }

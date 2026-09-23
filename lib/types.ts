@@ -26,6 +26,14 @@ export type Window = {
 
 export type Attrs = Record<AttrKey, number>;
 
+/**
+ * Posted hours, one entry per weekday (0 = Sunday). "HH:MM" in 24h; a close
+ * time earlier than the open time means after midnight ("02:00" = 2am).
+ * null = closed that day. Absent entirely = we don't know yet (never shown).
+ */
+export type DayHours = { open: string; close: string } | null;
+export type Hours = [DayHours, DayHours, DayHours, DayHours, DayHours, DayHours, DayHours];
+
 export type Venue = {
   slug: string;
   name: string;
@@ -36,6 +44,14 @@ export type Venue = {
   lng: number;
   /** ROUND's Take — one sentence, in the house voice. */
   take: string;
+  /** ROUND's score, 0–100: how much we like it. Set in Studio; shown only once set. */
+  score?: number;
+  /** Posted hours, when known. */
+  hours?: Hours;
+  /** A bar with a real food menu (kitchen, not just a bowl of nuts). */
+  barFood?: boolean;
+  /** What kind of food: "Italian", "Cheesesteaks", "Tacos". Restaurants and bars with food. */
+  cuisine?: string;
   /** The thing Maps doesn't know. */
   theCatch?: string;
   tags: string[];

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wordmark } from "@/components/Wordmark";
@@ -22,14 +24,25 @@ const NAV: { href: string; label: string; hint: string; wide?: boolean }[] = [
 function activeFor(pathname: string) {
   if (pathname === "/admin") return "/admin";
   const hit = NAV.filter((n) => n.href !== "/admin" && pathname.startsWith(n.href)).sort((a, b) => b.href.length - a.href.length)[0];
-  return hit?.href ?? (pathname.startsWith("/admin/v/") || pathname.startsWith("/admin/new") ? "/admin/places" : "");
+  return hit?.href ?? (pathname.startsWith("/admin/v/") || pathname.startsWith("/admin/new") || pathname.startsWith("/admin/add") ? "/admin/places" : "");
+}
+
+function rememberStudio() {
+  try {
+    window.localStorage.setItem("round:studio", "1");
+  } catch {
+    /* ignore */
+  }
 }
 
 export function StudioShell({ signedIn, children }: { signedIn: boolean; children: React.ReactNode }) {
   const pathname = usePathname() ?? "/admin";
+  useEffect(() => {
+    if (signedIn) rememberStudio();
+  }, [signedIn]);
   if (!signedIn || pathname.startsWith("/admin/login")) return <div className="mx-auto w-full max-w-md">{children}</div>;
   const active = activeFor(pathname);
-  const wide = NAV.find((n) => n.href === active)?.wide && !pathname.startsWith("/admin/v/") && !pathname.startsWith("/admin/new");
+  const wide = NAV.find((n) => n.href === active)?.wide && !pathname.startsWith("/admin/v/") && !pathname.startsWith("/admin/new") && !pathname.startsWith("/admin/add");
 
   return (
     <div className="studio">
@@ -61,7 +74,7 @@ export function StudioShell({ signedIn, children }: { signedIn: boolean; childre
           })}
         </nav>
         <div className="hidden px-5 pb-6 lg:mt-auto lg:block">
-          <Link href="/admin/new" className="pressable btn-primary flex h-11 w-full items-center justify-center text-[14px]">
+          <Link href="/admin/add" className="pressable btn-primary flex h-11 w-full items-center justify-center text-[14px]">
             + Add a place
           </Link>
           <div className="mt-4 flex items-center justify-between text-[12px]" style={{ color: "var(--ink-35)" }}>

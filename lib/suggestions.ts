@@ -15,10 +15,11 @@ export type SuggestionStatus = "new" | "added" | "dismissed";
 /** What the quick questions on /recommend produce. All optional. */
 export type SuggestionAnswers = {
   attrs?: Partial<Attrs>;
-  price?: 1 | 2 | 3;
+  price?: 1 | 2 | 3 | 4;
   easyIn?: number;
   groupBig?: number;
   dateFit?: number;
+  capacity?: "tiny" | "small" | "medium" | "large";
   /** The raw button labels, for the inbox ("Loud · Seats · No line"). */
   said?: string[];
 };

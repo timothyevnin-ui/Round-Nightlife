@@ -1,5 +1,7 @@
 import { vibeOf, type Venue, type Window } from "./types";
 import { formatHour } from "./time";
+import { neighborhoodName } from "./neighborhoods";
+import { strongAttrLabels } from "./engine";
 
 const DAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -44,4 +46,11 @@ export function bestFor(v: Venue): string[] {
 
 export function priceLabel(p: Venue["price"]) {
   return "$".repeat(p);
+}
+
+/** The keywords line on a card: "West Village · Bar · Cheesesteaks · Sports · $$". */
+export function keywordLine(v: Venue): string {
+  const kind = v.kind === "restaurant" ? "Restaurant" : v.barFood ? "Bar · kitchen" : "Bar";
+  const words = [...(v.cuisine ? [v.cuisine] : []), ...(v.tags.length ? v.tags : strongAttrLabels(v, 3))];
+  return [neighborhoodName(v.neighborhood), kind, ...[...new Set(words)].slice(0, 3), priceLabel(v.price)].join(" · ");
 }

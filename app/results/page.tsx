@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { logEvent } from "@/lib/events";
@@ -7,6 +8,9 @@ import { getVenues } from "@/lib/db";
 import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { applyToBarPlans, applyToNight, applyToPlans, pickWithClaude, type PickRequest, type PickResult } from "@/lib/pick";
 import { encodePlan, type PlanPayload } from "@/lib/plan";
+import { ipFrom } from "@/lib/ratelimit";
+import { parseTaste } from "@/lib/taste";
+import { TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
 import { formatHour } from "@/lib/time";
 import type { DatePlan, DateStage, Mode, NightPick } from "@/lib/types";
@@ -54,7 +58,9 @@ export default async function ResultsPage(props: PageProps<"/results">) {
         data: { mode, hour, dow, wants: Object.keys(wants), ...extra, shown: slugs.slice(0, 8), engine: ai.engine, model: ai.model ?? null, ms: ai.ms, heard: ai.heard ?? null, note: ai.note ?? null },
       }),
     );
-  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said"> = { hour, dow, wants, been, said };
+  const ip = ipFrom(await headers());
+  const taste = parseTaste((await cookies()).get(TASTE_COOKIE)?.value);
+  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said" | "ip" | "taste"> = { hour, dow, wants, been, said, ip, taste };
 
   if (m === "near") {
     const lat = num(sp.lat, NaN);
@@ -63,14 +69,13 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const at = str(sp.at);
     const n = str(sp.n);
     const twelve = recommendNear({ lat, lng, hour, dow, wants }, venues, HINTS);
-    const rules = twelve.slice(0, RESULT_COUNT);
     const ai = await pickWithClaude(
-      { ...base, mode: "near", place: { label: at ?? "here", lat, lng }, neighborhood: isNeighborhoodId(n) ? n : rules[0]?.venue.neighborhood, group: num(sp.g, 0) || undefined },
+      { ...base, mode: "near", place: { label: at ?? "here", lat, lng }, neighborhood: isNeighborhoodId(n) ? n : twelve[0]?.venue.neighborhood, group: num(sp.g, 0) || undefined },
       venues,
       twelve.map((p) => ({ slug: p.venue.slug })),
     );
     const bySlug = new Map(twelve.map((p) => [p.venue.slug, p]));
-    const picks = applyToNight(ai, rules, venues).map((p) => {
+    const picks = applyToNight(ai, twelve, venues).map((p) => {
       const near = bySlug.get(p.venue.slug);
       const meters = near?.meters ?? Math.round(haversineMeters({ lat, lng }, p.venue));
       const walk = near?.walkMinutes ?? Math.max(1, Math.round(meters / 80));
@@ -92,7 +97,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const lead = twelve[0];
     const rest = twelve.slice(1);
     const ai = await pickWithClaude({ ...base, mode: "around", anchor, neighborhood: anchor.neighborhood, group }, venues, rest.map((p) => ({ slug: p.venue.slug })), RESULT_COUNT - 1);
-    const picks: NightPick[] = applyToNight(ai, rest.slice(0, RESULT_COUNT - 1), venues, lead).slice(0, RESULT_COUNT);
+    const picks: NightPick[] = applyToNight(ai, rest, venues, lead, RESULT_COUNT);
     const payload: PlanPayload = { m: "night", n: anchor.neighborhood, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
     const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
@@ -108,9 +113,8 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   if (mode === "night") {
     const group = Math.min(11, Math.max(2, num(sp.g, 4)));
     const twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, been }, venues, HINTS);
-    const rules = twelve.slice(0, RESULT_COUNT);
     const ai = await pickWithClaude({ ...base, mode: "night", neighborhood: n, group }, venues, twelve.map((p) => ({ slug: p.venue.slug })));
-    const picks = applyToNight(ai, rules, venues);
+    const picks = applyToNight(ai, twelve, venues);
     const payload: PlanPayload = { m: "night", n, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
     const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
@@ -124,9 +128,8 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   if (mode === "dinner") {
     const group = Math.min(11, Math.max(2, num(sp.g, 4)));
     const twelve = recommendDinner({ neighborhood: n, group, hour, dow, wants, been }, venues, HINTS);
-    const rules = twelve.slice(0, RESULT_COUNT);
     const ai = await pickWithClaude({ ...base, mode: "dinner", neighborhood: n, group }, venues, twelve.map((p) => ({ slug: p.restaurant?.slug ?? p.bar.slug, then: p.restaurant ? p.bar.slug : undefined })));
-    const plans = applyToPlans(ai, rules, venues, bars);
+    const plans = applyToPlans(ai, twelve, venues, bars);
     const payload: PlanPayload = { m: "dinner", n, t: hour, g: group, s: planStops(plans) };
     const code = encodePlan(payload);
     const perCard = plans.map((_, i) => encodePlan({ ...payload, s: [payload.s[i]] }));
@@ -138,9 +141,8 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const stage = (STAGES.includes(str(sp.s) as DateStage) ? str(sp.s) : "early") as DateStage;
   const dinner = str(sp.dn) !== "0";
   const twelve = recommendDate({ neighborhood: n, stage, dinner, hour, dow, wants, been }, venues, HINTS);
-  const rules = twelve.slice(0, RESULT_COUNT);
   const ai = await pickWithClaude({ ...base, mode: "date", neighborhood: n, stage, dinner, group: 2 }, venues, twelve.map((p) => ({ slug: p.restaurant?.slug ?? p.bar.slug, then: p.restaurant ? p.bar.slug : undefined })));
-  const plans = dinner ? applyToPlans(ai, rules, venues, bars) : applyToBarPlans(ai, rules, venues);
+  const plans = dinner ? applyToPlans(ai, twelve, venues, bars) : applyToBarPlans(ai, twelve, venues);
   const payload: PlanPayload = { m: "date", n, t: hour, s: planStops(plans) };
   const code = encodePlan(payload);
   const perCard = plans.map((_, i) => encodePlan({ ...payload, s: [payload.s[i]] }));

@@ -4,51 +4,51 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
 import { VerifiedMark } from "./VerifiedMark";
+import { HoursLine } from "./Hours";
+import { ScoreBadge } from "./Score";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { LabelChip, FriendsChip } from "./VenueCard";
 import { neighborhoodName } from "@/lib/neighborhoods";
-import { bestFor, describeWindows, priceLabel } from "@/lib/describe";
+import { keywordLine } from "@/lib/describe";
 import { formatHour } from "@/lib/time";
 import type { DatePlan, PickLabel, Venue } from "@/lib/types";
 
 /**
- * One card in the results carousel: the photo, the label, and everything you
- * need to decide without leaving the screen. Tap the photo or the name for the
- * full page (the story, the address, the map).
+ * One card in the results carousel, kept to what decides a night: the photo,
+ * ROUND says, the name, where and what it is, why it's here tonight, the
+ * hours, one heads-up, and the buttons. Tap the photo or the name for the
+ * full page.
  */
 
-const ROOM = { tiny: "Tiny room", small: "Small room", medium: "Medium room", large: "Big room" } as const;
-
-function easyInLabel(e: number) {
-  if (e >= 0.8) return "Walk right in";
-  if (e >= 0.55) return "Usually fine";
-  if (e >= 0.35) return "Can be a wait";
-  return "Line at peak";
+function Says({ venue, size = 18 }: { venue: Venue; size?: number }) {
+  return (
+    <div data-says className="flex items-start gap-3">
+      <div className="min-w-0 flex-1">
+        <p className="eyebrow" style={{ color: "var(--tomato)" }}>
+          ROUND says
+        </p>
+        <p className="serif mt-1" style={{ fontSize: size, lineHeight: 1.3 }}>
+          {venue.take}
+        </p>
+      </div>
+      <ScoreBadge score={venue.score} size={46} className="mt-0.5" />
+    </div>
+  );
 }
 
-function Facts({ venue }: { venue: Venue }) {
-  const facts = [
-    ["Price", priceLabel(venue.price)],
-    ["Room", ROOM[venue.capacity]],
-    ["Getting in", easyInLabel(venue.easyIn)],
-    ["Best time", describeWindows(venue.bestWindows).split(" · ")[0]],
-  ];
+function Catch({ text }: { text?: string }) {
+  if (!text) return null;
   return (
-    <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-4" style={{ borderColor: "var(--hairline)" }}>
-      {facts.map(([k, v]) => (
-        <div key={k} className="min-w-0">
-          <dt className="eyebrow">{k}</dt>
-          <dd className="mt-0.5 truncate text-[13.5px]" style={{ color: "var(--ink-70)" }}>
-            {v}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <p className="mt-3 text-[12.5px] leading-snug" style={{ color: "var(--ink-55)" }} data-catch>
+      <span className="font-semibold" style={{ color: "var(--ink-70)" }}>
+        Heads up.
+      </span>{" "}
+      {text}
+    </p>
   );
 }
 
 export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: Venue; label: PickLabel; why?: string; shareUrl: string; index?: number }) {
-  const best = bestFor(venue);
   return (
     <motion.article
       initial={{ opacity: 0, y: 18 }}
@@ -69,34 +69,24 @@ export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: 
 
       <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
         <Link href={`/v/${venue.slug}`} className="block">
-          <h2 className="serif" style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
+          <Says venue={venue} />
+          <h2 className="serif mt-4" style={{ fontSize: 27, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
             {venue.name}
             {venue.verified && <VerifiedMark size={20} className="ml-2" />}
           </h2>
-          <p className="mt-1 text-[13px]" style={{ color: "var(--ink-55)" }}>
-            {neighborhoodName(venue.neighborhood)} · {venue.tags.slice(0, 3).join(" · ")}
-          </p>
-          <p className="mt-3 text-[15px] leading-[1.45]" style={{ color: "var(--ink-70)" }}>
-            {venue.take}
+          <p className="mt-1 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
+            {keywordLine(venue)}
           </p>
         </Link>
 
-        {venue.theCatch && (
-          <p className="mt-3 rounded-[14px] px-3.5 py-2.5 text-[13px] leading-snug" style={{ background: "var(--ink-6)", color: "var(--ink-70)" }}>
-            <span className="font-semibold" style={{ color: "var(--ink)" }}>
-              The catch.
-            </span>{" "}
-            {venue.theCatch}
+        {why && (
+          <p className="mt-3 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }} data-why>
+            {why}
           </p>
         )}
 
-        <Facts venue={venue} />
-
-        {(why || best.length > 0) && (
-          <p className="mt-4 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
-            {why || best.join(" · ")}
-          </p>
-        )}
+        <HoursLine hours={venue.hours} className="mt-3" />
+        <Catch text={venue.theCatch} />
 
         <div className="mt-auto flex items-center gap-2.5 pt-5">
           <GoButton venue={venue} className="flex-1" />
@@ -149,33 +139,25 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
           </>
         ) : (
           <Link href={`/v/${bar.slug}`} className="block">
-            <h2 className="serif" style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
+            <Says venue={bar} />
+            <h2 className="serif mt-4" style={{ fontSize: 27, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
               {bar.name}
               {bar.verified && <VerifiedMark size={20} className="ml-2" />}
             </h2>
-            <p className="mt-1 text-[13px]" style={{ color: "var(--ink-55)" }}>
-              {neighborhoodName(bar.neighborhood)} · {bar.tags.slice(0, 3).join(" · ")}
-            </p>
-            <p className="mt-3 text-[15px] leading-[1.45]" style={{ color: "var(--ink-70)" }}>
-              {bar.take}
+            <p className="mt-1 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
+              {keywordLine(bar)}
             </p>
           </Link>
         )}
 
-        {first.theCatch && (
-          <p className="mt-3 rounded-[14px] px-3.5 py-2.5 text-[13px] leading-snug" style={{ background: "var(--ink-6)", color: "var(--ink-70)" }}>
-            <span className="font-semibold" style={{ color: "var(--ink)" }}>
-              The catch.
-            </span>{" "}
-            {first.theCatch}
+        {plan.why && (
+          <p className="mt-3 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }} data-why>
+            {plan.why}
           </p>
         )}
 
-        <Facts venue={first} />
-
-        <p className="mt-4 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
-          {plan.why}
-        </p>
+        <HoursLine hours={first.hours} className="mt-3" />
+        <Catch text={first.theCatch} />
 
         <div className="mt-auto flex items-center gap-2.5 pt-5">
           <GoButton venue={first} className="flex-1" />
@@ -199,7 +181,13 @@ function Stop({ eyebrow, venue, big }: { eyebrow: string; venue: Venue; big?: bo
         {venue.name}
         {venue.verified && <VerifiedMark size={big ? 18 : 16} className="ml-1.5" />}
       </h3>
-      <p className={`mt-0.5 ${big ? "" : "line-clamp-2"} text-[13.5px] leading-snug`} style={{ color: "var(--ink-70)" }}>
+      <p className="mt-0.5 text-[12px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
+        {keywordLine(venue)}
+      </p>
+      <p className={`mt-1 ${big ? "" : "line-clamp-2"} text-[13.5px] leading-snug`} style={{ color: "var(--ink-70)" }}>
+        <span className="font-semibold" style={{ color: "var(--tomato)" }}>
+          ROUND says
+        </span>{" "}
         {venue.take}
       </p>
     </Link>
