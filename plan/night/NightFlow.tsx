@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flow } from "@/components/Flow";
-import { DeckScreen } from "@/components/DeckScreen";
+import { QuickOnes } from "@/components/QuickOnes";
 import { nightSteps } from "@/lib/flows";
 import { encodeWants, pickDeck, type Wants } from "@/lib/questions";
 import { useRoundStore } from "@/lib/store";
@@ -39,6 +39,6 @@ export function NightFlow() {
     );
   }
 
-  const cards = pickDeck({ mode: "night", group: Number(answers.g) || 4, hour: Number(answers.t) || 21, dow, neighborhood: answers.n }, 6, seed);
-  return <DeckScreen title="Night out" cards={cards} onBack={() => setAnswers(null)} onDone={(wants) => go(answers, wants)} />;
+  const cards = pickDeck({ mode: "night", group: Number(answers.g) || 4, hour: Number(answers.t) || 21, dow, neighborhood: answers.n }, 8, seed);
+  return <QuickOnes title="Night out" cards={cards} onBack={() => setAnswers(null)} onDone={(wants) => go(answers, wants)} />;
 }

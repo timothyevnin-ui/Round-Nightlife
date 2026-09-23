@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flow } from "@/components/Flow";
-import { DeckScreen } from "@/components/DeckScreen";
+import { QuickOnes } from "@/components/QuickOnes";
 import { dateSteps } from "@/lib/flows";
 import { encodeWants, pickDeck, type Wants } from "@/lib/questions";
 import { useRoundStore } from "@/lib/store";
@@ -39,6 +39,6 @@ export function DateFlow() {
     );
   }
 
-  const cards = pickDeck({ mode: "date", group: 2, hour: Number(answers.t) || 20, dow, neighborhood: answers.n }, 5, seed);
-  return <DeckScreen title="Date" cards={cards} onBack={() => setAnswers(null)} onDone={(wants) => go(answers, wants)} />;
+  const cards = pickDeck({ mode: "date", group: 2, hour: Number(answers.t) || 20, dow, neighborhood: answers.n }, 7, seed);
+  return <QuickOnes title="Date" cards={cards} onBack={() => setAnswers(null)} onDone={(wants) => go(answers, wants)} />;
 }
