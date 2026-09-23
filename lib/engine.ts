@@ -339,3 +339,41 @@ export function strongAttrLabels(venue: Venue, max = 4): string[] {
     .map(([k]) => ATTRS[k].label)
     .slice(0, max);
 }
+
+/* ───────────────────────── NEAR ME ───────────────────────── */
+
+export type NearQuery = { lat: number; lng: number; hour: number; dow: number; wants?: Wants; radius?: number };
+
+export type NearPick = NightPick & { meters: number; walkMinutes: number };
+
+/**
+ * Bars within a short walk of a point, best first. Distance matters most,
+ * then whether the room is good right now, then how easy it is to get in.
+ */
+export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUNT): NearPick[] {
+  const radius = q.radius ?? 1500;
+  const wants = q.wants ?? {};
+  const scored = venues
+    .filter((v) => v.kind === "bar")
+    .map((venue) => {
+      const meters = haversineMeters(q, venue);
+      if (meters > radius) return null;
+      const near = 1 - meters / radius;
+      const time = timeScore(venue, q.hour, q.dow);
+      const { score: prefs, hits } = prefsScore(venue, wants);
+      const hasWants = Object.keys(wants).length > 0;
+      const score = near * 0.5 + time * 0.25 + venue.easyIn * 0.1 + (hasWants ? prefs : 0.5) * 0.15;
+      return { venue, meters, score, hits, time };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count);
+
+  const labels: PickLabel[] = ["The pick", "Also great", "Easy in", "Sleeper", "Wildcard", "Classic", "Late one", "Big room"];
+  return scored.map((s, i) => {
+    const walk = Math.max(1, Math.round(s.meters / 80));
+    const label: PickLabel = i === 0 ? "The pick" : i === 1 ? "Also great" : s.venue.easyIn >= 0.7 && i === 2 ? "Easy in" : labels[Math.min(i, labels.length - 1)];
+    const parts = [`${walk} min walk`, ...s.hits.slice(0, 1).map((h) => HIT_WORD[h]).filter(Boolean), s.time >= 1 ? "Good right now" : null].filter(Boolean) as string[];
+    return { venue: s.venue, label, score: s.score, why: parts.slice(0, 3).join(" · "), meters: s.meters, walkMinutes: walk };
+  });
+}

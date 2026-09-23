@@ -7,7 +7,8 @@ import { ATTR_GROUPS, ATTR_LIST, SUGGESTED_TAGS, type AttrKey } from "@/lib/attr
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 import { slugify } from "@/lib/slug";
 import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
-import { draftTake, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { adoptPhoto, draftTake, findPhotos, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
+import type { CommonsPhoto } from "@/lib/commons";
 
 /* ───────────────────────── presets ───────────────────────── */
 
@@ -50,6 +51,39 @@ const triBucket = (n: number) => (n >= 0.75 ? 1 : n >= 0.25 ? 0.5 : 0);
 /* ───────────────────────── form ───────────────────────── */
 
 type Draft = Omit<SavePayload, "attrs"> & { attrs: Attrs };
+
+/** A head start for a new place — from a recommendation in the inbox. */
+export type Prefill = {
+  suggestionId?: string;
+  name?: string;
+  kind?: "bar" | "restaurant";
+  neighborhood?: string;
+  address?: string;
+  notes?: string;
+  attrs?: Partial<Attrs>;
+  price?: number;
+  easyIn?: number;
+  groupFit?: Venue["groupFit"];
+  dateFit?: Venue["dateFit"];
+};
+
+function fromPrefill(p: Prefill): Draft {
+  const b = blank();
+  return {
+    ...b,
+    suggestionId: p.suggestionId,
+    name: p.name ?? b.name,
+    kind: p.kind ?? b.kind,
+    neighborhood: p.neighborhood ?? b.neighborhood,
+    address: p.address ?? b.address,
+    notes: p.notes ?? b.notes,
+    attrs: { ...b.attrs, ...(p.attrs ?? {}) },
+    price: p.price ?? b.price,
+    easyIn: p.easyIn ?? b.easyIn,
+    groupFit: p.groupFit ?? b.groupFit,
+    dateFit: p.dateFit ?? b.dateFit,
+  };
+}
 
 function blank(): Draft {
   const attrs = Object.fromEntries(ATTR_LIST.map((a) => [a.key, 0])) as Attrs;
@@ -103,6 +137,7 @@ function fromVenue(v: Venue): Draft {
     verified: v.verified,
     friendsBeen: v.friendsBeen ?? 0,
     photoUrl: v.photoUrl,
+    photoCredit: v.photoCredit ?? "",
     perk: v.perk,
     hot: !!v.hot,
     hotRank: v.hotRank ?? null,
@@ -110,9 +145,9 @@ function fromVenue(v: Venue): Draft {
   };
 }
 
-export function VenueForm({ venue, writable }: { venue: Venue | null; writable: boolean }) {
+export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; writable: boolean; prefill?: Prefill }) {
   const router = useRouter();
-  const [d, setD] = useState<Draft>(() => (venue ? fromVenue(venue) : blank()));
+  const [d, setD] = useState<Draft>(() => (venue ? fromVenue(venue) : prefill ? fromPrefill(prefill) : blank()));
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState("");
@@ -121,6 +156,7 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
   const [aiPending, startAi] = useTransition();
   const [geo, setGeo] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const [finder, setFinder] = useState<{ open: boolean; q: string; results: CommonsPhoto[] | null; busy: boolean; using: string | null; error: string | null }>({ open: false, q: "", results: null, busy: false, using: null, error: null });
   const isNew = !venue;
   const preset = useMemo(() => presetFor(d.bestWindows), [d.bestWindows]);
 
@@ -178,9 +214,38 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
     setTagInput("");
   };
 
+  const openFinder = () => setFinder((f) => ({ ...f, open: true, q: f.q || `${d.name} ${d.kind === "restaurant" ? "restaurant" : "bar"} New York`, error: null }));
+
+  const search = () => {
+    const q = finder.q.trim();
+    if (!q) return;
+    setFinder((f) => ({ ...f, busy: true, error: null }));
+    startAi(async () => {
+      const r = await findPhotos(q);
+      if ("error" in r) setFinder((f) => ({ ...f, busy: false, error: r.error }));
+      else setFinder((f) => ({ ...f, busy: false, results: r.photos }));
+    });
+  };
+
+  const choose = (p: CommonsPhoto) => {
+    setFinder((f) => ({ ...f, using: p.title, error: null }));
+    startAi(async () => {
+      const r = await adoptPhoto({ slug: d.slug || slugify(d.name) || "place", thumb: p.thumb, credit: p.credit });
+      if ("error" in r) setFinder((f) => ({ ...f, using: null, error: r.error }));
+      else {
+        setPhotoFile(null);
+        setPhotoPreview(null);
+        setD((x) => ({ ...x, photoUrl: r.photoUrl, photoCredit: r.photoCredit }));
+        setFinder((f) => ({ ...f, using: null, open: false }));
+        setMsg({ kind: "ok", text: "Photo's in. Hit Save to keep it." });
+      }
+    });
+  };
+
   const pickPhoto = (f: File | null) => {
     setPhotoFile(f);
     setPhotoPreview(f ? URL.createObjectURL(f) : null);
+    if (f) setD((x) => ({ ...x, photoCredit: "" }));
   };
 
   return (
@@ -191,7 +256,7 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
             <path d="M13.5 5 8 11l5.5 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <span className="eyebrow">{isNew ? "New place" : "Edit"}</span>
+        <span className="eyebrow">{isNew ? (prefill?.suggestionId ? "From a recommendation" : "New place") : "Edit"}</span>
         <button onClick={save} disabled={pending || !writable} className="pressable btn-primary flex h-10 items-center px-5 text-[14px]" style={{ opacity: pending || !writable ? 0.5 : 1 }}>
           {pending ? "Saving…" : "Save"}
         </button>
@@ -200,6 +265,11 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
       {!writable && (
         <div className="card mt-4 p-4 text-[13px]" style={{ color: "var(--chalk-70)" }}>
           Read-only until Supabase is connected (see SUPABASE.md).
+        </div>
+      )}
+      {prefill?.suggestionId && (
+        <div className="card mt-4 p-4 text-[13px] leading-snug" style={{ color: "var(--chalk-70)" }}>
+          <strong style={{ color: "var(--chalk)" }}>Filled in from what they told us.</strong> Their answers set the traits below; the rest is yours. Saving marks the recommendation as added.
         </div>
       )}
       {msg && (
@@ -357,7 +427,7 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
       </Section>
 
       {/* ── Photo ── */}
-      <Section title="Photo" hint="Yours. Shot at night, in the room, no filters. Tall or square works best.">
+      <Section title="Photo" hint="Yours is best: shot at night, in the room, no filters. Or find a free-to-use one from Wikimedia Commons; the credit rides along.">
         <div className="flex items-center gap-4">
           <div className="grain relative h-24 w-24 shrink-0 overflow-hidden rounded-[18px]" style={{ background: "linear-gradient(160deg, #161922, #3a4150)" }}>
             {(photoPreview ?? d.photoUrl) && (
@@ -365,16 +435,26 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
               <img src={photoPreview ?? d.photoUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
             )}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex min-w-0 flex-col gap-2">
             <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={(e) => pickPhoto(e.target.files?.[0] ?? null)} />
-            <button onClick={() => fileRef.current?.click()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]">
-              {d.photoUrl || photoPreview ? "Replace photo" : "Choose photo"}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => fileRef.current?.click()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]">
+                {d.photoUrl || photoPreview ? "Replace" : "Upload yours"}
+              </button>
+              <button onClick={openFinder} disabled={!d.name.trim()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]" style={{ opacity: d.name.trim() ? 1 : 0.5 }}>
+                Find a photo
+              </button>
+            </div>
+            {d.photoCredit ? (
+              <p className="truncate text-[11.5px]" style={{ color: "var(--chalk-55)" }}>
+                {d.photoCredit}
+              </p>
+            ) : null}
             {(d.photoUrl || photoPreview) && (
               <button
                 onClick={() => {
                   pickPhoto(null);
-                  set("photoUrl", "");
+                  setD((x) => ({ ...x, photoUrl: "", photoCredit: "" }));
                 }}
                 className="pressable text-left text-[12px]"
                 style={{ color: "var(--chalk-35)" }}
@@ -384,6 +464,62 @@ export function VenueForm({ venue, writable }: { venue: Venue | null; writable: 
             )}
           </div>
         </div>
+
+        {finder.open && (
+          <div className="card mt-2 p-4">
+            <div className="flex items-center justify-between">
+              <p className="eyebrow">Wikimedia Commons · free to use</p>
+              <button onClick={() => setFinder((f) => ({ ...f, open: false }))} className="pressable text-[12px]" style={{ color: "var(--chalk-35)" }}>
+                Close
+              </button>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <TextInput value={finder.q} onChange={(v) => setFinder((f) => ({ ...f, q: v }))} placeholder="McSorley's Old Ale House" onEnter={search} />
+              <button onClick={search} disabled={finder.busy} className="pressable btn-primary shrink-0 px-4 text-[13px]" style={{ opacity: finder.busy ? 0.6 : 1 }}>
+                {finder.busy ? "Looking…" : "Search"}
+              </button>
+            </div>
+            <p className="mt-2 text-[11.5px] leading-snug" style={{ color: "var(--chalk-35)" }}>
+              Only photos with a license that allows reuse show up (public domain, CC0, CC BY, CC BY-SA). The famous rooms are usually here; for the rest, your phone is the camera. Google Images can&apos;t be used: those pictures belong to whoever took them.
+            </p>
+            {finder.error && (
+              <p className="mt-2 text-[12.5px]" style={{ color: "#c0392b" }}>
+                {finder.error}
+              </p>
+            )}
+            {finder.results && finder.results.length === 0 && (
+              <p className="mt-3 text-[13px]" style={{ color: "var(--chalk-55)" }}>
+                Nothing free to use for that. Try the street name, or upload your own.
+              </p>
+            )}
+            {finder.results && finder.results.length > 0 && (
+              <ul className="mt-3 grid grid-cols-2 gap-3">
+                {finder.results.map((p) => (
+                  <li key={p.title} className="overflow-hidden rounded-[16px] border" style={{ borderColor: "var(--hairline)" }}>
+                    <div className="relative aspect-[4/3] w-full" style={{ background: "var(--ink-6)" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.thumb} alt={p.description ?? p.title} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="p-2.5">
+                      <p className="truncate text-[11.5px] font-medium">{p.artist}</p>
+                      <p className="truncate text-[11px]" style={{ color: "var(--chalk-55)" }}>
+                        {p.license} · {p.width}×{p.height}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <button onClick={() => choose(p)} disabled={!!finder.using} className="pressable btn-primary flex h-9 flex-1 items-center justify-center text-[12.5px]" style={{ opacity: finder.using && finder.using !== p.title ? 0.5 : 1 }}>
+                          {finder.using === p.title ? "Copying…" : "Use this"}
+                        </button>
+                        <a href={p.page} target="_blank" rel="noreferrer" className="pressable text-[11.5px] underline" style={{ color: "var(--chalk-55)" }}>
+                          Source
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </Section>
 
       {/* ── What's hot ── */}

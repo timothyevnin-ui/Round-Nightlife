@@ -137,4 +137,39 @@ alter table public.go_taps enable row level security;
 drop policy if exists "go_taps: anyone can log" on public.go_taps;
 create policy "go_taps: anyone can log" on public.go_taps for insert with check (user_id is null or auth.uid() = user_id);
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- Recommendations from anyone ("Know a spot we don't?"). Written by the
+-- server with the secret key, read only in the back office. No public policy
+-- on purpose: nobody can read these from the app.
+-- ─────────────────────────────────────────────────────────────────────────
+
+create table if not exists public.suggestions (
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null,
+  kind          text not null default 'bar' check (kind in ('bar', 'restaurant')),
+  neighborhood  text,
+  address       text,
+  why           text,
+  answers       jsonb not null default '{}'::jsonb,
+  from_name     text,
+  from_contact  text,
+  user_id       uuid references auth.users (id) on delete set null,
+  status        text not null default 'new' check (status in ('new', 'added', 'dismissed')),
+  venue_slug    text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+create index if not exists suggestions_status_idx on public.suggestions (status, created_at desc);
+
+drop trigger if exists suggestions_touch on public.suggestions;
+create trigger suggestions_touch before update on public.suggestions
+  for each row execute function public.touch_updated_at();
+
+alter table public.suggestions enable row level security;
+
+-- Photo credit for pictures that came from Wikimedia Commons (or anywhere
+-- that asks to be named). Shown small under the photo.
+alter table public.venues add column if not exists photo_credit text;
+
 -- Later phases (friends, plans, census) add their tables here.

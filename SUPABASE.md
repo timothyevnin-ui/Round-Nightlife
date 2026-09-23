@@ -59,7 +59,14 @@ Quick test: open any place, change one word of the Take, Save, then open its pub
 
 ## 6b. After any code update: run the SQL again
 
-Whenever a new version of the code adds fields (the "What's hot" shelf and stories did), paste the current `supabase/schema.sql` into the SQL Editor and **Run** it again. It only adds what's missing; nothing is lost. If you skip this, saving a place in the back office fails with a "column does not exist" message.
+Whenever a new version of the code adds fields, paste the current `supabase/schema.sql` into the SQL Editor and **Run** it again. It only adds what's missing; nothing is lost.
+
+What each update needed:
+
+- **V4** added the "What's hot" shelf and the story (`hot`, `hot_rank`, `story`).
+- **V5** adds the **recommendations inbox** (a new `suggestions` table: nobody can read it from the app, only the back office) and a **photo credit** column (`photo_credit`, for pictures that come from Wikimedia Commons).
+
+Saving a place still works if you forget: the server notices a column the database doesn't have yet, saves without it, and logs a warning. But the inbox at `/admin/suggestions` and "Know a spot we don't?" on the home page need the table, so run the SQL once after uploading V5.
 
 ## 7. Phone sign-in (Twilio, about 10 minutes)
 

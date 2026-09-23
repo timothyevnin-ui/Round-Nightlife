@@ -6,7 +6,7 @@ export function neighborhoodStep(defaultValue = "west-village"): FlowStep {
   return {
     id: "n",
     question: "Where?",
-    layout: "grid",
+    layout: "map",
     defaultValue,
     options: NEIGHBORHOODS.map((n) => ({ value: n.id, label: n.name })),
   };
@@ -14,13 +14,15 @@ export function neighborhoodStep(defaultValue = "west-village"): FlowStep {
 
 export function timeStep(): { step: FlowStep; dow: number } {
   const { options, defaultValue, dow } = timeOptions();
+  const now = options.find((o) => o.label === "Now")?.value;
   return {
     dow,
     step: {
       id: "t",
       question: "When?",
-      layout: "pills",
+      layout: "dial",
       defaultValue: String(defaultValue),
+      nowValue: now,
       options: options.map((o) => ({ value: String(o.value), label: o.label })),
     },
   };
@@ -41,8 +43,8 @@ export function nightSteps(): { steps: FlowStep[]; dow: number } {
       neighborhoodStep(),
       {
         id: "g",
-        question: "How many?",
-        layout: "numbers",
+        question: "How many of you?",
+        layout: "wheel",
         defaultValue: "4",
         options: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => ({ value: String(n), label: n === 11 ? "11+" : String(n) })),
       },
@@ -93,7 +95,7 @@ export function dinnerSteps(): { steps: FlowStep[]; dow: number } {
       {
         id: "g",
         question: "How many for dinner?",
-        layout: "numbers",
+        layout: "wheel",
         defaultValue: "4",
         options: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => ({ value: String(n), label: n === 11 ? "11+" : String(n) })),
       },

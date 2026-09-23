@@ -65,6 +65,7 @@ export type VenueRow = {
   easy_in: number;
   photo: Venue["photo"] | null;
   photo_url: string | null;
+  photo_credit?: string | null;
   friends_been: number | null;
   perk: string | null;
   group_booking: Venue["groupBooking"] | null;
@@ -113,6 +114,7 @@ export function rowToVenue(r: VenueRow): Venue | null {
     easyIn: clamp01(r.easy_in, 0.5),
     photo: r.photo && typeof r.photo.from === "string" ? r.photo : DEFAULT_PHOTO,
     photoUrl: r.photo_url ?? undefined,
+    photoCredit: r.photo_credit ?? undefined,
     friendsBeen: r.friends_been ?? undefined,
     perk: r.perk ?? undefined,
     groupBooking: r.group_booking ?? undefined,
@@ -146,6 +148,7 @@ export function venueToRow(v: Venue): VenueRow {
     easy_in: v.easyIn,
     photo: v.photo,
     photo_url: v.photoUrl ?? null,
+    photo_credit: v.photoCredit ?? null,
     friends_been: v.friendsBeen ?? 0,
     perk: v.perk ?? null,
     group_booking: v.groupBooking ?? null,
@@ -201,22 +204,45 @@ export async function getVenue(slug: string): Promise<Venue | undefined> {
 
 /* ───────────────────────── writes (service role, server only) ───────────────────────── */
 
-function serviceHeaders() {
+export function serviceHeaders() {
   const { url, service } = dbConfig();
   if (!url || !service) throw new Error("Database is not configured for writes (SUPABASE_SECRET_KEY missing).");
   return { url, auth: keyHeaders(service), headers: { ...keyHeaders(service), "Content-Type": "application/json" } };
 }
 
+/**
+ * Upsert venues. If the database is a schema version behind (a column the code
+ * knows about doesn't exist yet), that column is dropped from the payload and
+ * the save is retried, so a save never fails just because schema.sql hasn't
+ * been re-run. The missing column is named in the server log.
+ */
 export async function upsertVenues(venues: Venue[]): Promise<number> {
   const { url, headers } = serviceHeaders();
-  const res = await fetch(`${url}/rest/v1/venues?on_conflict=slug`, {
-    method: "POST",
-    headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify(venues.map(venueToRow)),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`Save failed (${res.status}): ${await res.text()}`);
-  return venues.length;
+  const rows: Record<string, unknown>[] = venues.map((v) => ({ ...venueToRow(v) }));
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch(`${url}/rest/v1/venues?on_conflict=slug`, {
+      method: "POST",
+      headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(rows),
+      cache: "no-store",
+    });
+    if (res.ok) return venues.length;
+    const text = await res.text();
+    const missing = missingColumn(text);
+    if (missing && rows.some((r) => missing in r)) {
+      console.warn(`[db] venues.${missing} doesn't exist yet; saving without it. Run supabase/schema.sql again.`);
+      for (const r of rows) delete r[missing];
+      continue;
+    }
+    throw new Error(`Save failed (${res.status}): ${text}`);
+  }
+  throw new Error("Save failed: the database schema is too far behind. Run supabase/schema.sql again.");
+}
+
+/** PostgREST's "unknown column" error, e.g. PGRST204 "Could not find the 'story' column of 'venues'". */
+export function missingColumn(errorText: string): string | null {
+  const m = errorText.match(/Could not find the '([a-z_]+)' column/i) ?? errorText.match(/column "?([a-z_]+)"? (?:of relation "[a-z_]+" )?does not exist/i);
+  return m ? m[1] : null;
 }
 
 export async function deleteVenue(slug: string): Promise<void> {
@@ -227,13 +253,17 @@ export async function deleteVenue(slug: string): Promise<void> {
 
 /** Upload a photo to the public `photos` bucket; returns its public URL. */
 export async function uploadPhoto(slug: string, file: File): Promise<string> {
+  return uploadPhotoBytes(slug, Buffer.from(await file.arrayBuffer()), file.type || "image/jpeg");
+}
+
+export async function uploadPhotoBytes(slug: string, bytes: Buffer, contentType: string): Promise<string> {
   const { url, auth } = serviceHeaders();
-  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+  const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
   const path = `${slug}-${Date.now()}.${ext}`;
   const res = await fetch(`${url}/storage/v1/object/photos/${path}`, {
     method: "POST",
-    headers: { ...auth, "Content-Type": file.type || "image/jpeg", "x-upsert": "true" },
-    body: Buffer.from(await file.arrayBuffer()),
+    headers: { ...auth, "Content-Type": contentType, "x-upsert": "true" },
+    body: new Uint8Array(bytes),
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`Photo upload failed (${res.status}): ${await res.text()}`);

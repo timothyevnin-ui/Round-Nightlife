@@ -3,6 +3,9 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
+import { NycMap } from "./NycMap";
+import { TimeDial, Wheel } from "./Pickers";
+import type { NeighborhoodId } from "@/lib/types";
 
 export type FlowOption = {
   value: string;
@@ -15,9 +18,11 @@ export type FlowStep = {
   id: string;
   question: string;
   hint?: string;
-  layout: "grid" | "visual" | "numbers" | "pills" | "list";
+  layout: "grid" | "visual" | "numbers" | "pills" | "list" | "map" | "wheel" | "dial";
   options: FlowOption[];
   defaultValue?: string;
+  /** dial only: the "Now" shortcut, when it's evening. */
+  nowValue?: number;
 };
 
 const WALK = ["var(--walk-1)", "var(--walk-2)", "var(--walk-3)", "var(--walk-4)", "var(--walk-5)"];
@@ -36,6 +41,7 @@ export function Flow({
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [pending, setPending] = useState<string | null>(null);
+  const [draft, setDraft] = useState<string | null>(null);
   const advancing = useRef(false);
 
   const step = steps[index];
@@ -150,8 +156,14 @@ export function Flow({
               </p>
             )}
 
-            <div className="mt-8">
-              <Options step={step} current={current} suggested={suggested} onSelect={select} />
+            <div className={step.layout === "map" ? "mt-5" : "mt-8"}>
+              {step.layout === "map" ? (
+                <MapStep step={step} current={current} suggested={suggested} onSelect={select} />
+              ) : step.layout === "wheel" || step.layout === "dial" ? (
+                <ConfirmStep key={step.id} step={step} initial={current ?? step.defaultValue ?? step.options[0]?.value ?? ""} draft={draft} setDraft={setDraft} onConfirm={(v) => { setDraft(null); select(v); }} />
+              ) : (
+                <Options step={step} current={current} suggested={suggested} onSelect={select} />
+              )}
             </div>
           </motion.section>
         </AnimatePresence>
@@ -320,6 +332,50 @@ function Options({
           {o.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+/** The map, plus the same neighborhoods as small chips underneath. */
+function MapStep({ step, current, suggested, onSelect }: { step: FlowStep; current?: string; suggested?: string; onSelect: (v: string) => void }) {
+  const value = (current ?? suggested) as NeighborhoodId | undefined;
+  return (
+    <div>
+      <div className="overflow-hidden rounded-[24px] border" style={{ borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
+        <NycMap value={value} onSelect={(id) => onSelect(id)} />
+      </div>
+      <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+        Tap a neighborhood. More of the city as ROUND grows.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {step.options.map((o) => (
+          <button
+            key={o.value}
+            onClick={() => onSelect(o.value)}
+            className="pressable flex h-9 items-center rounded-full border px-3.5 text-[13px] font-medium"
+            style={o.value === current ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline)" }}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Wheel and dial answer continuously; a Next button confirms. */
+function ConfirmStep({ step, initial, draft, setDraft, onConfirm }: { step: FlowStep; initial: string; draft: string | null; setDraft: (v: string) => void; onConfirm: (v: string) => void }) {
+  const value = draft ?? initial;
+  return (
+    <div>
+      {step.layout === "wheel" ? (
+        <Wheel options={step.options} value={value} onChange={setDraft} />
+      ) : (
+        <TimeDial value={Number(value) || 21} nowValue={step.nowValue} onChange={(h) => setDraft(String(h))} />
+      )}
+      <button onClick={() => onConfirm(value)} className="pressable btn-primary mt-6 flex h-14 w-full items-center justify-center text-[16px]">
+        Next
+      </button>
     </div>
   );
 }

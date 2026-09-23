@@ -56,7 +56,7 @@ export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: 
       className="card flex w-[86vw] max-w-[360px] shrink-0 flex-col overflow-hidden"
     >
       <Link href={`/v/${venue.slug}`} className="block">
-        <Photo venue={venue} rounded="rounded-none" className="aspect-[16/10] w-full">
+        <Photo venue={venue} rounded="rounded-none" className="aspect-[16/10] w-full" credit>
           <div className="absolute left-4 top-4">
             <LabelChip label={label} />
           </div>
@@ -118,7 +118,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
       className="card flex w-[86vw] max-w-[360px] shrink-0 flex-col overflow-hidden"
     >
       <Link href={`/v/${first.slug}`} className="block">
-        <Photo venue={first} rounded="rounded-none" className="aspect-[16/10] w-full">
+        <Photo venue={first} rounded="rounded-none" className="aspect-[16/10] w-full" credit>
           <div className="absolute left-4 top-4">
             <LabelChip label={plan.label} />
           </div>

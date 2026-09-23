@@ -21,7 +21,7 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
   const cueOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
 
   return (
-    <div ref={ref} className="relative flex flex-col" style={{ minHeight: "calc(100dvh - var(--tab-height) - env(safe-area-inset-bottom, 0px) - 44px)" }}>
+    <div ref={ref} className="relative flex flex-col" style={{ minHeight: "min(calc(100dvh - var(--tab-height) - env(safe-area-inset-bottom, 0px) - 44px), 760px)" }}>
       <motion.div style={{ scale, opacity, y, transformOrigin: "50% 20%" }} className="flex flex-1 flex-col">
         <header className="flex items-center justify-between pt-4 pb-1">
           <Wordmark />
@@ -30,7 +30,7 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
           </Link>
         </header>
 
-        <section className="pt-5 pb-4">
+        <section className="pt-5 pb-3">
           <HomeGreeting />
           <h1 className="serif mt-2" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
             Where should
@@ -39,8 +39,28 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
           </h1>
         </section>
 
+        {/* Say it, or go by where you are. */}
+        <div className="flex items-center gap-2 pb-3">
+          <div className="min-w-0 flex-1">
+            <SayIt />
+          </div>
+          <Link
+            href="/near"
+            className="pressable flex h-[52px] shrink-0 items-center gap-2 rounded-full px-4 text-[14px] font-semibold"
+            style={{ background: "var(--tomato)", color: "var(--on-photo)" }}
+            aria-label="Bars near me"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+              <path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <circle cx="10" cy="10" r="4.5" stroke="currentColor" strokeWidth="1.8" />
+              <circle cx="10" cy="10" r="1.4" fill="currentColor" />
+            </svg>
+            Near me
+          </Link>
+        </div>
+
         <section className="flex min-h-0 flex-1 flex-col gap-3">
-          <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
+          <div className="grid min-h-0 flex-1 grid-cols-2 gap-3" style={{ maxHeight: 400 }}>
             <ModeCard
               href="/plan/night"
               label="Night out"
@@ -67,12 +87,9 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
           />
         </section>
 
-        <div className="shrink-0 pt-3">
-          <SayIt />
-        </div>
       </motion.div>
 
-      {hotCount > 0 && (
+      {hotCount >= 0 && (
         <motion.a
           href="#hot"
           style={{ opacity: cueOpacity }}

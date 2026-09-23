@@ -52,6 +52,8 @@ export type Venue = {
   photo: { from: string; to: string; angle?: number };
   /** A real photo, once one exists. */
   photoUrl?: string;
+  /** Who to credit for the photo (Wikimedia Commons uploads ask for this). */
+  photoCredit?: string;
   /** Seeded social proof for the demo; becomes real with the friend graph. */
   friendsBeen?: number;
   /** Membership perk slot — unused in V1, wired for later. */

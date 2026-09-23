@@ -12,7 +12,7 @@ import type { Venue } from "@/lib/types";
  * you scroll; the first line of the story is the hook.
  */
 export function HotShelf({ venues, compact = false }: { venues: Venue[]; compact?: boolean }) {
-  if (venues.length === 0) return null;
+  const empty = venues.length === 0;
   return (
     <section id="hot" className="scroll-mt-4 pt-10 pb-6">
       <motion.header
@@ -38,6 +38,26 @@ export function HotShelf({ venues, compact = false }: { venues: Venue[]; compact
           </Link>
         )}
       </motion.header>
+
+      {empty && (
+        <ol className="mt-6 flex flex-col gap-3" aria-label="Open slots">
+          {[1, 2, 3].map((n) => (
+            <li key={n} className="flex items-center gap-4 rounded-[24px] border border-dashed p-4" style={{ borderColor: "var(--hairline-strong)" }}>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] serif text-[18px]" style={{ background: "var(--ink-6)", color: "var(--ink-35)" }}>
+                {n}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[14.5px] font-medium" style={{ color: "var(--ink-55)" }}>
+                  {n === 1 ? "The first spot goes here." : n === 2 ? "Something lowkey." : "Something loud."}
+                </p>
+                <p className="text-[12.5px]" style={{ color: "var(--ink-35)" }}>
+                  Flip a place on in the back office and write its story.
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
 
       <ol className="mt-6 flex flex-col gap-4">
         {venues.map((v, i) => (
@@ -74,6 +94,18 @@ export function HotShelf({ venues, compact = false }: { venues: Venue[]; compact
           </motion.li>
         ))}
       </ol>
+
+      <Link href="/recommend" className="pressable mt-6 flex items-center justify-between rounded-[22px] border px-5 py-4" style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)" }}>
+        <div>
+          <p className="text-[15px] font-medium">Know a spot we don&apos;t?</p>
+          <p className="mt-0.5 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+            Recommend a bar or restaurant. Two minutes. We check every one.
+          </p>
+        </div>
+        <span className="serif text-[22px]" style={{ color: "var(--tomato)" }}>
+          →
+        </span>
+      </Link>
     </section>
   );
 }

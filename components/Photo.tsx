@@ -12,12 +12,15 @@ export function Photo({
   style,
   children,
   rounded = "rounded-[24px]",
+  credit = false,
 }: {
-  venue: Pick<Venue, "photo" | "name" | "photoUrl">;
+  venue: Pick<Venue, "photo" | "name" | "photoUrl"> & { photoCredit?: string };
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
   rounded?: string;
+  /** Show the photo credit in the corner (big photos only; small tiles link to a page that credits). */
+  credit?: boolean;
 }) {
   const { from, to, angle = 160 } = venue.photo;
   return (
@@ -42,6 +45,11 @@ export function Photo({
         }}
       />
       {children}
+      {credit && venue.photoUrl && venue.photoCredit && (
+        <span className="pointer-events-none absolute bottom-1.5 right-2 max-w-[70%] truncate text-[9.5px]" style={{ color: "rgba(246,241,231,0.72)", letterSpacing: "0.01em" }} aria-hidden>
+          {venue.photoCredit}
+        </span>
+      )}
     </div>
   );
 }
