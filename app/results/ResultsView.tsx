@@ -86,8 +86,15 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
             : plans!.map((p, i) => <PlanResultCard key={`${p.restaurant?.slug ?? ""}-${p.bar.slug}`} plan={p} shareUrl={`/p/${p.shareCode}`} index={i} groupWord={groupWord} />)}
         </Carousel>
       ) : (
-        <div className="card p-6 text-[15px]" style={{ color: "var(--ink-70)" }}>
-          {mode === "near" ? "No ROUND bars within a fifteen-minute walk of there yet. Try an address in the West Village, East Village, LES, SoHo, Tribeca, Chelsea, Williamsburg or Greenpoint." : "ROUND doesn't cover that combination yet. Try a neighborhood next door."}
+        <div className="card p-6 text-[15px] leading-snug" style={{ color: "var(--ink-70)" }} data-empty>
+          <p className="serif" style={{ fontSize: 22, color: "var(--ink)" }}>
+            Nothing we&apos;ve verified here yet.
+          </p>
+          <p className="mt-2">
+            {mode === "near"
+              ? "ROUND only shows places someone from ROUND has actually been. None within a fifteen-minute walk of there so far. Try an address in the West Village, East Village, LES, SoHo, Tribeca, Chelsea, Murray Hill, Williamsburg or Greenpoint."
+              : "ROUND only shows places someone from ROUND has actually been, and we haven't verified one for that yet. Try a neighborhood next door, or a different night."}
+          </p>
         </div>
       )}
 

@@ -1,6 +1,6 @@
 "use server";
 
-import { getVenues } from "@/lib/db";
+import { getAllVenues } from "@/lib/db";
 import { matchVenues } from "@/lib/match";
 import { neighborhoodName } from "@/lib/neighborhoods";
 
@@ -14,6 +14,6 @@ export type PlaceSuggestion = { slug: string; name: string; where: string; kind:
 export async function suggestPlaces(q: string, kind?: "bar" | "restaurant"): Promise<PlaceSuggestion[]> {
   const query = (q ?? "").trim().slice(0, 60);
   if (query.length < 2) return [];
-  const venues = (await getVenues()).filter((v) => !kind || v.kind === kind);
+  const venues = (await getAllVenues()).filter((v) => !kind || v.kind === kind);
   return matchVenues(query, venues, 6).map(({ venue }) => ({ slug: venue.slug, name: venue.name, where: neighborhoodName(venue.neighborhood), kind: venue.kind }));
 }

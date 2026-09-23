@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/adminAuth";
-import { getVenues } from "@/lib/db";
+import { getAllVenues } from "@/lib/db";
 import { isEventKind, listEvents, type EventKind, type EventRow } from "@/lib/events";
 import { neighborhoodName, isNeighborhoodId } from "@/lib/neighborhoods";
 import { listGoTaps } from "@/lib/studio";
@@ -24,7 +24,7 @@ export default async function ActivityPage(props: PageProps<"/admin/activity">) 
   const sp = await props.searchParams;
   const kindParam = typeof sp.kind === "string" ? sp.kind : "all";
   const kind: EventKind | "all" = isEventKind(kindParam) ? kindParam : "all";
-  const venues = await getVenues();
+  const venues = await getAllVenues();
   const byName = new Map(venues.map((v) => [v.slug, v.name]));
   const name = (slug: string | null) => (slug ? byName.get(slug) ?? slug : "");
 

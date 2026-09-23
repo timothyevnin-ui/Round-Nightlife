@@ -55,10 +55,10 @@ export const SHAPES: Record<NeighborhoodId, LngLat[]> = {
     [-74.0085, 40.747],
   ],
   "murray-hill": [
-    [-73.9871, 40.7405], // 23rd & Madison
+    [-73.9895, 40.7343], // 14th & Park Ave South (Gramercy's corner)
     [-73.979, 40.7517], // 42nd & Madison
     [-73.968, 40.7478], // 42nd & the river
-    [-73.974, 40.7365], // 23rd & the river
+    [-73.9735, 40.7284], // 14th & the river
   ],
   williamsburg: [
     [-73.9615, 40.7255], // Bushwick Inlet

@@ -63,7 +63,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     name: "Murray Hill & Kips Bay",
     short: "Murray Hill",
     borough: "Manhattan",
-    center: { lat: 40.745, lng: -73.9785 },
+    center: { lat: 40.7415, lng: -73.9795 },
     adjacent: ["chelsea", "east-village"],
   },
   {

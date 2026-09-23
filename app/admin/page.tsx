@@ -6,6 +6,8 @@ import { neighborhoodName, isNeighborhoodId } from "@/lib/neighborhoods";
 import { countBy, listGoTaps, listProfiles } from "@/lib/studio";
 import { listSuggestions } from "@/lib/suggestions";
 import { DashboardActions } from "./DashboardActions";
+import { VerifiedGate } from "./VerifiedGate";
+import { getSettings } from "@/lib/settings";
 import { DbHealth } from "./DbHealth";
 import { checkDatabase, sqlEditorUrl } from "@/lib/health";
 import { PICK_MODEL } from "@/lib/pick";
@@ -22,6 +24,7 @@ export default async function Dashboard() {
   const name = (slug: string) => byName.get(slug) ?? slug;
 
   const health = await checkDatabase();
+  const settings = await getSettings();
   let ev: EventRow[] = [];
   let evProblem: string | undefined;
   let taps: { slug: string; at: string }[] = [];
@@ -125,6 +128,8 @@ export default async function Dashboard() {
           )}
         </span>
       </div>
+
+      <VerifiedGate on={settings.verifiedOnly} verified={verified} total={venues.length} writable={writable} />
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} />
 

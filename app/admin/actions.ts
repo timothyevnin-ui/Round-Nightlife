@@ -11,6 +11,7 @@ import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, upload
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import { geocode } from "@/lib/geocode";
+import { setSetting } from "@/lib/settings";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
 import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, Window } from "@/lib/types";
@@ -306,6 +307,178 @@ export async function lookupAddress(address: string): Promise<{ lat: number; lng
     return hit;
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Lookup failed." };
+  }
+}
+
+/* ───────────────────────── the gate ───────────────────────── */
+
+/** Only verified places show in the app. Off means everything researched shows too. */
+export async function setVerifiedOnly(on: boolean): Promise<{ ok: true } | { error: string }> {
+  try {
+    await guard();
+    await setSetting("verified_only", on);
+    updateTag(VENUES_TAG);
+    return { ok: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't save that." };
+  }
+}
+
+/* ───────────────────────── read my words ───────────────────────── */
+
+export type ReadWordsInput = {
+  name: string;
+  neighborhood: NeighborhoodId | string;
+  kind: "bar" | "restaurant";
+  barFood?: boolean;
+  cuisine?: string | null;
+  take: string;
+  theCatch: string;
+  notes: string;
+  existing: {
+    tags: string[];
+    attrs: Partial<Attrs>;
+    price: number;
+    capacity: Capacity;
+    easyIn: number;
+    groupFit: { two: number; small: number; mid: number; big: number };
+    dateFit: { first: number; early: number; longterm: number };
+    hours?: Hours | null;
+    dayDeal?: string | null;
+    score?: number | null;
+    verified?: boolean;
+  };
+};
+
+export type ReadWordsPatch = {
+  take?: string;
+  theCatch?: string;
+  tags?: string[];
+  attrs?: Partial<Attrs>;
+  kind?: "bar" | "restaurant";
+  barFood?: boolean;
+  cuisine?: string | null;
+  price?: number;
+  capacity?: Capacity;
+  easyIn?: number;
+  groupFit?: { two: number; small: number; mid: number; big: number };
+  dateFit?: { first: number; early: number; longterm: number };
+  hours?: Hours;
+  dayDeal?: string;
+  score?: number;
+  /** The words say they went (a date, "went", "we were there"). */
+  been?: boolean;
+  /** What the words taught, in a few words. */
+  learned: string;
+  /** The notes with today's entry appended: what was said, as said, and what was learned. */
+  notes: string;
+  /** Which fields changed, for the founder to glance at. */
+  changed: string[];
+};
+
+/**
+ * "Read my words." The founder blurts into Take, the Catch and the notes,
+ * any tone, half-sentences fine. Claude turns that into a proper Take and
+ * Catch in ROUND's voice, sets every field the words support (the
+ * algorithm, tags, food, price, room, hours, day deal, been), and the raw
+ * words go into the private notes as a dated entry, so every place keeps a
+ * log of what was said about it and when.
+ */
+export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: ReadWordsPatch; error?: string }> {
+  try {
+    await guard();
+    const key = process.env.ANTHROPIC_API_KEY;
+    if (!key) return { error: "Add ANTHROPIC_API_KEY to the deployment to read with AI." };
+    const rawTake = (input.take ?? "").trim().slice(0, 1200);
+    const rawCatch = (input.theCatch ?? "").trim().slice(0, 800);
+    const rawNotes = (input.notes ?? "").trim().slice(0, 8000);
+    const words = [rawTake && `Take box: """${rawTake}"""`, rawCatch && `Catch box: """${rawCatch}"""`, rawNotes && `Notes: """${rawNotes}"""`].filter(Boolean).join("\n");
+    if (words.replace(/\W/g, "").length < 12) return { error: "Say a little more first: a few words in Take, the Catch or the notes." };
+    const attrList = ATTR_LIST.map((a) => `${a.key}: ${a.label} — ${a.hint}`).join("\n");
+    const ex = input.existing;
+    const client = new Anthropic({ apiKey: key, timeout: 25000, maxRetries: 0 });
+    const ask = async (model: string) =>
+      client.messages.create({
+        model,
+        max_tokens: 1400,
+        system:
+          "You read the founder of ROUND (a NYC nightlife app) blurting about one bar or restaurant: whatever they typed into the Take box, the Catch box and their private notes, in any tone, half-sentences fine, dates and prices and complaints included. " +
+          "From those words only, you fill in the place. Never invent: a field the words don't speak to stays as it is. " +
+          "Voice for take and theCatch: editorial, confident, dry, specific, warm; one sentence each; no exclamation points; never marketing; the founder's opinion, cleaned up, not softened. " +
+          "Attributes are 0 to 1 (0 not at all, 0.5 some, 1 very) and only for traits the words support; tags are 2 to 5 short labels a person would say (\"Live music\", \"Dive\", \"Burgers\"; the founder's own words are welcome). " +
+          "A date or 'went' or 'we were there' means the founder has been: been = true. Only give a score when they say a number or an unmistakable verdict (\"best bar in the city\" is 92+, \"never again\" is 30-); otherwise omit it. " +
+          "Hours only when they state them. Respond with JSON only.",
+        messages: [
+          {
+            role: "user",
+            content:
+              `Place: ${input.name || "(unnamed)"} — ${input.kind}${input.barFood ? " with a kitchen" : ""}${input.cuisine ? `, ${input.cuisine}` : ""}, ${isNeighborhoodId(input.neighborhood) ? neighborhoodName(input.neighborhood) : input.neighborhood}.\n` +
+              `Already on file (keep unless the words change it): tags ${JSON.stringify(ex.tags)}, attrs ${JSON.stringify(ex.attrs)}, price ${ex.price}, capacity ${ex.capacity}, easyIn ${ex.easyIn}, groupFit ${JSON.stringify(ex.groupFit)}, dateFit ${JSON.stringify(ex.dateFit)}, hours ${ex.hours ? "set" : "unknown"}, dayDeal ${JSON.stringify(ex.dayDeal ?? null)}, score ${ex.score ?? "unset"}, verified ${!!ex.verified}.\n\n` +
+              `The founder's words:\n${words}\n\n` +
+              `Return JSON: {"take": string (max 28 words), "theCatch": string (max 22 words; the practical thing: the line, when to go, what to order; omit if the words give nothing practical), "tags": [2-5], "attrs": {key: 0..1 for traits the words support}, ` +
+              `"kind": "bar"|"restaurant" (omit unless the words say), "barFood": true|false (omit unless said), "cuisine": string|null (omit unless said), "price": 1-4 (1 under $10 drinks, 2 $10-16, 3 $17-24, 4 splurge; omit unless said), "capacity": "tiny"|"small"|"medium"|"large" (omit unless said), ` +
+              `"easyIn": 0.85 walk in | 0.65 usually fine | 0.4 often a wait | 0.15 good luck (omit unless said), "groupFit": {"two","small","mid","big": 0-1} (omit unless said), "dateFit": {"first","early","longterm": 0-1} (omit unless said), ` +
+              `"hours": [7 entries, Sunday first, {"open":"HH:MM","close":"HH:MM"} or null] (omit unless stated), "dayDeal": string (omit unless said), "score": 0-100 (omit unless said), "been": true|false, "learned": string (3-14 words: what the words taught, e.g. "DJ after 11, $9 beers, booth in back, packed by 10")}\n` +
+              `Attribute keys:\n${attrList}`,
+          },
+        ],
+      });
+    let res: Awaited<ReturnType<typeof ask>>;
+    const model = process.env.ROUND_TEXT_MODEL ?? "claude-sonnet-5";
+    try {
+      res = await ask(model);
+    } catch (e) {
+      if (model === "claude-haiku-4-5-20251001") throw e;
+      res = await ask("claude-haiku-4-5-20251001");
+    }
+    const out = res.content.map((c) => (c.type === "text" ? c.text : "")).join("");
+    const json = JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as Record<string, unknown>;
+    const patch: ReadWordsPatch = { learned: "", notes: rawNotes, changed: [] };
+    const str = (v: unknown, max: number) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : undefined);
+    const take = str(json.take, 220);
+    if (take) { patch.take = take; patch.changed.push("take"); }
+    const theCatch = str(json.theCatch, 160);
+    if (theCatch) { patch.theCatch = theCatch; patch.changed.push("catch"); }
+    if (Array.isArray(json.tags)) {
+      const tags = [...new Set(json.tags.map((t) => String(t).trim()).filter((t) => t && t.length <= 24))].slice(0, 5);
+      if (tags.length) { patch.tags = [...new Set([...tags, ...ex.tags])].slice(0, 12); patch.changed.push("tags"); }
+    }
+    if (json.attrs && typeof json.attrs === "object") {
+      const a: Partial<Attrs> = {};
+      for (const k of ATTR_KEYS) {
+        const v = (json.attrs as Record<string, unknown>)[k];
+        if (typeof v === "number" && Number.isFinite(v)) a[k] = clamp01(v, 0);
+      }
+      if (Object.keys(a).length) { patch.attrs = a; patch.changed.push(`${Object.keys(a).length} attributes`); }
+    }
+    if (json.kind === "bar" || json.kind === "restaurant") { if (json.kind !== input.kind) { patch.kind = json.kind; patch.changed.push("kind"); } }
+    if (typeof json.barFood === "boolean" && json.barFood !== !!input.barFood) { patch.barFood = json.barFood; patch.changed.push("kitchen"); }
+    const cuisine = str(json.cuisine, 40);
+    if (cuisine && cuisine !== input.cuisine) { patch.cuisine = cuisine; patch.changed.push("food"); }
+    if ([1, 2, 3, 4].includes(Number(json.price)) && Number(json.price) !== ex.price) { patch.price = Number(json.price); patch.changed.push("price"); }
+    if (typeof json.capacity === "string" && ["tiny", "small", "medium", "large"].includes(json.capacity) && json.capacity !== ex.capacity) { patch.capacity = json.capacity as Capacity; patch.changed.push("room"); }
+    if (typeof json.easyIn === "number" && Math.abs(clamp01(json.easyIn, 0.5) - ex.easyIn) > 0.05) { patch.easyIn = clamp01(json.easyIn, 0.5); patch.changed.push("walk-in"); }
+    const fit = (o: unknown, keys: string[]) => (o && typeof o === "object" && keys.every((k) => typeof (o as Record<string, unknown>)[k] === "number") ? (o as Record<string, number>) : undefined);
+    const g = fit(json.groupFit, ["two", "small", "mid", "big"]);
+    if (g) { patch.groupFit = { two: clamp01(g.two), small: clamp01(g.small), mid: clamp01(g.mid), big: clamp01(g.big) }; patch.changed.push("group fit"); }
+    const df = fit(json.dateFit, ["first", "early", "longterm"]);
+    if (df) { patch.dateFit = { first: clamp01(df.first), early: clamp01(df.early), longterm: clamp01(df.longterm) }; patch.changed.push("date fit"); }
+    const hours = cleanHours(json.hours);
+    if (hours) { patch.hours = hours; patch.changed.push("hours"); }
+    const dayDeal = str(json.dayDeal, 80);
+    if (dayDeal) { patch.dayDeal = dayDeal; patch.changed.push("day deal"); }
+    if (typeof json.score === "number" && json.score >= 0 && json.score <= 100) { patch.score = Math.round(json.score); patch.changed.push("score"); }
+    if (json.been === true) { patch.been = true; if (!ex.verified) patch.changed.push("been (verified)"); }
+    patch.learned = str(json.learned, 160) ?? "";
+
+    // The log: what was said, as said, and what it taught, dated.
+    const when = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
+    const said = [rawTake && `Take, as said: ${rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
+    const entry = `— ${when} · read my words\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
+    patch.notes = `${rawNotes ? rawNotes + "\n\n" : ""}${entry}`.slice(0, 8000);
+    return { patch };
+  } catch (e) {
+    return { error: e instanceof Error ? `Couldn't read that: ${e.message}` : "Couldn't read that." };
   }
 }
 

@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/adminAuth";
-import { getVenues } from "@/lib/db";
+import { getAllVenues } from "@/lib/db";
 import { countBy, listProfiles, listSaves, maskPhone } from "@/lib/studio";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /** Who has an account, and what they've saved. Phones are masked on purpose. */
 export default async function PeoplePage() {
   await requireAdmin();
-  const [{ rows: profiles, problem }, { rows: saves }, venues] = await Promise.all([listProfiles(500), listSaves(5000), getVenues()]);
+  const [{ rows: profiles, problem }, { rows: saves }, venues] = await Promise.all([listProfiles(500), listSaves(5000), getAllVenues()]);
   const byName = new Map(venues.map((v) => [v.slug, v.name]));
   const savesByUser = new Map<string, { want: number; been: number; loved: number }>();
   for (const s of saves) {

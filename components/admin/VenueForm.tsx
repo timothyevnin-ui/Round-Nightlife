@@ -7,7 +7,7 @@ import { ATTR_GROUPS, ATTR_LIST, SUGGESTED_TAGS, type AttrKey } from "@/lib/attr
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 import { slugify } from "@/lib/slug";
 import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
-import { adoptPhoto, draftFromNotes, draftTake, fillFromWeb, findPhotos, lookupAddress, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { adoptPhoto, draftFromNotes, draftTake, fillFromWeb, findPhotos, lookupAddress, readMyWords, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
 import { HoursEditor } from "./HoursEditor";
 import { ScoreBadge } from "@/components/Score";
 import { weekSummary } from "@/lib/hours";
@@ -256,6 +256,51 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
       else setD((x) => ({ ...x, take: r.take || x.take, theCatch: r.theCatch || x.theCatch }));
     });
 
+  const [wordsBusy, setWordsBusy] = useState(false);
+  const [wordsNote, setWordsNote] = useState<string | null>(null);
+  /** Read my words: the three boxes → every field, plus a dated entry in the notes. */
+  const readWords = () =>
+    startAi(async () => {
+      setMsg(null);
+      setWordsNote(null);
+      setWordsBusy(true);
+      const r = await readMyWords({
+        name: d.name,
+        neighborhood: d.neighborhood,
+        kind: d.kind,
+        barFood: d.barFood ?? undefined,
+        cuisine: d.cuisine ?? null,
+        take: d.take,
+        theCatch: d.theCatch ?? "",
+        notes: d.notes ?? "",
+        existing: { tags: d.tags, attrs: d.attrs, price: d.price, capacity: d.capacity, easyIn: d.easyIn, groupFit: d.groupFit, dateFit: d.dateFit, hours: d.hours ?? null, dayDeal: d.dayDeal ?? null, score: d.score ?? null, verified: d.verified },
+      });
+      setWordsBusy(false);
+      if (r.error || !r.patch) return setMsg({ kind: "err", text: r.error ?? "Nothing came back." });
+      const p = r.patch;
+      setD((x) => ({
+        ...x,
+        take: p.take ?? x.take,
+        theCatch: p.theCatch ?? x.theCatch,
+        tags: p.tags ?? x.tags,
+        attrs: { ...x.attrs, ...(p.attrs ?? {}) },
+        kind: p.kind ?? x.kind,
+        barFood: p.barFood ?? x.barFood,
+        cuisine: p.cuisine ?? x.cuisine,
+        price: p.price ?? x.price,
+        capacity: p.capacity ?? x.capacity,
+        easyIn: p.easyIn ?? x.easyIn,
+        groupFit: p.groupFit ?? x.groupFit,
+        dateFit: p.dateFit ?? x.dateFit,
+        hours: p.hours ?? x.hours,
+        dayDeal: p.dayDeal ?? x.dayDeal,
+        score: p.score ?? x.score,
+        verified: p.been ? true : x.verified,
+        notes: p.notes,
+      }));
+      setWordsNote(`Read. ${p.learned ? `Learned: ${p.learned}. ` : ""}${p.changed.length ? `Filled in: ${p.changed.join(", ")}. ` : ""}Check the sliders below, then Save.`);
+    });
+
   const addTag = (t: string) => {
     const clean = t.trim();
     if (!clean) return;
@@ -413,11 +458,24 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
           <TextArea value={d.theCatch ?? ""} onChange={(v) => set("theCatch", v)} placeholder="Line after 9:30 on Thursdays; go early or expect to stand." rows={2} max={160} />
         </Field>
         <Field label="Your notes (private)" hint="Raw thoughts, dates you went, what happened. Never shown to users. The AI drafts from these.">
-          <TextArea value={d.notes ?? ""} onChange={(v) => set("notes", v)} placeholder="Went Thurs 10/2 with 6. Packed by 10, got a booth in back, DJ after 11, $9 beers…" rows={4} max={2000} />
+          <TextArea value={d.notes ?? ""} onChange={(v) => set("notes", v)} placeholder="Went Thurs 10/2 with 6. Packed by 10, got a booth in back, DJ after 11, $9 beers…" rows={5} max={8000} />
         </Field>
-        <button onClick={draft} disabled={aiPending || !d.name} className="pressable btn-ghost flex h-11 items-center gap-2 px-4 text-[13.5px]" style={{ opacity: aiPending ? 0.6 : 1 }}>
-          {aiPending ? "Drafting…" : "Draft the Take from my notes"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button onClick={readWords} disabled={aiPending || !d.name} className="pressable btn-primary flex h-11 items-center gap-2 px-4 text-[13.5px]" style={{ opacity: aiPending ? 0.6 : 1 }} data-read-words>
+            {wordsBusy ? "Reading…" : "Read my words"}
+          </button>
+          <button onClick={draft} disabled={aiPending || !d.name} className="pressable btn-ghost flex h-11 items-center gap-2 px-4 text-[13.5px]" style={{ opacity: aiPending ? 0.6 : 1 }}>
+            {aiPending && !wordsBusy ? "Drafting…" : "Draft the Take from my notes"}
+          </button>
+        </div>
+        <p className="text-[12px] leading-snug" style={{ color: "var(--ink-55)" }}>
+          Blurt into the three boxes above, any tone, then <strong>Read my words</strong>: the Take and the catch come back in ROUND&apos;s voice, every field the words support fills in (the algorithm, tags, food, price, room, hours, day deal, been), and what you said goes into the notes as a dated entry, so each place keeps a log.
+        </p>
+        {wordsNote && (
+          <p className="text-[13px]" style={{ color: "var(--pine-bright)" }} data-words-note>
+            {wordsNote}
+          </p>
+        )}
       </Section>
 
       {/* ── Tags ── */}

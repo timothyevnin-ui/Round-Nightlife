@@ -5,6 +5,7 @@ import { ATTR_KEYS, deriveDaytime } from "./attrs";
 import { isNeighborhoodId } from "./neighborhoods";
 import type { Attrs, Capacity, Hours, Venue, Window } from "./types";
 import { cleanHours } from "./hours";
+import { getSettings } from "./settings";
 
 /**
  * Venue data. Reads come from Supabase's REST endpoint when it's configured
@@ -222,7 +223,20 @@ function withNewSeed(fromDb: Venue[]): Venue[] {
   return fresh.length ? [...fromDb, ...fresh] : fromDb;
 }
 
+/**
+ * What the app shows. With the verified-only switch on (the default), that's
+ * only the places someone from ROUND has been: results, search, the shelf,
+ * the maps and the picker's catalog all read from here. The Studio reads
+ * everything (getVenuesFresh / getVenuesWithSource).
+ */
 export async function getVenues(): Promise<Venue[]> {
+  const { venues } = await getVenuesWithSource();
+  const { verifiedOnly } = await getSettings();
+  return verifiedOnly ? venues.filter((v) => v.verified) : venues;
+}
+
+/** Every place, verified or not: for a venue page reached by its link, and for the Studio. */
+export async function getAllVenues(): Promise<Venue[]> {
   return (await getVenuesWithSource()).venues;
 }
 
@@ -238,7 +252,7 @@ export async function getVenuesFresh(): Promise<{ venues: Venue[]; source: Venue
 }
 
 export async function getVenue(slug: string): Promise<Venue | undefined> {
-  return (await getVenues()).find((v) => v.slug === slug);
+  return (await getAllVenues()).find((v) => v.slug === slug);
 }
 
 /* ───────────────────────── writes (service role, server only) ───────────────────────── */

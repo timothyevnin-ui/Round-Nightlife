@@ -406,4 +406,18 @@ exception when others then
   raise notice 'avatars bucket step skipped (%): create a public bucket named avatars in Storage', sqlerrm;
 end $$;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V15. Studio settings. One row per switch. Readable by the app (nothing
+-- secret lives here), written only by the server with the secret key.
+create table if not exists public.settings (
+  key        text primary key,
+  value      jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.settings enable row level security;
+drop policy if exists "settings are public" on public.settings;
+create policy "settings are public" on public.settings for select using (true);
+-- The gate: only places verified by ROUND show in the app. On by default.
+insert into public.settings (key, value) values ('verified_only', 'true'::jsonb) on conflict (key) do nothing;
+
 -- Later phases (plans, census) add their tables here.
