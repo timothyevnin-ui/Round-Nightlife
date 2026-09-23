@@ -1,0 +1,977 @@
+[
+  {
+    "slug": "torst",
+    "kind": "bar",
+    "name": "Tørst",
+    "neighborhood": "greenpoint",
+    "address": "615 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.7236,
+    "lng": -73.9513,
+    "take": "A serious beer bar that doesn't act like one: 21 taps behind a mirrored backbar, candlelit tables in the back, and a burger worth ordering.",
+    "theCatch": "Resy covers parties up to nine; the front bar is walk-in and opens at noon Friday through Sunday.",
+    "tags": [
+      "Beer",
+      "Can Actually Talk",
+      "Food"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.7,
+      "talk": 0.7
+    },
+    "attrs": {
+      "beer": 1.0,
+      "food": 0.75,
+      "talk": 0.7,
+      "chill": 0.65,
+      "happyHour": 0.6,
+      "cocktails": 0.15,
+      "sports": 0.05,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.8,
+      "longterm": 0.75
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.torstnyc.com/",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://yourbrooklynguide.com/best-bars-in-greenpoint/",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour"
+    ],
+    "notes": "Long-running Scandinavian-leaning craft beer bar at Manhattan and Nassau; 21 rotating drafts plus 200+ bottles and cans, mirrored backbar with a handwritten list. Kitchen does a dry-aged burger, Bavarian pretzels and a fried chicken sandwich. Mon-Thu 3pm-12am, Fri-Sat 12pm-1am, Sun 12pm-12am; weekday happy hour to 6pm with half-off bottles. Resy for up to nine, back room bookable for 40+."
+  },
+  {
+    "slug": "goldies",
+    "kind": "bar",
+    "name": "Goldie's",
+    "neighborhood": "greenpoint",
+    "address": "195 Nassau Ave, Brooklyn, NY 11222",
+    "lat": 40.7256,
+    "lng": -73.9446,
+    "take": "A 1970s Vegas lounge dropped onto Nassau Ave: a horseshoe bar, big leather booths, free Goldfish, and a beer-and-shot that costs what it should.",
+    "theCatch": "Weekday happy hour runs to 8pm with $6 margaritas; the booths go to whoever shows up first.",
+    "tags": [
+      "Dive",
+      "Cheap",
+      "Happy Hour",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.65,
+      "chill": 0.6,
+      "talk": 0.55
+    },
+    "attrs": {
+      "dive": 0.75,
+      "cheap": 0.75,
+      "happyHour": 0.85,
+      "seating": 0.7,
+      "groups": 0.7,
+      "social": 0.65,
+      "late": 0.8,
+      "upscale": 0.05
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.65,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.65,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/goldies",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://thebestofgreenpoint.com/places/goldies-bar/",
+      "https://yourbrooklynguide.com/best-bars-in-greenpoint/"
+    ],
+    "notes": "Retro Vegas-styled bar on Nassau Ave near McGolrick Park from the Lake Street owners, opened 2016. U-shaped bar, large leather booths, free Goldfish crackers, beer-and-shot combos, weekday happy hour to 8pm. Listed hours 4pm-4am weekdays and 2pm-4am weekends. Sources disagree on whether there is currently a pool table."
+  },
+  {
+    "slug": "eavesdrop",
+    "kind": "bar",
+    "name": "Eavesdrop",
+    "neighborhood": "greenpoint",
+    "address": "674 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.7253,
+    "lng": -73.952,
+    "take": "A 36-seat listening bar where the records set the volume: vinyl on a serious system, cocktails and natural wine, and nobody standing over your shoulder.",
+    "theCatch": "Seats book out well ahead; the front bar takes walk-ins, so come early on a weeknight or wait for a stool.",
+    "tags": [
+      "Can Actually Talk",
+      "Cocktails",
+      "Date",
+      "Vinyl"
+    ],
+    "vibe": {
+      "lively": 0.35,
+      "chill": 0.85,
+      "talk": 0.7
+    },
+    "attrs": {
+      "date": 0.9,
+      "chill": 0.85,
+      "cocktails": 0.85,
+      "talk": 0.7,
+      "wine": 0.65,
+      "seating": 0.7,
+      "groups": 0.1,
+      "dance": 0.05,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.6,
+      "mid": 0.2,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.9,
+      "early": 0.9,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.25,
+    "sources": [
+      "https://www.eavesdrop.nyc/",
+      "https://www.theinfatuation.com/new-york/reviews/eavesdrop",
+      "https://www.timeout.com/newyork/bars/eavesdrop",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars"
+    ],
+    "notes": "Listening bar on Manhattan Ave opened March 2022; about 36 seats in 1,000 sq ft, no standing, front cocktail bar plus a dedicated back listening room with a custom sound system. DJs on weekends (hip hop, jazz, soul, deep house), local labels and record stores on weeknights. Mon-Thu 5pm-1am, Fri 5pm-2am, Sat 2pm-2am, Sun 2pm-1am; seasonal backyard per The Infatuation."
+  },
+  {
+    "slug": "rays-hometown-bar",
+    "kind": "bar",
+    "name": "Ray's Hometown Bar",
+    "neighborhood": "greenpoint",
+    "address": "905 Lorimer St, Brooklyn, NY 11222",
+    "lat": 40.7233,
+    "lng": -73.9522,
+    "take": "The LES scene bar's Greenpoint twin: curved booths, a disco ball, espresso martinis, a pool table, and a crowd that dressed for it.",
+    "theCatch": "Happy hour is all night Sunday through Tuesday and until 8pm the rest of the week; Friday and Saturday are the scene.",
+    "tags": [
+      "Sceney",
+      "Late Night",
+      "Pool Table",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.35
+    },
+    "attrs": {
+      "scene": 0.9,
+      "lively": 0.8,
+      "happyHour": 0.75,
+      "cocktails": 0.7,
+      "social": 0.7,
+      "food": 0.65,
+      "activity": 0.6,
+      "late": 0.65,
+      "talk": 0.2
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.75,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.raysbarnyc.com/brooklyn/",
+      "https://www.theinfatuation.com/new-york/reviews/rays-brooklyn",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour"
+    ],
+    "notes": "Second location of the Lower East Side bar, on Lorimer at the northeast corner of McCarren Park; wood paneling, curved booths, disco ball, glass-cased Elvis bust, pool table. Cocktails and martinis $16.50, drafts $7-11, burgers and a Cuban around $13, donuts and soft serve for dessert. Happy hour all night Sun-Tue and until 8pm Wed-Sat, with a $15 burger-and-drink combo."
+  },
+  {
+    "slug": "the-palace",
+    "kind": "bar",
+    "name": "The Palace",
+    "neighborhood": "greenpoint",
+    "address": "206 Nassau Ave, Brooklyn, NY 11222",
+    "lat": 40.7258,
+    "lng": -73.944,
+    "take": "Looks like a narrow old-man bar from the door, then opens into a barn-sized back room with a pool table, darts, and tables built for twelve.",
+    "theCatch": "Karaoke Wednesdays, DJs on weekends; walk straight past the bathrooms to the big room.",
+    "tags": [
+      "Dive",
+      "Groups",
+      "Karaoke",
+      "Pool Table"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "groups": 0.9,
+      "activity": 0.85,
+      "dive": 0.8,
+      "late": 0.8,
+      "cheap": 0.7,
+      "social": 0.7,
+      "seating": 0.7,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.95
+    },
+    "dateFit": {
+      "first": 0.35,
+      "early": 0.5,
+      "longterm": 0.55
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.greenpointpalace.com/info",
+      "https://www.theinfatuation.com/new-york/reviews/the-palace",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour"
+    ],
+    "notes": "Reopened in 2018 by locals in the shell of the Palace Cafe, a Nassau Ave bar dating to the 1920s. Small front bar, huge barn-like back room with pool table, dartboard and oversized tables; beer-and-shot pricing. Karaoke Wednesdays, DJs on weekend nights, monthly bingo, lots of birthday parties. Open 3pm-2am Sun-Thu and 3pm-3am Fri-Sat, kitchen 3-10pm."
+  },
+  {
+    "slug": "keg-and-lantern",
+    "kind": "bar",
+    "name": "Keg & Lantern",
+    "neighborhood": "greenpoint",
+    "address": "97 Nassau Ave, Brooklyn, NY 11222",
+    "lat": 40.7243,
+    "lng": -73.9497,
+    "take": "House-brewed beer, every game on, a long bar and a back patio: the Greenpoint sports bar that also happens to stay open until 4 on weekends.",
+    "theCatch": "$6 drafts weekdays 5-7pm; on big game days claim a table early or plan to stand at the bar.",
+    "tags": [
+      "Sports",
+      "Beer",
+      "Groups",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "sports": 1.0,
+      "beer": 0.95,
+      "groups": 0.85,
+      "late": 0.85,
+      "food": 0.75,
+      "happyHour": 0.75,
+      "outdoor": 0.65,
+      "seating": 0.6,
+      "date": 0.15
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.85
+    },
+    "dateFit": {
+      "first": 0.25,
+      "early": 0.35,
+      "longterm": 0.45
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.kegandlanternbrooklyn.com/location/the-keg-and-lantern-greenpoint/",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour",
+      "https://yourbrooklynguide.com/best-bars-in-greenpoint/"
+    ],
+    "notes": "Brewpub and sports bar on Nassau Ave just east of Manhattan Ave by the Nassau Ave G stop, with house beers, many TVs, a long bar and a back patio. Open 11am-2am Sun-Thu and 11am-4am Fri-Sat; happy hour Mon-Fri 5-7pm with $6 drafts; daily food-and-draft combos $16-35, weekend pitcher-and-pretzel deals. Takes reservations and private events; second location in Red Hook."
+  },
+  {
+    "slug": "black-rabbit",
+    "kind": "bar",
+    "name": "Black Rabbit",
+    "neighborhood": "greenpoint",
+    "address": "91 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7303,
+    "lng": -73.9548,
+    "take": "Dark wood, swinging-door booths with a call button, a working fireplace, and a picnic-table beer garden out back: the Greenpoint bar for every season.",
+    "theCatch": "Happy hour until 8 with a $6 house lager; Tuesday is trivia at 8pm, and booked parties must start by 9.",
+    "tags": [
+      "Backyard",
+      "Can Actually Talk",
+      "Happy Hour",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.7,
+      "talk": 0.7
+    },
+    "attrs": {
+      "outdoor": 0.9,
+      "seating": 0.85,
+      "happyHour": 0.85,
+      "late": 0.85,
+      "classic": 0.7,
+      "talk": 0.7,
+      "date": 0.7,
+      "groups": 0.7,
+      "activity": 0.6,
+      "food": 0.6
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.9,
+      "mid": 0.75,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.8,
+      "longterm": 0.8
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.6,
+    "sources": [
+      "https://blackrabbitbar.com/",
+      "https://yourbrooklynguide.com/best-bars-in-greenpoint/",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour",
+      "https://www.timeout.com/newyork/sex-dating/best-date-spots-greenpoint-brooklyn"
+    ],
+    "notes": "Long-running Greenpoint Ave bar in a 19th-century room: dark wood, private 'snug' booths with saloon doors and request lights, indoor fireplace, back beer garden with picnic tables, board games. Mon-Thu 4pm-2am, Fri 4pm-4am, Sat 2pm-4am, Sun 2pm-2am; happy hour daily to 8pm ($6 Black Rabbit Lager, $10 rotating cocktail). Trivia Tuesdays 8pm, bingo with live country Sundays 7pm; snacks like cheese boards, mini burgers and Frito pie; bookable for parties of 4-75, all starting by 9pm."
+  },
+  {
+    "slug": "sunshine-laundromat",
+    "kind": "bar",
+    "name": "Sunshine Laundromat & Pinball",
+    "neighborhood": "greenpoint",
+    "address": "860 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.7301,
+    "lng": -73.954,
+    "take": "A working laundromat up front, a door disguised as a dryer, and twenty-plus pinball machines with beer in the back; the most Greenpoint thing in Greenpoint.",
+    "theCatch": "Cash only, a dollar a game; there's a change machine, and Roberta's pizza if you get hungry.",
+    "tags": [
+      "Pinball",
+      "Speakeasy",
+      "Beer",
+      "Meet People"
+    ],
+    "vibe": {
+      "lively": 0.65,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "activity": 1.0,
+      "speakeasy": 0.8,
+      "beer": 0.8,
+      "social": 0.7,
+      "date": 0.6,
+      "cocktails": 0.1,
+      "upscale": 0.0,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.75,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.8,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.nyctourism.com/nightlife/sunshine-laundromat/",
+      "https://www.tripadvisor.com/Attraction_Review-g60827-d15037649-Reviews-Sunshine_Laundromat-Brooklyn_New_York.html",
+      "https://greenpointers.com/tag/sunshine-laundromat/",
+      "https://www.timeout.com/newyork/things-to-do/best-things-to-do-in-greenpoint-brooklyn"
+    ],
+    "notes": "Real laundromat on Manhattan Ave near Greenpoint Ave with a pinball bar hidden behind a fake stacked-dryer door; 20+ machines at $1 a play, craft beer, Roberta's pizza, board games, a pinball-flipper toilet lever. Cash only with a change machine on site. Hosts pinball tournaments; reviews through mid-2025 confirm it's operating."
+  },
+  {
+    "slug": "diamond-lil",
+    "kind": "bar",
+    "name": "Diamond Lil",
+    "neighborhood": "greenpoint",
+    "address": "179 Nassau Ave, Brooklyn, NY 11222",
+    "lat": 40.7253,
+    "lng": -73.9455,
+    "take": "A quiet pink-onyx cocktail bar near McGolrick Park with velvet stools, a garden, and $2 oysters midweek; where you go for a slow drink and a real conversation.",
+    "theCatch": "Happy hour Mon-Fri 4-7 with $12 cocktails and $6 beer; the $2 oysters are Wed-Fri 5-7 only.",
+    "tags": [
+      "Cocktails",
+      "Can Actually Talk",
+      "Backyard",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.3,
+      "chill": 0.85,
+      "talk": 0.85
+    },
+    "attrs": {
+      "talk": 0.9,
+      "chill": 0.85,
+      "cocktails": 0.85,
+      "date": 0.85,
+      "seating": 0.75,
+      "happyHour": 0.75,
+      "outdoor": 0.7,
+      "late": 0.7,
+      "groups": 0.2,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.75,
+      "mid": 0.35,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.65,
+    "sources": [
+      "https://diamondlilbar.com/",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour",
+      "https://greenpointers.com/2017/06/01/diamond-lil-greenpoint/"
+    ],
+    "notes": "Neighborhood cocktail bar on Nassau Ave opened 2017; pink onyx bar, velvet stools and booths, garden open daily, snacks like oysters and conservas, a room where people read at the bar. Mon-Fri 4pm-3am, Sat 2pm-3am, Sun 2pm-1am. Happy hour Mon-Fri 4-7pm ($12 cocktails, $6 beer, $11 wine), $2 oysters Wed-Fri 5-7pm. Private events by email."
+  },
+  {
+    "slug": "lise-and-vito",
+    "kind": "bar",
+    "name": "Lise & Vito",
+    "neighborhood": "greenpoint",
+    "address": "126A Nassau Ave, Brooklyn, NY 11222",
+    "lat": 40.7247,
+    "lng": -73.9482,
+    "take": "Natural wine under pink neon, lava lamps and peacock feathers, with tinned fish and jello shots on the side; the wine bar that refuses to be serious.",
+    "theCatch": "Bottles hover around $50; go by the glass and split the tinned fish if you're watching the tab.",
+    "tags": [
+      "Wine",
+      "Date",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.7,
+      "talk": 0.65
+    },
+    "attrs": {
+      "wine": 1.0,
+      "date": 0.8,
+      "talk": 0.65,
+      "chill": 0.65,
+      "seating": 0.65,
+      "social": 0.6,
+      "sports": 0.0,
+      "dance": 0.05
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.4,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.85,
+      "longterm": 0.75
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/lise-and-vito",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://greenpointers.com/2023/06/26/lise-vito-wine-bar-officially-opens-on-nassau-avenue/",
+      "https://www.liseandvito.com/"
+    ],
+    "notes": "Natural wine bar on Nassau Ave between McGuinness and Newell, opened June 2023. Pink terrazzo bar, velvet booths, neon, lava lamps and peacock feathers; low-intervention wines from France, Italy, Virginia and Ontario with many bottles around $50, plus cocktails, beer, tinned fish and jello shots with edible flowers."
+  },
+  {
+    "slug": "twins-lounge",
+    "kind": "bar",
+    "name": "Twins Lounge",
+    "neighborhood": "greenpoint",
+    "address": "732 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.7272,
+    "lng": -73.9527,
+    "take": "Two bars stacked on Manhattan Ave: pool tables and big booths downstairs, a bright disco-ball lounge with floral couches and a little terrace upstairs.",
+    "theCatch": "Cash only, and weekend nights get packed; upstairs is the move for birthdays.",
+    "tags": [
+      "Groups",
+      "Pool Table",
+      "Late Night",
+      "Dancing"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.4,
+      "talk": 0.35
+    },
+    "attrs": {
+      "groups": 0.9,
+      "activity": 0.8,
+      "lively": 0.8,
+      "social": 0.75,
+      "late": 0.75,
+      "dance": 0.6,
+      "seating": 0.6,
+      "talk": 0.2,
+      "upscale": 0.1
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.9
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.55,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/twins-lounge",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://greenpointers.com/2021/04/07/twins-lounge-adds-a-new-neighborhood-bar-to-manhattan-ave/",
+      "https://pooltables.nyc/twins-lounge"
+    ],
+    "notes": "Bilevel bar at 732 Manhattan Ave opened April 2021 by Katelyn Sarazen and Matt Speglia in a former Chinese restaurant. Ground floor: long wood bar, two pool tables in a dark back area, large booths; upstairs: second bar, disco ball, floor-to-ceiling windows on Manhattan Ave, vintage couches, small terrace. Cash only per The Infatuation; monthly Monday pool tournament."
+  },
+  {
+    "slug": "capri-social-club",
+    "kind": "bar",
+    "name": "Capri Social Club",
+    "neighborhood": "greenpoint",
+    "address": "156 Calyer St, Brooklyn, NY 11222",
+    "lat": 40.7284,
+    "lng": -73.952,
+    "take": "The cheapest beer in Greenpoint, an old jukebox, and zero decor: a Calyer St dive where whoever walks in is the entertainment.",
+    "theCatch": "Cash only; bring a crowd and take the tables in back.",
+    "tags": [
+      "Dive",
+      "Cheap",
+      "Old NYC",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.65,
+      "talk": 0.6
+    },
+    "attrs": {
+      "dive": 1.0,
+      "cheap": 1.0,
+      "classic": 0.75,
+      "groups": 0.7,
+      "social": 0.7,
+      "seating": 0.6,
+      "upscale": 0.0,
+      "cocktails": 0.05,
+      "scene": 0.0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.8,
+      "mid": 0.8,
+      "big": 0.65
+    },
+    "dateFit": {
+      "first": 0.35,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.8,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/capri-social-club",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://greenpointers.com/2016/08/26/a-history-of-greenpoint-in-25-buildings-the-capri-social-club/"
+    ],
+    "notes": "Old-school dive at 156 Calyer St in a former social club building with a long neighborhood history; plain room, tables in back, jukebox, jello shots, cash only. The Infatuation calls its beer the cheapest in Greenpoint and recommends it for big casual groups. Yelp listing active as of mid-2026."
+  },
+  {
+    "slug": "the-brew-inn",
+    "kind": "bar",
+    "name": "The Brew Inn",
+    "neighborhood": "greenpoint",
+    "address": "924 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.732,
+    "lng": -73.9548,
+    "take": "A corner pub on upper Manhattan Ave with TVs on the wall and a two-patty burger that outclasses the room; the solo-dinner-at-the-bar spot.",
+    "theCatch": "Wednesdays are trivia and karaoke; otherwise it's a quiet place to eat a burger and watch the game.",
+    "tags": [
+      "Corner Bar",
+      "Sports",
+      "Burgers",
+      "Beer"
+    ],
+    "vibe": {
+      "lively": 0.45,
+      "chill": 0.7,
+      "talk": 0.7
+    },
+    "attrs": {
+      "food": 0.85,
+      "seating": 0.75,
+      "sports": 0.7,
+      "beer": 0.7,
+      "chill": 0.7,
+      "talk": 0.65,
+      "scene": 0.0,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.8,
+      "mid": 0.55,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.6,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.8,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/the-brew-inn",
+      "https://www.theinfatuation.com/new-york/guides/greenpoint-bars",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour"
+    ],
+    "notes": "Neighborhood corner pub at Manhattan Ave and Kent St, open since late 2013; TVs on the walls, bar seating, a well-regarded double burger with cheese, arugula and caramelized onions. Trivia and karaoke on Wednesdays per happy-hour.nyc. Regulars' bar rather than a destination."
+  },
+  {
+    "slug": "el-pinguino",
+    "kind": "restaurant",
+    "name": "El Pingüino",
+    "neighborhood": "greenpoint",
+    "address": "25 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7295,
+    "lng": -73.9584,
+    "take": "A Spanish seafood bar with wooden booths, a raw bar, sherry and cold martinis; the first-date dinner where you order too many oysters and don't regret it.",
+    "theCatch": "Happy hour 4-7 daily with half-price oysters and $12 martinis; the menu leans snacks and raw bar, so don't arrive starving.",
+    "tags": [
+      "First Date",
+      "Oysters",
+      "Cocktails",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.6,
+      "talk": 0.65
+    },
+    "attrs": {
+      "date": 0.9,
+      "happyHour": 0.85,
+      "food": 0.8,
+      "cocktails": 0.75,
+      "wine": 0.7,
+      "seating": 0.7,
+      "talk": 0.65,
+      "groups": 0.2,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.75,
+      "mid": 0.35,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.95,
+      "early": 0.9,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.45,
+    "sources": [
+      "https://www.pinguinogreenpoint.com/",
+      "https://www.theinfatuation.com/new-york/reviews/el-pinguino",
+      "https://www.theinfatuation.com/new-york/guides/best-greenpoint-restaurants",
+      "https://happy-hour.nyc/brooklyn/greenpoint-happy-hour"
+    ],
+    "notes": "Spanish seafood bar at 25 Greenpoint Ave near the waterfront; open daily 4pm-midnight, reservations on Resy. Wooden booths, penguin cartoon behind the bar, neighborhood crowd. Raw bar, aguachile, a $90 seafood tower, sherry, amari and martinis. Happy hour daily 4-7pm (half-off oysters, $12 sherry and martinis), late menu 10pm-midnight with $10 sardines and a $12 Midori sour."
+  },
+  {
+    "slug": "chez-ma-tante",
+    "kind": "restaurant",
+    "name": "Chez Ma Tante",
+    "neighborhood": "greenpoint",
+    "address": "90 Calyer St, Brooklyn, NY 11222",
+    "lat": 40.7276,
+    "lng": -73.9562,
+    "take": "White brick, a long wood bar, bay-leaf martinis and a roast chicken people cross the bridge for; the Greenpoint dinner that suits parents and second dates alike.",
+    "theCatch": "Weeknight dinner is gettable on Resy and brunch is not; the pre-7pm happy hour does $2 oysters and $5.50 fries.",
+    "tags": [
+      "Date",
+      "Food",
+      "Cocktails",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.65,
+      "talk": 0.7
+    },
+    "attrs": {
+      "food": 1.0,
+      "date": 0.85,
+      "wine": 0.75,
+      "talk": 0.7,
+      "cocktails": 0.7,
+      "happyHour": 0.7,
+      "seating": 0.7,
+      "upscale": 0.6,
+      "sports": 0.0,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.9,
+      "longterm": 0.9
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "sources": [
+      "https://chezmatantebk.com/",
+      "https://blog.resy.com/2025/09/chez-ma-tante-nyc/",
+      "https://www.theinfatuation.com/new-york/reviews/chez-ma-tante",
+      "https://www.theinfatuation.com/new-york/guides/best-greenpoint-restaurants"
+    ],
+    "notes": "Jake Leiber and Aidan O'Neal's restaurant at 90 Calyer St near Franklin, opened 2017 and on the NYT's 2025 top-100 NYC list; closed briefly in early 2024 and reopened that summer. Whitewashed brick, long wood bar where locals drink, sidewalk tables in summer. Known for charred pancakes at brunch, roast half chicken, pork shoulder with salsa verde, fries with aioli, and 'teeny tinis' with bay leaf. Resy; weeknight happy hour before 7pm with $2 oysters and $4.50 pâté."
+  },
+  {
+    "slug": "wenwen",
+    "kind": "restaurant",
+    "name": "Wenwen",
+    "neighborhood": "greenpoint",
+    "address": "1025 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.7343,
+    "lng": -73.9557,
+    "take": "Loud, playful Taiwanese on upper Manhattan Ave: a whole deboned fried chicken for the table, youtiao-topped cocktails, and a quieter basement when you want to hear each other.",
+    "theCatch": "Only five BDSM chickens a night and they go in the first half hour; book the early slot if that's the plan.",
+    "tags": [
+      "Groups",
+      "Food",
+      "Cocktails",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1.0,
+      "groups": 0.9,
+      "lively": 0.75,
+      "cocktails": 0.7,
+      "social": 0.6,
+      "talk": 0.2,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.9,
+      "mid": 0.9,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.75,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.45,
+    "sources": [
+      "https://www.opentable.com/r/wenwen-brooklyn",
+      "https://www.theinfatuation.com/new-york/reviews/wenwen",
+      "https://www.theinfatuation.com/new-york/guides/best-greenpoint-restaurants"
+    ],
+    "notes": "Taiwanese restaurant from the 886 team at 1025 Manhattan Ave near India St; open daily 5-10pm plus weekend lunch 12-3pm, reservations on OpenTable, roughly $31-50 a head. Main floor with open kitchen and bar seating, quieter downstairs room called The Alley, disco ball in the bathroom. Whole BDSM fried chicken (five a night, feeds 3-4, sells out fast), 886 noodle, pork belly and cuttlefish, fried tangyuan with ice cream; full bar."
+  },
+  {
+    "slug": "karczma",
+    "kind": "restaurant",
+    "name": "Karczma",
+    "neighborhood": "greenpoint",
+    "address": "136 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7308,
+    "lng": -73.953,
+    "take": "Pierogi, kielbasa and hunter's stew brought by staff in folk dress in a barn-styled room; the affordable, filling group dinner before a night on Nassau.",
+    "theCatch": "Big tables and reservations make it the easy call for eight; order plates to share and a round of Polish beer.",
+    "tags": [
+      "Groups",
+      "Food",
+      "Cheap",
+      "Polish"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.55,
+      "talk": 0.55
+    },
+    "attrs": {
+      "groups": 0.95,
+      "food": 0.9,
+      "seating": 0.8,
+      "cheap": 0.65,
+      "beer": 0.6,
+      "cocktails": 0.1,
+      "upscale": 0.1,
+      "scene": 0.0
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.8,
+      "mid": 0.95,
+      "big": 0.95
+    },
+    "dateFit": {
+      "first": 0.35,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.karczmabrooklyn.com/",
+      "https://www.theinfatuation.com/new-york/reviews/karczma",
+      "https://www.theinfatuation.com/new-york/guides/best-greenpoint-restaurants"
+    ],
+    "notes": "Polish restaurant at 136 Greenpoint Ave between Manhattan and Leonard, open about 15 years; barn-style kitsch, staff in traditional costume, sidewalk tables. Open 12pm-10:30pm Mon-Thu, to 11:30pm Fri-Sat, 10pm Sun. Pierogi, kielbasa, hunter's stew; beer and vodka. Reservations recommended for groups per The Infatuation."
+  },
+  {
+    "slug": "di-an-di",
+    "kind": "restaurant",
+    "name": "Đi Ăn Đi",
+    "neighborhood": "greenpoint",
+    "address": "68 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7301,
+    "lng": -73.9558,
+    "take": "Modern Vietnamese in a pink, plant-filled room that's always loud: crispy-rice 'pizzas', turmeric crepes, and pho at the bar if you're alone.",
+    "theCatch": "Book on OpenTable; walk-ins wait at peak, and parties of six or more get 20% gratuity added.",
+    "tags": [
+      "Food",
+      "Lively",
+      "Groups",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.35
+    },
+    "attrs": {
+      "food": 1.0,
+      "lively": 0.75,
+      "groups": 0.7,
+      "date": 0.65,
+      "cocktails": 0.6,
+      "seating": 0.6,
+      "talk": 0.2,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.9,
+      "mid": 0.75,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.8,
+      "longterm": 0.75
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.diandi.nyc/",
+      "https://www.theinfatuation.com/new-york/reviews/di-an-di",
+      "https://www.theinfatuation.com/new-york/guides/best-greenpoint-restaurants"
+    ],
+    "notes": "Vietnamese restaurant at 68 Greenpoint Ave between Franklin and Manhattan; pink decor, plants, Scandinavian-style furniture, bar seating for solo diners. Mon-Thu 5-10pm, Fri-Sun 12-10pm; reservations on OpenTable; cocktails, beer, natural wine. Consistently loud and busy with a mixed crowd; 20% gratuity added for parties of six or more. Known for pho with egg yolk, crispy-rice 'pizzas', banh xeo and the daikon rice cake omelette."
+  }
+]

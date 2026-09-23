@@ -97,12 +97,12 @@ export function YouView({ venues }: { venues: Venue[] }) {
       )}
 
       <section className="mt-6 grid grid-cols-2 gap-3">
-        <Link href="/you/add" className="pressable card flex min-h-[124px] flex-col justify-between p-4">
-          <ScreenshotIcon />
+        <Link href="/recommend" className="pressable card flex min-h-[124px] flex-col justify-between p-4">
+          <RecommendIcon />
           <div>
-            <p className="text-[15px] font-medium">Add from screenshots</p>
+            <p className="text-[15px] font-medium">Know a spot we don&apos;t?</p>
             <p className="mt-0.5 text-[12px] leading-snug" style={{ color: "var(--chalk-55)" }}>
-              TikToks, Reels, texts. ROUND reads them.
+              Recommend a bar. Two minutes. We check every one.
             </p>
           </div>
         </Link>
@@ -121,7 +121,7 @@ export function YouView({ venues }: { venues: Venue[] }) {
         </Link>
       </section>
 
-      <Section title="Want to go" count={saved.length} empty="Save places from results, venue pages, or your screenshots.">
+      <Section title="Want to go" count={saved.length} empty="Save places from results and venue pages.">
         <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
           {saved.map((v) => (
             <Link key={v.slug} href={`/v/${v.slug}`} className="pressable w-[150px] shrink-0">
@@ -268,12 +268,11 @@ function tasteLine(venues: Venue[], been: Record<string, { rating?: string }>) {
   return `Your taste leans toward ${word}${topTag ? ` and ${topTag.toLowerCase()}` : ""}. ROUND is already using it.`;
 }
 
-function ScreenshotIcon() {
+function RecommendIcon() {
   return (
     <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden>
-      <rect x="4" y="3" width="18" height="20" rx="4" stroke="#16213A" strokeWidth="1.6" />
-      <path d="M8 16l3.5-3.5 3 3 2-2L19 17" stroke="#D9482B" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="16.5" cy="9" r="1.5" fill="#D9482B" />
+      <path d="M13 22s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z" stroke="#16213A" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="13" cy="11" r="2.4" stroke="#D9482B" strokeWidth="1.6" />
     </svg>
   );
 }

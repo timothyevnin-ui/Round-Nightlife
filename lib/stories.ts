@@ -1,19 +1,11 @@
 /**
  * "What's hot right now" — the shelf on the home page, and the long reads
- * behind it. These six are seed drafts written from general reputation so the
+ * behind it. These are seed drafts written from general reputation so the
  * shelf has a shape; every one is meant to be rewritten in the back office
  * (Edit a place → What's hot right now) after a real visit. Nothing here is
  * copied from another publication.
  */
 export const SEED_STORIES: Record<string, { rank: number; story: string }> = {
-  "achilles-heel": {
-    rank: 1,
-    story: `There are bars that are trying, and then there's a corner tavern in Greenpoint that stopped trying a long time ago and got better for it. Low ceiling, wood everything, a window onto the street that goes gold about an hour before sunset.
-
-The move is a weeknight. Two of you, or four at a squeeze, a glass of something the bartender picked, and a conversation that doesn't need to compete with anything. It gets busier late on weekends, but even then it stays a room where you can hear the person across from you.
-
-Go before you're hungry, because you'll want to stay, and then walk down to the water after. That's the whole night, and it's a good one.`,
-  },
   "ear-inn": {
     rank: 2,
     story: `Older than almost everything around it, and it acts like it. Low doorway, creaky floor, a bar that's been polished by two centuries of elbows. On a wet night it's the coziest room south of Houston.

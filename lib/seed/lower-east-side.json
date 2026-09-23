@@ -1,0 +1,1065 @@
+[
+  {
+    "slug": "double-chicken-please",
+    "kind": "bar",
+    "name": "Double Chicken Please",
+    "neighborhood": "lower-east-side",
+    "address": "115 Allen St, New York, NY 10002",
+    "lat": 40.7197,
+    "lng": -73.9904,
+    "take": "Cocktails on tap and a hot honey chicken sandwich up front; the Back Room is the reservation you make when you want the full production.",
+    "theCatch": "The Front Room is walk-in and fills fast after 8; Back Room tables go on Resy a week out.",
+    "tags": [
+      "Cocktails",
+      "Food",
+      "Date",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.35,
+      "talk": 0.45
+    },
+    "attrs": {
+      "cocktails": 0.95,
+      "food": 0.85,
+      "date": 0.75,
+      "upscale": 0.6,
+      "lively": 0.7,
+      "cheap": 0.05
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.75,
+      "mid": 0.4,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.85,
+      "longterm": 0.75
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/double-chicken-please",
+      "https://www.eva-darling.com/lower-east-side-cocktail-bars/",
+      "https://www.theinfatuation.com/new-york/guides/the-best-lower-east-side-bars"
+    ],
+    "notes": "Two rooms on Allen between Delancey and Rivington: a walk-in Front Room with around a dozen numbered cocktails on tap plus fried chicken sandwiches and chicken liver mousse, and a reserved Back Room with pricier drinks and a more ambitious menu. Has placed high on the World's 50 Best Bars list. Music and crowd pick up later in the evening."
+  },
+  {
+    "slug": "tigre",
+    "kind": "bar",
+    "name": "Tigre",
+    "neighborhood": "lower-east-side",
+    "address": "105 Rivington St, New York, NY 10002",
+    "lat": 40.72,
+    "lng": -73.9877,
+    "take": "Gold walls, ice-cold martinis, and a fully seated room from the Maison Premiere people; the LES bar for a night when you want to feel like an adult.",
+    "theCatch": "Book on Resy; walk-in seats are scarce and reservations run on a 90-minute clock.",
+    "tags": [
+      "Cocktails",
+      "Upscale",
+      "Date",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.7,
+      "talk": 0.8
+    },
+    "attrs": {
+      "cocktails": 0.95,
+      "upscale": 0.9,
+      "date": 0.9,
+      "talk": 0.8,
+      "dressy": 0.6,
+      "seating": 0.7,
+      "groups": 0.1,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.6,
+      "mid": 0.2,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.25,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/tigre",
+      "https://www.tigrenyc.com/",
+      "https://www.theinfatuation.com/new-york/guides/the-best-lower-east-side-bars"
+    ],
+    "notes": "Seated cocktail lounge between Essex and Ludlow from Premiere Enterprises (Maison Premiere), behind an unmarked door, with gold walls, mirrored bathrooms, and white-jacketed staff. Hours Sun-Mon 5pm-midnight, Tue-Wed 5pm-1am, Thu-Sat 5pm-2am. Reservations via Resy with limited walk-in seating; no standing room; 1.5-hour limit."
+  },
+  {
+    "slug": "little-big",
+    "kind": "bar",
+    "name": "Little Big",
+    "neighborhood": "lower-east-side",
+    "address": "40 Clinton St, New York, NY 10002",
+    "lat": 40.7203,
+    "lng": -73.9843,
+    "take": "Ex-Double Chicken Please bartenders, a shaded backyard, and drinks that borrow from Eastern Europe and the Caribbean; the afternoon-into-evening bar on Clinton.",
+    "theCatch": "The inside is tiny and the patio shuts at 10, so come early and plan to sit outside.",
+    "tags": [
+      "Backyard",
+      "Cocktails",
+      "Chill",
+      "Food"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.8,
+      "talk": 0.8
+    },
+    "attrs": {
+      "outdoor": 0.95,
+      "cocktails": 0.9,
+      "chill": 0.8,
+      "talk": 0.75,
+      "food": 0.7,
+      "date": 0.7,
+      "late": 0.05,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.85,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "earlyEvening",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/little-big",
+      "https://www.theinfatuation.com/new-york/guides/the-nyc-bar-hit-list",
+      "https://www.littlebignyc.com/"
+    ],
+    "notes": "Newer cocktail bar between Stanton and Rivington opened by former Double Chicken Please bartenders. Small interior; the draw is a covered, tropical-leaning backyard. Small plates such as roast pork between potato pancakes and a starfruit salad; drinks include a tequila milk punch. Hours Mon-Thu 5-11pm, Fri-Sat 4pm-midnight, Sun 4-10pm; patio closes at 10pm."
+  },
+  {
+    "slug": "copper-and-oak",
+    "kind": "bar",
+    "name": "Copper & Oak",
+    "neighborhood": "lower-east-side",
+    "address": "157 Allen St, New York, NY 10002",
+    "lat": 40.721,
+    "lng": -73.9898,
+    "take": "A library of 600 bottles and a bartender who will find you the Japanese whisky you didn't know you wanted; quiet, serious, and very small.",
+    "theCatch": "It hits capacity most nights and flashes a 'we are full' sign; a party of two after 7 is the safe bet.",
+    "tags": [
+      "Whiskey",
+      "Can Actually Talk",
+      "Date",
+      "Upscale"
+    ],
+    "vibe": {
+      "lively": 0.2,
+      "chill": 0.85,
+      "talk": 0.9
+    },
+    "attrs": {
+      "talk": 0.9,
+      "chill": 0.85,
+      "date": 0.8,
+      "upscale": 0.75,
+      "cocktails": 0.7,
+      "groups": 0.05,
+      "late": 0.1,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.55,
+      "mid": 0.1,
+      "big": 0.0
+    },
+    "dateFit": {
+      "first": 0.65,
+      "early": 0.85,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "tiny",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.35,
+    "sources": [
+      "https://timeout.com/newyork/bars/copper-oak",
+      "https://www.yelp.com/biz/copper-and-oak-new-york-5",
+      "https://www.timeout.com/newyork/bars/best-bars-in-lower-east-side"
+    ],
+    "notes": "Whiskey bar between Rivington and Stanton from Flavien Desoblin of Brandy Library, with backlit shelves holding roughly 600 bottles and a deep Japanese selection poured in 1 and 2 oz measures; average pour around $18. Time Out lists hours as Tue-Sat 5pm-1am and Sun 2-10pm, closed Monday; confirm before going."
+  },
+  {
+    "slug": "parkside-lounge",
+    "kind": "bar",
+    "name": "Parkside Lounge",
+    "neighborhood": "lower-east-side",
+    "address": "317 E Houston St, New York, NY 10002",
+    "lat": 40.721,
+    "lng": -73.9819,
+    "take": "Christmas lights, a pool table, a back room with a stage, and a 4am close; the LES dive that has outlasted every trend on both sides of Houston.",
+    "theCatch": "Bring a physical ID, a phone photo won't get you in; weeknights are calm and weekends fill without turning rowdy.",
+    "tags": [
+      "Dive",
+      "Live Music",
+      "Pool Table",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.6,
+      "talk": 0.55
+    },
+    "attrs": {
+      "dive": 0.95,
+      "late": 0.9,
+      "liveMusic": 0.8,
+      "activity": 0.8,
+      "cheap": 0.7,
+      "classic": 0.7,
+      "seating": 0.65,
+      "groups": 0.7,
+      "sports": 0.6,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.55,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.parksidelounge.nyc/",
+      "https://www.theinfatuation.com/new-york/guides/the-best-lower-east-side-bars"
+    ],
+    "notes": "Old-school dive at Houston and Attorney with pool, TVs for games, Wednesday trivia, and a back-room stage that hosts bands, drag, and dance parties. Opens 4pm Mon-Thu and 3pm Fri-Sun and stays open until 4am nightly. Some outdoor seating. Strict on real ID."
+  },
+  {
+    "slug": "169-bar",
+    "kind": "bar",
+    "name": "169 Bar",
+    "neighborhood": "lower-east-side",
+    "address": "169 E Broadway, New York, NY 10002",
+    "lat": 40.7137,
+    "lng": -73.989,
+    "take": "A leopard-print pool table, a fish tank, dumplings at 3am, and drinks that still cost what drinks should; the Two Bridges dive worth the walk south.",
+    "theCatch": "Happy hour runs 2 to 7:30 every day; weekends get chaotic after midnight, so go early if you want the pool table.",
+    "tags": [
+      "Dive",
+      "Cheap",
+      "Late Night",
+      "Pool Table"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "dive": 0.95,
+      "late": 0.95,
+      "cheap": 0.85,
+      "happyHour": 0.8,
+      "activity": 0.7,
+      "social": 0.7,
+      "classic": 0.7,
+      "food": 0.6,
+      "upscale": 0.0,
+      "dressy": 0.0
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.7,
+    "sources": [
+      "https://happy-hour.nyc/bars-restaurants/169-bar",
+      "https://www.timeout.com/newyork/bars/169-bar",
+      "https://www.theinfatuation.com/new-york/guides/late-night-bars-one-last-drink"
+    ],
+    "notes": "Dive on East Broadway between Jefferson and Rutgers in a bar space dating to 1916, with neon, Christmas lights, a leopard-print pool table, and a kitchen open to 4am serving dumplings, empanadas, and oysters. Open daily 2pm-4am; happy hour 2-7:30pm with discounted drinks and $3 oysters. Weekend DJs playing soul and disco; some covered outdoor seating."
+  },
+  {
+    "slug": "welcome-to-the-johnsons",
+    "kind": "bar",
+    "name": "Welcome to the Johnsons",
+    "neighborhood": "lower-east-side",
+    "address": "123 Rivington St, New York, NY 10002",
+    "lat": 40.7197,
+    "lng": -73.9869,
+    "take": "Wood paneling, bowling trophies, and $3 cans in a bar built to look like somebody's 1970s rec room; the cheap-drinks answer on Rivington.",
+    "theCatch": "The back room with the pool table is the seat to grab; the summer margaritas are stronger than they taste.",
+    "tags": [
+      "Dive",
+      "Cheap",
+      "Pool Table",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "dive": 0.95,
+      "cheap": 0.95,
+      "activity": 0.7,
+      "social": 0.7,
+      "groups": 0.7,
+      "late": 0.7,
+      "cocktails": 0.1,
+      "upscale": 0.0,
+      "dressy": 0.0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.6,
+      "longterm": 0.55
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.6,
+    "sources": [
+      "https://scoundrelsfieldguide.com/new-york/new-york-city/welcome-to-the-johnsons/",
+      "https://www.nyctourism.com/nightlife/welcome-to-the-johnsons/",
+      "https://www.corner.inc/place/71333"
+    ],
+    "notes": "Themed dive open since 1999 between Essex and Norfolk, decorated like a suburban basement with VHS tapes, black-light posters, family photos, and vintage furniture spread across several small rooms. PBR around $3, seasonal margaritas in summer, pool table in the back room. Occasional live music. Crowd mixes locals and younger LES regulars."
+  },
+  {
+    "slug": "sadies-ward",
+    "kind": "bar",
+    "name": "Sadie's Ward",
+    "neighborhood": "lower-east-side",
+    "address": "121 Essex St, New York, NY 10002",
+    "lat": 40.7191,
+    "lng": -73.9877,
+    "take": "The old Whiskey Ward under a new name and its former bar manager, with pool tables, a long whiskey shelf, and a 4am close seven nights a week.",
+    "theCatch": "Pool tables get claimed early on weekends; on weeknights it's a regulars' room where you can actually play.",
+    "tags": [
+      "Pool Table",
+      "Whiskey",
+      "Corner Bar",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.7,
+      "talk": 0.7
+    },
+    "attrs": {
+      "activity": 0.9,
+      "late": 0.9,
+      "talk": 0.7,
+      "social": 0.7,
+      "classic": 0.6,
+      "seating": 0.6,
+      "dive": 0.6,
+      "upscale": 0.1,
+      "scene": 0.0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.65,
+      "longterm": 0.65
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.sadiesward.com/about-sadies-ward",
+      "https://lowereastside.com/bars-clubs/sadies-ward/",
+      "https://evgrieve.com/2024/01/sadies-ward-officially-takes-over-from.html"
+    ],
+    "notes": "Opened January 2024 in the Whiskey Ward space between Rivington and Delancey after that bar's roughly 24-year run; owner Stephanie Watkins was the Whiskey Ward's bar manager. Whiskey-focused, pool tables, trivia nights listed with the NYC Trivia League. Hours Mon-Fri 5pm-4am, Sat-Sun noon-4am. Named for 1860s LES figure Sadie Farrell."
+  },
+  {
+    "slug": "the-ten-bells",
+    "kind": "bar",
+    "name": "The Ten Bells",
+    "neighborhood": "lower-east-side",
+    "address": "247 Broome St, New York, NY 10002",
+    "lat": 40.718,
+    "lng": -73.9897,
+    "take": "A dark wraparound bar, natural wine by the generous glass, and dollar oysters until 7; the wine bar that was here long before the neighborhood got a nickname.",
+    "theCatch": "Get there before 7 for the oysters; after that it's standing room and communal tables, so put a name in on Resy.",
+    "tags": [
+      "Wine",
+      "Oysters",
+      "Happy Hour",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.7,
+      "talk": 0.6
+    },
+    "attrs": {
+      "wine": 0.95,
+      "happyHour": 0.85,
+      "date": 0.75,
+      "food": 0.65,
+      "talk": 0.6,
+      "cocktails": 0.05,
+      "frozen": 0.0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.55,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.85,
+      "longterm": 0.8
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.5,
+    "sources": [
+      "https://tenbellsnyc.com/",
+      "https://www.theinfatuation.com/new-york/reviews/the-ten-bells",
+      "https://www.yelp.com/biz/the-ten-bells-new-york"
+    ],
+    "notes": "Natural wine bar open since 2008 on Broome between Orchard and Ludlow. Spanish-leaning tapas around $10, many bottles under $40, $1 oysters daily until 7pm. Wraparound bar, high-tops, and communal tables. Hours Mon-Wed 5pm-midnight, Thu-Fri 5pm-1am, Sat 3pm-1am, Sun 3-11pm. Reservations via Resy."
+  },
+  {
+    "slug": "le-dive",
+    "kind": "bar",
+    "name": "Le Dive",
+    "neighborhood": "lower-east-side",
+    "address": "37 Canal St, New York, NY 10002",
+    "lat": 40.7148,
+    "lng": -73.9905,
+    "take": "A French tabac on the Dimes Square corner where the wine is natural, the plaza is packed, and everyone is watching everyone; come for the sidewalk.",
+    "theCatch": "Walk-in waits can hit an hour on weekends; the outdoor plaza is the whole point, so it's a different bar in January.",
+    "tags": [
+      "Wine",
+      "Sceney",
+      "Outdoor",
+      "Meet People"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "wine": 0.95,
+      "scene": 0.9,
+      "outdoor": 0.9,
+      "lively": 0.8,
+      "social": 0.75,
+      "food": 0.6,
+      "seating": 0.2,
+      "sports": 0.0,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.75,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.65,
+      "early": 0.7,
+      "longterm": 0.55
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.3,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/le-dive",
+      "https://www.ledivenyc.com/",
+      "https://www.theinfatuation.com/new-york/guides/the-best-lower-east-side-bars"
+    ],
+    "notes": "French tabac-styled natural wine bar at Canal and Orchard, the center of Dimes Square. Small interior with a handful of stools and one row of tables, plus a large outdoor plaza. Orange wine by the glass around $17; snacks like steak tartare, burrata, and smoked salmon. The Infatuation reported no reservations and hour-long waits; the venue site now lists reservations for the LES location and a second location in the West Village."
+  },
+  {
+    "slug": "loreley-beer-garden",
+    "kind": "bar",
+    "name": "Loreley Beer Garden",
+    "neighborhood": "lower-east-side",
+    "address": "7 Rivington St, New York, NY 10002",
+    "lat": 40.7215,
+    "lng": -73.9935,
+    "take": "A Cologne-style beer hall with a big heated garden out back and long tables built for eight; the answer to 'where can all of us sit outside.'",
+    "theCatch": "The garden closes at 10:45 and tables run on a two-hour clock; reserve ahead, and after 9 it's indoor only.",
+    "tags": [
+      "Beer",
+      "Backyard",
+      "Groups",
+      "Food"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.55,
+      "talk": 0.5
+    },
+    "attrs": {
+      "beer": 0.95,
+      "outdoor": 0.95,
+      "groups": 0.95,
+      "food": 0.7,
+      "seating": 0.7,
+      "happyHour": 0.6,
+      "cocktails": 0.1,
+      "dance": 0.0,
+      "speakeasy": 0.0
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.95
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.55,
+      "longterm": 0.55
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "earlyEvening",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.loreleynyc.com/faq",
+      "https://www.loreleynyc.com/location/loreley-beer-garden/",
+      "https://www.nyctourism.com/restaurants/loreley-beer-garden/",
+      "https://www.yelp.com/biz/loreley-beer-garden-new-york-2"
+    ],
+    "notes": "German biergarten on Rivington between Bowery and Chrystie, modeled on a Cologne brauhaus, with a large heated outdoor garden, an indoor hall, and a party room for 20-50. Hours Mon-Tue 5pm-midnight, Wed-Thu 5pm-1am, Fri-Sat noon-4am, Sun noon-midnight; garden closes 10:45pm. Reservations up to 15 people, 1.5-2 hour limits, no standing room; weekend brunch noon-4pm."
+  },
+  {
+    "slug": "mr-purple",
+    "kind": "bar",
+    "name": "Mr. Purple",
+    "neighborhood": "lower-east-side",
+    "address": "180 Orchard St, 15th Fl, New York, NY 10002",
+    "lat": 40.7217,
+    "lng": -73.9881,
+    "take": "Fifteen floors up with two terraces, a view from Midtown to the bridges, and a crowd that dressed for the photo; the LES rooftop, for better and worse.",
+    "theCatch": "Lines form fast around sunset, especially on weekends; weekday happy hour from 4 to 7 is the easy way in.",
+    "tags": [
+      "Rooftop",
+      "Sceney",
+      "Hotel Bar",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.35
+    },
+    "attrs": {
+      "rooftop": 1.0,
+      "outdoor": 0.9,
+      "scene": 0.85,
+      "lively": 0.8,
+      "happyHour": 0.7,
+      "late": 0.7,
+      "cocktails": 0.6,
+      "dive": 0.0,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.8,
+      "mid": 0.65,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.6,
+      "longterm": 0.45
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.3,
+    "sources": [
+      "https://happy-hour.nyc/bars-restaurants/mr-purple",
+      "https://www.mrpurplenyc.com/",
+      "https://www.yelp.com/biz/mr-purple-new-york"
+    ],
+    "notes": "Rooftop bar on the 15th floor of Hotel Indigo between Stanton and Houston, with two terraces and an indoor lounge; the pool is for hotel guests only. Hours Mon-Wed 4pm-2am, Thu 4pm-3am, Fri 4pm-4am, Sat-Sun from 2pm. Happy hour Mon-Fri 4-7pm with $11 cocktails and wine and $6 bites. DJs; smart-casual door policy."
+  },
+  {
+    "slug": "hair-of-the-dog",
+    "kind": "bar",
+    "name": "Hair of the Dog",
+    "neighborhood": "lower-east-side",
+    "address": "168 Orchard St, New York, NY 10002",
+    "lat": 40.7215,
+    "lng": -73.9884,
+    "take": "Projectors, big screens, beer pong, and half-off everything until 7 on weekdays; the LES sports bar that doesn't pretend to be anything else.",
+    "theCatch": "Skews young and loud on game days and weekend nights; weekday afternoons are the calm, cheap version.",
+    "tags": [
+      "Sports",
+      "Cheap",
+      "Happy Hour",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "sports": 0.95,
+      "happyHour": 0.9,
+      "groups": 0.85,
+      "lively": 0.85,
+      "late": 0.8,
+      "cheap": 0.7,
+      "date": 0.1,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.85
+    },
+    "dateFit": {
+      "first": 0.15,
+      "early": 0.3,
+      "longterm": 0.3
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.hairofthedognyc.com/hours-and-location/",
+      "https://www.theinfatuation.com/new-york/reviews/hair-of-the-dog",
+      "https://www.yelp.com/biz/hair-of-the-dog-new-york"
+    ],
+    "notes": "Sports bar on Orchard between Stanton and Houston with multiple screens and projectors, beer pong, bar food, and a college-heavy crowd. Open from noon daily; until 1am Sun-Wed, 3am Thu, 4am Fri-Sat. Weekday happy hour noon-7pm with all drinks half off and $3 sliders; nightly specials after 7pm and a $35 boozy brunch on weekends."
+  },
+  {
+    "slug": "home-sweet-home",
+    "kind": "bar",
+    "name": "Home Sweet Home",
+    "neighborhood": "lower-east-side",
+    "address": "131 Chrystie St, New York, NY 10002",
+    "lat": 40.7189,
+    "lng": -73.9937,
+    "take": "Taxidermy, a disco ball, and a basement full of people actually dancing to records; the cheap late-night move once the cocktail bars have closed.",
+    "theCatch": "Friday's 50s-and-60s party runs 10:30 to 4 and packs the room; a stairway down is the only sign it exists.",
+    "tags": [
+      "Dancing",
+      "Late Night",
+      "Cheap",
+      "Dive"
+    ],
+    "vibe": {
+      "lively": 0.9,
+      "chill": 0.15,
+      "talk": 0.2
+    },
+    "attrs": {
+      "dance": 0.95,
+      "late": 0.95,
+      "lively": 0.9,
+      "cheap": 0.75,
+      "dive": 0.75,
+      "social": 0.7,
+      "talk": 0.1,
+      "seating": 0.1
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.55
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/home-sweet-home",
+      "https://www.homesweethomethebar.com/",
+      "https://www.theinfatuation.com/new-york/guides/late-night-bars-one-last-drink"
+    ],
+    "notes": "Subterranean bar on Chrystie between Delancey and Broome, open since 2006, with a small dance floor under a disco ball, taxidermy throughout, and DJs and live music on weekends from 10pm to close. Hours Mon-Sat 6pm-4am, Sun 8pm-4am; happy hour weekdays until 8:30pm. Drafts, bottles, frozen drinks, and rotating cocktails, all inexpensive."
+  },
+  {
+    "slug": "lullaby",
+    "kind": "bar",
+    "name": "Lullaby",
+    "neighborhood": "lower-east-side",
+    "address": "151 Rivington St, New York, NY 10002",
+    "lat": 40.7196,
+    "lng": -73.9856,
+    "take": "A low-ceilinged basement under a sushi bar where the cocktails are real, the playlist is somebody's record collection, and the couches turn into a dance floor by 11.",
+    "theCatch": "It's small and the couches go early; arrive before 10 on weekends if you want to sit.",
+    "tags": [
+      "Dancing",
+      "Cocktails",
+      "Late Night",
+      "Frozen Drinks"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.3,
+      "talk": 0.25
+    },
+    "attrs": {
+      "dance": 0.85,
+      "lively": 0.85,
+      "cocktails": 0.8,
+      "late": 0.8,
+      "social": 0.7,
+      "frozen": 0.6,
+      "talk": 0.15,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.7,
+      "longterm": 0.55
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/lullaby-bar",
+      "https://www.timeout.com/newyork/news/lullaby-is-a-new-les-bar-thats-in-a-basement-but-not-hidden-030422",
+      "https://www.theinfatuation.com/new-york/guides/the-best-lower-east-side-bars"
+    ],
+    "notes": "Basement cocktail bar below Sake Bar Yopparai on Rivington between Suffolk and Clinton, opened 2022. Couches, low ceilings, frozen Dole Whip cocktails and a Negroni Whip, and a crate-digger playlist; people dance though there's no formal floor. Time Out lists cocktails under $15 and beers up to $7. Not hidden and not a speakeasy despite the location."
+  },
+  {
+    "slug": "wildair",
+    "kind": "restaurant",
+    "name": "Wildair",
+    "neighborhood": "lower-east-side",
+    "address": "142 Orchard St, New York, NY 10002",
+    "lat": 40.7208,
+    "lng": -73.9888,
+    "take": "Natural wine, a beef tartare people cross the city for, and a room full of good haircuts; the LES dinner that flows straight into a bar.",
+    "theCatch": "Walk-ins usually land a bar seat on weeknights; order the house chilled red and let the server pick the rest.",
+    "tags": [
+      "Wine",
+      "Food",
+      "Date",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 0.95,
+      "wine": 0.95,
+      "date": 0.8,
+      "lively": 0.7,
+      "scene": 0.6,
+      "upscale": 0.6,
+      "groups": 0.2,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.75,
+      "mid": 0.3,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.45,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/wildair",
+      "https://www.yelp.com/biz/wildair-new-york"
+    ],
+    "notes": "Wine-forward small-plates restaurant on Orchard between Rivington and Stanton, opened 2015 as the casual sibling of Contra (now closed). Seasonal shareable plates mostly under $35, a rotating beef tartare, fried stuffed olives, and a natural wine list with a house chilled red bottled for them in Anjou. Takes reservations; walk-ins usually seated at the bar or a table most nights."
+  },
+  {
+    "slug": "freemans",
+    "kind": "restaurant",
+    "name": "Freemans",
+    "neighborhood": "lower-east-side",
+    "address": "2 Freeman Alley, New York, NY 10002",
+    "lat": 40.7218,
+    "lng": -73.9931,
+    "take": "Down a dead-end alley, antlers on the walls, and roast chicken and pork chops that haven't needed to change since 2004; dinner that makes visitors feel like insiders.",
+    "theCatch": "Reservations open 14 days out for up to eight; nine or more need the private room, and Banzarbar upstairs is the nightcap.",
+    "tags": [
+      "Old NYC",
+      "Groups",
+      "Food",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.65,
+      "chill": 0.55,
+      "talk": 0.55
+    },
+    "attrs": {
+      "food": 0.9,
+      "classic": 0.85,
+      "groups": 0.75,
+      "date": 0.7,
+      "cocktails": 0.7,
+      "upscale": 0.6,
+      "sports": 0.0,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.65
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.8,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.freemansrestaurant.com/",
+      "https://www.opentable.com/r/freemans",
+      "https://www.yelp.com/biz/freemans-new-york-3"
+    ],
+    "notes": "Rustic American tavern at the end of Freeman Alley off Rivington between Bowery and Chrystie, open since 2004, styled like a colonial tavern with taxidermy and vintage back-bar fittings. Dinner Sun-Mon 5-10pm, Tue-Sat 5-11pm, plus weekday lunch and weekend brunch. Cocktails around $20-21. Reservations for 1-8 via Resy up to 14 days ahead with some walk-in seating held; groups of 9+ go to private rooms. Banzarbar is a roughly 20-seat cocktail bar upstairs."
+  },
+  {
+    "slug": "wus-wonton-king",
+    "kind": "restaurant",
+    "name": "Wu's Wonton King",
+    "neighborhood": "lower-east-side",
+    "address": "165 E Broadway, New York, NY 10002",
+    "lat": 40.7138,
+    "lng": -73.9894,
+    "take": "Big round tables, seafood tanks, roast duck, and a wonton soup the size of a punch bowl; the BYOB group dinner that costs less than the bar after.",
+    "theCatch": "Bring your own bottles; call ahead for the whole suckling pig, and 169 Bar is a few doors down when you're done.",
+    "tags": [
+      "Groups",
+      "Cheap",
+      "Food",
+      "BYOB"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 0.95,
+      "groups": 0.95,
+      "seating": 0.8,
+      "lively": 0.75,
+      "cheap": 0.7,
+      "upscale": 0.1,
+      "cocktails": 0.0,
+      "wine": 0.0
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.8,
+      "mid": 0.95,
+      "big": 0.95
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/wus-wonton-king",
+      "https://www.thelodownny.com/leslog/2026/06/wus-wonton-king-on-east-broadway-is-under-new-ownership.html",
+      "https://www.yelp.com/biz/wus-wonton-king-new-york"
+    ],
+    "notes": "Cantonese restaurant on East Broadway between Jefferson and Rutgers, open since 2016, with big round tables, live seafood tanks, roast meats, whole fried crab, and a family-style wonton soup; BYOB. Whole suckling pig must be ordered in advance. In June 2026 a minority partner left to open his own place; The Lo-Down reports the owner, name, kitchen team, and menu are unchanged."
+  },
+  {
+    "slug": "scarrs-pizza",
+    "kind": "restaurant",
+    "name": "Scarr's Pizza",
+    "neighborhood": "lower-east-side",
+    "address": "35 Orchard St, New York, NY 10002",
+    "lat": 40.7155,
+    "lng": -73.991,
+    "take": "The slice the neighborhood argues is the best, now with a back room for whole pies and arcade games; dinner for people saving their money for the bar.",
+    "theCatch": "There is a line, always; ask for the back and order a whole pie instead of fighting for a counter slice.",
+    "tags": [
+      "Pizza",
+      "Cheap",
+      "Late Night",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.45
+    },
+    "attrs": {
+      "food": 0.95,
+      "cheap": 0.8,
+      "lively": 0.75,
+      "late": 0.6,
+      "upscale": 0.0,
+      "dressy": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.65,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.scarrspizza.com/location/scarrs-pizza/",
+      "https://www.theinfatuation.com/new-york/reviews/scarrs-pizza",
+      "https://www.yelp.com/biz/scarrs-pizza-new-york"
+    ],
+    "notes": "Retro slice shop that moved from 22 Orchard to a larger room at 35 Orchard between Canal and Hester, with counter slices up front and a back dining area for whole pies plus arcade games. Thin New York slices, a Sicilian, and pepperoni-jalapeno. Hours Sun-Wed 11:30am-11pm, Thu to midnight, Fri-Sat to 2am. Lines are routine; the site lists OpenTable reservations."
+  },
+  {
+    "slug": "bacaro",
+    "kind": "restaurant",
+    "name": "Bacaro",
+    "neighborhood": "lower-east-side",
+    "address": "136 Division St, New York, NY 10002",
+    "lat": 40.714,
+    "lng": -73.9913,
+    "take": "A brick-vaulted Venetian cellar lit by candles, with cicchetti and squid-ink spaghetti on long wooden tables; the Dimes Square dinner that was here before Dimes Square.",
+    "theCatch": "Ask for downstairs and book ahead; it gets loud near the bar, and it's closed Mondays.",
+    "tags": [
+      "Date",
+      "Italian",
+      "Wine",
+      "Candlelit"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.65,
+      "talk": 0.45
+    },
+    "attrs": {
+      "food": 0.9,
+      "date": 0.9,
+      "wine": 0.75,
+      "seating": 0.7,
+      "cheap": 0.1,
+      "sports": 0.0,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.8,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.bacaronyc.com/contact",
+      "https://www.opentable.com/r/bacaro-new-york",
+      "https://brunchatsnackchat.com/best-restaurants-near-me/bacaro-on-division-street/",
+      "https://www.thelodownny.com/leslog/2017/11/bacaro-toasts-first-decade-on-division-street.html"
+    ],
+    "notes": "Venetian restaurant on Division between Orchard and Ludlow, open since 2007, with a ground floor and a candlelit brick cellar of long wooden tables and benches. Cicchetti, spaghetti nero, duck cavatelli; pastas around $21-22, mains $20-32. Hours Tue-Sat 5pm-midnight, Sun 5-10pm, closed Monday. Gratuity included for parties of six or more; reviewers note noise near the bar."
+  }
+]

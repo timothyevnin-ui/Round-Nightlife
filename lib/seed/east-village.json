@@ -1,0 +1,1201 @@
+[
+  {
+    "slug": "bar-snack",
+    "kind": "bar",
+    "name": "Bar Snack",
+    "neighborhood": "east-village",
+    "address": "92 2nd Ave, New York, NY 10003",
+    "lat": 40.7264,
+    "lng": -73.9889,
+    "take": "A neighborhood cocktail bar that skips the ceremony: stiff daiquiris by the pitcher, a hot dog at the bar, and a room that runs on '70s radio.",
+    "theCatch": "Walk-in only, and groups are capped at six on Fridays and Saturdays; go early or split up.",
+    "tags": [
+      "Cocktails",
+      "Can Actually Talk",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.6,
+      "talk": 0.7
+    },
+    "attrs": {
+      "cocktails": 0.9,
+      "talk": 0.7,
+      "happyHour": 0.7,
+      "food": 0.6,
+      "chill": 0.65,
+      "groups": 0.15,
+      "dance": 0.05
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.45,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.85,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/bar-snack",
+      "https://www.barsnacknyc.com/",
+      "https://www.timeout.com/newyork/news/this-east-village-bar-is-officially-the-best-bar-in-nyc-according-to-time-out-010926"
+    ],
+    "notes": "Iain Griffiths' bar at 2nd Ave and 5th St, opened late 2023; Time Out's #1 NYC bar for 2026 and a Tales of the Cocktail finalist. Walk-in only, happy hour Sun-Thu 2-6pm, open to 1am (2am Fri-Sat). Seasonal daiquiri sold in three sizes including a pitcher; $10 hot dog; all cocktails under $18."
+  },
+  {
+    "slug": "schmuck",
+    "kind": "bar",
+    "name": "schmuck.",
+    "neighborhood": "east-village",
+    "address": "97 1st Ave, New York, NY 10003",
+    "lat": 40.7266,
+    "lng": -73.9863,
+    "take": "A Barcelona cult bar transplanted to 1st Ave: vintage sofas, French hip-hop, and cocktails odd enough to argue about.",
+    "theCatch": "Resy for the Living Room drops seven days out; the walk-in Kitchen Table means a line down 1st Ave.",
+    "tags": [
+      "Cocktails",
+      "Sceney",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "cocktails": 1.0,
+      "scene": 0.8,
+      "upscale": 0.75,
+      "food": 0.6,
+      "date": 0.75,
+      "seating": 0.6,
+      "sports": 0.0,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.9,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.2,
+    "sources": [
+      "https://blog.resy.com/2025/02/schmuck-nyc/",
+      "https://www.timeout.com/newyork/bars/schmuck",
+      "https://www.theinfatuation.com/new-york/guides/the-best-bars-in-the-east-village"
+    ],
+    "notes": "Opened January 2025 by Moe Aljaff and Juliette Larrouy (Two Schmucks, Barcelona) at 1st Ave and 6th St. Two rooms: a roughly 50-seat Living Room on Resy and a roughly 24-seat walk-in Kitchen Table around a big wooden table. Tue-Sun to 2am, kitchen to 11pm; Mediterranean-leaning small plates."
+  },
+  {
+    "slug": "superbueno",
+    "kind": "bar",
+    "name": "Superbueno",
+    "neighborhood": "east-village",
+    "address": "13 1st Ave, New York, NY 10003",
+    "lat": 40.7235,
+    "lng": -73.9886,
+    "take": "Mexican-American cocktails under sunset-colored light, a wall of tiny luchador masks, and a staff that treats every table like it's someone's birthday.",
+    "theCatch": "Book on Resy for a weekend table; order the birria grilled cheese before the second round.",
+    "tags": [
+      "Cocktails",
+      "Lively",
+      "Food"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.4
+    },
+    "attrs": {
+      "cocktails": 1.0,
+      "lively": 0.8,
+      "food": 0.75,
+      "social": 0.6,
+      "date": 0.65,
+      "frozen": 0.6,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.25
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.8,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.superbuenonyc.com/",
+      "https://www.theinfatuation.com/new-york/reviews/superbueno",
+      "https://www.theworlds50best.com/discovery/Establishments/US/New-York/Superbueno.html"
+    ],
+    "notes": "Cocktail Kingdom Hospitality's Mexican-American bar at 1st Ave and 1st St. Mon-Thu 4pm-2am, Fri 2pm-2am, Sat noon-2am, Sun 2pm-2am; Resy reservations. Menu runs to mushroom and huitlacoche margaritas, a green mango martini and a mezcal slushie; bar food includes fish tostadas and a birria grilled cheese."
+  },
+  {
+    "slug": "monsieur",
+    "kind": "bar",
+    "name": "Monsieur",
+    "neighborhood": "east-village",
+    "address": "86 E 4th St, New York, NY 10003",
+    "lat": 40.7261,
+    "lng": -73.9901,
+    "take": "Baz Luhrmann's medieval fever dream on 4th Street: stained glass, a suit of armor, meat pies, and cocktails good enough to justify the theater.",
+    "theCatch": "Closed Sunday and Monday; walk-ins are welcome but a Resy table is the safe bet Thursday through Saturday.",
+    "tags": [
+      "Speakeasy",
+      "Date",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "speakeasy": 0.8,
+      "cocktails": 0.9,
+      "date": 0.85,
+      "upscale": 0.75,
+      "scene": 0.65,
+      "sports": 0.0,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.75,
+      "mid": 0.4,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.9,
+      "longterm": 0.75
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/monsieur",
+      "https://www.monsieurnyc.com/",
+      "https://evgrieve.com/2025/01/madonna-endorses-baz-luhrmanns-new-east.html"
+    ],
+    "notes": "Collaboration between director Baz Luhrmann and the team behind Le Dive and The Nines, between Bowery and 2nd Ave. Tapestries, stained glass, a suit of armor and taxidermy; complimentary kettle chips and a short menu of hand-sized meat pies. Tue to midnight, Wed to 1am, Thu-Sat 6pm-late, closed Sun-Mon; Resy plus walk-ins."
+  },
+  {
+    "slug": "lucys",
+    "kind": "bar",
+    "name": "Lucy's",
+    "neighborhood": "east-village",
+    "address": "135 Avenue A, New York, NY 10009",
+    "lat": 40.7271,
+    "lng": -73.9831,
+    "take": "The Avenue A dive that came back from the dead in 2025 with the same pool tables, the same $10 drinks, and Lucy still dropping by.",
+    "theCatch": "Cards work now, but the back-room pool tables are the point; claim one early on weekends.",
+    "tags": [
+      "Dive",
+      "Pool Table",
+      "Old NYC",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.6,
+      "talk": 0.55
+    },
+    "attrs": {
+      "dive": 1.0,
+      "cheap": 0.85,
+      "classic": 0.8,
+      "activity": 0.7,
+      "late": 0.8,
+      "social": 0.65,
+      "upscale": 0.0,
+      "cocktails": 0.1
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.65,
+      "longterm": 0.7
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.65,
+    "sources": [
+      "https://gothamist.com/arts-entertainment/beloved-east-village-dive-bar-lucys-reopens-on-avenue-a",
+      "https://en.wikipedia.org/wiki/Lucy%27s_(bar)",
+      "https://www.theinfatuation.com/new-york/reviews/lucys"
+    ],
+    "notes": "Opened 1987 by Ludwika 'Lucy' Mickevicius; closed early 2024 over a rent hike and reopened March 4, 2025 under Jon Neidich's Golden Age Hospitality (Le Dive, The Nines) with a promise to change as little as possible. Now takes cards; two pool tables in the back room; Lucy still appears behind the bar occasionally. Opening promos ran $2 domestic beers and $10 martinis."
+  },
+  {
+    "slug": "mcsorleys-old-ale-house",
+    "kind": "bar",
+    "name": "McSorley's Old Ale House",
+    "neighborhood": "east-village",
+    "address": "15 E 7th St, New York, NY 10003",
+    "lat": 40.7287,
+    "lng": -73.9897,
+    "take": "Sawdust floors, ale in two mugs at a time, light or dark, and walls untouched since 1910; the tourists are right about this one.",
+    "theCatch": "Cash only, no reservations, and it shuts at 1am; you'll share a table, and weekends bring a line.",
+    "tags": [
+      "Old NYC",
+      "Beer",
+      "Groups",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.45,
+      "talk": 0.4
+    },
+    "attrs": {
+      "classic": 1.0,
+      "beer": 1.0,
+      "cheap": 0.7,
+      "groups": 0.7,
+      "social": 0.75,
+      "late": 0.0,
+      "cocktails": 0.0,
+      "wine": 0.0
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.8,
+      "mid": 0.85,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.55,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "earlyEvening",
+    "easyIn": 0.5,
+    "sources": [
+      "https://mcsorleysoldalehouse.nyc/",
+      "https://en.wikipedia.org/wiki/McSorley's_Old_Ale_House"
+    ],
+    "notes": "Claims 1854 (historians put it in the early 1860s); women only admitted from 1970. Serves only its own light and dark ale, two mugs per order, plus a cheese-and-raw-onion plate and hot dogs. Mon-Sat 11am-1am, Sun noon-1am; cash only; no reservations."
+  },
+  {
+    "slug": "dba",
+    "kind": "bar",
+    "name": "d.b.a.",
+    "neighborhood": "east-village",
+    "address": "41 1st Ave, New York, NY 10003",
+    "lat": 40.7245,
+    "lng": -73.988,
+    "take": "The beer bar that was pouring Trappist ales when the rest of 1st Ave had Coors, with a backyard big enough to lose an afternoon in.",
+    "theCatch": "Open from 1pm and late; the backyard is the draw, so get there before dark on weekends.",
+    "tags": [
+      "Beer",
+      "Backyard",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.65,
+      "talk": 0.6
+    },
+    "attrs": {
+      "beer": 1.0,
+      "outdoor": 0.9,
+      "groups": 0.75,
+      "late": 0.8,
+      "seating": 0.6,
+      "chill": 0.65,
+      "cocktails": 0.1,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.65
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.65,
+    "sources": [
+      "https://www.timeout.com/newyork/bars/d-b-a",
+      "https://www.theinfatuation.com/new-york/reviews/dba-"
+    ],
+    "notes": "Opened 1995 between 2nd and 3rd St; 16-20 rotating drafts, a deep bottle list that includes all the Trappist breweries, and a large whiskey shelf. Big backyard patio, dogs allowed. Time Out lists 1pm-4am daily and most drafts around $7, which may be dated."
+  },
+  {
+    "slug": "standings",
+    "kind": "bar",
+    "name": "Standings",
+    "neighborhood": "east-village",
+    "address": "43 E 7th St, New York, NY 10003",
+    "lat": 40.728,
+    "lng": -73.9888,
+    "take": "One small room, eight screens, good beer, and regulars who came to watch the game rather than be seen watching it.",
+    "theCatch": "Bring your own food; it's standing room during big games, so show up before the first pitch.",
+    "tags": [
+      "Sports",
+      "Beer",
+      "Corner Bar"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.35
+    },
+    "attrs": {
+      "sports": 1.0,
+      "beer": 0.9,
+      "cheap": 0.6,
+      "seating": 0.2,
+      "food": 0.1,
+      "cocktails": 0.05,
+      "date": 0.1
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.35,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "tiny",
+    "bestWindows": "everyNight",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/standings",
+      "https://www.timeout.com/newyork/bars/standings"
+    ],
+    "notes": "Tiny beer-focused sports bar between 2nd and 3rd Ave with eight TVs, rotating micro drafts plus macro standbys, no kitchen but outside food welcome. Mon-Fri 5pm-2am, Sat-Sun noon-2am. No team allegiance; packed for playoffs and big matches."
+  },
+  {
+    "slug": "the-grafton",
+    "kind": "bar",
+    "name": "The Grafton",
+    "neighborhood": "east-village",
+    "address": "126 1st Ave, New York, NY 10009",
+    "lat": 40.7275,
+    "lng": -73.9857,
+    "take": "Family-run Irish sports bar with a proper backyard; ordinary on a Tuesday, a full watch party when the Knicks or Yankees are in the playoffs.",
+    "theCatch": "Opens early for European football and rugby; for playoff games, reserve or arrive well before tip-off.",
+    "tags": [
+      "Sports",
+      "Backyard",
+      "Groups",
+      "Beer"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.45,
+      "talk": 0.4
+    },
+    "attrs": {
+      "sports": 1.0,
+      "outdoor": 0.85,
+      "groups": 0.85,
+      "food": 0.7,
+      "beer": 0.8,
+      "late": 0.6,
+      "seating": 0.6,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.8,
+      "mid": 0.9,
+      "big": 0.8
+    },
+    "dateFit": {
+      "first": 0.25,
+      "early": 0.4,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/the-grafton",
+      "https://www.thegraftonnyc.com/",
+      "https://www.timeout.com/newyork/bars/best-sports-bars-east-village"
+    ],
+    "notes": "Irish pub between 7th and St Marks with TVs throughout and a large backyard. Mon-Fri 2pm-2am, Sat-Sun 10am-3am, opening early for matches; wings, burgers, craft beer and cocktails. Reservations through Toast."
+  },
+  {
+    "slug": "wiggle-room",
+    "kind": "bar",
+    "name": "Wiggle Room",
+    "neighborhood": "east-village",
+    "address": "9 Avenue A, New York, NY 10009",
+    "lat": 40.7227,
+    "lng": -73.9863,
+    "take": "Espresso martinis on draft upstairs, a pink-neon basement dance floor downstairs, no cover, and doors that stay open until 4.",
+    "theCatch": "Thursday to Saturday only, from 8pm; entry isn't guaranteed once the line forms, and the basement runs cold on purpose.",
+    "tags": [
+      "Dancing",
+      "Late Night",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.9,
+      "chill": 0.15,
+      "talk": 0.2
+    },
+    "attrs": {
+      "dance": 1.0,
+      "late": 1.0,
+      "lively": 0.9,
+      "scene": 0.6,
+      "groups": 0.7,
+      "social": 0.7,
+      "cocktails": 0.6,
+      "talk": 0.15,
+      "chill": 0.1
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.85,
+      "mid": 0.9,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.6,
+      "longterm": 0.45
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/wiggle-room",
+      "https://www.wiggleroom.bar/",
+      "https://evgrieve.com/2022/05/drexlers-space-yielding-to-wiggle-room.html"
+    ],
+    "notes": "Opened 2022 in the former Drexler's space at Ave A near Houston. Main floor with a long bar and seating nooks; basement dance floor with DJ after 10pm. Thu-Sat 8pm-4am only, no cover, reservations offered on its site; the site warns entry is not guaranteed."
+  },
+  {
+    "slug": "monas",
+    "kind": "bar",
+    "name": "Mona's",
+    "neighborhood": "east-village",
+    "address": "224 Avenue B, New York, NY 10009",
+    "lat": 40.7294,
+    "lng": -73.9787,
+    "take": "Long, dark, cheap, and open until 4 every night; on Mondays it's a bluegrass jam and on Tuesdays a jazz session that runs past midnight.",
+    "theCatch": "Music starts around 9 and the room goes standing-only fast; tip the band, and don't expect to move once it's full.",
+    "tags": [
+      "Dive",
+      "Live Music",
+      "Jazz",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.35
+    },
+    "attrs": {
+      "dive": 1.0,
+      "liveMusic": 0.9,
+      "cheap": 0.9,
+      "late": 1.0,
+      "classic": 0.7,
+      "social": 0.6,
+      "upscale": 0.0,
+      "seating": 0.2
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.55,
+    "sources": [
+      "https://p2bars.com/bars-near-me/mona-s-on-avenue-b/",
+      "https://www.tripadvisor.com/Attraction_Review-g60763-d5830901-Reviews-Mona_s_Bar_N_Y_C-New_York_City_New_York.html",
+      "https://www.yellowpages.com/new-york-ny/mip/monas-542453"
+    ],
+    "notes": "Alphabet City dive between 13th and 14th, open 3pm-4am daily and in business since the late 1980s. No cover for the Monday bluegrass jam (9pm) or the Tuesday jazz session with Mona's Hot Four, which turns into an open jam; pool table, skee-ball and jukebox; takes cards."
+  },
+  {
+    "slug": "club-cumming",
+    "kind": "bar",
+    "name": "Club Cumming",
+    "neighborhood": "east-village",
+    "address": "505 E 6th St, New York, NY 10009",
+    "lat": 40.7254,
+    "lng": -73.9834,
+    "take": "Alan Cumming's 100-person cabaret bar, where a Wednesday might be stand-up, a Friday a drag revue, and a random Tuesday someone from Broadway at the piano.",
+    "theCatch": "No cover by design, so the room fills; check the calendar and arrive before the show starts to get a seat.",
+    "tags": [
+      "Cabaret",
+      "LGBTQ+",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.3,
+      "talk": 0.25
+    },
+    "attrs": {
+      "lgbtq": 1.0,
+      "liveMusic": 0.9,
+      "activity": 0.85,
+      "late": 0.9,
+      "social": 0.85,
+      "lively": 0.85,
+      "dance": 0.6,
+      "sports": 0.0,
+      "seating": 0.2
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.75,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.45,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Club_Cumming",
+      "https://clubcummingnyc.com/contact"
+    ],
+    "notes": "Opened September 2017 by Alan Cumming, Daniel Nardicio, Darren Dryden and Ben Maisani between Ave A and B; capacity 100; 6pm-4am daily. Nightly programming of cabaret, drag, comedy, DJs and piano nights; its license means shows can't be ticketed or charge a cover."
+  },
+  {
+    "slug": "ace-bar",
+    "kind": "bar",
+    "name": "Ace Bar",
+    "neighborhood": "east-village",
+    "address": "531 E 5th St, New York, NY 10009",
+    "lat": 40.7247,
+    "lng": -73.9836,
+    "take": "Two pool tables, skee-ball, darts, sixteen taps, and a wall of vintage lunchboxes: the bar you pick when talking isn't the plan.",
+    "theCatch": "Pool league Mondays, trivia Tuesdays, skee-ball league Thursdays; the tables are spoken for those nights, so aim for Wednesday or the weekend.",
+    "tags": [
+      "Pool Table",
+      "Dive",
+      "Groups",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.4
+    },
+    "attrs": {
+      "activity": 1.0,
+      "dive": 0.85,
+      "groups": 0.8,
+      "late": 0.95,
+      "beer": 0.75,
+      "cheap": 0.6,
+      "social": 0.7,
+      "upscale": 0.0,
+      "wine": 0.05
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.85,
+      "mid": 0.9,
+      "big": 0.75
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.7,
+      "longterm": 0.65
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.65,
+    "sources": [
+      "http://www.acebar.com/",
+      "https://www.theinfatuation.com/new-york/reviews/ace-bar"
+    ],
+    "notes": "Since 1993 between Ave A and B: one long room split into a front bar and a back games area with booths, two pool tables, skee-ball, darts and 16 taps. Mon-Fri 3pm-4am, Sat-Sun 1pm-4am; pool league Mon, trivia Tue, skee-ball league Thu; back room bookable for groups; cash and cards."
+  },
+  {
+    "slug": "11th-street-bar",
+    "kind": "bar",
+    "name": "11th Street Bar",
+    "neighborhood": "east-village",
+    "address": "510 E 11th St, New York, NY 10009",
+    "lat": 40.7285,
+    "lng": -73.9811,
+    "take": "Irish pub since 1997 with meticulously kept Guinness lines, a back room for music, and a Sunday trad session that has outlasted most of the block.",
+    "theCatch": "Liverpool supporters' HQ, so check the fixture list before you bring a date; ham-and-cheese toasties absorb a lot of stout.",
+    "tags": [
+      "Beer",
+      "Live Music",
+      "Sports",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.6,
+      "talk": 0.55
+    },
+    "attrs": {
+      "beer": 1.0,
+      "liveMusic": 0.8,
+      "sports": 0.7,
+      "groups": 0.7,
+      "classic": 0.6,
+      "seating": 0.6,
+      "chill": 0.6,
+      "cocktails": 0.15,
+      "dance": 0.05
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.65,
+    "sources": [
+      "https://villagepreservation.org/2025/03/12/business-of-the-month-11th-street-bar-510-e-11th-st/",
+      "https://www.theinfatuation.com/new-york/guides/the-best-bars-in-the-east-village",
+      "https://www.timeout.com/newyork/bars/best-sports-bars-east-village"
+    ],
+    "notes": "Opened 1997, owned since 2018 by Dan Sweeney with Diarmuid and Meghan Joye; wood, brick and tin ceilings, separate front and back rooms. Guinness is the house pour (20-plus kegs a week, around $9); Irish bread sandwiches and Tayto crisps. Sunday trad seisiun, Monday jazz, Americana Tue-Thu; official Liverpool FC supporters club home."
+  },
+  {
+    "slug": "phoenix",
+    "kind": "bar",
+    "name": "Phoenix",
+    "neighborhood": "east-village",
+    "address": "447 E 13th St, New York, NY 10009",
+    "lat": 40.7305,
+    "lng": -73.982,
+    "take": "The neighborhood queer bar that's never tried to be more than that: pool table, cheap happy hour, karaoke on Wednesdays, open until 4 every night.",
+    "theCatch": "Happy hour runs 3 to 7 daily with $4 domestics; Blue Monday stretches it all day for the new-wave crowd.",
+    "tags": [
+      "LGBTQ+",
+      "Dive",
+      "Karaoke",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.45
+    },
+    "attrs": {
+      "lgbtq": 1.0,
+      "dive": 0.85,
+      "cheap": 0.9,
+      "happyHour": 0.9,
+      "late": 1.0,
+      "activity": 0.7,
+      "social": 0.85,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.7,
+      "longterm": 0.65
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.75,
+    "sources": [
+      "https://phoenixbarnyc.com/",
+      "https://so.gay/travel/phoenix-bar-nyc/"
+    ],
+    "notes": "Queer neighborhood bar since 1999 between 1st Ave and Ave A, open 3pm-4am daily. Happy hour 3-7pm ($4 Bud, $5 wells, $6 wine); Blue Monday all-day happy hour with new wave, TRL Tuesdays, karaoke Wednesdays 10pm-2am, trivia Thursdays, DJs Fri-Sat, seasonal Sunday BBQ. Pool table, darts, back lounge and patio; rarely a cover."
+  },
+  {
+    "slug": "banshee",
+    "kind": "bar",
+    "name": "Banshee",
+    "neighborhood": "east-village",
+    "address": "143 1st Ave, New York, NY 10003",
+    "lat": 40.7283,
+    "lng": -73.985,
+    "take": "A tiny Irish bar from November 2025 that pours only Guinness on draft, does a $15 martini, and hides a backyard bigger than the room.",
+    "theCatch": "Grab a bar seat in front of the taps; food is a short list of oysters, shrimp cocktail and soda bread.",
+    "tags": [
+      "Beer",
+      "Backyard",
+      "Oysters",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.7,
+      "talk": 0.7
+    },
+    "attrs": {
+      "beer": 0.9,
+      "outdoor": 0.85,
+      "talk": 0.7,
+      "chill": 0.7,
+      "cocktails": 0.6,
+      "social": 0.6,
+      "sports": 0.05,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.75,
+      "mid": 0.4,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.75,
+      "longterm": 0.75
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.45,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/banshee-east-village",
+      "https://evgrieve.com/2025/11/about-banshee-irish-leaning-bar.html"
+    ],
+    "notes": "Opened November 15, 2025 by Jen Murphy with partner Jason Corey in part of the former Paquitos space just south of 9th St; under a year old but currently Infatuation's top East Village pick. Guinness-only draft, $15 martini list, oysters, shrimp cocktail with Marie Rose sauce, brown soda bread. Mon-Thu 4pm-1am, Fri 4pm-2am, Sat noon-2am, Sun noon-midnight."
+  },
+  {
+    "slug": "maiden-lane",
+    "kind": "bar",
+    "name": "Maiden Lane",
+    "neighborhood": "east-village",
+    "address": "162 Avenue B, New York, NY 10009",
+    "lat": 40.7272,
+    "lng": -73.9803,
+    "take": "Tinned fish, coastal wines, and big windows on Tompkins Square: the bar for a long, low-key catch-up that turns into dinner.",
+    "theCatch": "Sidewalk tables go first in warm months; Sundays have all-vinyl DJ sets, and it's open from noon.",
+    "tags": [
+      "Wine",
+      "Can Actually Talk",
+      "Date",
+      "Tinned Fish"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.75,
+      "talk": 0.8
+    },
+    "attrs": {
+      "wine": 0.85,
+      "talk": 0.8,
+      "chill": 0.75,
+      "food": 0.7,
+      "date": 0.7,
+      "outdoor": 0.6,
+      "seating": 0.7,
+      "dance": 0.0,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.7,
+      "mid": 0.35,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.8,
+      "longterm": 0.8
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.65,
+    "sources": [
+      "http://www.themaidenlane.com/location-2018",
+      "https://www.theinfatuation.com/new-york/guides/the-best-bars-in-the-east-village",
+      "https://www.timeout.com/newyork/bars/best-bars-in-east-village"
+    ],
+    "notes": "Conservas bar on Avenue B facing Tompkins Square Park: European tinned seafood plus snacks, sandwiches and soups; craft beer, spirits, small-production coastal wines and house cocktails. Sun-Wed noon-midnight, Thu-Sat noon-2am; sidewalk seating in season; all-vinyl DJ sets on Sundays."
+  },
+  {
+    "slug": "lucien",
+    "kind": "restaurant",
+    "name": "Lucien",
+    "neighborhood": "east-village",
+    "address": "14 1st Ave, New York, NY 10009",
+    "lat": 40.7235,
+    "lng": -73.9888,
+    "take": "A cramped, photo-covered French bistro from 1998 that the downtown crowd never got over; steak au poivre, frisée aux lardons, and a room that gets better after dark.",
+    "theCatch": "No online booking: call, or stop by in the afternoon and get your name in the notebook behind the bar.",
+    "tags": [
+      "Sceney",
+      "Date",
+      "Food",
+      "French"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1.0,
+      "scene": 0.9,
+      "date": 0.8,
+      "classic": 0.7,
+      "wine": 0.6,
+      "upscale": 0.6,
+      "sports": 0.0,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.75,
+      "mid": 0.4,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.9,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.25,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/lucien",
+      "https://www.opentable.com/r/lucien-new-york"
+    ],
+    "notes": "French bistro at 1st Ave and 1st St, opened 1998; walls of photographs, tight tables, full bar. Reservations by phone or in person only (not on OpenTable/Resy). Signature dishes are the filet au poivre, pate maison, steak tartare and frisee aux lardons; lunch is far calmer than dinner."
+  },
+  {
+    "slug": "bungalow",
+    "kind": "restaurant",
+    "name": "Bungalow",
+    "neighborhood": "east-village",
+    "address": "24 1st Ave, New York, NY 10009",
+    "lat": 40.7238,
+    "lng": -73.9884,
+    "take": "Vikas Khanna's basement Indian clubhouse: rugs, murals, a chandeliered greenhouse, bass in the speakers, and lamb chops that justify the 20-day Resy hunt.",
+    "theCatch": "Resy opens 20 days out at 11am; otherwise try the eight-seat bar or walk in early in the week.",
+    "tags": [
+      "Lively",
+      "Groups",
+      "Food",
+      "Indian"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.3,
+      "talk": 0.35
+    },
+    "attrs": {
+      "food": 1.0,
+      "lively": 0.85,
+      "groups": 0.75,
+      "scene": 0.75,
+      "upscale": 0.75,
+      "talk": 0.2,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.15,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/bungalow-nyc",
+      "https://www.bungalowny.com/about"
+    ],
+    "notes": "Chef Vikas Khanna's tribute to vintage Indian clubhouses (Bombay House Hospitality), between 1st and 2nd St. Subterranean room, sharing-sized portions, loud soundtrack; Ammi's lamb chops, Anarkali chicken, Rajasthani pulled lamb. Tue-Sun 5-11pm (last seating 10), closed Mondays; Resy drops 20 days ahead at 11am; parties of 8+ need 40-45 days' notice."
+  },
+  {
+    "slug": "lil-frankies",
+    "kind": "restaurant",
+    "name": "Lil' Frankie's",
+    "neighborhood": "east-village",
+    "address": "19 1st Ave, New York, NY 10003",
+    "lat": 40.7238,
+    "lng": -73.9882,
+    "take": "Wood-oven pizza and spaghetti limone in a loud, tight trattoria that serves until 2 on weeknights and 4 on weekends; the reliable East Village default.",
+    "theCatch": "Cash only, with an ATM inside; book ahead or eat at 5, and ask for the quieter back room.",
+    "tags": [
+      "Food",
+      "Late Night",
+      "Groups",
+      "Pizza"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.35
+    },
+    "attrs": {
+      "food": 1.0,
+      "late": 0.8,
+      "lively": 0.8,
+      "groups": 0.7,
+      "upscale": 0.15,
+      "sports": 0.0
+    },
+    "groupFit": {
+      "two": 0.75,
+      "small": 0.85,
+      "mid": 0.75,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.75,
+      "longterm": 0.75
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.opentable.com/r/lil-frankies-new-york",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d478354-Reviews-Lil_Frankie_s-New_York_City_New_York.html"
+    ],
+    "notes": "Italian trattoria between 1st and 2nd St built around a Neapolitan wood-burning oven; several rooms including a quieter back room and a private room, plus sidewalk seats. Sun-Thu to 2am, Fri-Sat to 4am; cash only with an ATM on site; reservations via Resy/OpenTable; mains mostly under $30."
+  },
+  {
+    "slug": "veselka",
+    "kind": "restaurant",
+    "name": "Veselka",
+    "neighborhood": "east-village",
+    "address": "144 2nd Ave, New York, NY 10003",
+    "lat": 40.7289,
+    "lng": -73.9871,
+    "take": "The 1954 Ukrainian diner on 2nd Ave, back to running all night on Fridays and Saturdays; pierogi and borscht at 3am is an East Village rite.",
+    "theCatch": "It takes reservations, which most people don't know; expect a line at dinner and weekend brunch.",
+    "tags": [
+      "Old NYC",
+      "Late Night",
+      "Food",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.65,
+      "chill": 0.5,
+      "talk": 0.55
+    },
+    "attrs": {
+      "food": 1.0,
+      "classic": 0.95,
+      "late": 0.85,
+      "cheap": 0.6,
+      "groups": 0.6,
+      "seating": 0.6,
+      "cocktails": 0.1,
+      "scene": 0.1,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.65,
+      "longterm": 0.75
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.45,
+    "sources": [
+      "https://evgrieve.com/2026/04/veselka-bringing-back-247-service-on.html",
+      "https://www.theinfatuation.com/new-york/guides/the-best-restaurants-in-the-east-village",
+      "https://veselka.com/"
+    ],
+    "notes": "Ukrainian diner at 2nd Ave and 9th St since 1954: stuffed cabbage, borscht, potato pierogi, potato pancakes. Resumed 24-hour service on Fridays and Saturdays from April 17, 2026 (this location only), after running around the clock for decades pre-pandemic; accepts reservations."
+  },
+  {
+    "slug": "claud",
+    "kind": "restaurant",
+    "name": "Claud",
+    "neighborhood": "east-village",
+    "address": "90 E 10th St, New York, NY 10003",
+    "lat": 40.7309,
+    "lng": -73.9897,
+    "take": "A 45-seat basement bistro with a 200-bottle list printed fresh each day, roast chicken in foie drippings, and a chocolate cake built for two.",
+    "theCatch": "Resy drops 14 days out at 9am and goes fast; six window-counter seats are held for walk-ins at the 5pm open.",
+    "tags": [
+      "Wine",
+      "Date",
+      "Food",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.65,
+      "talk": 0.7
+    },
+    "attrs": {
+      "food": 1.0,
+      "wine": 1.0,
+      "date": 0.9,
+      "talk": 0.7,
+      "upscale": 0.7,
+      "groups": 0.15,
+      "sports": 0.0,
+      "late": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.7,
+      "mid": 0.3,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.15,
+    "sources": [
+      "https://www.claudnyc.com/location/claud-nyc/",
+      "https://blog.resy.com/2022/10/how-to-get-into-claud-new-york/",
+      "https://en.wikipedia.org/wiki/Penny_(restaurant)"
+    ],
+    "notes": "Chase Sinzer and Joshua Pinsky's wine bar-restaurant, opened 2022 in a basement between 3rd and 4th Ave, below their seafood spot Penny (2024). 45 seats, eight tables, open kitchen; 5-10pm nightly. Resy 14 days out at 9am, parties up to six, roughly two-hour table limits; wine list of about 200 selections printed daily."
+  },
+  {
+    "slug": "superiority-burger",
+    "kind": "restaurant",
+    "name": "Superiority Burger",
+    "neighborhood": "east-village",
+    "address": "119 Avenue A, New York, NY 10009",
+    "lat": 40.7265,
+    "lng": -73.9835,
+    "take": "Brooks Headley's vegetarian burger joint moved into the old Odessa diner across from Tompkins Square and added a full bar; nobody misses the meat.",
+    "theCatch": "The dessert menu is the sleeper; closes 9:30 Sundays and Mondays, so plan a late dinner Thursday to Saturday.",
+    "tags": [
+      "Food",
+      "Chill",
+      "Cheap",
+      "Vegetarian"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1.0,
+      "cheap": 0.6,
+      "chill": 0.6,
+      "talk": 0.6,
+      "dressy": 0.0,
+      "scene": 0.2,
+      "late": 0.0
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.5,
+    "sources": [
+      "https://guide.michelin.com/us/en/new-york-state/new-york/restaurant/superiority-burger",
+      "https://en.wikipedia.org/wiki/Superiority_Burger",
+      "https://www.theinfatuation.com/new-york/guides/the-best-restaurants-in-the-east-village"
+    ],
+    "notes": "Brooks Headley's vegetarian spot, opened 2015 on E 9th St and relocated April 2023 to the former Odessa diner on Ave A with a full bar. Bib Gourmand 2025; James Beard Outstanding Restaurant semifinalist 2024. Mon noon-9:30pm, Tue-Wed 5-10:30pm, Thu noon-10:30pm, Fri noon-11:30pm, Sat 11am-11:30pm, Sun 11am-9:30pm. Sources disagree on whether it takes reservations (Michelin says first come, Resy lists it)."
+  }
+]

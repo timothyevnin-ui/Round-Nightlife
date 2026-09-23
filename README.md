@@ -12,7 +12,7 @@ Tell ROUND the kind of night, get three great places in NYC, pick one, tap GO. T
 | --- | --- | --- |
 | Home | `/` | **Or just say it** and **Near me** right under the headline, then the doors: **Night out** and **Date night** side by side, **Dinner & drinks** for the group underneath. Scroll and the hero eases into **What's hot right now**. The shelf is always there: three dashed slots until the first story is written in the back office. At the bottom, **Know a spot we don't?** |
 | What's hot | `/hot` | The full shelf. Every entry links to its story on the venue page. |
-| Night out flow | `/plan/night` | **Where** is a tap-able map of the city (Manhattan and Brooklyn drawn separately, the neighborhood lights up). **How many** is a scroll wheel. **When** is an evening dial: drag from happy hour to after hours and the sky changes. Then **the quick ones**: each question types itself out and two or three buttons appear. Do you want to dance? → Loud or not? → Seats or standing? → Would you wait in a line? → Want a happy hour deal? (daytime only) → $ / $$ / $$$ → Outside if it's nice? then a couple chosen for the night (game on, how late, birthday, cocktails or beers, rooftop or basement …). "Show me now" at any point. |
+| Night out flow | `/plan/night` | **Where** is a real map (streets and water from OpenFreeMap) with the eight neighborhoods drawn on top; tap one and it lights up. If the tiles can't load, the shapes still draw on paper. **How many** is a scroll wheel. **When** is an evening dial: drag from happy hour to after hours and the sky changes. Then **the quick ones**: each question types itself out and two or three buttons appear. Do you want to dance? → Loud or not? → Seats or standing? → Would you wait in a line? → Want a happy hour deal? (daytime only) → $ / $$ / $$$ → Outside if it's nice? then a couple chosen for the night (game on, how late, birthday, cocktails or beers, rooftop or basement …). "Show me now" at any point. |
 | Date flow | `/plan/date` | Same map / dial, then the date questions (hear each other? candlelit or bright? somewhere to impress? wine or cocktails? …). |
 | Dinner & drinks | `/plan/dinner` | For a group: map → how many for dinner (wheel) → dinner time (dial), then questions about the table. Results are two-stop plans sized for the group. |
 | **Near me** | `/near` | Allow location, or type an address or a corner. Eight bars sorted by the walk, in the same swipe carousel, with "4 min walk" on each card. |
@@ -25,7 +25,6 @@ Tell ROUND the kind of night, get three great places in NYC, pick one, tap GO. T
 | YOU | `/you` | Your nightlife map (MapLibre + OpenFreeMap), Want to Go, Been with ratings, taste line, and your account. |
 | **Accounts** | sheet, anywhere | Phone number → six-digit text → first name + birthday (21+). Asked for the first time you save or rate something, always skippable. Saves, ratings and GO taps sync to the account; signing in on a new phone merges the two histories. Supabase Auth + Twilio Verify, see **SUPABASE.md §7**. |
 | Taste quiz | `/quiz` | Ten iconic bars, swipe or tap: Pass / Want to go / Been / Loved it. Seeds the map and the taste profile. |
-| Add from screenshots | `/you/add` | Pick screenshots from the camera roll; Claude reads them and matches places to ROUND's database. Unmatched places go to a local "curation inbox". |
 | Friends | `/friends` | Honest empty state, invite button, and "ROUND's regulars" so it isn't an empty room. |
 | Best-of pages | `/best/[neighborhood]/[occasion]` | 32 server-rendered SEO pages (the 5pm.nyc-style surface), powered by the same engine. |
 | PWA | `manifest.webmanifest`, icons | Installs to the home screen, standalone, chalk-black theme. |
@@ -53,8 +52,8 @@ Open it on your phone: run `npm run dev -- -H 0.0.0.0` and visit your laptop's I
 | Variable | Required | What it does |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | yes, in production | Absolute URL (e.g. `https://round.nyc`). Used for Open Graph images and the sitemap. |
-| `ANTHROPIC_API_KEY` | for screenshots | Turns on **Add from screenshots**. Without it the page explains itself and everything else works. |
-| `ROUND_VISION_MODEL` | no | Defaults to `claude-haiku-4-5-20251001`. |
+| `ANTHROPIC_API_KEY` | optional | Turns on **Draft the Take** in the back office and the smarter **Just say it**. Everything else works without it. |
+| `ROUND_TEXT_MODEL` | no | Defaults to `claude-haiku-4-5-20251001`. |
 | `NEXT_PUBLIC_MAP_STYLE` | no | Defaults to OpenFreeMap's Positron style, darkened with CSS. Any MapLibre style URL works. |
 | `ROUND_ADMIN_PIN` | for the back office | The PIN that opens `/admin`. |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` | for editing | See SUPABASE.md. Without them the app runs on the seed and the back office is read-only. |
@@ -70,10 +69,9 @@ app/
   results/                  Runs the engine server-side, renders cards
   v/[slug]/                 Venue pages (static)
   p/[code]/                 Plan share page + opengraph-image.tsx
-  you/, you/add, quiz/      Personal map, screenshots, taste quiz
+  you/, quiz/               Personal map, taste quiz
   friends/                  Friends tab
   best/[neighborhood]/[occasion]/   SEO pages
-  api/screenshots/          Claude vision route
   manifest.ts, sitemap.ts, robots.ts, icon.png, apple-icon.png
 components/
   Flow.tsx                  The one-question-per-screen engine
@@ -98,7 +96,9 @@ lib/
 
 Cream paper, navy ink, hunter green, a red stripe. Tokens live at the top of `app/globals.css` (`--paper`, `--ink`, `--pine`, `--tomato`, `--butter`); photos and question cards stay deep and saturated so they read as pictures against the paper, and anything drawn on them uses `--on-photo`. The old `--chalk*`/`--cobalt` names are aliased to the new ones so nothing breaks.
 
-## The venue data
+## The venue data (V6: 229 places)
+
+Sixty-six hand-written originals plus 163 researched places, one JSON file per neighborhood in `lib/seed/`. The research pass read public sources (guides, venue sites, reservation pages, local news) for facts, then wrote ROUND's own Take, catch, traits and fit for each; nothing is copied, every entry lists its sources in `sources` and a factual summary in `notes` (back office only). Coordinates are estimated from the street address (usually within ~50 m); tap **Find** in the back office to pin one exactly. Everything is `verified: false` until someone from ROUND has been. In the back office, **Update from ROUND's list** brings the database up to date with this list without touching verified places, photos, the shelf or stories.
 
 The back office is the way to add and edit places (no file editing). Under the hood every venue is a row with the attributes the engine actually uses:
 

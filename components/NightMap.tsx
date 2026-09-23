@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { prepareMapLibre } from "@/lib/maplibre";
 import type { Venue } from "@/lib/types";
 
 /**
@@ -36,6 +37,7 @@ export function NightMap({
 
   useEffect(() => {
     if (!ref.current || mapRef.current) return;
+    prepareMapLibre();
     const map = new MapLibreMap({
       container: ref.current,
       style: STYLE,

@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, adminPin, isAdmin, pinMatches, signPin } from "@/lib/adminAuth";
 import { ATTR_KEYS, ATTR_LIST } from "@/lib/attrs";
-import { dbConfig, deleteVenue as dbDelete, getVenues, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
+import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
@@ -88,7 +88,7 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
     if (!isNeighborhoodId(p.neighborhood)) return { ok: false, error: "Pick a neighborhood." };
 
     const slug = (p.slug?.trim() || slugify(p.name)).replace(/[^a-z0-9-]/g, "") || `place-${Date.now()}`;
-    const existing = (await getVenues()).find((v) => v.slug === (p.originalSlug || slug));
+    const existing = (await getVenuesFresh()).venues.find((v) => v.slug === (p.originalSlug || slug));
 
     const attrs: Attrs = emptyAttrs();
     for (const k of ATTR_KEYS) attrs[k] = clamp01(p.attrs?.[k], existing?.attrs[k] ?? 0);
@@ -175,6 +175,64 @@ export async function importSeed(): Promise<SaveResult> {
 }
 
 /**
+ * Bring the database up to date with ROUND's built-in list (the researched
+ * places). New slugs are added. Places that exist but aren't verified get the
+ * list's facts and traits refreshed, keeping anything the back office owns:
+ * photos, credit, the shelf, the story, regulars, perks, verified. Verified
+ * places are never touched. Nothing is ever deleted.
+ */
+export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: number; kept: number; missing: string[] } | { ok: false; error: string }> {
+  try {
+    await guard();
+    const { venues: current, source } = await getVenuesFresh();
+    if (source !== "db") {
+      const n = await upsertVenues(SEED_VENUES);
+      updateTag(VENUES_TAG);
+      return { ok: true, added: n, refreshed: 0, kept: 0, missing: [] };
+    }
+    const bySlug = new Map(current.map((v) => [v.slug, v]));
+    const writes: Venue[] = [];
+    let added = 0;
+    let refreshed = 0;
+    let kept = 0;
+    for (const seed of SEED_VENUES) {
+      const db = bySlug.get(seed.slug);
+      if (!db) {
+        writes.push(seed);
+        added++;
+        continue;
+      }
+      if (db.verified) {
+        kept++;
+        continue;
+      }
+      writes.push({
+        ...seed,
+        photo: db.photo,
+        photoUrl: db.photoUrl,
+        photoCredit: db.photoCredit,
+        hot: db.hot,
+        hotRank: db.hotRank,
+        story: db.story ?? seed.story,
+        friendsBeen: db.friendsBeen ?? seed.friendsBeen,
+        perk: db.perk,
+        groupBooking: db.groupBooking,
+        verified: false,
+        notes: db.notes && db.notes !== seed.notes ? [db.notes, seed.notes].filter(Boolean).join("\n\n") : seed.notes,
+      });
+      refreshed++;
+    }
+    for (let i = 0; i < writes.length; i += 50) await upsertVenues(writes.slice(i, i + 50));
+    const seedSlugs = new Set(SEED_VENUES.map((v) => v.slug));
+    const missing = current.filter((v) => !seedSlugs.has(v.slug)).map((v) => v.name);
+    updateTag(VENUES_TAG);
+    return { ok: true, added, refreshed, kept, missing };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Update failed." };
+  }
+}
+
+/**
  * Put the six starter stories on the shelf. Only touches places that exist in
  * the database and have no story yet, so a rewritten story is never clobbered.
  */
@@ -182,8 +240,7 @@ export async function importStories(): Promise<SaveResult> {
   try {
     await guard();
     const { SEED_STORIES } = await import("@/lib/stories");
-    const { getVenues } = await import("@/lib/db");
-    const current = await getVenues();
+    const { venues: current } = await getVenuesFresh();
     const updates: Venue[] = [];
     for (const v of current) {
       const seed = SEED_STORIES[v.slug];

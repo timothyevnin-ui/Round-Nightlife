@@ -1,6 +1,7 @@
 import type { Venue, Window } from "./types";
 import { normalizeSeed, type SeedVenue } from "./normalize";
 import { SEED_STORIES } from "./stories";
+import { RESEARCHED } from "./seed";
 
 /**
  * SEED DATA — every entry is `verified: false`.
@@ -384,21 +385,6 @@ const RAW: SeedVenue[] = [
     dateFit: { first: 0.85, early: 0.85, longterm: 0.75 },
     price: 2, capacity: "large", bestWindows: W.dinner, easyIn: 0.5,
     photo: P.amber, friendsBeen: 2,
-  }),
-  restaurant({
-    slug: "emilios-ballato",
-    name: "Emilio's Ballato",
-    neighborhood: "east-village",
-    address: "55 E Houston St, New York, NY 10012",
-    lat: 40.7245, lng: -73.9948,
-    take: "Old New York in a red-sauce frame; a date here feels like a scene from something.",
-    theCatch: "No reservations to speak of and a line most nights; go early.",
-    tags: ["Italian", "Old NYC", "Date"],
-    vibe: { lively: 0.6, chill: 0.6, talk: 0.65 },
-    groupFit: { two: 0.9, small: 0.7, mid: 0.3, big: 0.05 },
-    dateFit: { first: 0.7, early: 0.9, longterm: 0.95 },
-    price: 3, capacity: "small", bestWindows: W.dinner, easyIn: 0.2,
-    photo: P.wine, friendsBeen: 1,
   }),
 
   // ───────────────────────── LOWER EAST SIDE ─────────────────────────
@@ -1032,21 +1018,6 @@ const RAW: SeedVenue[] = [
     photo: P.plum, friendsBeen: 2,
   }),
   bar({
-    slug: "achilles-heel",
-    attrs: { classic: 0.8, outdoor: 0.5 },
-    name: "Achilles Heel",
-    neighborhood: "greenpoint",
-    address: "180 West St, Brooklyn, NY 11222",
-    lat: 40.7303, lng: -73.9591,
-    take: "An old waterfront tavern with a wood stove and the best quiet in Greenpoint; for the conversation, not the crowd.",
-    tags: ["Tavern", "Chill", "Can Actually Talk"],
-    vibe: { lively: 0.35, chill: 0.9, talk: 0.9 },
-    groupFit: { two: 0.95, small: 0.75, mid: 0.4, big: 0.1 },
-    dateFit: { first: 0.8, early: 0.9, longterm: 0.9 },
-    price: 2, capacity: "small", bestWindows: W.everyNight, easyIn: 0.6,
-    photo: P.forest, friendsBeen: 1,
-  }),
-  bar({
     slug: "pencil-factory",
     attrs: { classic: 0.5, happyHour: 0.6, cheap: 0.8 },
     name: "Pencil Factory",
@@ -1093,7 +1064,19 @@ const RAW: SeedVenue[] = [
 ];
 
 /** Normalized seed — the fallback whenever no database is configured. */
-export const SEED_VENUES: Venue[] = RAW.map(normalizeSeed).map((v) => {
+/** The hand-written originals plus the researched neighborhoods; later entries never override an earlier slug. */
+const ALL_RAW: SeedVenue[] = (() => {
+  const seen = new Set<string>();
+  const out: SeedVenue[] = [];
+  for (const v of [...RAW, ...RESEARCHED]) {
+    if (seen.has(v.slug)) continue;
+    seen.add(v.slug);
+    out.push(v);
+  }
+  return out;
+})();
+
+export const SEED_VENUES: Venue[] = ALL_RAW.map(normalizeSeed).map((v) => {
   const hot = SEED_STORIES[v.slug];
   return hot ? { ...v, hot: true, hotRank: hot.rank, story: hot.story } : v;
 });

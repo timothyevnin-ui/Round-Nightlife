@@ -1,0 +1,1188 @@
+[
+  {
+    "slug": "hotel-delmano",
+    "kind": "bar",
+    "name": "Hotel Delmano",
+    "neighborhood": "williamsburg",
+    "address": "82 Berry St, Brooklyn, NY 11249",
+    "lat": 40.7183,
+    "lng": -73.9581,
+    "take": "Marble bar, cracked mirrors, and cocktails built slowly under low light; the Williamsburg bar for a date that is already going well.",
+    "theCatch": "No standing and no reservations, so a Friday table means arriving before 8 or waiting outside.",
+    "tags": [
+      "Cocktails",
+      "Date",
+      "Old NYC",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.35,
+      "chill": 0.7,
+      "talk": 0.8
+    },
+    "attrs": {
+      "cocktails": 0.95,
+      "date": 0.9,
+      "talk": 0.8,
+      "classic": 0.7,
+      "upscale": 0.7,
+      "wine": 0.6,
+      "groups": 0.1,
+      "sports": 0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.65,
+      "mid": 0.2,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.hoteldelmano.com/",
+      "https://www.tripadvisor.com/Restaurant_Review-g60827-d4729496-Reviews-Hotel_Delmano-Brooklyn_New_York.html",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars"
+    ],
+    "notes": "Corner of Berry and N 9th. Open 4pm-1am Mon-Thu, 4pm-2am Fri, 2pm-2am Sat, 2pm-1am Sun. Seasonal cocktails, a wine list of around 100 bottles from small producers, and a raw bar with oysters, ceviche, tartare, cheese and charcuterie. Seated-only policy; no reservations listed on the site."
+  },
+  {
+    "slug": "fresh-kills-bar",
+    "kind": "bar",
+    "name": "Fresh Kills Bar",
+    "neighborhood": "williamsburg",
+    "address": "161 Grand St, Brooklyn, NY 11249",
+    "lat": 40.7137,
+    "lng": -73.9624,
+    "take": "A small, serious cocktail room on Grand Street where the bartenders ask what you like and hand you something better.",
+    "theCatch": "Happy hour is 5 to 7 with $10 cocktails; the leather booths are gone by 9 on weekends.",
+    "tags": [
+      "Cocktails",
+      "Date",
+      "Can Actually Talk",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.65,
+      "talk": 0.75
+    },
+    "attrs": {
+      "cocktails": 1,
+      "talk": 0.75,
+      "date": 0.8,
+      "happyHour": 0.7,
+      "groups": 0.15,
+      "sports": 0,
+      "food": 0.15
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.7,
+      "mid": 0.25,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.85,
+      "longterm": 0.75
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.4,
+    "sources": [
+      "https://freshkillsbar.com/",
+      "https://happy-hour.nyc/bars-restaurants/fresh-kills-bar",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars",
+      "https://www.timeout.com/newyork/bars/best-bars-in-williamsburg"
+    ],
+    "notes": "Between Bedford and Berry on Grand. Milk & Honey lineage: hand-cut ice, house syrups, fresh juice, classics plus low-ABV options. Daily happy hour 5-7pm with $10 cocktails; regular cocktails mid-teens and up. Small room with booths and exposed brick, snacks only; weekend nights bring a line."
+  },
+  {
+    "slug": "deux-chats",
+    "kind": "bar",
+    "name": "Deux Chats",
+    "neighborhood": "williamsburg",
+    "address": "27 Broadway, Brooklyn, NY 11249",
+    "lat": 40.711,
+    "lng": -73.9658,
+    "take": "Martinis, dollar oysters at happy hour, and a vaulted, mirrored room under the bridge that makes a Tuesday feel like an occasion.",
+    "theCatch": "Oysters are $1 until 6pm; after that cocktails run $17-21 and a table wants a Resy.",
+    "tags": [
+      "Cocktails",
+      "Oysters",
+      "Date",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.55,
+      "talk": 0.65
+    },
+    "attrs": {
+      "cocktails": 0.9,
+      "date": 0.9,
+      "upscale": 0.7,
+      "happyHour": 0.8,
+      "food": 0.7,
+      "talk": 0.65,
+      "sports": 0,
+      "dive": 0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.7,
+      "mid": 0.35,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.9,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.4,
+    "sources": [
+      "https://happy-hour.nyc/bars-restaurants/deux-chats",
+      "https://www.theinfatuation.com/new-york/reviews/deux-chats",
+      "https://5pm.nyc/williamsburg/",
+      "https://www.timeout.com/newyork/bars/best-bars-in-williamsburg"
+    ],
+    "notes": "South Williamsburg, Broadway between Kent and Wythe, from the Le Dive / The Nines team; opened 2022. Hours Mon-Wed 5pm-12am, Thu 5pm-1am, Fri 2pm-2am, Sat 3pm-2am, Sun 3-11pm. Happy hour until 6pm: $1 oysters, $13 house martini, beer-and-shot. Belle Epoque room with distressed mirrors and cat murals; crudo, sardines, seafood plateaus. Walk-ins fine, Resy for tables."
+  },
+  {
+    "slug": "layla",
+    "kind": "bar",
+    "name": "Layla",
+    "neighborhood": "williamsburg",
+    "address": "352 Bedford Ave, Brooklyn, NY 11249",
+    "lat": 40.7118,
+    "lng": -73.9628,
+    "take": "A cocktail bar with a big leafy backyard that fills with couples on weeknights; bring someone you want to sit across from.",
+    "theCatch": "Weekday happy hour 4 to 6 has $12 negronis and martinis; the backyard goes first when it is warm.",
+    "tags": [
+      "Cocktails",
+      "Backyard",
+      "Date",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.45,
+      "chill": 0.65,
+      "talk": 0.7
+    },
+    "attrs": {
+      "cocktails": 0.85,
+      "outdoor": 0.9,
+      "date": 0.9,
+      "happyHour": 0.75,
+      "talk": 0.7,
+      "sports": 0,
+      "dive": 0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.7,
+      "mid": 0.4,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.9,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.45,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars",
+      "https://happy-hour.nyc/bars-restaurants/layla",
+      "https://5pm.nyc/williamsburg/"
+    ],
+    "notes": "Bedford Ave south of Grand, between S 3rd and S 4th. Cocktails plus a snack menu (oysters, small plates) and a large backyard that reads as a date garden on weeknights. Happy hour Mon-Fri 4-6pm: $12 negronis, martinis and spritzes, $6 drafts, $2 oysters."
+  },
+  {
+    "slug": "sauced",
+    "kind": "bar",
+    "name": "Sauced",
+    "neighborhood": "williamsburg",
+    "address": "331 Bedford Ave, Brooklyn, NY 11211",
+    "lat": 40.712,
+    "lng": -73.9627,
+    "take": "No menu and no attitude: tell the bartender what you are into and drink whatever natural wine they pour next.",
+    "theCatch": "Food is whatever pop-up is in that week, so eat first; check the patio under the tree before settling inside.",
+    "tags": [
+      "Wine",
+      "Backyard",
+      "Chill",
+      "Can Actually Talk"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.8,
+      "talk": 0.75
+    },
+    "attrs": {
+      "wine": 1,
+      "chill": 0.8,
+      "talk": 0.75,
+      "outdoor": 0.7,
+      "social": 0.6,
+      "date": 0.7,
+      "food": 0.15,
+      "sports": 0,
+      "cocktails": 0.1
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.45,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.75,
+      "early": 0.85,
+      "longterm": 0.75
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.45,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/sauced",
+      "https://www.timeout.com/newyork/bars/sauced",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars"
+    ],
+    "notes": "Natural-wine-only bar on Bedford between S 3rd and S 4th, no printed list; staff pour tastes until you land on a glass. French, Spanish and Italian producers, from single glasses to older bottles. Hours Mon-Thu 5pm-12am, Fri 5pm-2am, Sat 3pm-2am, Sun 3pm-12am. Small plates were dropped in favor of rotating pop-ups. Second location opened in Manhattan in 2024."
+  },
+  {
+    "slug": "rocka-rolla",
+    "kind": "bar",
+    "name": "Rocka Rolla",
+    "neighborhood": "williamsburg",
+    "address": "486 Metropolitan Ave, Brooklyn, NY 11211",
+    "lat": 40.7137,
+    "lng": -73.9527,
+    "take": "Classic rock on the stereo, beer in goblets, a pool table, and a 4am close; the dive you end up at, on purpose.",
+    "theCatch": "Order the big goblet, claim the backyard shuffleboard, and expect the room to double after midnight on weekends.",
+    "tags": [
+      "Dive",
+      "Late Night",
+      "Pool Table",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.45,
+      "talk": 0.4
+    },
+    "attrs": {
+      "dive": 1,
+      "late": 0.95,
+      "cheap": 0.9,
+      "beer": 0.9,
+      "activity": 0.7,
+      "outdoor": 0.6,
+      "groups": 0.7,
+      "social": 0.65,
+      "upscale": 0,
+      "cocktails": 0.1
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.55
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.65,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars",
+      "https://williamsburgbars.com/guide/Dive",
+      "https://www.atly.com/united-states/new-york/new-york/williamsburg/best-beer-dive-bar",
+      "https://www.timeout.com/newyork/bars/rocka-rolla"
+    ],
+    "notes": "Corner bar on Metropolitan between Rodney and Union, a block from the Lorimer L / Metropolitan G. Cheap domestic beer served in schooners and large chalices, retro rock decor, pool table inside; backyard has shuffleboard and pinball. Open until 4am. Cards accepted. Tripadvisor listed it as open in 2026."
+  },
+  {
+    "slug": "the-levee",
+    "kind": "bar",
+    "name": "The Levee",
+    "neighborhood": "williamsburg",
+    "address": "212 Berry St, Brooklyn, NY 11249",
+    "lat": 40.7162,
+    "lng": -73.9608,
+    "take": "A Berry Street dive open till 4 with free cheese balls, chili dogs, and no interest in impressing anybody.",
+    "theCatch": "Nearly always full at night; the back patio and the pool table are the two things worth angling for.",
+    "tags": [
+      "Dive",
+      "Late Night",
+      "Cheap",
+      "Pool Table"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.4,
+      "talk": 0.35
+    },
+    "attrs": {
+      "dive": 1,
+      "cheap": 0.9,
+      "late": 0.95,
+      "beer": 0.85,
+      "activity": 0.65,
+      "outdoor": 0.6,
+      "social": 0.7,
+      "upscale": 0,
+      "dressy": 0
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.55
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.theleveenyc.com/",
+      "https://www.theinfatuation.com/new-york/reviews/the-levee",
+      "https://5pm.nyc/williamsburg/",
+      "https://www.atly.com/united-states/new-york/new-york/williamsburg/best-beer-dive-bar"
+    ],
+    "notes": "Corner of Berry and N 3rd, next door to Radegast and catches its overflow. Open daily noon-4am since 2005. Free cheese balls at the bar, chili dogs and Frito pie from the kitchen, cheap beer-and-shot deals, pool table, darts, jukebox, Big Buck Hunter, and a back patio where dogs show up. Happy hour 5-8pm is $1 off everything."
+  },
+  {
+    "slug": "petes-candy-store",
+    "kind": "bar",
+    "name": "Pete's Candy Store",
+    "neighborhood": "williamsburg",
+    "address": "709 Lorimer St, Brooklyn, NY 11211",
+    "lat": 40.7187,
+    "lng": -73.9498,
+    "take": "A narrow bar with a tiny train-car stage in back, free shows every night, and a backyard that keeps the Lorimer crowd around.",
+    "theCatch": "Happy hour is $6 drinks until 7 on weekdays; the back room is small, so get in before the set starts.",
+    "tags": [
+      "Live Music",
+      "Backyard",
+      "Cheap",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.65,
+      "talk": 0.55
+    },
+    "attrs": {
+      "liveMusic": 1,
+      "cheap": 0.85,
+      "outdoor": 0.75,
+      "activity": 0.8,
+      "classic": 0.7,
+      "happyHour": 0.7,
+      "social": 0.6,
+      "date": 0.6,
+      "sports": 0,
+      "upscale": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.85,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.75,
+      "longterm": 0.7
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.petescandystore.com/",
+      "https://happy-hour.nyc/bars-restaurants/petes-candy-store",
+      "https://www.timeout.com/newyork/bars/petes-candy-store",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars"
+    ],
+    "notes": "Former 1920s candy shop on Lorimer between Frost and Richardson, open since 1999. Free live shows nightly with no cover in a narrow, Pullman-car-shaped back room; also weekly trivia, bingo and open mics. Hours roughly 4-5pm to 2am weekdays, 3pm-2am weekends; happy hour Mon-Fri until 7pm with $6 drafts, wells and wine. Food is grilled cheese and chips. Seasonal garden patio."
+  },
+  {
+    "slug": "night-of-joy",
+    "kind": "bar",
+    "name": "Night of Joy",
+    "neighborhood": "williamsburg",
+    "address": "667 Lorimer St, Brooklyn, NY 11211",
+    "lat": 40.7166,
+    "lng": -73.9506,
+    "take": "Two floors of antiques, cheap-enough cocktails, and a rooftop deck strung with lights; the first-date bar for people still deciding.",
+    "theCatch": "The rooftop runs weekends only; happy hour is 5 to 8 daily, and downstairs is calmer on a weeknight.",
+    "tags": [
+      "Rooftop",
+      "First Date",
+      "Cocktails",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.65,
+      "talk": 0.65
+    },
+    "attrs": {
+      "rooftop": 0.8,
+      "outdoor": 0.8,
+      "date": 0.85,
+      "cocktails": 0.7,
+      "happyHour": 0.75,
+      "talk": 0.65,
+      "seating": 0.65,
+      "sports": 0,
+      "upscale": 0.1
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.5,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.9,
+      "early": 0.85,
+      "longterm": 0.65
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.6,
+    "sources": [
+      "https://happy-hour.nyc/bars-restaurants/night-of-joy",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars",
+      "https://www.timeout.com/newyork/bars/best-rooftop-bars-in-williamsburg"
+    ],
+    "notes": "Lorimer at Jackson, a few blocks north of the Lorimer L. Bi-level bar with old couches and Victorian odds and ends downstairs and a second-story roof patio with string lights and trellised plants; per Time Out the upstairs bar opens weekends only. Cocktails lean on herbal infusions; also frozen margaritas. Happy hour daily 5-8pm."
+  },
+  {
+    "slug": "metropolitan",
+    "kind": "bar",
+    "name": "Metropolitan",
+    "neighborhood": "williamsburg",
+    "address": "559 Lorimer St, Brooklyn, NY 11211",
+    "lat": 40.7139,
+    "lng": -73.9512,
+    "take": "Brooklyn's original queer dive: cheap beer, a backyard, a small dance floor, and a crowd that talks to strangers.",
+    "theCatch": "Summer Sunday backyard barbecues and Tuesday Queeraoke are the nights; the rest of the week it is a proper neighborhood bar.",
+    "tags": [
+      "Dive",
+      "Meet People",
+      "Backyard",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.45,
+      "talk": 0.45
+    },
+    "attrs": {
+      "lgbtq": 1,
+      "dive": 0.95,
+      "cheap": 0.9,
+      "social": 0.9,
+      "outdoor": 0.8,
+      "dance": 0.6,
+      "activity": 0.6,
+      "late": 0.7,
+      "upscale": 0,
+      "dressy": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.55
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/metropolitan",
+      "https://en.wikipedia.org/wiki/Metropolitan_(bar)",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars",
+      "https://williamsburgbars.com/guide/Dive"
+    ],
+    "notes": "Lorimer just south of Metropolitan Ave, across from Bagelsmith; open since 2002 and still the anchor of Williamsburg's queer scene. Multi-level room with pool table, small dance floor and a backyard patio. Sunday barbecues Memorial Day through September, Queeraoke Tuesdays, Wednesday trivia, monthly drag and comedy nights. Cheap beer-and-shot specials."
+  },
+  {
+    "slug": "lucky-dog",
+    "kind": "bar",
+    "name": "Lucky Dog",
+    "neighborhood": "williamsburg",
+    "address": "303 Bedford Ave, Brooklyn, NY 11211",
+    "lat": 40.713,
+    "lng": -73.9622,
+    "take": "A Bedford Avenue beer bar where the backyard doubles as an off-leash dog run and nobody has ever dressed up.",
+    "theCatch": "Twenty taps and big pours around $10; the courtyard is the whole point, so pick a dry night.",
+    "tags": [
+      "Beer",
+      "Backyard",
+      "Dive",
+      "Chill"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.7,
+      "talk": 0.6
+    },
+    "attrs": {
+      "beer": 1,
+      "outdoor": 0.95,
+      "dive": 0.8,
+      "cheap": 0.75,
+      "chill": 0.7,
+      "social": 0.7,
+      "late": 0.8,
+      "cocktails": 0.1,
+      "upscale": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.65,
+      "longterm": 0.65
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.timeout.com/newyork/bars/lucky-dog",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars",
+      "https://www.timeout.com/newyork/bars/best-bars-in-williamsburg",
+      "https://www.atly.com/united-states/new-york/new-york/williamsburg/best-beer-dive-bar"
+    ],
+    "notes": "Bedford between S 1st and S 2nd, marked by a cartoon dog on the storefront. Around 20 taps heavy on Allagash and Ommegang plus a full bar, jukebox of classic rock and country, shuffleboard, and a brick courtyard where dogs run off-leash. Time Out lists noon-4am daily. Tripadvisor showed it open in 2026."
+  },
+  {
+    "slug": "the-quarter-club",
+    "kind": "bar",
+    "name": "The Quarter Club",
+    "neighborhood": "williamsburg",
+    "address": "312 Grand St, Brooklyn, NY 11211",
+    "lat": 40.7127,
+    "lng": -73.9575,
+    "take": "A projector, a wall of TVs, pinball machines, and wings that come out of the kitchen all night; the Grand Street sports bar for a pregame.",
+    "theCatch": "Loud and overstimulating by design; grab a table before kickoff and do not skip the wings.",
+    "tags": [
+      "Sports",
+      "Groups",
+      "Food",
+      "Pinball"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.3,
+      "talk": 0.3
+    },
+    "attrs": {
+      "sports": 1,
+      "groups": 0.8,
+      "food": 0.8,
+      "activity": 0.75,
+      "beer": 0.8,
+      "lively": 0.85,
+      "social": 0.6,
+      "date": 0.15,
+      "upscale": 0
+    },
+    "groupFit": {
+      "two": 0.45,
+      "small": 0.8,
+      "mid": 0.9,
+      "big": 0.75
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.4,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/the-quarter-club",
+      "https://www.theinfatuation.com/new-york/guides/best-sports-bars-nyc",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars"
+    ],
+    "notes": "Grand between Havemeyer and Marcy. Giant projector plus multiple TVs, pinball machines (Foo Fighters, Demolition Man, Hot Wheels), and a kitchen doing buttermilk-brined wings, chicken sandwiches and burgers. Beers from around $6. Infatuation review updated July 2025."
+  },
+  {
+    "slug": "berry-park",
+    "kind": "bar",
+    "name": "Berry Park",
+    "neighborhood": "williamsburg",
+    "address": "4 Berry St, Brooklyn, NY 11249",
+    "lat": 40.7233,
+    "lng": -73.9553,
+    "take": "Two levels, fifteen European taps, a soccer screen the size of a wall, and a rooftop a block from McCarren Park; where big groups go.",
+    "theCatch": "Closed Mondays; match days and the weekend rooftop DJ fill it fast, so send someone up early.",
+    "tags": [
+      "Rooftop",
+      "Sports",
+      "Beer",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.35
+    },
+    "attrs": {
+      "rooftop": 0.9,
+      "sports": 0.9,
+      "beer": 0.9,
+      "groups": 0.95,
+      "outdoor": 0.85,
+      "food": 0.6,
+      "lively": 0.8,
+      "social": 0.6,
+      "date": 0.2,
+      "speakeasy": 0
+    },
+    "groupFit": {
+      "two": 0.35,
+      "small": 0.7,
+      "mid": 0.9,
+      "big": 0.95
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.4,
+      "longterm": 0.45
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "everyNight",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.berryparkbk.com/",
+      "https://happy-hour.nyc/bars-restaurants/berry-park",
+      "https://www.timeout.com/newyork/bars/berry-park",
+      "https://www.timeout.com/newyork/bars/best-rooftop-bars-in-williamsburg"
+    ],
+    "notes": "Berry at N 14th, one block west of McCarren Park on the Williamsburg/Greenpoint line; women-owned, open since 2009. Roughly 3,500 sq ft beer hall downstairs with about 15 German/Belgian taps, communal tables and a 13-foot soccer screen; rooftop nearly as big with skyline views and no-cover DJs on weekends. Burgers, mac and cheese, fish and chips; weekend brunch. Recent hours: closed Mon, Tue-Thu 4pm-12am, Fri 3pm-2am, Sat 11am-2am, Sun 11am-12am."
+  },
+  {
+    "slug": "st-mazie",
+    "kind": "bar",
+    "name": "St. Mazie",
+    "neighborhood": "williamsburg",
+    "address": "345 Grand St, Brooklyn, NY 11211",
+    "lat": 40.7126,
+    "lng": -73.957,
+    "take": "Live jazz every night, oysters at the bar, and a garden out back; the Grand Street room for a date that needs a soundtrack.",
+    "theCatch": "Happy hour 5 to 7 has $2 oysters; the cellar supper club takes bookings, the front bar mostly does not need one.",
+    "tags": [
+      "Jazz",
+      "Live Music",
+      "Date",
+      "Oysters"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.65,
+      "talk": 0.5
+    },
+    "attrs": {
+      "liveMusic": 1,
+      "date": 0.85,
+      "food": 0.7,
+      "outdoor": 0.7,
+      "happyHour": 0.7,
+      "classic": 0.6,
+      "cocktails": 0.6,
+      "wine": 0.6,
+      "sports": 0,
+      "dive": 0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.55,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.stmazie.com/",
+      "https://www.theinfatuation.com/new-york/reviews/st-mazie",
+      "https://5pm.nyc/williamsburg/",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars"
+    ],
+    "notes": "Grand between Havemeyer and Marcy. Jazz bar and restaurant open seven nights (Mon-Thu from 6pm, Fri-Sun from 5pm) with live music nightly, swing and gypsy jazz in the main room and a Cellar Supper Club downstairs; garden in back. Raw bar and American menu; happy hour 5-7pm with $5 beer, $6 wine, $2 oysters. Reservations on Resy; hosts buyouts and private events. Tripadvisor listed it as open in 2026."
+  },
+  {
+    "slug": "desert-5-spot",
+    "kind": "bar",
+    "name": "Desert 5 Spot",
+    "neighborhood": "williamsburg",
+    "address": "94 Wythe Ave, Brooklyn, NY 11249",
+    "lat": 40.7221,
+    "lng": -73.9578,
+    "take": "A hangar-sized honky-tonk with a mechanical bull, a band, and ranch water; the bachelorette bar you go to on purpose, with the right group.",
+    "theCatch": "Weekend lines and boots-optional crowds; bring a group and a sense of humor, not a first date.",
+    "tags": [
+      "Live Music",
+      "Groups",
+      "Lively",
+      "Dancing"
+    ],
+    "vibe": {
+      "lively": 0.95,
+      "chill": 0.15,
+      "talk": 0.2
+    },
+    "attrs": {
+      "lively": 0.95,
+      "groups": 0.95,
+      "liveMusic": 0.85,
+      "activity": 0.9,
+      "dance": 0.7,
+      "social": 0.8,
+      "scene": 0.6,
+      "talk": 0.15,
+      "date": 0.15,
+      "chill": 0.1
+    },
+    "groupFit": {
+      "two": 0.25,
+      "small": 0.65,
+      "mid": 0.9,
+      "big": 0.95
+    },
+    "dateFit": {
+      "first": 0.15,
+      "early": 0.35,
+      "longterm": 0.4
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/desert-5-spot",
+      "https://www.theinfatuation.com/new-york/guides/the-best-williamsburg-bars"
+    ],
+    "notes": "Wythe at N 11th, across from the Wythe Hotel; an LA import that opened in Williamsburg in 2024. Huge Western-themed room with a live stage, mechanical bull, hay bales, wagon-wheel chandeliers, a Dolly Parton photo wall and a cowboy-boot disco ball. Ranch waters and tacos. Draws bachelorette parties and big groups; line dancing happens."
+  },
+  {
+    "slug": "bembe",
+    "kind": "bar",
+    "name": "Bembe",
+    "neighborhood": "williamsburg",
+    "address": "81 S 6th St, Brooklyn, NY 11249",
+    "lat": 40.7112,
+    "lng": -73.9651,
+    "take": "A candlelit room under the bridge where DJs and live drummers keep people dancing to salsa, reggae, and cumbia until 4.",
+    "theCatch": "Cash only, opens late, and does not get going before midnight; the room is small, so arrive before the line.",
+    "tags": [
+      "Dancing",
+      "Late Night",
+      "Live Music",
+      "Meet People"
+    ],
+    "vibe": {
+      "lively": 0.95,
+      "chill": 0.1,
+      "talk": 0.1
+    },
+    "attrs": {
+      "dance": 1,
+      "late": 1,
+      "lively": 0.95,
+      "liveMusic": 0.7,
+      "social": 0.85,
+      "speakeasy": 0.6,
+      "talk": 0.1,
+      "seating": 0.05,
+      "sports": 0
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.65,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.bembe.us/",
+      "https://www.timeout.com/newyork/bars/bembe",
+      "https://www.timeout.com/newyork/things-to-do/best-late-night-spots-in-williamsburg"
+    ],
+    "notes": "Unmarked doorway at S 6th and Berry, under the Williamsburg Bridge near the Marcy J/M/Z; running since the early 2000s. Nightly DJs spinning Afro-Latin, reggae, salsa, cumbia and funk, often with live percussion over the mix. Time Out has listed it as opening around 8:30pm and closing 4am; cash only. Own site lists the address but no hours; verify before sending a group."
+  },
+  {
+    "slug": "babys-all-right",
+    "kind": "bar",
+    "name": "Baby's All Right",
+    "neighborhood": "williamsburg",
+    "address": "146 Broadway, Brooklyn, NY 11211",
+    "lat": 40.7102,
+    "lng": -73.9636,
+    "take": "Part bar, part venue: catch a band in the back room, then stay for the crowd that spills out to the front bar after.",
+    "theCatch": "Shows are ticketed and sell out; the front bar and restaurant take walk-ins, so you can still drink there without a ticket.",
+    "tags": [
+      "Live Music",
+      "Late Night",
+      "Lively",
+      "Food"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.25,
+      "talk": 0.3
+    },
+    "attrs": {
+      "liveMusic": 1,
+      "lively": 0.85,
+      "late": 0.85,
+      "activity": 0.85,
+      "social": 0.7,
+      "food": 0.6,
+      "talk": 0.2,
+      "sports": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.85,
+      "mid": 0.75,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.7,
+      "longterm": 0.65
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.45,
+    "sources": [
+      "https://en.wikipedia.org/wiki/Baby%27s_All_Right",
+      "https://www.babysallright.com/"
+    ],
+    "notes": "Broadway at Bedford, near the Marcy J/M/Z; opened 2013. About 5,000 sq ft: a front bar and eatery (Latin-leaning dinner, small plates, weekend brunch) plus a 330-capacity standing room booking indie, rock, jazz, electronic and experimental acts nightly. Co-founder Billy Jones died in June 2025; the venue continues under partner Zachary Mexico and opened a sister room, Night Club 101, in the East Village in 2025."
+  },
+  {
+    "slug": "st-anselm",
+    "kind": "restaurant",
+    "name": "St. Anselm",
+    "neighborhood": "williamsburg",
+    "address": "355 Metropolitan Ave, Brooklyn, NY 11211",
+    "lat": 40.7141,
+    "lng": -73.9558,
+    "take": "A tiny grill-and-counter steakhouse where the butcher's steak is still the order and nobody needs a jacket.",
+    "theCatch": "Walk-ins are first come, first served; after 7 on a weekend the wait is real, so aim for the counter.",
+    "tags": [
+      "Steak",
+      "Date",
+      "Food",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "date": 0.8,
+      "wine": 0.7,
+      "talk": 0.6,
+      "seating": 0.2,
+      "groups": 0.2,
+      "sports": 0,
+      "dance": 0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.8,
+      "mid": 0.4,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.85,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.stanselm.net/",
+      "https://www.theinfatuation.com/new-york/reviews/st-anselm",
+      "https://www.theinfatuation.com/new-york/guides/best-williamsburg-restaurants"
+    ],
+    "notes": "Across Metropolitan from The Commodore, near the Lorimer L. Open 5-11pm Mon-Fri; Sat-Sun lunch 12-4 and dinner 5-11. Narrow room with roughly eight tables plus counter seats at the open grill; butcher's steak around $29, big-format ax-handle rib eye by the ounce. Walk-ins first come, first served with Resy also available. Bedford-side neighbor Spuyten Duyvil is the classic waiting spot."
+  },
+  {
+    "slug": "fish-cheeks-williamsburg",
+    "kind": "restaurant",
+    "name": "Fish Cheeks Williamsburg",
+    "neighborhood": "williamsburg",
+    "address": "661 Driggs Ave, Brooklyn, NY 11211",
+    "lat": 40.7186,
+    "lng": -73.9553,
+    "take": "Family-style Thai seafood with heat and sour in equal measure; the Driggs Avenue dinner that sets up a night out around the corner.",
+    "theCatch": "Oyster happy hour runs noon to 6 daily; the back room is quieter, and the kitchen stops a little after 10.",
+    "tags": [
+      "Thai",
+      "Food",
+      "Groups",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "groups": 0.75,
+      "lively": 0.7,
+      "happyHour": 0.6,
+      "sports": 0,
+      "late": 0.05
+    },
+    "groupFit": {
+      "two": 0.75,
+      "small": 0.9,
+      "mid": 0.8,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.75,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.45,
+    "sources": [
+      "https://fishcheeksnyc.com/location/fish-cheeks-williamsburg/",
+      "https://www.theinfatuation.com/new-york/guides/best-williamsburg-restaurants"
+    ],
+    "notes": "Driggs between N 8th and N 9th, a short walk from the Bedford L. Brooklyn outpost of the NoHo Thai seafood spot: bright curries, whole fish, oysters. Open Sun-Thu 12-10:15pm, Fri-Sat 12-10:45pm; oyster happy hour daily 12-6pm. Communal-style seating with a more casual back room; reservations online."
+  },
+  {
+    "slug": "birds-of-a-feather",
+    "kind": "restaurant",
+    "name": "Birds of a Feather",
+    "neighborhood": "williamsburg",
+    "address": "191 Grand St, Brooklyn, NY 11211",
+    "lat": 40.7139,
+    "lng": -73.9609,
+    "take": "Sichuan for a table of six: chili wontons, dan dan noodles, and a bright room that turns tables fast enough to keep the night moving.",
+    "theCatch": "Book on Resy or expect a wait; last seating is 9:30 most nights and 10 on Friday and Saturday.",
+    "tags": [
+      "Sichuan",
+      "Groups",
+      "Food",
+      "Spicy"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.35,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "groups": 0.9,
+      "lively": 0.7,
+      "cocktails": 0.2,
+      "sports": 0,
+      "late": 0
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.9,
+      "mid": 0.9,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.65,
+      "longterm": 0.65
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.birdsofafeatherny.com/",
+      "https://www.theinfatuation.com/new-york/reviews/birds-of-a-feather",
+      "https://www.theinfatuation.com/new-york/guides/best-williamsburg-restaurants"
+    ],
+    "notes": "Grand between Bedford and Driggs. Sichuan restaurant from the Cafe China team with a big communal table up front and a small bar. Dinner Sun-Thu 4:30-10pm (last seating 9:30), Fri-Sat 4:30-10:30pm (last seating 10); lunch daily. Portions are large and most dishes sit under or around $20 with gratuity built in; poached chili wontons and Chungking chicken are the calls. Resy."
+  },
+  {
+    "slug": "laser-wolf",
+    "kind": "restaurant",
+    "name": "Laser Wolf",
+    "neighborhood": "williamsburg",
+    "address": "97 Wythe Ave, Brooklyn, NY 11249",
+    "lat": 40.7218,
+    "lng": -73.9578,
+    "take": "Israeli skewers over charcoal on the Hoxton roof, with the skyline and a spread of salads included; dinner that already feels like the night out.",
+    "theCatch": "Dinner is on Resy; the ten-seat bar is first come, and the sunset seats are the ones everyone wants.",
+    "tags": [
+      "Rooftop",
+      "Food",
+      "Date",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "rooftop": 1,
+      "date": 0.8,
+      "groups": 0.7,
+      "cocktails": 0.7,
+      "upscale": 0.7,
+      "scene": 0.6,
+      "lively": 0.7,
+      "cheap": 0,
+      "dive": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.9,
+      "mid": 0.75,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.65,
+      "early": 0.85,
+      "longterm": 0.8
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.25,
+    "sources": [
+      "https://www.laserwolfbrooklyn.com/",
+      "https://www.theinfatuation.com/new-york/guides/best-williamsburg-restaurants",
+      "https://www.timeout.com/newyork/bars/best-rooftop-bars-in-williamsburg"
+    ],
+    "notes": "Rooftop of the Hoxton, Wythe at N 10th. Philadelphia-born shipudiya from the Zahav team: charcoal-grilled skewers with a set of salatim included, Israeli snacks and Middle Eastern-leaning cocktails, uninterrupted Manhattan views. Dinner reservations on Resy; a 10-seat bar is first come, first served."
+  },
+  {
+    "slug": "kelloggs-diner",
+    "kind": "restaurant",
+    "name": "Kellogg's Diner",
+    "neighborhood": "williamsburg",
+    "address": "518 Metropolitan Ave, Brooklyn, NY 11211",
+    "lat": 40.7139,
+    "lng": -73.9521,
+    "take": "A 24-hour diner with a full bar and a Tex-Mex streak; the after-bar meal that also works as the first stop of the night.",
+    "theCatch": "Late night it turns into a scene with music on; brunch is families, so pick your hour accordingly.",
+    "tags": [
+      "Late Night",
+      "Food",
+      "Old NYC",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 0.9,
+      "late": 1,
+      "classic": 0.8,
+      "seating": 0.75,
+      "groups": 0.75,
+      "social": 0.6,
+      "lively": 0.7,
+      "upscale": 0.1,
+      "sports": 0
+    },
+    "groupFit": {
+      "two": 0.75,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.65
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.65,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "brooklynLate",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/kelloggs-diner",
+      "https://www.theinfatuation.com/new-york/guides/best-williamsburg-restaurants"
+    ],
+    "notes": "Corner of Metropolitan and Union at the Lorimer L / Metropolitan G. Landmark diner (seen in HBO's Girls) that closed in 2023 and reopened in 2024 under the team behind Old John's, with chrome trim, pink-beige booths, a full cocktail bar and a Tex-Mex-inflected menu: guajillo short rib hash, honey-butter chicken biscuit, ribs, flat nachos. Open 24 hours; Resy available. Infatuation review updated June 2026."
+  }
+]

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { NycMap } from "@/components/NycMap";
+import { RealMap } from "@/components/RealMap";
 import { TypedHeading, useTypewriter } from "@/components/QuickOnes";
 import { useAuth } from "@/lib/auth";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
@@ -116,7 +116,7 @@ export function RecommendView() {
             <Screen key="where">
               <Prompt text="Where is it?" />
               <div className="mt-5 overflow-hidden rounded-[24px] border" style={{ borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
-                <NycMap value={hood} onSelect={setHood} />
+                <RealMap value={hood} onSelect={setHood} height={300} />
               </div>
               <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5">
                 {NEIGHBORHOODS.map((n) => (

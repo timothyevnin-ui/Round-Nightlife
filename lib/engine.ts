@@ -11,7 +11,9 @@ import type { DatePlan, DateQuery, DinnerQuery, GroupBucket, NightPick, NightQue
  *
  * `prefs` is how well the venue's attributes match what the person swiped.
  */
-const W = { nb: 0.18, group: 0.22, time: 0.14, prefs: 0.46 };
+// With 20+ places per neighborhood, the one you tapped should win; next door
+// is a fill-in, not a competitor.
+const W = { nb: 0.24, group: 0.2, time: 0.14, prefs: 0.42 };
 
 /* ───────────────────────── helpers ───────────────────────── */
 
@@ -24,7 +26,7 @@ export function groupBucket(n: number): GroupBucket {
 
 function neighborhoodScore(venue: Venue, target: NightQuery["neighborhood"]): number | null {
   if (venue.neighborhood === target) return 1;
-  if (NEIGHBORHOOD_MAP[target].adjacent.includes(venue.neighborhood)) return 0.55;
+  if (NEIGHBORHOOD_MAP[target].adjacent.includes(venue.neighborhood)) return 0.35;
   return null;
 }
 

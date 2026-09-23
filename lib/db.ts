@@ -163,13 +163,13 @@ export function venueToRow(v: Venue): VenueRow {
 
 /* ───────────────────────── reads ───────────────────────── */
 
-async function fetchRows(): Promise<VenueRow[] | null> {
+async function fetchRows(fresh = false): Promise<VenueRow[] | null> {
   const { url, anon, configured } = dbConfig();
   if (!configured) return null;
   try {
     const res = await fetch(`${url}/rest/v1/venues?select=*&order=name.asc`, {
       headers: keyHeaders(anon!),
-      next: { revalidate: 60, tags: [VENUES_TAG] },
+      ...(fresh ? { cache: "no-store" as const } : { next: { revalidate: 60, tags: [VENUES_TAG] } }),
     });
     if (!res.ok) {
       console.error("[db] venues fetch failed", res.status, await res.text().catch(() => ""));
@@ -198,6 +198,17 @@ export async function getVenues(): Promise<Venue[]> {
   return (await getVenuesWithSource()).venues;
 }
 
+/**
+ * Straight from the database, no cache: what the back office reads before it
+ * writes, so a save never works from a minute-old picture (or misses an edit
+ * made in Supabase's own table editor).
+ */
+export async function getVenuesFresh(): Promise<{ venues: Venue[]; source: VenueSource }> {
+  const rows = await fetchRows(true);
+  if (rows && rows.length > 0) return { venues: rows.map(rowToVenue).filter((v): v is Venue => v !== null), source: "db" };
+  return { venues: SEED_VENUES, source: "seed" };
+}
+
 export async function getVenue(slug: string): Promise<Venue | undefined> {
   return (await getVenues()).find((v) => v.slug === slug);
 }
@@ -219,7 +230,7 @@ export function serviceHeaders() {
 export async function upsertVenues(venues: Venue[]): Promise<number> {
   const { url, headers } = serviceHeaders();
   const rows: Record<string, unknown>[] = venues.map((v) => ({ ...venueToRow(v) }));
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     const res = await fetch(`${url}/rest/v1/venues?on_conflict=slug`, {
       method: "POST",
       headers: { ...headers, Prefer: "resolution=merge-duplicates,return=minimal" },
@@ -236,7 +247,7 @@ export async function upsertVenues(venues: Venue[]): Promise<number> {
     }
     throw new Error(`Save failed (${res.status}): ${text}`);
   }
-  throw new Error("Save failed: the database schema is too far behind. Run supabase/schema.sql again.");
+  throw new Error("Save failed: the database is several versions behind. Paste supabase/schema.sql into Supabase's SQL Editor and Run it, then save again.");
 }
 
 /** PostgREST's "unknown column" error, e.g. PGRST204 "Could not find the 'story' column of 'venues'". */

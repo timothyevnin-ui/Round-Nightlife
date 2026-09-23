@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-import { AddView } from "./AddView";
-import { getVenues } from "@/lib/db";
+import { redirect } from "next/navigation";
 
-export const revalidate = 60;
+/**
+ * Retired in V5 ("Add from screenshots"). Kept so an upload replaces the old
+ * page; it just sends people to the YOU tab. Safe to delete.
+ */
+export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Add from screenshots" };
-
-export default async function AddPage() {
-  return <AddView venues={await getVenues()} />;
+export default function AddPage() {
+  redirect("/you");
 }

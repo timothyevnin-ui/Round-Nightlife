@@ -7,7 +7,7 @@ import { Photo } from "@/components/Photo";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 import type { VenueSource } from "@/lib/db";
-import { importSeed, importStories } from "./actions";
+import { importSeed, importStories, syncSeed } from "./actions";
 
 export function AdminList({ venues, source, dbCount, writable }: { venues: Venue[]; source: VenueSource; dbCount: number; writable: boolean }) {
   const router = useRouter();
@@ -42,6 +42,16 @@ export function AdminList({ venues, source, dbCount, writable }: { venues: Venue
 
   const shelfEmpty = !venues.some((v) => v.hot);
 
+  const runSync = () =>
+    start(async () => {
+      const r = await syncSeed();
+      if (!r.ok) return setMsg(r.error);
+      const bits = [`${r.added} added`, `${r.refreshed} refreshed`, r.kept ? `${r.kept} verified left alone` : ""].filter(Boolean).join(" · ");
+      const extra = r.missing.length ? ` Not on ROUND's list (yours, or closed): ${r.missing.slice(0, 6).join(", ")}${r.missing.length > 6 ? "…" : ""}.` : "";
+      setMsg(`Up to date: ${bits}.${extra}`);
+      router.refresh();
+    });
+
   return (
     <section className="mt-5">
       <div className="flex gap-2">
@@ -63,6 +73,11 @@ export function AdminList({ venues, source, dbCount, writable }: { venues: Venue
         <p className="mt-2 text-[12px]" style={{ color: "var(--chalk-35)" }}>
           Live from the database · {dbCount} rows
         </p>
+      )}
+      {writable && source === "db" && (
+        <button onClick={runSync} disabled={pending} className="pressable mt-3 flex h-11 w-full items-center justify-center rounded-full border px-4 text-[13px] font-medium" style={{ borderColor: "var(--hairline-strong)", color: "var(--ink)", opacity: pending ? 0.6 : 1 }}>
+          {pending ? "Working…" : "Update from ROUND's list"}
+        </button>
       )}
       {writable && source === "db" && shelfEmpty && (
         <button onClick={runStories} disabled={pending} className="pressable mt-3 flex h-11 w-full items-center justify-center rounded-full border px-4 text-[13px] font-medium" style={{ borderColor: "rgba(217,72,43,0.5)", color: "var(--tomato)", opacity: pending ? 0.6 : 1 }}>

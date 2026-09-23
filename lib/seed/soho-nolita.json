@@ -1,0 +1,1012 @@
+[
+  {
+    "slug": "miladys",
+    "kind": "bar",
+    "name": "Milady's",
+    "neighborhood": "soho-nolita",
+    "address": "160 Prince St, New York, NY 10012",
+    "lat": 40.7261,
+    "lng": -74.0021,
+    "take": "The old Soho dive came back as a proper cocktail bar with a marble counter, and it kept the loose, loud, anyone-welcome feel.",
+    "theCatch": "Tables can be booked; the bar is walk-in and fills by 8 on weekends.",
+    "tags": [
+      "Cocktails",
+      "Lively",
+      "Food",
+      "First Date"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.45
+    },
+    "attrs": {
+      "cocktails": 0.9,
+      "food": 0.75,
+      "lively": 0.7,
+      "social": 0.6,
+      "date": 0.65,
+      "seating": 0.6,
+      "late": 0.1
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.35
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.75,
+      "longterm": 0.65
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.5,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/miladys",
+      "https://www.timeout.com/newyork/restaurants/miladys",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d25157550-Reviews-Milady_s-New_York_City_New_York.html"
+    ],
+    "notes": "Reopened October 2022 by Julie Reiner (Clover Club, Leyenda) in the corner space of the original Milady's, which closed in 2014. Cocktails around $20 with a half-size 'cheeky' pour option; menu splits into dive and high-dive sections (burger, crab mac and cheese, corn dog poppers). Closes at midnight most nights, 2am Fri-Sat."
+  },
+  {
+    "slug": "pearl-box",
+    "kind": "bar",
+    "name": "Pearl Box",
+    "neighborhood": "soho-nolita",
+    "address": "357 W Broadway, New York, NY 10013",
+    "lat": 40.7225,
+    "lng": -74.0033,
+    "take": "Red carpet up the stairs, velvet loveseats, martinis and caviar: the dressed-up Soho night for when the group wants to feel expensive.",
+    "theCatch": "Book on Resy for a weekend; it closes by midnight, so this is the first stop, not the last.",
+    "tags": [
+      "Upscale",
+      "Cocktails",
+      "Sceney",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.55,
+      "talk": 0.6
+    },
+    "attrs": {
+      "upscale": 0.95,
+      "cocktails": 0.9,
+      "scene": 0.8,
+      "date": 0.85,
+      "dressy": 0.75,
+      "food": 0.6,
+      "late": 0.05,
+      "cheap": 0.0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.7,
+      "mid": 0.4,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.85,
+      "longterm": 0.8
+    },
+    "price": 4,
+    "capacity": "medium",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/pearl-box",
+      "https://www.pearlboxnyc.com/",
+      "https://blog.resy.com/2024/10/heroes-pearl-box-nyc/"
+    ],
+    "notes": "Opened fall 2024 above the Heroes restaurant at 357 W Broadway, spread over three floors (Salon, Parlor, Attic). Martinis, champagne, caviar service, and a $14 candy-bowl dessert built for photos. Tue-Thu 5:30-11:30pm, Fri-Sat to midnight, Sun to 10pm; walk-ins accepted but reservations recommended."
+  },
+  {
+    "slug": "south-soho-bar",
+    "kind": "bar",
+    "name": "South Soho Bar",
+    "neighborhood": "soho-nolita",
+    "address": "191 Centre St, New York, NY 10013",
+    "lat": 40.7193,
+    "lng": -73.9998,
+    "take": "Dark, booth-lined, and small enough to feel like a secret, with classic cocktails done straight and chicken nuggets that are better than they need to be.",
+    "theCatch": "Maybe a dozen seats; reserve for a weekend or come before 8 and take a booth.",
+    "tags": [
+      "Cocktails",
+      "Date",
+      "Can Actually Talk",
+      "Speakeasy"
+    ],
+    "vibe": {
+      "lively": 0.35,
+      "chill": 0.7,
+      "talk": 0.75
+    },
+    "attrs": {
+      "cocktails": 0.9,
+      "date": 0.85,
+      "talk": 0.75,
+      "speakeasy": 0.6,
+      "upscale": 0.6,
+      "late": 0.1,
+      "groups": 0.1
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.65,
+      "mid": 0.25,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.85,
+      "early": 0.85,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "tiny",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.4,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/south-soho-bar",
+      "https://south-soho-bar.wheree.com/",
+      "https://www.theinfatuation.com/new-york/guides/soho-nolita-bars-nyc"
+    ],
+    "notes": "Sister bar to The Tyger next door, with a discreet entrance on Centre St just north of Canal. Small dark room with a long bar, a few booths, and a sliding ladder along the back-bar liquor wall. Riffs on classics (daiquiris, old fashioneds) plus snacks like chicken nuggets, grilled cheese and crudo. Open to 1am nightly (from 4pm weekdays, 2pm weekends); reservations recommended on weekends."
+  },
+  {
+    "slug": "beyond-the-pale",
+    "kind": "bar",
+    "name": "Beyond The Pale",
+    "neighborhood": "soho-nolita",
+    "address": "53 Spring St, New York, NY 10012",
+    "lat": 40.7221,
+    "lng": -73.9967,
+    "take": "An Irish pub that went to finishing school: Guinness and wings up front, candlelit tables and an olive-oil martini in the back.",
+    "theCatch": "Happy hour runs weekdays 4:30-6:30, and the back room is the calmer seat.",
+    "tags": [
+      "Cocktails",
+      "Beer",
+      "Groups",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "cocktails": 0.8,
+      "beer": 0.7,
+      "happyHour": 0.75,
+      "groups": 0.7,
+      "food": 0.6,
+      "seating": 0.65,
+      "late": 0.6,
+      "sports": 0.05
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.8,
+      "big": 0.55
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.65,
+      "longterm": 0.55
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/beyond-the-pale",
+      "https://happy-hour.nyc/bars-restaurants/beyond-the-pale",
+      "https://beyondthepalenyc.com/"
+    ],
+    "notes": "Long dark room between Lafayette and Mulberry with a wooden bar, leather booths, big communal tables and a candlelit seating area in back; no TVs. Cocktails (Oaxacan old fashioned, an olive-oil vodka martini), Guinness, wings and Parmesan fries. Hours run to midnight Mon/Sun, 1am Tue, 2am Wed, 3am Thu-Sat. Reservations by email; happy hour Mon-Fri 4:30-6:30pm."
+  },
+  {
+    "slug": "mothers-ruin",
+    "kind": "bar",
+    "name": "Mother's Ruin",
+    "neighborhood": "soho-nolita",
+    "address": "18 Spring St, New York, NY 10012",
+    "lat": 40.7216,
+    "lng": -73.9951,
+    "take": "The Nolita bar everyone ends up at: real cocktails, a frozen of the day, and a burger at 3am, with nobody at the door checking your shoes.",
+    "theCatch": "No reservations and only a few tables; after 9 on weekends you're standing.",
+    "tags": [
+      "Cocktails",
+      "Frozen Drinks",
+      "Late Night",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.4
+    },
+    "attrs": {
+      "cocktails": 0.85,
+      "frozen": 0.8,
+      "late": 0.9,
+      "food": 0.75,
+      "lively": 0.8,
+      "social": 0.75,
+      "seating": 0.2,
+      "scene": 0.1
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.7,
+      "longterm": 0.55
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.45,
+    "sources": [
+      "https://mothersruinnyc.com/",
+      "https://www.theinfatuation.com/new-york/reviews/mothers-ruin",
+      "https://happy-hour.nyc/bars-restaurants/mothers-ruin"
+    ],
+    "notes": "Open daily 11am-4am with the kitchen running until 3:30am (burger, fried chicken sandwich, wings, French onion grilled cheese) and brunch until 4pm. Signature cocktails $16-17, a rotating frozen 'Slushy du Jour', beer $6-8, wine $12. No reservations and no door policy; narrow exposed-brick room with a long bar, a few tables, and some big wooden tables that groups grab."
+  },
+  {
+    "slug": "botanica-bar",
+    "kind": "bar",
+    "name": "Botanica Bar",
+    "neighborhood": "soho-nolita",
+    "address": "47 E Houston St, New York, NY 10012",
+    "lat": 40.7249,
+    "lng": -73.9948,
+    "take": "Thrift-store couches, cheap well drinks, a DJ on weekends, and a back room that fills with people who came for the price and stayed for the dark.",
+    "theCatch": "Happy hour runs until 7 every day; no kitchen, so bring your own slice.",
+    "tags": [
+      "Dive",
+      "Cheap",
+      "Dancing",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.5,
+      "talk": 0.35
+    },
+    "attrs": {
+      "dive": 0.9,
+      "cheap": 0.85,
+      "happyHour": 0.85,
+      "dance": 0.6,
+      "late": 0.7,
+      "groups": 0.7,
+      "social": 0.7,
+      "upscale": 0.0,
+      "food": 0.05
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.8,
+      "mid": 0.85,
+      "big": 0.75
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.55,
+      "longterm": 0.45
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.75,
+    "sources": [
+      "https://botanicabarnyc.com/visit-botanica",
+      "https://botanicabarnyc.com/happy-hour",
+      "https://www.timeout.com/newyork/bars/botanica",
+      "https://www.theinfatuation.com/new-york/guides/soho-nolita-bars-nyc"
+    ],
+    "notes": "Below-street lounge on the south side of Houston between Mulberry and Mott. Hours Sun-Wed 5pm-1am, Thu 5pm-2am, Fri 5pm-3am, Sat 4pm-3am. Happy hour daily until 7pm: $6 wells and house wine, $2 off drafts, $3 off frozens. Kitchen is permanently closed and outside food is allowed; the back room is reservable for groups of 30-45; DJs on weekends."
+  },
+  {
+    "slug": "milanos-bar",
+    "kind": "bar",
+    "name": "Milano's Bar",
+    "neighborhood": "soho-nolita",
+    "address": "51 E Houston St, New York, NY 10012",
+    "lat": 40.7249,
+    "lng": -73.9946,
+    "take": "A narrow cash-only dive that opens at 8am and has looked the same since before Nolita had a name; cheap beer, a loud jukebox, no food.",
+    "theCatch": "Cash only, no kitchen, and only a handful of stools in back; don't bring more than four.",
+    "tags": [
+      "Dive",
+      "Old NYC",
+      "Cheap",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.55,
+      "talk": 0.4
+    },
+    "attrs": {
+      "dive": 1.0,
+      "classic": 0.9,
+      "cheap": 0.9,
+      "late": 0.9,
+      "beer": 0.8,
+      "social": 0.7,
+      "seating": 0.2,
+      "groups": 0.1,
+      "food": 0.0,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.7,
+      "mid": 0.25,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "tiny",
+    "bestWindows": "everyNight",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.timeout.com/newyork/bars/milanos-bar",
+      "https://www.tripadvisor.com/Attraction_Review-g60763-d33196926-Reviews-Milano_s_Bar-New_York_City_New_York.html",
+      "https://www.restaurantji.com/ny/new-york/milanos-bar-/",
+      "https://evgrieve.com/search?q=milano%27s+bar"
+    ],
+    "notes": "Long, narrow bar between Mott and Mulberry on the south side of Houston, open Mon-Sat 8am-4am and Sun from 10am. Cash only, beer and shots, no kitchen, walls of old photos. Same ownership group as d.b.a. and Doc Holliday's; reopened June 2021 after a 15-month pandemic closure. Some listings mention live jazz on Monday afternoons."
+  },
+  {
+    "slug": "toad-hall",
+    "kind": "bar",
+    "name": "Toad Hall",
+    "neighborhood": "soho-nolita",
+    "address": "57 Grand St, New York, NY 10013",
+    "lat": 40.7223,
+    "lng": -74.0031,
+    "take": "A real neighborhood bar on Grand Street with a pool table, cheap pints, and regulars who've been on the same stools for years; open till 4 every night.",
+    "theCatch": "No kitchen, so order delivery to the bar; the pool table has a wait after 9.",
+    "tags": [
+      "Dive",
+      "Pool Table",
+      "Beer",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.65,
+      "talk": 0.55
+    },
+    "attrs": {
+      "dive": 0.85,
+      "activity": 0.8,
+      "beer": 0.8,
+      "late": 0.9,
+      "cheap": 0.7,
+      "sports": 0.6,
+      "classic": 0.6,
+      "seating": 0.6,
+      "food": 0.05,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "everyNight",
+    "easyIn": 0.75,
+    "sources": [
+      "https://www.timeout.com/newyork/bars/toad-hall",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d3738576-Reviews-Toad_Hall-New_York_City_New_York.html"
+    ],
+    "notes": "Between West Broadway and Wooster, open daily noon-4am. Draft beer, a pool table, TVs for games, exposed brick and red stools. No food; regulars order takeout to the bar. Recent reviews are mostly warm about the bartenders, with the occasional complaint about surly service."
+  },
+  {
+    "slug": "la-compagnie-des-vins-surnaturels",
+    "kind": "bar",
+    "name": "La Compagnie des Vins Surnaturels",
+    "neighborhood": "soho-nolita",
+    "address": "249 Centre St, New York, NY 10013",
+    "lat": 40.72,
+    "lng": -73.9986,
+    "take": "A French wine bar with a bottle list the size of a novel, staff who'll steer you, and low couches for a date that goes long.",
+    "theCatch": "Happy hour ends at 6 on weekdays and 4 on weekends; after that the glasses get pricey.",
+    "tags": [
+      "Wine",
+      "Date",
+      "Can Actually Talk",
+      "Happy Hour"
+    ],
+    "vibe": {
+      "lively": 0.35,
+      "chill": 0.8,
+      "talk": 0.85
+    },
+    "attrs": {
+      "wine": 1.0,
+      "date": 0.85,
+      "talk": 0.85,
+      "chill": 0.8,
+      "upscale": 0.7,
+      "seating": 0.7,
+      "happyHour": 0.6,
+      "food": 0.6,
+      "late": 0.05,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.95,
+      "small": 0.7,
+      "mid": 0.5,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.8,
+      "early": 0.9,
+      "longterm": 0.85
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.55,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/la-compagnie-des-vins-surnaturels",
+      "https://www.timeout.com/newyork/bars/best-bars-in-soho",
+      "https://www.experimentalgroup.com/new-york"
+    ],
+    "notes": "Experimental Group's New York outpost of the Paris wine bar, on Centre St between Grand and Broome; about 70 seats. Roughly 25 wines by the glass plus hundreds of bottles, mostly French and natural-leaning, with charcuterie and light bites. Happy hour ($5 snacks, $5 off glasses) until 6pm weekdays and 4pm weekends. Bar seats, tables, and a semi-private room for groups."
+  },
+  {
+    "slug": "broome-street-bar",
+    "kind": "bar",
+    "name": "Broome Street Bar",
+    "neighborhood": "soho-nolita",
+    "address": "363 W Broadway, New York, NY 10013",
+    "lat": 40.7229,
+    "lng": -74.003,
+    "take": "The corner pub Soho forgot to gentrify: a decent beer list, burgers on pita, and enough tables that eight of you can just sit down.",
+    "theCatch": "Expect hotel tourists at dinner time; it's the burger-and-pint stop, not the cocktail stop.",
+    "tags": [
+      "Beer",
+      "Old NYC",
+      "Groups",
+      "Food"
+    ],
+    "vibe": {
+      "lively": 0.55,
+      "chill": 0.6,
+      "talk": 0.65
+    },
+    "attrs": {
+      "beer": 0.85,
+      "classic": 0.8,
+      "groups": 0.85,
+      "seating": 0.85,
+      "food": 0.7,
+      "talk": 0.65,
+      "cocktails": 0.15,
+      "scene": 0.0,
+      "late": 0.1
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.8,
+      "mid": 0.9,
+      "big": 0.8
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.55
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.8,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/broome-street-bar",
+      "https://www.timeout.com/newyork/bars/broome-street-bar",
+      "https://www.theinfatuation.com/new-york/guides/soho-nolita-bars-nyc"
+    ],
+    "notes": "Corner of West Broadway and Broome, same owners for more than three decades; stained-glass window, chalkboard menus, microbrews on tap (Schneider Weisse and the like) and pub food including burgers served on pita. Open from 11am; roughly 1:30am close weeknights and 2am weekends. Draws hotel guests and neighborhood regulars; on The Infatuation's Soho/Nolita list as the big-group pick."
+  },
+  {
+    "slug": "the-vig-bar",
+    "kind": "bar",
+    "name": "The Vig Bar",
+    "neighborhood": "soho-nolita",
+    "address": "12 Spring St, New York, NY 10012",
+    "lat": 40.7215,
+    "lng": -73.9948,
+    "take": "High-tops, blue leather booths, a back room for sixty, and a 4am close: the Nolita bar for a birthday that starts as drinks and becomes a night.",
+    "theCatch": "Email ahead to hold the back room; couples early, a singles crowd after 11.",
+    "tags": [
+      "Groups",
+      "Late Night",
+      "Lively",
+      "Corner Bar"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.35,
+      "talk": 0.4
+    },
+    "attrs": {
+      "groups": 0.9,
+      "late": 0.85,
+      "lively": 0.75,
+      "social": 0.7,
+      "upscale": 0.1
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.9
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.5,
+      "longterm": 0.4
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.vigbar.com/",
+      "https://www.timeout.com/newyork/bars/the-vig-bar",
+      "https://www.theinfatuation.com/new-york/guides/soho-nolita-bars-nyc"
+    ],
+    "notes": "Corner of Spring and Elizabeth; open until 4am every night (from 5pm Mon-Tue, 3pm Wed-Thu, 2pm Fri-Sun). Dark Art Deco-leaning room with blue leather banquettes and high-tops; the back room fits 50-60 and gets booked for birthdays and office parties through events@vigbar.com. The site mentions live sports in the outdoor area. The Infatuation's guide files it as a pregame bar."
+  },
+  {
+    "slug": "local-sullivan-street",
+    "kind": "bar",
+    "name": "Local",
+    "neighborhood": "soho-nolita",
+    "address": "144 Sullivan St, New York, NY 10012",
+    "lat": 40.727,
+    "lng": -74.0028,
+    "take": "A beer-and-wine bar on Sullivan with free popcorn, a dark window nook for two, and sidewalk seats for the nights you don't want a plan.",
+    "theCatch": "Happy hour 4-6 daily comes with a free hot dog; beer and wine only, no martinis.",
+    "tags": [
+      "Beer",
+      "Wine",
+      "Chill",
+      "Sidewalk Seats"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.75,
+      "talk": 0.75
+    },
+    "attrs": {
+      "beer": 0.85,
+      "wine": 0.75,
+      "outdoor": 0.75,
+      "chill": 0.75,
+      "talk": 0.75,
+      "happyHour": 0.7,
+      "date": 0.6,
+      "cocktails": 0.0,
+      "late": 0.1,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.85,
+      "small": 0.75,
+      "mid": 0.5,
+      "big": 0.25
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.7,
+      "longterm": 0.65
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "earlyEvening",
+    "easyIn": 0.7,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/local",
+      "https://happy-hour.nyc/bars-restaurants/local",
+      "https://www.theinfatuation.com/new-york/guides/soho-nolita-bars-nyc"
+    ],
+    "notes": "Compact beer-and-wine bar between Prince and Houston with counter seats, a quieter back room with tables, a window nook, and a good amount of outdoor seating. Ciders and sours on the list; free popcorn on request. Happy hour daily 4-6pm with a complimentary hot dog or cheese and crackers. Its old localnyc.com domain is parked, so check Instagram for current hours."
+  },
+  {
+    "slug": "onieals-grand-street",
+    "kind": "bar",
+    "name": "Onieal's Grand Street",
+    "neighborhood": "soho-nolita",
+    "address": "174 Grand St, New York, NY 10013",
+    "lat": 40.7195,
+    "lng": -73.9979,
+    "take": "A Grand Street tavern since 1995 with a bootlegger tunnel for a wine cellar, cocktails, a real kitchen, and a 4am close on weekends.",
+    "theCatch": "Kitchen runs until midnight; weekends it's a birthday-party room, so book if you're more than six.",
+    "tags": [
+      "Groups",
+      "Late Night",
+      "Food",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.45,
+      "talk": 0.5
+    },
+    "attrs": {
+      "groups": 0.85,
+      "late": 0.85,
+      "food": 0.8,
+      "classic": 0.7,
+      "lively": 0.7,
+      "seating": 0.65,
+      "cocktails": 0.6,
+      "dive": 0.05
+    },
+    "groupFit": {
+      "two": 0.55,
+      "small": 0.75,
+      "mid": 0.9,
+      "big": 0.9
+    },
+    "dateFit": {
+      "first": 0.45,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.6,
+    "sources": [
+      "https://www.onieals.com/soho",
+      "https://www.timeout.com/newyork/bars/onieals-grand-street"
+    ],
+    "notes": "174 Grand St between Lafayette and Mulberry; the venue site lists Mon-Wed to 2am, Thu to 3am, Fri-Sat to 4am, with an all-day tavern menu until midnight and weekend brunch. The building was a Prohibition-era speakeasy and gambling parlor and the old tunnel is now the wine cellar. Rotating East Coast craft beers, cocktails, and private-party bookings (birthdays, corporate, bottle brunches) are the draw."
+  },
+  {
+    "slug": "jimmy-soho",
+    "kind": "bar",
+    "name": "JIMMY",
+    "neighborhood": "soho-nolita",
+    "address": "15 Thompson St, New York, NY 10013",
+    "lat": 40.7221,
+    "lng": -74.0045,
+    "take": "Eighteen floors up with the Hudson on one side and Midtown on the other; the Soho rooftop that earns its cocktail prices on a clear night.",
+    "theCatch": "Reserve on Resy for the roof deck in summer; dress a little, and don't show up in a big group unannounced.",
+    "tags": [
+      "Rooftop",
+      "Cocktails",
+      "Upscale",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.55
+    },
+    "attrs": {
+      "rooftop": 1.0,
+      "outdoor": 0.85,
+      "upscale": 0.85,
+      "cocktails": 0.8,
+      "date": 0.8,
+      "scene": 0.7,
+      "dressy": 0.6,
+      "cheap": 0.0,
+      "dive": 0.0
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.75,
+      "mid": 0.45,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.85,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.jimmysoho.com/",
+      "https://www.timeout.com/newyork/bars/jimmy",
+      "https://theculturetrip.com/north-america/usa/new-york/articles/the-ultimate-guide-to-bars-in-soho-and-nolita"
+    ],
+    "notes": "Rooftop bar atop the ModernHaus SoHo hotel (formerly The James) at Thompson and Grand, 18 floors up; open year-round, 5pm to midnight Sun-Tue, 1am Wed-Thu, 2am Fri-Sat. Indoor room with 14-foot windows and a fireplace conversation pit in winter; roof deck with a pool in summer. Reservations via Resy or email; the venue asks for 'upscale but casual' attire."
+  },
+  {
+    "slug": "balthazar",
+    "kind": "restaurant",
+    "name": "Balthazar",
+    "neighborhood": "soho-nolita",
+    "address": "80 Spring St, New York, NY 10012",
+    "lat": 40.7231,
+    "lng": -73.9985,
+    "take": "The big red brasserie that's been a scene since 1997, and still is: steak frites, a tower of shellfish, and a bar you can walk up to.",
+    "theCatch": "Bar seats are walk-in before 7 or after 9; the dining room needs a Resy weeks out.",
+    "tags": [
+      "Old NYC",
+      "Sceney",
+      "Food",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.35,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1.0,
+      "classic": 0.9,
+      "scene": 0.8,
+      "lively": 0.8,
+      "upscale": 0.75,
+      "seating": 0.6,
+      "groups": 0.6,
+      "wine": 0.6,
+      "late": 0.1
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.8,
+      "mid": 0.7,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.75,
+      "longterm": 0.75
+    },
+    "price": 4,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.3,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/balthazar",
+      "https://balthazarny.com/"
+    ],
+    "notes": "Keith McNally's French brasserie at 80 Spring St, open daily from breakfast through late supper with weekend brunch; Michelin-recommended. Steak frites in the low $40s, bread basket $22; Resy reservations, with walk-in bar seating easiest before 7pm or after 9pm. Crowd mixes regulars, Soho shoppers and out-of-towners."
+  },
+  {
+    "slug": "raouls",
+    "kind": "restaurant",
+    "name": "Raoul's",
+    "neighborhood": "soho-nolita",
+    "address": "180 Prince St, New York, NY 10012",
+    "lat": 40.7264,
+    "lng": -74.0027,
+    "take": "Dark, crowded, and unchanged since the seventies; get the bar, order the peppercorn burger before the twelve run out, then walk to Milady's.",
+    "theCatch": "Only 12 burgers a night at the bar, first come; Resy opens 30 days out and goes fast.",
+    "tags": [
+      "Old NYC",
+      "Date",
+      "Food",
+      "Burgers"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.45,
+      "talk": 0.45
+    },
+    "attrs": {
+      "food": 1.0,
+      "classic": 0.95,
+      "date": 0.8,
+      "upscale": 0.7,
+      "scene": 0.7,
+      "cocktails": 0.6,
+      "seating": 0.2,
+      "groups": 0.1,
+      "late": 0.1
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.7,
+      "mid": 0.35,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.65,
+      "early": 0.85,
+      "longterm": 0.9
+    },
+    "price": 4,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.2,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/raouls",
+      "https://www.raouls.com/"
+    ],
+    "notes": "French bistro at 180 Prince St since 1975; dinner nightly (bar from 5pm, kitchen 5:15pm), brunch Sat-Sun 11-2:30. Reservations only via Resy, 30 days out, tables max 8. The burger au poivre is bar-only, 12 per night, first come. Oil paintings, a stag head, a fish tank between the front and back rooms; card payments must be chip and no Apple Pay."
+  },
+  {
+    "slug": "rubirosa",
+    "kind": "restaurant",
+    "name": "Rubirosa",
+    "neighborhood": "soho-nolita",
+    "address": "235 Mulberry St, New York, NY 10012",
+    "lat": 40.7227,
+    "lng": -73.9958,
+    "take": "Thin vodka-sauce pizza, ravioli, and a room so packed it runs like a bar; the Nolita dinner that feeds eight people without anyone checking the bill twice.",
+    "theCatch": "Resy releases weekly and vanishes; walk-ins wait an hour-plus on weekends, so put your name in and go to Spring Lounge.",
+    "tags": [
+      "Food",
+      "Groups",
+      "Lively",
+      "Pizza"
+    ],
+    "vibe": {
+      "lively": 0.85,
+      "chill": 0.3,
+      "talk": 0.35
+    },
+    "attrs": {
+      "food": 1.0,
+      "lively": 0.85,
+      "groups": 0.8,
+      "seating": 0.2,
+      "cheap": 0.15,
+      "late": 0.05
+    },
+    "groupFit": {
+      "two": 0.65,
+      "small": 0.85,
+      "mid": 0.85,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.55,
+      "early": 0.7,
+      "longterm": 0.65
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.2,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/rubirosa",
+      "https://www.timeout.com/newyork/restaurants/rubirosa",
+      "https://www.rubirosanyc.com/"
+    ],
+    "notes": "235 Mulberry between Prince and Spring, open daily 11am-11pm. Family from Joe & Pat's on Staten Island; signature tie-dye pizza (vodka sauce and pesto), fresh pasta, a big gluten-free menu, house wine around $15 a glass. Reservations on Resy released weekly; walk-ins accepted with long weekend waits and a small outdoor shed."
+  },
+  {
+    "slug": "emilios-ballato",
+    "kind": "restaurant",
+    "name": "Emilio's Ballato",
+    "neighborhood": "soho-nolita",
+    "address": "55 E Houston St, New York, NY 10012",
+    "lat": 40.7248,
+    "lng": -73.9944,
+    "take": "No reservations, a front room of celebrity photos, a hidden back room, and veal that costs what it costs; old Houston Street Italian, worth the wait once.",
+    "theCatch": "Walk-in only; a table for six on a Tuesday is half an hour, Saturday can run past two hours.",
+    "tags": [
+      "Old NYC",
+      "Food",
+      "Sceney",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.65,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1.0,
+      "classic": 0.95,
+      "scene": 0.75,
+      "groups": 0.65,
+      "upscale": 0.6,
+      "seating": 0.2,
+      "cocktails": 0.1,
+      "late": 0.0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.8,
+      "mid": 0.75,
+      "big": 0.45
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.65,
+      "longterm": 0.8
+    },
+    "price": 4,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.15,
+    "sources": [
+      "https://www.theinfatuation.com/new-york/reviews/emilios-ballato",
+      "https://www.timeout.com/newyork/restaurants/emilios-ballato"
+    ],
+    "notes": "55 E Houston between Mott and Mulberry, family-run since 1956. Walk-in only, no reservations; front room lined with celebrity photos and a windowless back room used for groups. Southern Italian: bolognese, off-menu vitello antonio, chicken parm around $40, veal dishes up to $85, family-style portions add up. Time Out lists Mon-Fri noon-11pm, Sat 4pm-midnight, Sun 4-11pm; cards accepted."
+  },
+  {
+    "slug": "la-esquina",
+    "kind": "restaurant",
+    "name": "La Esquina",
+    "neighborhood": "soho-nolita",
+    "address": "114 Kenmare St, New York, NY 10012",
+    "lat": 40.7211,
+    "lng": -73.9972,
+    "take": "Tacos at the corner counter, or through the kitchen and down to the brasserie for mezcal, dim light, and a room that runs until 2.",
+    "theCatch": "Book the downstairs on OpenTable; the taqueria upstairs stays open until 5am for the after-bar taco.",
+    "tags": [
+      "Food",
+      "Late Night",
+      "Speakeasy",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.75,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 0.9,
+      "speakeasy": 0.75,
+      "late": 0.7,
+      "date": 0.7,
+      "cocktails": 0.7,
+      "lively": 0.75,
+      "scene": 0.6,
+      "cheap": 0.1
+    },
+    "groupFit": {
+      "two": 0.75,
+      "small": 0.85,
+      "mid": 0.7,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.8,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.35,
+    "sources": [
+      "https://www.timeout.com/newyork/restaurants/la-esquina",
+      "https://esquinanyc.com/",
+      "https://esquinanyc.com/reservations"
+    ],
+    "notes": "114 Kenmare St at Lafayette: a street-level taqueria and takeout window, a casual cafe, and the underground brasserie entered through the kitchen. Time Out lists taqueria hours to 5am, cafe noon-midnight, restaurant 6pm-2am. Mains around $20-25; deep tequila and mezcal list sorted by region. Reservations through the venue site; $25 per person late-cancel fee; parties of 9+ handled separately."
+  }
+]

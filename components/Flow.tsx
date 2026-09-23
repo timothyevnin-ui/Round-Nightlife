@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { NycMap } from "./NycMap";
+import { RealMap } from "./RealMap";
 import { TimeDial, Wheel } from "./Pickers";
 import type { NeighborhoodId } from "@/lib/types";
 
@@ -342,7 +342,7 @@ function MapStep({ step, current, suggested, onSelect }: { step: FlowStep; curre
   return (
     <div>
       <div className="overflow-hidden rounded-[24px] border" style={{ borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
-        <NycMap value={value} onSelect={(id) => onSelect(id)} />
+        <RealMap value={value} onSelect={(id) => onSelect(id)} />
       </div>
       <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
         Tap a neighborhood. More of the city as ROUND grows.
