@@ -8,6 +8,7 @@ import { listSuggestions } from "@/lib/suggestions";
 import { DashboardActions } from "./DashboardActions";
 import { DbHealth } from "./DbHealth";
 import { checkDatabase, sqlEditorUrl } from "@/lib/health";
+import { PICK_MODEL } from "@/lib/pick";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,11 @@ export default async function Dashboard() {
     },
     8,
   );
-  const results = ev.filter((e) => e.kind === "results").length;
+  const resultEvents = ev.filter((e) => e.kind === "results");
+  const results = resultEvents.length;
+  const byClaude = resultEvents.filter((e) => (e.data as { engine?: string }).engine === "claude");
+  const claudeMs = byClaude.length ? Math.round(byClaude.reduce((a, e) => a + Number((e.data as { ms?: number }).ms ?? 0), 0) / byClaude.length) : 0;
+  const claudeOn = !!process.env.ANTHROPIC_API_KEY;
   const searchesN = ev.filter((e) => e.kind === "search" && !(e.data as { picked?: boolean }).picked).length;
 
   return (
@@ -87,6 +92,21 @@ export default async function Dashboard() {
       )}
 
       <DbHealth health={health} editorUrl={sqlEditorUrl()} />
+
+      <div className="card mt-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 text-[13.5px]" style={{ color: "var(--ink-70)" }}>
+        <span>
+          <strong>Claude {claudeOn ? "is picking" : "is off"}.</strong>{" "}
+          {claudeOn ? (
+            <>
+              Every results page goes through <code>{PICK_MODEL}</code> with the whole catalog. {byClaude.length}/{results} results in the last {DAYS} days{byClaude.length ? `, ${(claudeMs / 1000).toFixed(1)}s average` : ""}.
+            </>
+          ) : (
+            <>
+              Add <code>ANTHROPIC_API_KEY</code> in Vercel → Settings → Environment Variables and redeploy; until then the rules engine picks.
+            </>
+          )}
+        </span>
+      </div>
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} />
 

@@ -12,9 +12,9 @@ import { makeRemote, pullAll, pushAll } from "./sync";
  * save follows you from phone to phone.
  */
 
-export type Profile = { id: string; name: string; birthday: string | null; phone: string | null };
+export type Profile = { id: string; name: string; birthday: string | null; phone: string | null; is_public?: boolean; share_location?: boolean };
 
-export type SignInReason = "keep" | "you" | "rate" | "menu";
+export type SignInReason = "keep" | "you" | "rate" | "menu" | "friends";
 
 export type AuthState = {
   /** False when the app runs without a database: every sign-in surface hides itself. */
@@ -33,6 +33,8 @@ export type AuthState = {
   verifyCode: (phone: string, code: string) => Promise<string | null>;
   saveProfile: (p: { name: string; birthday: string }) => Promise<string | null>;
   signOut: (opts?: { forget?: boolean }) => Promise<void>;
+  /** Reflect a profile change made elsewhere (privacy toggles) without a refetch. */
+  updateProfile: (patch: Partial<Profile>) => void;
 };
 
 const Ctx = createContext<AuthState | null>(null);
@@ -63,8 +65,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = useCallback(
     async (u: User): Promise<Profile | null> => {
       if (!sb) return null;
-      const { data } = await sb.from("profiles").select("id,name,birthday,phone").eq("id", u.id).maybeSingle();
-      if (data) return data as Profile;
+      // The privacy columns arrived in V8; read without them if the database is behind.
+      let data: Profile | null = null;
+      const full = await sb.from("profiles").select("id,name,birthday,phone,is_public,share_location").eq("id", u.id).maybeSingle();
+      if (!full.error) data = (full.data as Profile | null) ?? null;
+      else {
+        const basic = await sb.from("profiles").select("id,name,birthday,phone").eq("id", u.id).maybeSingle();
+        data = (basic.data as Profile | null) ?? null;
+      }
+      if (data) return data;
       // First sign-in: start the row now (phone only) so the person exists in
       // the Studio even if they never finish the name step.
       const phone = u.phone ? `+${u.phone.replace(/^\+/, "")}` : null;
@@ -159,10 +168,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const saveProfile = useCallback(
     async ({ name, birthday }: { name: string; birthday: string }) => {
       if (!sb || !user) return "You're not signed in.";
-      const row = { id: user.id, name: name.trim(), birthday, phone: user.phone ?? null };
+      const row = { id: user.id, name: name.trim(), birthday, phone: user.phone ? `+${user.phone.replace(/^\+/, "")}` : null };
       const { error } = await sb.from("profiles").upsert(row, { onConflict: "id" });
       if (error) return friendly(error.message, "profile");
-      setProfile(row);
+      setProfile((p) => ({ ...(p ?? {}), ...row }));
       return null;
     },
     [sb, user],
@@ -180,11 +189,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mergedFor.current = null;
   }, [sb, user]);
 
+  const updateProfile = useCallback((patch: Partial<Profile>) => setProfile((p) => (p ? { ...p, ...patch } : p)), []);
+
   const needsProfile = !!user && (!profile || !profile.name || !profile.birthday);
 
   const value = useMemo<AuthState>(
-    () => ({ enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut }),
-    [enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut],
+    () => ({ enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut, updateProfile }),
+    [enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut, updateProfile],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -204,6 +215,7 @@ const OFF: AuthState = {
   verifyCode: async () => "Accounts aren't switched on yet.",
   saveProfile: async () => "Accounts aren't switched on yet.",
   signOut: async () => {},
+  updateProfile: () => {},
 };
 
 export function useAuth(): AuthState {

@@ -15,6 +15,7 @@ const COPY: Record<SignInReason, { title: string; sub: string }> = {
   you: { title: "Keep your map.", sub: "Right now it lives on this phone only. Your number makes it yours." },
   rate: { title: "Keep your ratings.", sub: "Your Loved / Good / Meh list is the start of your ranked NYC. Don't lose it to a new phone." },
   menu: { title: "Sign in.", sub: "Your number, a code, done." },
+  friends: { title: "Find your friends.", sub: "Your number is how they find you, and how you find them. One text, a code, done." },
 };
 
 type Step = "phone" | "code" | "profile" | "done";

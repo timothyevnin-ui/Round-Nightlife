@@ -19,6 +19,10 @@ const PROBES: { key: string; label: string; what: string; path: string }[] = [
   { key: "go_taps", label: "GO taps", what: "the go_taps table (V3)", path: "go_taps?select=slug&limit=1" },
   { key: "suggestions", label: "Recommendations inbox", what: "the suggestions table (V5)", path: "suggestions?select=id&limit=1" },
   { key: "events", label: "Activity log", what: "the events table (V7)", path: "events?select=id&limit=1" },
+  { key: "profiles.privacy", label: "Public / private accounts", what: "the phone_hash, is_public and share_location columns on profiles (V8)", path: "profiles?select=phone_hash,is_public,share_location&limit=1" },
+  { key: "people", label: "Finding friends by name", what: "the people view (V8)", path: "people?select=id&limit=1" },
+  { key: "friends", label: "Friends", what: "the friends table and its functions (V8)", path: "friends?select=user_id&limit=1" },
+  { key: "checkins", label: "Where friends are", what: "the checkins table (V8)", path: "checkins?select=user_id&limit=1" },
 ];
 
 function explain(status: number, text: string): string {

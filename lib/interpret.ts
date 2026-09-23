@@ -25,19 +25,22 @@ export type Interpretation = {
   venue?: { slug: string; name: string; neighborhood: NeighborhoodId; lat: number; lng: number };
   /** They want places around that venue, not the venue itself. */
   near?: boolean;
+  /** A street, corner, landmark or address they mentioned (not a ROUND place): "near Bleecker", "by Washington Square". */
+  place?: { label: string; lat: number; lng: number };
 };
 
 export type VenueForMatch = Pick<Venue, "slug" | "name" | "neighborhood" | "lat" | "lng">;
 
+// Names, nicknames, and the streets and landmarks people actually say.
 const HOOD_ALIASES: Record<NeighborhoodId, string[]> = {
-  "west-village": ["west village", "wv", "w village", "west vill", "greenwich village", "the village"],
-  "east-village": ["east village", "ev", "e village", "east vill", "alphabet city", "st marks"],
-  "lower-east-side": ["lower east side", "les", "l.e.s", "lower east", "chinatown", "two bridges", "dimes square"],
-  "soho-nolita": ["soho", "nolita", "noho", "little italy"],
-  tribeca: ["tribeca", "fidi", "financial district"],
-  chelsea: ["chelsea", "meatpacking", "west 20s", "flatiron"],
-  williamsburg: ["williamsburg", "wburg", "w'burg", "billyburg", "bedford"],
-  greenpoint: ["greenpoint", "gp"],
+  "west-village": ["west village", "wv", "w village", "west vill", "greenwich village", "the village", "bleecker", "bleeker", "macdougal", "mcdougal", "christopher st", "christopher street", "washington square", "wash sq", "carmine", "cornelia", "grove st", "hudson st", "7th ave south", "seventh ave south", "sheridan square", "sheridan sq", "west 4th", "w 4th", "nyu"],
+  "east-village": ["east village", "ev", "e village", "east vill", "alphabet city", "st marks", "st. marks", "saint marks", "avenue a", "avenue b", "avenue c", "ave a", "ave b", "ave c", "tompkins", "2nd ave", "second ave", "1st ave", "first ave", "east 7th", "e 7th", "cooper square", "astor place", "astor pl"],
+  "lower-east-side": ["lower east side", "les", "l.e.s", "lower east", "chinatown", "two bridges", "dimes square", "ludlow", "orchard st", "orchard street", "delancey", "rivington", "stanton", "essex", "clinton st", "canal st", "canal street", "allen st"],
+  "soho-nolita": ["soho", "nolita", "noho", "little italy", "prince st", "prince street", "spring st", "spring street", "mulberry", "elizabeth st", "elizabeth street", "mott st", "mott street", "kenmare", "lafayette", "bowery", "bond st", "bond street", "great jones"],
+  tribeca: ["tribeca", "fidi", "financial district", "west broadway", "duane", "hudson square", "chambers", "warren st", "greenwich st", "stone street", "stone st"],
+  chelsea: ["chelsea", "meatpacking", "west 20s", "flatiron", "high line", "highline", "gansevoort", "little west 12th", "9th ave", "ninth ave", "10th ave", "tenth ave", "west 23rd", "w 23rd", "west 14th", "w 14th", "chelsea market", "union square", "union sq"],
+  williamsburg: ["williamsburg", "wburg", "w'burg", "billyburg", "bedford ave", "bedford avenue", "bedford", "n 6th", "north 6th", "n 7th", "north 7th", "wythe", "berry st", "berry street", "metropolitan ave", "kent ave", "domino park", "south williamsburg"],
+  greenpoint: ["greenpoint", "gp", "franklin st", "franklin street", "franklin ave", "manhattan ave", "manhattan avenue", "nassau ave", "nassau avenue", "mcguinness", "greenpoint ave", "transmitter park", "mccarren"],
 };
 
 const NUMBER_WORDS: Record<string, number> = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 11, dozen: 11, couple: 2, few: 3, handful: 5 };
@@ -180,7 +183,9 @@ export function interpretPrompt(text: string, venues: VenueForMatch[] = []) {
     `Turn this sentence about going out in NYC into JSON for a bar recommender.\n` +
     `Sentence: """${text}"""\n\n` +
     `Return only JSON: {"mode":"night"|"date"|"dinner" (dinner = a group wants to eat first, then drinks),"neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) or null,` +
-    `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases], "venue": slug or null, "near": boolean}\n` +
+    `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases], "venue": slug or null, "near": boolean, "place": {"label": string, "lat": number, "lng": number} or null}\n` +
+    `Neighborhoods, with the streets and landmarks that belong to them: west-village = Greenwich Village too (Bleecker, MacDougal, Christopher, Hudson St, Washington Square, NYU); east-village (St Marks, Avenues A-C, Tompkins Square, Astor Place); lower-east-side (Ludlow, Orchard, Delancey, Rivington, Chinatown, Dimes Square); soho-nolita (Prince, Spring, Mulberry, Elizabeth, Mott, the Bowery, NoHo); tribeca (West Broadway, Duane, Hudson Square, FiDi); chelsea (Meatpacking, the High Line, Flatiron, Union Square); williamsburg (Bedford Ave, N 6th, Wythe, Domino Park); greenpoint (Franklin St, Manhattan Ave, Nassau Ave, McCarren Park).\n` +
+    `"place": when they mention a street, corner, landmark, park, subway stop or address in New York that is NOT one of the ROUND places below ("near Bleecker", "by Washington Square", "around Delancey and Essex", "I'm at the Bedford L"), give its short label and its coordinates as precisely as you can, and set "neighborhood" to the neighborhood it's in. Otherwise null. Spelling is often off (Bleeker = Bleecker).\n` +
     `Attributes (use only these keys; positive = wants it, negative = wants to avoid it; also allowed: "noLine" for no waiting, "new" for somewhere they haven't been):\n${attrs}\n` +
     (places
       ? `Places ROUND knows (slug (name, neighborhood)). If the sentence names one of them, even misspelled or shortened, set "venue" to its slug and "neighborhood" to its neighborhood; set "near": true only if they want places around it ("near", "by", "I'm at") rather than that place itself. Names that are just common words ("Local", "Diner") only count when clearly used as a place name.\n${places}\n`
@@ -189,15 +194,23 @@ export function interpretPrompt(text: string, venues: VenueForMatch[] = []) {
   );
 }
 
-export function toResultsParams(i: Interpretation, fallbackDow: number): URLSearchParams {
+export function toResultsParams(i: Interpretation, fallbackDow: number, said?: string): URLSearchParams {
   const p = new URLSearchParams();
-  if (i.venue && i.near) {
+  const q = (said ?? "").replace(/\s+/g, " ").trim().slice(0, 300);
+  if (q) p.set("q", q);
+  const spot = i.venue && i.near ? { label: i.venue.name, lat: i.venue.lat, lng: i.venue.lng } : !i.venue && i.place ? i.place : null;
+  if (spot) {
     p.set("m", "near");
-    p.set("lat", i.venue.lat.toFixed(5));
-    p.set("lng", i.venue.lng.toFixed(5));
-    p.set("at", i.venue.name);
+    p.set("lat", spot.lat.toFixed(5));
+    p.set("lng", spot.lng.toFixed(5));
+    p.set("at", spot.label);
+    if (i.neighborhood) p.set("n", i.neighborhood);
     p.set("t", String(i.hour ?? timeOptions().defaultValue));
     p.set("d", String(fallbackDow));
+    if (i.mode === "date") {
+      p.set("s", i.stage ?? "early");
+      p.set("dn", i.dinner === false ? "0" : "1");
+    } else p.set("g", String(i.group ?? 4));
     const w = Object.entries(i.wants)
       .filter(([, v]) => typeof v === "number" && v !== 0)
       .map(([k, v]) => `${k}:${Number((v as number).toFixed(2))}`)

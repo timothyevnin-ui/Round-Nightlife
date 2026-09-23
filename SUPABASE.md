@@ -66,6 +66,7 @@ What each update needed:
 - **V4** added the "What's hot" shelf and the story (`hot`, `hot_rank`, `story`).
 - **V5** adds the **recommendations inbox** (a new `suggestions` table: nobody can read it from the app, only the back office) and a **photo credit** column (`photo_credit`, for pictures that come from Wikimedia Commons).
 - **V7** adds the **activity log** (an `events` table: what people typed into "just say it", what they searched, which results they saw, which pages they opened). The Studio dashboard and Activity page read from it. Until you run the SQL, the app works the same and the Studio says the table is missing.
+- **V8** adds **friends**: three columns on `profiles` (`phone_hash`, `is_public`, `share_location`), a `people` view (name and public/private only, never the phone), a `friends` table, a `checkins` table (set when someone taps GO, visible to friends for four hours if they allow it), and four functions (`match_contacts`, `befriend`, `accept_friend`, `unfriend`). Contact matching compares SHA-256 hashes of phone numbers; the phone book never leaves the phone. Until you run the SQL, the Friends page says "Friends aren't switched on in the database yet."
 
 Saving a place still works if you forget: the server notices a column the database doesn't have yet, saves without it, and logs a warning. But the inbox at `/admin/suggestions` and "Know a spot we don't?" on the home page need the table, so run the SQL once after uploading V5.
 

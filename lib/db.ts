@@ -189,10 +189,21 @@ export const getVenuesWithSource = cache(async (): Promise<{ venues: Venue[]; so
   const rows = await fetchRows();
   if (rows && rows.length > 0) {
     const venues = rows.map(rowToVenue).filter((v): v is Venue => v !== null);
-    return { venues, source: "db", dbCount: rows.length };
+    return { venues: withNewSeed(venues), source: "db", dbCount: rows.length };
   }
   return { venues: SEED_VENUES, source: "seed", dbCount: rows ? 0 : -1 };
 });
+
+/**
+ * Places added to the built-in list after the database was seeded show up
+ * straight away (the database's own rows always win); "Sync the built-in
+ * list" in Studio turns them into rows you can edit.
+ */
+function withNewSeed(fromDb: Venue[]): Venue[] {
+  const have = new Set(fromDb.map((v) => v.slug));
+  const fresh = SEED_VENUES.filter((v) => !have.has(v.slug));
+  return fresh.length ? [...fromDb, ...fresh] : fromDb;
+}
 
 export async function getVenues(): Promise<Venue[]> {
   return (await getVenuesWithSource()).venues;
@@ -205,7 +216,7 @@ export async function getVenues(): Promise<Venue[]> {
  */
 export async function getVenuesFresh(): Promise<{ venues: Venue[]; source: VenueSource }> {
   const rows = await fetchRows(true);
-  if (rows && rows.length > 0) return { venues: rows.map(rowToVenue).filter((v): v is Venue => v !== null), source: "db" };
+  if (rows && rows.length > 0) return { venues: withNewSeed(rows.map(rowToVenue).filter((v): v is Venue => v !== null)), source: "db" };
   return { venues: SEED_VENUES, source: "seed" };
 }
 

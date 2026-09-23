@@ -33,7 +33,7 @@ export function SayIt() {
       const i = json.interpretation;
       if (!i) throw new Error("no interpretation");
       setUnderstood(i.understood);
-      const params = toResultsParams(i, timeOptions().dow);
+      const params = toResultsParams(i, timeOptions().dow, text);
       if ((i.wants.new ?? 0) > 0) {
         const been = Object.keys(state.been);
         if (been.length) params.set("b", been.join(","));

@@ -13,6 +13,8 @@ import type { DatePlan, Mode, NightPick } from "@/lib/types";
 type Props = {
   mode: Mode | "near";
   summary: string[];
+  /** What ROUND understood, in plain words (from the model). */
+  heard?: string;
   editHref: string;
   code: string;
   night?: (NightPick & { shareCode: string })[];
@@ -22,7 +24,7 @@ type Props = {
 
 const TITLE: Record<Mode | "near", string> = { night: "Night out", date: "Date", dinner: "Dinner & drinks", near: "Near me" };
 
-export function ResultsView({ mode, summary, editHref, code, night, plans, groupWord }: Props) {
+export function ResultsView({ mode, summary, heard, editHref, code, night, plans, groupWord }: Props) {
   const router = useRouter();
   const { rememberResults } = useRoundStore();
 
@@ -56,6 +58,11 @@ export function ResultsView({ mode, summary, editHref, code, night, plans, group
         <h1 className="serif" style={{ fontSize: 34, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
           {headline} <span style={{ color: "var(--ink-55)" }}>Swipe.</span>
         </h1>
+        {heard && count > 0 && (
+          <p className="mt-2 text-[14px] leading-snug" style={{ color: "var(--ink-55)" }} data-heard>
+            We heard: <span style={{ color: "var(--ink)" }}>{heard.replace(/\.$/, "")}</span>.
+          </p>
+        )}
         <Link href={editHref} className="pressable no-scrollbar -mx-5 mt-3 flex items-center gap-1.5 overflow-x-auto px-5" aria-label="Change your answers">
           {summary.map((s) => (
             <span key={s} className="inline-flex h-8 shrink-0 items-center whitespace-nowrap rounded-full border px-3 text-[12.5px] font-medium" style={{ borderColor: "var(--hairline-strong)", color: "var(--ink-70)", background: "var(--surface)" }}>

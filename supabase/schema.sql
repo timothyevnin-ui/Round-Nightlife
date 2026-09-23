@@ -196,4 +196,137 @@ create index if not exists events_slug_idx on public.events (slug) where slug is
 
 alter table public.events enable row level security;
 
--- Later phases (friends, plans, census) add their tables here.
+-- ─────────────────────────────────────────────────────────────────────────
+-- Friends (V8). Your contacts who have ROUND become your friends; friends can
+-- see which bar you're at (if you let them). Public accounts are followed
+-- instantly, private ones get a request.
+-- ─────────────────────────────────────────────────────────────────────────
+
+alter table public.profiles add column if not exists phone_hash     text;
+alter table public.profiles add column if not exists is_public      boolean not null default true;
+alter table public.profiles add column if not exists share_location boolean not null default true;
+create index if not exists profiles_phone_hash_idx on public.profiles (phone_hash);
+
+-- The phone never leaves the phone during contact matching: the app sends
+-- SHA-256 of each number and we compare against this column. Kept in step
+-- with `phone` by a trigger, so nothing else has to remember.
+create or replace function public.profiles_hash_phone() returns trigger language plpgsql as $$
+begin
+  -- Same form the app hashes: "+" followed by digits only, whatever was stored.
+  new.phone_hash = case when new.phone is null or regexp_replace(new.phone, '[^0-9]', '', 'g') = '' then null
+                        else encode(digest('+' || regexp_replace(new.phone, '[^0-9]', '', 'g'), 'sha256'), 'hex') end;
+  return new;
+end $$;
+drop trigger if exists profiles_hash on public.profiles;
+create trigger profiles_hash before insert or update of phone on public.profiles
+  for each row execute function public.profiles_hash_phone();
+update public.profiles set phone = phone where phone_hash is null and phone is not null;
+
+-- What other people may see of a profile: never the phone.
+create or replace view public.people with (security_invoker = false) as
+  select id, name, is_public from public.profiles;
+grant select on public.people to authenticated;
+
+-- One row per direction. 'following' = accepted; 'pending' = asked, not yet accepted.
+create table if not exists public.friends (
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  friend_id  uuid not null references auth.users (id) on delete cascade,
+  status     text not null default 'following' check (status in ('following', 'pending')),
+  at         timestamptz not null default now(),
+  primary key (user_id, friend_id),
+  check (user_id <> friend_id)
+);
+create index if not exists friends_friend_idx on public.friends (friend_id, status);
+
+alter table public.friends enable row level security;
+drop policy if exists "friends: see own edges"      on public.friends;
+drop policy if exists "friends: add own"            on public.friends;
+drop policy if exists "friends: accept for me"      on public.friends;
+drop policy if exists "friends: remove own"         on public.friends;
+create policy "friends: see own edges" on public.friends for select using (auth.uid() = user_id or auth.uid() = friend_id);
+create policy "friends: add own"       on public.friends for insert with check (auth.uid() = user_id);
+create policy "friends: accept for me" on public.friends for update using (auth.uid() = friend_id or auth.uid() = user_id);
+create policy "friends: remove own"    on public.friends for delete using (auth.uid() = user_id or auth.uid() = friend_id);
+
+-- Where you are: set when you tap GO, visible to friends for a few hours.
+create table if not exists public.checkins (
+  user_id   uuid primary key references auth.users (id) on delete cascade,
+  slug      text not null,
+  at        timestamptz not null default now()
+);
+
+alter table public.checkins enable row level security;
+drop policy if exists "checkins: own write"        on public.checkins;
+drop policy if exists "checkins: friends can see"  on public.checkins;
+create policy "checkins: own write" on public.checkins for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "checkins: friends can see" on public.checkins for select using (
+  auth.uid() = user_id
+  or (
+    exists (select 1 from public.friends f where f.user_id = auth.uid() and f.friend_id = checkins.user_id and f.status = 'following')
+    and exists (select 1 from public.profiles p where p.id = checkins.user_id and p.share_location)
+  )
+);
+
+-- Contact matching. The app hashes the numbers on the phone; this returns the
+-- people on ROUND among them (never the other way round).
+create or replace function public.match_contacts(hashes text[])
+returns table (id uuid, name text, is_public boolean)
+language sql security definer set search_path = public as $$
+  select p.id, p.name, p.is_public
+  from public.profiles p
+  where p.phone_hash = any(hashes) and p.id <> auth.uid()
+  limit 500
+$$;
+revoke all on function public.match_contacts(text[]) from public;
+grant execute on function public.match_contacts(text[]) to authenticated;
+
+-- Becoming friends. Public people are friends at once (both directions);
+-- private people get a request they accept. Runs as the definer so the
+-- second direction can be written; every function checks who's asking.
+create or replace function public.befriend(target uuid) returns text
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); pub boolean;
+begin
+  if me is null or target is null or target = me then raise exception 'not allowed'; end if;
+  select is_public into pub from public.profiles where id = target;
+  if pub is null then raise exception 'no such person'; end if;
+  if pub then
+    insert into public.friends (user_id, friend_id, status) values (me, target, 'following')
+      on conflict (user_id, friend_id) do update set status = 'following';
+    insert into public.friends (user_id, friend_id, status) values (target, me, 'following')
+      on conflict (user_id, friend_id) do update set status = 'following';
+    return 'following';
+  else
+    insert into public.friends (user_id, friend_id, status) values (me, target, 'pending')
+      on conflict (user_id, friend_id) do nothing;
+    return 'pending';
+  end if;
+end $$;
+
+create or replace function public.accept_friend(requester uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not allowed'; end if;
+  update public.friends set status = 'following' where user_id = requester and friend_id = me and status = 'pending';
+  if not found then raise exception 'no request'; end if;
+  insert into public.friends (user_id, friend_id, status) values (me, requester, 'following')
+    on conflict (user_id, friend_id) do update set status = 'following';
+end $$;
+
+create or replace function public.unfriend(target uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not allowed'; end if;
+  delete from public.friends where (user_id = me and friend_id = target) or (user_id = target and friend_id = me);
+end $$;
+
+revoke all on function public.befriend(uuid) from public;
+revoke all on function public.accept_friend(uuid) from public;
+revoke all on function public.unfriend(uuid) from public;
+grant execute on function public.befriend(uuid) to authenticated;
+grant execute on function public.accept_friend(uuid) to authenticated;
+grant execute on function public.unfriend(uuid) to authenticated;
+
+-- Later phases (plans, census) add their tables here.

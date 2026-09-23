@@ -131,7 +131,10 @@ function detail(e: EventRow, name: (s: string | null) => string): React.ReactNod
         <>
           {String(d.mode)} · {hood}
           {e.q ? ` · ${e.q}` : ""}
-          <span style={{ color: "var(--ink-55)" }}>{shown ? ` → ${shown}…` : ""}</span>
+          <span style={{ color: "var(--ink-55)" }}>
+            {shown ? ` → ${shown}…` : ""}
+            {d.engine === "claude" ? ` · Claude${typeof d.heard === "string" && d.heard ? ` heard "${d.heard}"` : ""}` : d.engine === "rules" ? ` · rules${typeof d.note === "string" && d.note ? ` (${d.note})` : ""}` : ""}
+          </span>
         </>
       );
     }
