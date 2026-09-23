@@ -42,3 +42,9 @@ export function parseName(raw: string | undefined | null): string | undefined {
   v = v.trim().slice(0, 24);
   return /^[\p{L}\p{M}'’-]{1,24}$/u.test(v) ? v : undefined;
 }
+
+/** The favorite-bar slug from the round_fav cookie, or nothing. */
+export function parseFav(raw: string | undefined | null): string | undefined {
+  const v = (raw ?? "").trim();
+  return SLUG.test(v) ? v : undefined;
+}

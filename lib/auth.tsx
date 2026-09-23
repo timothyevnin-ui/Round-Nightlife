@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Session, User } from "@supabase/supabase-js";
 import { accountsEnabled, getSupabase } from "./supabase";
 import { clearPersonal, mergeState, readState, setRemote } from "./store";
-import { setNameCookie } from "./tasteCookie";
+import { setFavCookie, setNameCookie } from "./tasteCookie";
 import { makeRemote, pullAll, pushAll } from "./sync";
 
 /**
@@ -13,7 +13,25 @@ import { makeRemote, pullAll, pushAll } from "./sync";
  * save follows you from phone to phone.
  */
 
-export type Profile = { id: string; name: string; birthday: string | null; phone: string | null; is_public?: boolean; share_location?: boolean };
+export type Profile = {
+  id: string;
+  name: string;
+  birthday: string | null;
+  phone: string | null;
+  is_public?: boolean;
+  share_location?: boolean;
+  /** About you (V14): all optional, all skippable. */
+  hometown?: string | null;
+  fav_bar?: string | null;
+  fav_bar_slug?: string | null;
+  fav_restaurant?: string | null;
+  fun?: Record<string, string> | null;
+  avatar_url?: string | null;
+};
+
+/** The about-you fields a person can edit. */
+export type About = Pick<Profile, "hometown" | "fav_bar" | "fav_bar_slug" | "fav_restaurant" | "fun" | "avatar_url">;
+const ABOUT_COLUMNS = "hometown,fav_bar,fav_bar_slug,fav_restaurant,fun,avatar_url";
 
 export type SignInReason = "keep" | "you" | "rate" | "menu" | "friends";
 
@@ -33,6 +51,10 @@ export type AuthState = {
   sendCode: (phone: string) => Promise<string | null>;
   verifyCode: (phone: string, code: string) => Promise<string | null>;
   saveProfile: (p: { name: string; birthday: string }) => Promise<string | null>;
+  /** Save any of the about-you fields. */
+  saveAbout: (patch: Partial<About>) => Promise<string | null>;
+  /** Upload a profile photo (already shrunk) and return its public URL, or an error. */
+  uploadAvatar: (file: File) => Promise<{ url?: string; error?: string }>;
   signOut: (opts?: { forget?: boolean }) => Promise<void>;
   /** Reflect a profile change made elsewhere (privacy toggles) without a refetch. */
   updateProfile: (patch: Partial<Profile>) => void;
@@ -68,11 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!sb) return null;
       // The privacy columns arrived in V8; read without them if the database is behind.
       let data: Profile | null = null;
-      const full = await sb.from("profiles").select("id,name,birthday,phone,is_public,share_location").eq("id", u.id).maybeSingle();
-      if (!full.error) data = (full.data as Profile | null) ?? null;
+      const v14 = await sb.from("profiles").select(`id,name,birthday,phone,is_public,share_location,${ABOUT_COLUMNS}`).eq("id", u.id).maybeSingle();
+      if (!v14.error) data = (v14.data as Profile | null) ?? null;
       else {
-        const basic = await sb.from("profiles").select("id,name,birthday,phone").eq("id", u.id).maybeSingle();
-        data = (basic.data as Profile | null) ?? null;
+        const full = await sb.from("profiles").select("id,name,birthday,phone,is_public,share_location").eq("id", u.id).maybeSingle();
+        if (!full.error) data = (full.data as Profile | null) ?? null;
+        else {
+          const basic = await sb.from("profiles").select("id,name,birthday,phone").eq("id", u.id).maybeSingle();
+          data = (basic.data as Profile | null) ?? null;
+        }
       }
       if (data) return data;
       // First sign-in: start the row now (phone only) so the person exists in
@@ -109,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const p = await loadProfile(u);
         setProfile(p);
         setNameCookie(p?.name);
+        setFavCookie(p?.fav_bar_slug);
         await merge(u);
       } else {
         setProfile(null);
@@ -189,19 +216,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await sb.auth.signOut();
     clearPersonal();
     setNameCookie(null);
+    setFavCookie(null);
     setUser(null);
     setProfile(null);
     setRemote(makeRemote(sb, null));
     mergedFor.current = null;
   }, [sb, user]);
 
+  const saveAbout = useCallback(
+    async (patch: Partial<About>) => {
+      if (!sb || !user) return "You're not signed in.";
+      const clean: Partial<About> = {};
+      for (const k of ["hometown", "fav_bar", "fav_bar_slug", "fav_restaurant", "avatar_url"] as const) {
+        if (k in patch) clean[k] = typeof patch[k] === "string" ? (patch[k] as string).trim().slice(0, 120) || null : null;
+      }
+      if ("fun" in patch) clean.fun = patch.fun ?? {};
+      const { error } = await sb.from("profiles").update(clean).eq("id", user.id);
+      if (error) return /column|schema cache/i.test(error.message) ? "The database is a version behind: run the latest schema.sql in Supabase, then try again." : friendly(error.message, "profile");
+      setProfile((p) => (p ? { ...p, ...clean } : p));
+      if ("fav_bar_slug" in clean) setFavCookie(clean.fav_bar_slug);
+      return null;
+    },
+    [sb, user],
+  );
+
+  const uploadAvatar = useCallback(
+    async (file: File): Promise<{ url?: string; error?: string }> => {
+      if (!sb || !user) return { error: "You're not signed in." };
+      const path = `${user.id}/avatar.jpg`;
+      const { error } = await sb.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg", cacheControl: "3600" });
+      if (error) return { error: /bucket/i.test(error.message) ? "Photos aren't switched on yet: run the latest schema.sql in Supabase (it creates the avatars bucket)." : `Couldn't upload that photo.\n${error.message}` };
+      const { data } = sb.storage.from("avatars").getPublicUrl(path);
+      return { url: `${data.publicUrl}?v=${Date.now()}` };
+    },
+    [sb, user],
+  );
+
   const updateProfile = useCallback((patch: Partial<Profile>) => setProfile((p) => (p ? { ...p, ...patch } : p)), []);
 
   const needsProfile = !!user && (!profile || !profile.name || !profile.birthday);
 
   const value = useMemo<AuthState>(
-    () => ({ enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut, updateProfile }),
-    [enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, signOut, updateProfile],
+    () => ({ enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, saveAbout, uploadAvatar, signOut, updateProfile }),
+    [enabled, ready, user, profile, needsProfile, sheetOpen, reason, openSignIn, closeSignIn, sendCode, verifyCode, saveProfile, saveAbout, uploadAvatar, signOut, updateProfile],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -220,6 +277,8 @@ const OFF: AuthState = {
   sendCode: async () => "Accounts aren't switched on yet.",
   verifyCode: async () => "Accounts aren't switched on yet.",
   saveProfile: async () => "Accounts aren't switched on yet.",
+  saveAbout: async () => "Accounts aren't switched on yet.",
+  uploadAvatar: async () => ({ error: "Accounts aren't switched on yet." }),
   signOut: async () => {},
   updateProfile: () => {},
 };

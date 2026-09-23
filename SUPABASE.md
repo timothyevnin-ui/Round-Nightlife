@@ -97,6 +97,10 @@ Accounts let people keep their Want-to-go / Been / ratings across phones. Supaba
 
 **e. Try it.** Open any place, tap **Want to go**: the sheet asks for your number. Code, first name, birthday, done. The YOU tab shows your name; sign out and back in on another phone and your places are there.
 
+## 8. About you (V14): profile photos
+
+Run the current `supabase/schema.sql` again (safe to re-run). It adds the about-you columns to `profiles`, widens the `people` view (friends see a photo and a hometown), and creates a public **avatars** bucket where each person can only write their own folder. If the bucket step is skipped (rare storage permission quirk; the SQL says so in its notices), create it by hand: **Storage** → **New bucket** → name `avatars` → **Public bucket** on → Save, then re-run the SQL for the policies.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.
@@ -106,6 +110,8 @@ Accounts let people keep their Want-to-go / Been / ratings across phones. Supaba
 - **Draft the Take does nothing** → the Anthropic key is missing, or the console has no prepaid credit.
 - **"Couldn't send the text"** → Phone provider isn't enabled in Supabase, a Twilio SID/token is mistyped, or the Twilio account is still on trial. Supabase → Logs → Auth shows the exact reason.
 - **Code arrives but "didn't match"** → codes expire after 60 seconds; tap resend.
+- **"To send messages … you must have an approved Primary Compliance Profile" (Twilio 21608)** → Twilio only texts numbers you've verified until your Primary Compliance Profile is approved: Trust Hub → Profiles → Primary → create (Individual unless you have an EIN). Until it's approved, add testers under Phone Numbers → Verified Caller IDs.
+- **Photo won't upload** → the `avatars` bucket is missing (§8).
 
 ## What if I skip this?
 

@@ -369,4 +369,41 @@ create or replace view public.venue_scores with (security_invoker = false) as
   group by slug;
 grant select on public.venue_scores to anon, authenticated;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V14. About you: a photo, where you're from, your favorite bar and
+-- restaurant, and a few fun ones. All optional, all skippable.
+alter table public.profiles add column if not exists hometown       text;
+alter table public.profiles add column if not exists fav_bar        text;
+alter table public.profiles add column if not exists fav_bar_slug   text;
+alter table public.profiles add column if not exists fav_restaurant text;
+alter table public.profiles add column if not exists fun            jsonb not null default '{}'::jsonb;
+alter table public.profiles add column if not exists avatar_url     text;
+
+-- Friends can see a face and a hometown (never a phone, never a birthday).
+create or replace view public.people with (security_invoker = false) as
+  select id, name, is_public, avatar_url, hometown from public.profiles;
+grant select on public.people to authenticated;
+
+-- Profile photos: a public bucket where each person can only write their own folder.
+do $$
+begin
+  insert into storage.buckets (id, name, public)
+  values ('avatars', 'avatars', true)
+  on conflict (id) do nothing;
+
+  drop policy if exists "avatars are public" on storage.objects;
+  create policy "avatars are public" on storage.objects for select using (bucket_id = 'avatars');
+  drop policy if exists "own avatar: insert" on storage.objects;
+  create policy "own avatar: insert" on storage.objects for insert to authenticated
+    with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+  drop policy if exists "own avatar: update" on storage.objects;
+  create policy "own avatar: update" on storage.objects for update to authenticated
+    using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+  drop policy if exists "own avatar: delete" on storage.objects;
+  create policy "own avatar: delete" on storage.objects for delete to authenticated
+    using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+exception when others then
+  raise notice 'avatars bucket step skipped (%): create a public bucket named avatars in Storage', sqlerrm;
+end $$;
+
 -- Later phases (plans, census) add their tables here.

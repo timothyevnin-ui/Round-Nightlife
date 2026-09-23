@@ -10,7 +10,7 @@ import { toE164 } from "./phone";
  * hashed here and only the hashes are compared.
  */
 
-export type Person = { id: string; name: string; is_public: boolean };
+export type Person = { id: string; name: string; is_public: boolean; avatar_url?: string | null; hometown?: string | null };
 export type Edge = { user_id: string; friend_id: string; status: "following" | "pending"; at: string };
 export type Circle = { friends: Person[]; requestsIn: Person[]; requestsOut: Person[] };
 export type Checkin = { user_id: string; slug: string; at: string; name: string };
@@ -48,10 +48,13 @@ export async function loadCircle(sb: SupabaseClient, me: string): Promise<Circle
   return { friends: friends.sort(byName), requestsIn: requestsIn.sort(byName), requestsOut: requestsOut.sort(byName) };
 }
 
+/** Whatever the people view has: name and privacy always, a face and a hometown once the V14 schema is in. */
+const peopleSelect = (sb: SupabaseClient) => sb.from("people").select("*");
+
 async function peopleByIds(sb: SupabaseClient, ids: string[]): Promise<Map<string, Person>> {
   const out = new Map<string, Person>();
   if (!ids.length) return out;
-  const { data, error } = await sb.from("people").select("id,name,is_public").in("id", ids);
+  const { data, error } = await peopleSelect(sb).in("id", ids);
   if (error) throw error;
   for (const p of (data ?? []) as Person[]) out.set(p.id, { ...p, name: p.name || "Someone" });
   return out;
@@ -60,7 +63,7 @@ async function peopleByIds(sb: SupabaseClient, ids: string[]): Promise<Map<strin
 export async function searchPeople(sb: SupabaseClient, me: string, q: string): Promise<Person[]> {
   const clean = q.trim();
   if (clean.length < 2) return [];
-  const { data, error } = await sb.from("people").select("id,name,is_public").ilike("name", `%${clean.replace(/[%_]/g, "")}%`).neq("id", me).limit(12);
+  const { data, error } = await peopleSelect(sb).ilike("name", `%${clean.replace(/[%_]/g, "")}%`).neq("id", me).limit(12);
   if (error) throw error;
   return ((data ?? []) as Person[]).filter((p) => p.name);
 }

@@ -9,6 +9,7 @@ import { useRoundStore, usualAnswers, type RoundState } from "@/lib/store";
 import { CARDS } from "@/lib/questions";
 import { ROOM_TAGS } from "@/components/RateSheet";
 import { useAuth } from "@/lib/auth";
+import { AboutYou, Avatar, FUN } from "@/components/AboutYou";
 import { prettyPhone } from "@/lib/phone";
 import { venueMap } from "@/lib/venues";
 import { neighborhoodName } from "@/lib/neighborhoods";
@@ -207,6 +208,7 @@ export function YouView({ venues }: { venues: Venue[] }) {
 
 function AccountCard({ count }: { count: number }) {
   const { enabled, ready, user, profile, needsProfile, openSignIn, signOut } = useAuth();
+  const [editing, setEditing] = useState(false);
   if (!enabled) {
     return (
       <p className="mt-10 text-center text-[12px] leading-relaxed" style={{ color: "var(--chalk-35)" }}>
@@ -216,20 +218,53 @@ function AccountCard({ count }: { count: number }) {
   }
   if (!ready) return <div className="mt-8 h-[92px]" />;
   if (user && !needsProfile) {
+    const about = [profile?.hometown ? `From ${profile.hometown}` : null, profile?.fav_bar ? `Favorite bar: ${profile.fav_bar}` : null, profile?.fav_restaurant ? `Favorite restaurant: ${profile.fav_restaurant}` : null].filter(Boolean) as string[];
+    const fun = Object.entries(profile?.fun ?? {})
+      .map(([k, v]) => ({ q: FUN.find((f) => f.key === k)?.prompt.replace(/\?$/, ""), v }))
+      .filter((x) => x.q && x.v);
     return (
-      <section className="card mt-8 flex items-center gap-3 p-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full serif text-[20px]" style={{ background: "rgba(43,77,255,0.22)", color: "var(--chalk)" }}>
-          {(profile?.name ?? "?").slice(0, 1).toUpperCase()}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-medium">{profile?.name}</p>
-          <p className="truncate text-[12px]" style={{ color: "var(--chalk-55)" }}>
-            {prettyPhone(user.phone)} · saved to your account
-          </p>
+      <section className="card mt-8 p-4" data-account-card>
+        <div className="flex items-center gap-3">
+          <Avatar url={profile?.avatar_url} name={profile?.name} size={48} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] font-medium">{profile?.name}</p>
+            <p className="truncate text-[12px]" style={{ color: "var(--chalk-55)" }}>
+              {prettyPhone(user.phone)} · saved to your account
+            </p>
+          </div>
+          <button onClick={() => setEditing(true)} className="pressable btn-ghost h-9 px-3 text-[12.5px]" data-edit-about>
+            {about.length || fun.length || profile?.avatar_url ? "Edit" : "About you"}
+          </button>
         </div>
-        <button onClick={() => signOut()} className="pressable text-[12.5px] font-medium" style={{ color: "var(--chalk-55)" }}>
-          Sign out
-        </button>
+        {(about.length > 0 || fun.length > 0) && (
+          <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--hairline)" }} data-about-lines>
+            {about.length > 0 && (
+              <p className="text-[13px] leading-snug" style={{ color: "var(--chalk-70, var(--chalk))" }}>
+                {about.join(" · ")}
+              </p>
+            )}
+            {fun.length > 0 && (
+              <p className="mt-1 text-[12.5px] leading-snug" style={{ color: "var(--chalk-55)" }}>
+                {fun.map((x) => `${x.q}: ${x.v}`).join(" · ")}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="mt-3 flex justify-end">
+          <button onClick={() => signOut()} className="pressable text-[12.5px] font-medium" style={{ color: "var(--chalk-55)" }}>
+            Sign out
+          </button>
+        </div>
+        <AnimatePresence>
+          {editing && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={() => setEditing(false)} role="dialog" aria-modal>
+              <motion.div initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 48, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 32 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-t-[28px] border p-5" style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}>
+                <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--chalk-20)" }} />
+                <AboutYou onDone={() => setEditing(false)} />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
     );
   }
@@ -270,7 +305,8 @@ function Learned({ state, byslug }: { state: RoundState; byslug: Record<string, 
     .slice(0, 4)
     .map(([id, label]) => `${(CARDS.find((c) => c.id === id)?.prompt ?? id).replace(/\?$/, "")} → ${label}`);
   const lines: string[] = [];
-  if (profile?.name) lines.push(`Your name is ${profile.name.trim().split(/\s+/)[0]}.`);
+  if (profile?.name) lines.push(`Your name is ${profile.name.trim().split(/\s+/)[0]}${profile.hometown ? `, from ${profile.hometown}` : ""}.`);
+  if (profile?.fav_bar) lines.push(`Your favorite bar is ${profile.fav_bar}${profile.fav_bar_slug ? "; your picks lean that way" : ""}.`);
   if (ladder.length) lines.push(`${ladder.length} ${ladder.length === 1 ? "place" : "places"} on your ladder; ${byslug[ladder[0]]?.name ?? ladder[0]} is your #1.`);
   if (words.length) lines.push(`Rooms you love are ${words.map((w) => w.toLowerCase()).join(", ")}.`);
   if (usual.length) lines.push(`You usually say: ${usual.join("; ")}.`);

@@ -7,6 +7,7 @@ import { Photo } from "@/components/Photo";
 import { useTypewriter } from "@/components/QuickOnes";
 import { useAuth } from "@/lib/auth";
 import { acceptFriend, befriend, contactsSupported, loadCircle, matchContacts, pickContactHashes, searchPeople, setPrivacy, unfriend, type Circle, type Person } from "@/lib/friends";
+import { Avatar } from "@/components/AboutYou";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { getSupabase } from "@/lib/supabase";
 import { track } from "@/lib/track";
@@ -401,7 +402,7 @@ function CircleView({ me }: { me: string }) {
           <ul className="mt-2 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
             {circle.requestsIn.map((p) => (
               <li key={p.id} className="flex items-center justify-between py-3">
-                <span className="serif text-[19px]">{p.name}</span>
+                <Who p={p} />
                 <span className="flex gap-2">
                   <button onClick={() => add(p)} disabled={busy === p.id} className="pressable btn-primary h-9 px-4 text-[13px]">
                     Accept
@@ -432,7 +433,7 @@ function CircleView({ me }: { me: string }) {
           <ul className="mt-2 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
             {circle.friends.map((p) => (
               <li key={p.id} className="flex items-center justify-between py-3">
-                <span className="serif text-[19px]">{p.name}</span>
+                <Who p={p} />
                 <button onClick={() => remove(p)} disabled={busy === p.id} className="pressable text-[12px]" style={{ color: "var(--ink-35)" }}>
                   Remove
                 </button>
@@ -468,14 +469,7 @@ function PeopleList({ people, statusOf, busy, onAdd, onRemove }: { people: Perso
         const s = statusOf(p);
         return (
           <li key={p.id} className="flex items-center justify-between py-3">
-            <span>
-              <span className="serif text-[19px]">{p.name}</span>
-              {!p.is_public && (
-                <span className="ml-2 text-[11px] uppercase tracking-wide" style={{ color: "var(--ink-35)" }}>
-                  private
-                </span>
-              )}
-            </span>
+            <Who p={p} privateTag={!p.is_public} />
             {s === "friend" ? (
               <button onClick={() => onRemove(p)} disabled={busy === p.id} className="pressable btn-ghost h-9 px-3.5 text-[13px]">
                 Friends
@@ -573,5 +567,27 @@ function Regulars({ regulars, intro }: { regulars: Regular[]; intro?: boolean })
         </div>
       </section>
     </>
+  );
+}
+
+/** A person in a list: face (or initial), name, where they're from. */
+function Who({ p, privateTag }: { p: Person; privateTag?: boolean }) {
+  return (
+    <span className="flex min-w-0 items-center gap-3">
+      <Avatar url={p.avatar_url} name={p.name} size={36} />
+      <span className="min-w-0">
+        <span className="serif text-[19px]">{p.name}</span>
+        {privateTag && (
+          <span className="ml-2 text-[11px] uppercase tracking-wide" style={{ color: "var(--ink-35)" }}>
+            private
+          </span>
+        )}
+        {p.hometown && (
+          <span className="block truncate text-[12px]" style={{ color: "var(--ink-55)" }}>
+            From {p.hometown}
+          </span>
+        )}
+      </span>
+    </span>
   );
 }

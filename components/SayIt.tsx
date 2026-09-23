@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { toResultsParams, type Interpretation } from "@/lib/interpret";
 import { nightWhen } from "@/lib/when";
@@ -65,9 +66,12 @@ export function SayIt() {
         </span>
       </button>
 
+      {/* Portaled to the body: the hero above is transformed while it scrolls, which would trap a fixed sheet and let the page bleed through it. */}
+      {typeof document !== "undefined" &&
+        createPortal(
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={() => !busy && setOpen(false)}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={() => !busy && setOpen(false)} data-sayit-sheet>
             <motion.div
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -92,12 +96,18 @@ export function SayIt() {
                     go();
                   }
                 }}
-                placeholder={example}
+                placeholder="Type it like you'd text a friend…"
                 rows={3}
                 maxLength={400}
                 className="mt-4 w-full resize-none rounded-[18px] border p-4 text-[16px] leading-snug outline-none"
-                style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
+                style={{ background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
+                data-sayit-input
               />
+              {!text && (
+                <p className="mt-2 text-[12.5px]" style={{ color: "var(--chalk-35)" }}>
+                  Like: &ldquo;{example}&rdquo;
+                </p>
+              )}
               <AnimatePresence>
                 {understood && (
                   <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 text-[13px]" style={{ color: "var(--chalk-55)" }}>
@@ -119,7 +129,9 @@ export function SayIt() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+          document.body,
+        )}
     </>
   );
 }

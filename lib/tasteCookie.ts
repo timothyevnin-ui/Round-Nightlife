@@ -13,3 +13,17 @@ export function setNameCookie(name: string | null | undefined) {
     /* ignore */
   }
 }
+
+/** The person's favorite bar (one of ours, by slug), so the picker can lean toward rooms like it. */
+export const FAV_COOKIE = "round_fav";
+
+export function setFavCookie(slug: string | null | undefined) {
+  if (typeof document === "undefined") return;
+  const v = (slug ?? "").trim();
+  const ok = /^[a-z0-9-]{1,60}$/.test(v) ? v : "";
+  try {
+    document.cookie = `${FAV_COOKIE}=${ok}; Path=/; Max-Age=${ok ? 31536000 : 0}; SameSite=Lax`;
+  } catch {
+    /* ignore */
+  }
+}

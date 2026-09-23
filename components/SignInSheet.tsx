@@ -3,10 +3,12 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useAuth, type SignInReason } from "@/lib/auth";
+import { AboutYou } from "./AboutYou";
 import { ageOn, formatUS, prettyPhone, toE164 } from "@/lib/phone";
 
 /**
- * The sign-in sheet. Phone → six-digit code → (first time) name and birthday.
+ * The sign-in sheet. Phone → six-digit code → (first time) name and birthday →
+ * a few quick ones about you (photo, hometown, favorites; all skippable).
  * Always skippable: ROUND never holds the three picks hostage.
  */
 
@@ -18,7 +20,7 @@ const COPY: Record<SignInReason, { title: string; sub: string }> = {
   friends: { title: "Find your friends.", sub: "Your number is how they find you, and how you find them. One text, a code, done." },
 };
 
-type Step = "phone" | "code" | "profile" | "done";
+type Step = "phone" | "code" | "profile" | "about" | "done";
 
 export function SignInSheet() {
   const auth = useAuth();
@@ -145,7 +147,8 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
     const err = await saveProfile({ name, birthday });
     setBusy(false);
     if (err) return setError(err);
-    setStep("done");
+    // First time in: a few quick ones (photo, where you're from, favorites). Every one skippable.
+    setStep("about");
   };
 
   if (underage) {
@@ -265,6 +268,19 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
         >
           {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend the code"}
         </button>
+      </>
+    );
+  }
+
+  if (shown === "about") {
+    return (
+      <>
+        <p className="serif" style={{ fontSize: 22, lineHeight: 1.1 }}>
+          You&apos;re in, {name.trim()}.
+        </p>
+        <div className="mt-3">
+          <AboutYou intro onDone={() => setStep("done")} />
+        </div>
       </>
     );
   }

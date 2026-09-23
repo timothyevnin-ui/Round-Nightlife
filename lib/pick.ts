@@ -47,6 +47,8 @@ export type PickRequest = {
   taste?: { loves: string[]; nevers: string[]; tags: string[]; usual?: [string, string][] };
   /** Their first name, when signed in. */
   name?: string;
+  /** Their favorite bar in the city, when it's one of ours (slug). */
+  favorite?: string;
 };
 
 export type Picked = { slug: string; why: string; label?: PickLabel; then?: string };
@@ -160,6 +162,7 @@ function requestWords(r: PickRequest, hints: string[]): string {
     if (usual.length) lines.push(`How they usually answer ROUND's quick questions (a pattern, learned over their nights out; tonight's answers above win if they differ): ${usual.join("; ")}.`);
   }
   if (r.name) lines.push(`Their first name is ${r.name}. You may use it once in "heard" if it reads naturally ("${r.name}, we heard…"); never in a "why".`);
+  if (r.favorite) lines.push(`Their favorite bar in the city is ${r.favorite}: read what that place is in the catalog and lean toward rooms with that DNA when the request leaves room for it. Don't pick it just because it's their favorite unless it fits tonight.`);
   if (hints.length) lines.push(`ROUND's rules engine ranked these first (a hint, not an order): ${hints.join(", ")}.`);
   return lines.join("\n");
 }
@@ -184,7 +187,7 @@ function instructions(r: PickRequest, count: number): string {
 const memo = new Map<string, { at: number; value: PickResult }>();
 
 function memoKey(r: PickRequest, slugs: string[]): string {
-  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.taste ?? null, r.name ?? "", r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
+  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.taste ?? null, r.name ?? "", r.favorite ?? "", r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
 }
 
 /**

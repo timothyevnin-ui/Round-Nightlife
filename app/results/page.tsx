@@ -9,8 +9,8 @@ import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { applyToBarPlans, applyToNight, applyToPlans, pickWithClaude, type PickRequest, type PickResult } from "@/lib/pick";
 import { encodePlan, type PlanPayload } from "@/lib/plan";
 import { ipFrom } from "@/lib/ratelimit";
-import { parseName, parseTaste } from "@/lib/taste";
-import { NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
+import { parseFav, parseName, parseTaste } from "@/lib/taste";
+import { FAV_COOKIE, NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
 import { formatHour } from "@/lib/time";
 import type { DatePlan, DateStage, Mode, NightPick } from "@/lib/types";
@@ -62,7 +62,8 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const jar = await cookies();
   const taste = parseTaste(jar.get(TASTE_COOKIE)?.value);
   const name = parseName(jar.get(NAME_COOKIE)?.value);
-  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said" | "ip" | "taste" | "name"> = { hour, dow, wants, been, said, ip, taste, name };
+  const favorite = parseFav(jar.get(FAV_COOKIE)?.value);
+  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said" | "ip" | "taste" | "name" | "favorite"> = { hour, dow, wants, been, said, ip, taste, name, favorite };
 
   if (m === "near") {
     const lat = num(sp.lat, NaN);
