@@ -1,4 +1,4 @@
-import { ATTR_KEYS, type AttrKey } from "./attrs";
+import { ATTR_KEYS, deriveDaytime, type AttrKey } from "./attrs";
 import type { Attrs, Venue, Window } from "./types";
 
 /**
@@ -67,6 +67,7 @@ export function deriveAttrs(v: SeedVenue): Attrs {
   a.groups = v.groupFit.big >= 0.8 ? 1 : v.groupFit.mid >= 0.85 ? 0.7 : v.groupFit.mid * 0.5;
   a.activity = has(t, "karaoke", "pool", "games", "darts") ? 1 : has(t, "live music") ? 0.4 : 0;
   a.lgbtq = has(t, "queer", "lgbtq", "gay") ? 1 : 0.2;
+  a.daytime = has(t, "day", "daytime", "brunch", "beer garden", "beer hall", "backyard", "rooftop", "patio") ? 0.9 : deriveDaytime(a);
 
   for (const [k, val] of Object.entries(v.attrs ?? {}) as [AttrKey, number][]) a[k] = clamp01(val, a[k]);
   return a;

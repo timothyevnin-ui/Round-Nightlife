@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { SEED_VENUES } from "./venues";
 import { emptyAttrs, clamp01 } from "./normalize";
-import { ATTR_KEYS } from "./attrs";
+import { ATTR_KEYS, deriveDaytime } from "./attrs";
 import { isNeighborhoodId } from "./neighborhoods";
 import type { Attrs, Capacity, Hours, Venue, Window } from "./types";
 import { cleanHours } from "./hours";
@@ -80,6 +80,7 @@ export type VenueRow = {
   bar_food?: boolean | null;
   cuisine?: string | null;
   score?: number | null;
+  day_deal?: string | null;
 };
 
 const CAPACITIES: Capacity[] = ["tiny", "small", "medium", "large"];
@@ -89,6 +90,8 @@ export function rowToVenue(r: VenueRow): Venue | null {
   if (!r.slug || !r.name || !isNeighborhoodId(r.neighborhood)) return null;
   const attrs = emptyAttrs();
   for (const k of ATTR_KEYS) attrs[k] = clamp01(r.attrs?.[k], 0);
+  // Rows saved before "daytime" existed: read it off what's there.
+  if (typeof r.attrs?.daytime !== "number") attrs.daytime = deriveDaytime(attrs);
   const price = Math.min(4, Math.max(1, Math.round(Number(r.price) || 2))) as 1 | 2 | 3 | 4;
   return {
     slug: r.slug,
@@ -130,6 +133,7 @@ export function rowToVenue(r: VenueRow): Venue | null {
     hotRank: typeof r.hot_rank === "number" ? r.hot_rank : undefined,
     story: r.story ?? undefined,
     score: typeof r.score === "number" && r.score >= 0 && r.score <= 100 ? Math.round(r.score) : undefined,
+    dayDeal: typeof r.day_deal === "string" && r.day_deal.trim() ? r.day_deal.trim().slice(0, 120) : undefined,
     hours: cleanHours(r.hours),
     barFood: !!r.bar_food,
     cuisine: typeof r.cuisine === "string" && r.cuisine.trim() ? r.cuisine.trim().slice(0, 40) : undefined,
@@ -167,6 +171,7 @@ export function venueToRow(v: Venue): VenueRow {
     hot_rank: v.hotRank ?? null,
     story: v.story ?? null,
     score: typeof v.score === "number" ? v.score : null,
+    day_deal: v.dayDeal ?? null,
     hours: v.hours ?? null,
     bar_food: !!v.barFood,
     cuisine: v.cuisine ?? null,

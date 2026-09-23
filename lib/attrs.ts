@@ -1,3 +1,4 @@
+import type { Attrs } from "./types";
 /**
  * The attribute registry. Every swipe-deck question, every "just say it"
  * keyword, and every chip in the back office maps to one of these keys.
@@ -57,6 +58,7 @@ export const ATTR_KEYS = [
   "groups",
   "activity",
   "lgbtq",
+  "daytime",
 ] as const;
 
 export type AttrKey = (typeof ATTR_KEYS)[number];
@@ -90,7 +92,13 @@ export const ATTRS: Record<AttrKey, AttrDef> = {
   groups: { key: "groups", label: "Big group friendly", group: "who", hint: "Eight of you won't be a problem.", keywords: ["group", "groups", "big group", "birthday", "party of", "all of us", "crew", "squad", "everyone"] },
   activity: { key: "activity", label: "Something to do", group: "music", hint: "Pool, darts, karaoke, a show.", keywords: ["pool", "darts", "karaoke", "games", "arcade", "trivia", "bowling", "ping pong", "skee", "shuffleboard", "activity", "something to do"] },
   lgbtq: { key: "lgbtq", label: "LGBTQ+ night", group: "who", hint: "Queer-owned, queer-loved, or the night is.", keywords: ["gay", "queer", "lgbtq", "lgbt", "drag", "pride"] },
+  daytime: { key: "daytime", label: "Good in daylight", group: "when", hint: "A place to drink at 3pm: sun, a game, a deal, no shame.", keywords: ["day", "daytime", "day drinking", "afternoon", "brunch", "sunday funday", "sunny", "in the sun", "day drink", "boozy brunch", "lunch"] },
 };
+
+/** Where a place lands in daylight when nobody has said: outside, a game, a deal, or a rooftop carry it. */
+export function deriveDaytime(a: Pick<Attrs, "outdoor" | "rooftop" | "sports" | "happyHour" | "cheap" | "food">): number {
+  return Math.max(0.15, a.outdoor, a.rooftop, a.sports * 0.85, a.happyHour * 0.7, Math.min(a.cheap, a.food) * 0.6);
+}
 
 export const ATTR_LIST: AttrDef[] = ATTR_KEYS.map((k) => ATTRS[k]);
 

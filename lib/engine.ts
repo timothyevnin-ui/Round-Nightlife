@@ -14,6 +14,7 @@ import type { DatePlan, DateQuery, DinnerQuery, GroupBucket, NightPick, NightQue
 // With 20+ places per neighborhood, the one you tapped should win; next door
 // is a fill-in, not a competitor.
 const W = { nb: 0.24, group: 0.2, time: 0.14, prefs: 0.42 };
+const W_DAY = { nb: 0.22, group: 0.16, time: 0.3, prefs: 0.32 };
 
 /* ───────────────────────── helpers ───────────────────────── */
 
@@ -34,7 +35,12 @@ function inWindow(windows: readonly Window[], hour: number, dow: number): boolea
   return windows.some((w) => w.days.includes(dow) && hour >= w.from && hour < w.to);
 }
 
+/** Before 5pm it's a day out: the room's daylight-worthiness carries it, not its best window. */
+export const DAY_ENDS = 17;
+export const isDaytime = (hour: number) => hour >= 5 && hour < DAY_ENDS;
+
 function timeScore(venue: Venue, hour: number, dow: number): number {
+  if (isDaytime(hour)) return 0.15 + 0.85 * venue.attrs.daytime;
   if (inWindow(venue.bestWindows, hour, dow)) return 1;
   // After midnight: late-night attribute carries the venue.
   if (hour >= 24) return 0.35 + 0.5 * venue.attrs.late;
@@ -143,6 +149,7 @@ const HIT_WORD: Partial<Record<AttrKey, string>> = {
   scene: "Sceney",
   happyHour: "Happy hour",
   date: "Date-y",
+  daytime: "Good in the day",
 };
 
 /* ───────────────────────── NIGHT OUT ───────────────────────── */
@@ -221,7 +228,8 @@ export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_CO
       const group = venue.groupFit[bucket];
       const time = timeScore(venue, q.hour, q.dow);
       const { score: prefs, hits } = prefsScore(venue, q.wants);
-      const base = nb * W.nb + group * W.group + time * W.time + prefs * W.prefs;
+      const w = isDaytime(q.hour) ? W_DAY : W;
+      const base = nb * w.nb + group * w.group + time * w.time + prefs * w.prefs;
       const score = base * capacityPenalty(venue, bucket) * linePenalty(venue, q.wants) * beenPenalty(venue, q.wants, q.been) * verifiedBoost(venue);
       return { venue, score, hits, group };
     })

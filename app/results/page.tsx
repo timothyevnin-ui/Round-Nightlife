@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { logEvent } from "@/lib/events";
-import { haversineMeters, recommendAround, recommendDate, recommendDinner, recommendNear, recommendNight, RESULT_COUNT } from "@/lib/engine";
+import { haversineMeters, isDaytime, recommendAround, recommendDate, recommendDinner, recommendNear, recommendNight, RESULT_COUNT } from "@/lib/engine";
 import { getVenues } from "@/lib/db";
 import { isNeighborhoodId, neighborhoodName } from "@/lib/neighborhoods";
 import { applyToBarPlans, applyToNight, applyToPlans, pickWithClaude, type PickRequest, type PickResult } from "@/lib/pick";
@@ -87,7 +87,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
     shown("near", { at: at ?? null }, picks.map((p) => p.venue.slug), ai);
     const summary = [at ? `Near ${at}` : "Near you", formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="near" summary={summary} heard={ai.heard} editHref="/near" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="near" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/near" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
   }
 
   const anchor = venues.find((v) => v.slug === str(sp.a));
@@ -103,7 +103,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
     shown("around", { anchor: anchor.slug, neighborhood: anchor.neighborhood, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [anchor.name, neighborhoodName(anchor.neighborhood), groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" summary={summary} heard={ai.heard} editHref="/plan/night" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="night" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/plan/night" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
   }
 
   const mode: Mode = m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
@@ -120,7 +120,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
     shown("night", { neighborhood: n, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [neighborhoodName(n), groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" summary={summary} heard={ai.heard} editHref="/plan/night" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="night" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/plan/night" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
   }
 
   const bars = venues.filter((v) => v.kind === "bar");

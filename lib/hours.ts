@@ -24,13 +24,11 @@ export function toDecimal(t: string): number {
   return h + (m || 0) / 60;
 }
 
-/** 18 → "6pm", 2.5 → "2:30am", 0 → "midnight", 12 → "noon" */
+/** 18 → "6pm", 2.5 → "2:30am", 0 → "12am", 12 → "12pm" */
 export function fmt(t: string): string {
   const d = toDecimal(t) % 24;
   const h = Math.floor(d);
   const m = Math.round((d - h) * 60);
-  if (m === 0 && h === 0) return "midnight";
-  if (m === 0 && h === 12) return "noon";
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return `${h12}${m ? `:${String(m).padStart(2, "0")}` : ""}${h < 12 ? "am" : "pm"}`;
 }

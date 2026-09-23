@@ -10,6 +10,7 @@ import { StudioBar } from "@/components/StudioBar";
 import { BackButton } from "@/components/BackButton";
 import { priceLabel } from "@/lib/describe";
 import { HoursLine, HoursWeek } from "@/components/Hours";
+import { DayDeal } from "@/components/ResultCard";
 import { CrowdLine, ScoreBadge } from "@/components/Score";
 import { crowdScores } from "@/lib/crowd";
 import { neighborhoodName } from "@/lib/neighborhoods";
@@ -97,12 +98,13 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
         <VenueActions venue={v} shareUrl={`/p/${shareCode}`} names={names} />
         <StudioBar slug={v.slug} verified={!!v.verified} />
 
-        {v.hours && (
+        {(v.hours || v.dayDeal) && (
           <section className="mt-7 border-t pt-5" style={{ borderColor: "var(--hairline)" }}>
             <p className="eyebrow">Hours</p>
             <div className="mt-2">
-              <HoursLine hours={v.hours} expandable={false} />
-              <HoursWeek hours={v.hours} className="mt-3" />
+              {v.hours && <HoursLine hours={v.hours} expandable={false} />}
+              <DayDeal text={v.dayDeal} />
+              {v.hours && <HoursWeek hours={v.hours} className="mt-3" />}
             </div>
           </section>
         )}

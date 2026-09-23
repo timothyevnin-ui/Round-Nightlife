@@ -1,7 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ATTRS, type AttrKey } from "./attrs";
-import { haversineMeters } from "./engine";
+import { haversineMeters, isDaytime } from "./engine";
 import { NEIGHBORHOODS, neighborhoodName } from "./neighborhoods";
 import { allowModelCall } from "./ratelimit";
 import type { Wants } from "./questions";
@@ -81,7 +81,7 @@ function venueLine(v: Venue): string {
   return [
     `• ${v.slug} — ${v.name} (${v.kind}${v.barFood ? " with a kitchen" : ""}, ${neighborhoodName(v.neighborhood)}, ${street})${v.verified ? " ✓ VERIFIED" : ""}${typeof v.score === "number" ? ` · ROUND score ${v.score}/100` : ""}`,
     `  ${"$".repeat(v.price)} · ${v.capacity} room · ${groups} · walk-in ${v.easyIn >= 0.7 ? "easy" : v.easyIn >= 0.45 ? "possible" : "hard"} · ${windowWord(v)}${dateWord ? ` · ${dateWord}` : ""}`,
-    `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}${v.cuisine || v.barFood ? ` · food: ${v.cuisine ?? "yes"}${v.barFood ? " (bar with a kitchen)" : ""}` : ""}${v.hours ? ` · hours: ${weekSummary(v.hours)}` : ""}`,
+    `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}${v.cuisine || v.barFood ? ` · food: ${v.cuisine ?? "yes"}${v.barFood ? " (bar with a kitchen)" : ""}` : ""}${v.hours ? ` · hours: ${weekSummary(v.hours)}` : ""} · in daylight: ${v.attrs.daytime >= 0.7 ? "good" : v.attrs.daytime >= 0.4 ? "fine" : "no"}${v.dayDeal ? ` · day deal: ${v.dayDeal}` : ""}`,
     `  ${v.take}${v.theCatch ? ` Catch: ${v.theCatch}` : ""}`,
   ].join("\n");
 }
@@ -91,7 +91,7 @@ export function buildCatalog(venues: Venue[]): string {
   // A cheap fingerprint of everything that goes into the text.
   let h = 5381;
   for (const v of [...venues].sort((a, b) => a.slug.localeCompare(b.slug))) {
-    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}`;
+    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}`;
     for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
   }
   const key = `${venues.length}:${h}`;
@@ -122,7 +122,8 @@ function wantsWords(wants: Wants): { want: string[]; avoid: string[] } {
 
 function requestWords(r: PickRequest, hints: string[]): string {
   const lines: string[] = [];
-  const when = `${DAY[r.dow] ?? "tonight"} around ${formatHour(r.hour, true)}${r.hour >= 24 ? " (after midnight)" : ""}`;
+  const day = isDaytime(r.hour);
+  const when = `${DAY[r.dow] ?? "tonight"} around ${formatHour(r.hour, true)}${r.hour >= 24 ? " (after midnight)" : day ? " (DAYTIME: they want somewhere good in daylight right now — outside, a game on, a deal, sun, a long afternoon; do not send them to a room that only works at 11pm, and weigh the 'good in daylight' score heavily)" : ""}`;
   if (r.mode === "near") lines.push(`They are at ${r.place?.label ?? "a spot"} and want somewhere within a short walk, ${when}.`);
   else if (r.mode === "around" && r.anchor) lines.push(`They named ${r.anchor.name} (${r.anchor.slug}). Lead with it, then build the night around it: places that fit the same DNA plus what they asked for. ${when}.`);
   else if (r.mode === "date") lines.push(`A date, ${{ first: "first date", early: "a few dates in", longterm: "long-term couple" }[r.stage ?? "early"]}, ${r.dinner ? "dinner then drinks" : "drinks only"}, ${r.neighborhood ? `in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);

@@ -118,6 +118,7 @@ function blank(): Draft {
     barFood: false,
     cuisine: "",
     score: null,
+    dayDeal: "",
   };
 }
 
@@ -154,6 +155,7 @@ function fromVenue(v: Venue): Draft {
     barFood: !!v.barFood,
     cuisine: v.cuisine ?? "",
     score: typeof v.score === "number" ? v.score : null,
+    dayDeal: v.dayDeal ?? "",
   };
 }
 
@@ -554,6 +556,16 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
               clear
             </button>
           </div>
+        </Field>
+      </Section>
+
+      {/* ── Daytime ── */}
+      <Section title="Daytime" hint="Saturday at 2pm: is this a place? When the time on Home is before 5pm, the picks lean on this.">
+        <Row label={`Good during the day${d.attrs.daytime >= 0.7 ? " · yes" : d.attrs.daytime <= 0.2 ? " · no" : " · sort of"}`}>
+          <Toggle on={d.attrs.daytime >= 0.7} onChange={(v) => set("attrs", { ...d.attrs, daytime: v ? 0.9 : 0.1 })} />
+        </Row>
+        <Field label="Day deal" hint="One line, shows with the hours: $5 pitchers till 6 · half-price oysters 3–6 · $10 frozen margs.">
+          <input value={d.dayDeal ?? ""} onChange={(e) => set("dayDeal", e.target.value)} placeholder="$5 pitchers till 6" className="h-12 w-full rounded-[14px] border px-4 text-[15px] outline-none" style={inputStyle} />
         </Field>
       </Section>
 

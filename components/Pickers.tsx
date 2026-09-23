@@ -71,10 +71,13 @@ export function Wheel({ options, value, onChange }: { options: { value: string; 
 
 /* ───────────────────────── Dial: "when?" ───────────────────────── */
 
-const MIN = 17; // 5pm
+const MIN = 11; // 11am: day drinking starts here
 const MAX = 27; // 3am
 
 function caption(h: number) {
+  if (h < 13) return "Lunch-ish";
+  if (h < 15.5) return "Day drinking";
+  if (h < 17) return "Afternoon";
   if (h < 18.5) return "Happy hour";
   if (h < 20) return "Early";
   if (h < 21.5) return "Dinner-ish";
@@ -83,12 +86,13 @@ function caption(h: number) {
   return "After hours";
 }
 
-/** Sky color for an hour: dusk gold → tomato → navy → near-black. */
+/** Sky color for an hour: daylight blue → dusk gold → tomato → navy → near-black. */
 function sky(h: number) {
-  const t = (h - MIN) / (MAX - MIN);
-  if (t < 0.25) return "linear-gradient(135deg, #f2c14e, #e8694a)";
-  if (t < 0.5) return "linear-gradient(135deg, #e8694a, #7a3a4a)";
-  if (t < 0.8) return "linear-gradient(135deg, #3a3a6e, #16213a)";
+  if (h < 15) return "linear-gradient(135deg, #7fb3d5, #f2d38a)";
+  if (h < 17) return "linear-gradient(135deg, #f2d38a, #f2c14e)";
+  if (h < 19.5) return "linear-gradient(135deg, #f2c14e, #e8694a)";
+  if (h < 22) return "linear-gradient(135deg, #e8694a, #7a3a4a)";
+  if (h < 25) return "linear-gradient(135deg, #3a3a6e, #16213a)";
   return "linear-gradient(135deg, #16213a, #0b0f1c)";
 }
 
@@ -106,9 +110,10 @@ export function TimeDial({ value, onChange, nowValue }: { value: number; onChang
   const pct = ((h - MIN) / (MAX - MIN)) * 100;
   const chips: { label: string; value: number }[] = [
     ...(nowValue !== undefined ? [{ label: "Now", value: Math.max(MIN, Math.min(MAX, nowValue)) }] : []),
+    { label: "2pm", value: 14 },
+    { label: "5", value: 17 },
     { label: "8", value: 20 },
     { label: "9", value: 21 },
-    { label: "10", value: 22 },
     { label: "11", value: 23 },
     { label: "Late", value: 24.5 },
   ];
@@ -134,7 +139,7 @@ export function TimeDial({ value, onChange, nowValue }: { value: number; onChang
           <motion.span
             aria-hidden
             className="mb-2 block rounded-full"
-            animate={{ y: h < 20 ? 0 : 6, opacity: h < 25 ? 1 : 0.5, background: h < 20 ? "#f2c14e" : "#f6f1e7" }}
+            animate={{ y: h < 20 ? 0 : 6, opacity: h < 25 ? 1 : 0.5, background: h < 17 ? "#fff3b0" : h < 20 ? "#f2c14e" : "#f6f1e7" }}
             style={{ width: 22, height: 22, boxShadow: "0 0 24px rgba(246,241,231,0.6)" }}
           />
         </div>
@@ -150,8 +155,8 @@ export function TimeDial({ value, onChange, nowValue }: { value: number; onChang
           style={{ ["--pct" as string]: `${pct}%` }}
         />
         <div className="relative mt-1.5 flex justify-between text-[10.5px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--on-photo-60)" }}>
+          <span>11am</span>
           <span>5pm</span>
-          <span>9</span>
           <span>Midnight</span>
           <span>3am</span>
         </div>

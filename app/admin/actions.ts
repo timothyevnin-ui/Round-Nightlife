@@ -83,6 +83,7 @@ export type SavePayload = {
   barFood?: boolean;
   cuisine?: string;
   score?: number | null;
+  dayDeal?: string;
 };
 
 export type SaveResult = { ok: true; slug: string } | { ok: false; error: string };
@@ -157,6 +158,7 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       barFood: p.barFood === undefined ? existing?.barFood : !!p.barFood,
       cuisine: p.cuisine === undefined ? existing?.cuisine : p.cuisine.trim().slice(0, 40) || undefined,
       score: p.score === undefined ? existing?.score : typeof p.score === "number" && Number.isFinite(p.score) ? Math.max(0, Math.min(100, Math.round(p.score))) : undefined,
+      dayDeal: p.dayDeal === undefined ? existing?.dayDeal : p.dayDeal.trim().slice(0, 120) || undefined,
     };
 
     await upsertVenues([venue]);

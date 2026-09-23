@@ -15,6 +15,8 @@ type Props = {
   summary: string[];
   /** What ROUND understood, in plain words (from the model). */
   heard?: string;
+  /** Before 5pm (the picks already know; the page keeps the door's name). */
+  day?: boolean;
   editHref: string;
   code: string;
   night?: (NightPick & { shareCode: string })[];

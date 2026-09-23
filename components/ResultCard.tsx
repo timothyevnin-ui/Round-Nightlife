@@ -36,6 +36,25 @@ function Says({ venue, size = 18 }: { venue: Venue; size?: number }) {
   );
 }
 
+/** "Day deal · $5 pitchers till 6". Shown whenever there is one; it's the reason to go at 3pm. */
+export function DayDeal({ text, className = "mt-2" }: { text?: string; className?: string }) {
+  if (!text) return null;
+  return (
+    <p className={`flex items-center gap-1.5 text-[13px] ${className}`} style={{ color: "var(--ink-70)" }} data-day-deal>
+      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full" style={{ background: "#f2c14e" }} aria-hidden>
+        <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="6" r="2.4" fill="var(--ink)" />
+          <path d="M6 .8v1.6M6 9.6v1.6M.8 6h1.6M9.6 6h1.6" stroke="var(--ink)" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      </span>
+      <span className="font-medium" style={{ color: "var(--ink)" }}>
+        Day deal
+      </span>
+      <span>· {text}</span>
+    </p>
+  );
+}
+
 function Catch({ text }: { text?: string }) {
   if (!text) return null;
   return (
@@ -86,6 +105,7 @@ export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: 
         )}
 
         <HoursLine hours={venue.hours} className="mt-3" />
+        <DayDeal text={venue.dayDeal} />
         <Catch text={venue.theCatch} />
 
         <div className="mt-auto flex items-center gap-2.5 pt-5">
@@ -157,6 +177,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
         )}
 
         <HoursLine hours={first.hours} className="mt-3" />
+        <DayDeal text={first.dayDeal} />
         <Catch text={first.theCatch} />
 
         <div className="mt-auto flex items-center gap-2.5 pt-5">

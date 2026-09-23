@@ -4,7 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Wordmark } from "./Wordmark";
-import { HomeGreeting } from "./HomeGreeting";
+import { WhenChip } from "./WhenChip";
 import { ModeCard } from "./ModeCard";
 import { SayIt } from "./SayIt";
 
@@ -30,8 +30,8 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
           </Link>
         </header>
 
-        <section className="pt-5 pb-3">
-          <HomeGreeting />
+        <section className="pt-4 pb-3">
+          <WhenChip />
           <h1 className="serif mt-2" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
             Where should
             <br />

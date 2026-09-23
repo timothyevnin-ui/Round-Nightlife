@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { toResultsParams, type Interpretation } from "@/lib/interpret";
-import { timeOptions } from "@/lib/time";
+import { effectiveWhen } from "@/lib/when";
 import { useRoundStore } from "@/lib/store";
 
 const EXAMPLES = [
@@ -33,7 +33,9 @@ export function SayIt() {
       const i = json.interpretation;
       if (!i) throw new Error("no interpretation");
       setUnderstood(i.understood);
-      const params = toResultsParams(i, timeOptions().dow, text);
+      const w = effectiveWhen();
+      if (i.hour === undefined) i.hour = w.hour;
+      const params = toResultsParams(i, w.dow, text);
       if ((i.wants.new ?? 0) > 0) {
         const been = Object.keys(state.been);
         if (been.length) params.set("b", been.join(","));

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { matchVenues } from "@/lib/match";
 import { neighborhoodName } from "@/lib/neighborhoods";
-import { timeOptions } from "@/lib/time";
+import { effectiveWhen } from "@/lib/when";
 import { track } from "@/lib/track";
 import type { NeighborhoodId } from "@/lib/types";
 
@@ -25,8 +25,8 @@ export function NearView({ places }: { places: NearPlace[] }) {
   const matches = useMemo(() => (address.trim().length >= 2 ? matchVenues(address, places, 4).map((m) => m.venue) : []), [address, places]);
 
   const go = (lat: number, lng: number, label?: string) => {
-    const { dow, defaultValue } = timeOptions();
-    const p = new URLSearchParams({ m: "near", lat: lat.toFixed(5), lng: lng.toFixed(5), t: String(defaultValue), d: String(dow) });
+    const { dow, hour } = effectiveWhen();
+    const p = new URLSearchParams({ m: "near", lat: lat.toFixed(5), lng: lng.toFixed(5), t: String(hour), d: String(dow) });
     if (label) p.set("at", label);
     router.push(`/results?${p.toString()}`);
   };

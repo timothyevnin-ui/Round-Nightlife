@@ -55,12 +55,33 @@ const PRICE: Option[] = [
 const isGameNight = (c: DeckContext) => [0, 1, 4, 6].includes(c.dow); // Sun, Mon, Thu, Sat
 const isLate = (c: DeckContext) => c.hour >= 22.5;
 const isDaytime = (c: DeckContext) => c.hour < 19;
+/** A day out: before 5pm the questions change (sun, a game, a deal), and "how late" is beside the point. */
+const isDay = (c: DeckContext) => c.hour >= 5 && c.hour < 17;
+const isNight = (c: DeckContext) => !isDay(c);
 const bigGroup = (c: DeckContext) => c.group >= 6;
 const beforeMidnight = (c: DeckContext) => c.hour < 24;
 
 export const CARDS: Card[] = [
+  /* ── Day out: the fixed run before 5pm ── */
+  {
+    id: "sun",
+    prompt: "Sun or shade?",
+    options: [
+      { label: "Sun", wants: { outdoor: 1, rooftop: 0.5, daytime: 0.6 } },
+      { label: "Shade", wants: { seating: 0.5, chill: 0.4, daytime: 0.4 } },
+      { label: "Either", wants: { daytime: 0.6 } },
+    ],
+    when: isDay,
+    order: 1,
+    mode: ["night"],
+  },
+  { id: "dayvibe", prompt: "Lazy afternoon, or a proper day out?", options: [{ label: "Lazy", wants: { chill: 1, seating: 0.6, talk: 0.5, lively: -0.5 } }, { label: "Proper", wants: { lively: 0.9, social: 0.5, cheap: 0.3 } }], when: isDay, order: 2, mode: ["night"] },
+  { id: "daydeal", prompt: "Deal hunting?", options: YES_NO({ happyHour: 1, cheap: 0.8 }, { upscale: 0.2 }), when: isDay, order: 5, mode: ["night"] },
+  { id: "daygame", prompt: "Is there a game on?", options: YES_NO({ sports: 1, seating: 0.3 }, { sports: -0.5 }), when: isDay, order: 6, mode: ["night"] },
+  { id: "dayfood", prompt: "Will you want to eat?", options: YES_NO({ food: 1, seating: 0.3 }, { food: -0.2 }), when: isDay, order: 7, mode: ["night"] },
+
   /* ── Night out: the fixed run ── */
-  { id: "dance", prompt: "Do you want to dance?", options: YES_NO({ dance: 1, lively: 0.5, talk: -0.5 }, { dance: -0.6 }), order: 1, mode: ["night"] },
+  { id: "dance", prompt: "Do you want to dance?", options: YES_NO({ dance: 1, lively: 0.5, talk: -0.5 }, { dance: -0.6 }), when: isNight, order: 1, mode: ["night"] },
   // Said yes to dancing: "loud?" answers itself, so ask what kind of dancing instead.
   {
     id: "band",
@@ -71,6 +92,7 @@ export const CARDS: Card[] = [
       { label: "Either", wants: {} },
     ],
     showIf: (w) => (w.dance ?? 0) > 0,
+    when: isNight,
     order: 2,
     mode: ["night"],
   },
@@ -82,6 +104,7 @@ export const CARDS: Card[] = [
       { label: "Not loud", wants: { talk: 1, lively: -0.6 } },
     ],
     showIf: (w) => (w.dance ?? 0) <= 0,
+    when: isNight,
     order: 2,
     mode: ["night"],
   },
@@ -94,6 +117,7 @@ export const CARDS: Card[] = [
       { label: "Sing along", wants: { lively: 0.8, seating: -0.4 } },
     ],
     showIf: (w) => (w.liveMusic ?? 0) > 0,
+    when: isNight,
     order: 3,
     mode: ["night"],
   },
@@ -105,16 +129,17 @@ export const CARDS: Card[] = [
       { label: "Standing", wants: { seating: -0.4, lively: 0.3 } },
     ],
     showIf: (w) => (w.dance ?? 0) <= 0 && (w.liveMusic ?? 0) <= 0,
+    when: isNight,
     order: 3,
     mode: ["night"],
   },
-  { id: "line", prompt: "Would you wait in a line?", options: YES_NO({ noLine: -0.2, scene: 0.3 }, { noLine: 1 }), order: 4, mode: ["night"] },
-  { id: "hh", prompt: "Want a happy hour deal?", options: YES_NO({ happyHour: 1, cheap: 0.4 }), when: isDaytime, order: 5, mode: ["night"] },
+  { id: "line", prompt: "Would you wait in a line?", options: YES_NO({ noLine: -0.2, scene: 0.3 }, { noLine: 1 }), when: isNight, order: 4, mode: ["night"] },
+  { id: "hh", prompt: "Want a happy hour deal?", options: YES_NO({ happyHour: 1, cheap: 0.4 }), when: (c) => isDaytime(c) && isNight(c), order: 5, mode: ["night"] },
   { id: "price", prompt: "What are we spending?", options: PRICE, order: 6, mode: ["night", "date", "dinner"] },
-  { id: "outside", prompt: "Outside if it's nice?", options: YES_NO({ outdoor: 1 }), when: beforeMidnight, order: 7, mode: ["night", "date", "dinner"] },
+  { id: "outside", prompt: "Outside if it's nice?", options: YES_NO({ outdoor: 1 }), when: (c) => beforeMidnight(c) && (c.mode !== "night" || isNight(c)), order: 7, mode: ["night", "date", "dinner"] },
 
   /* ── Night out: when it fits ── */
-  { id: "game", prompt: "Is there a game on?", options: YES_NO({ sports: 1, seating: 0.3 }, { sports: -0.5 }), when: isGameNight, order: 8, mode: ["night"] },
+  { id: "game", prompt: "Is there a game on?", options: YES_NO({ sports: 1, seating: 0.3 }, { sports: -0.5 }), when: (c) => isGameNight(c) && isNight(c), order: 8, mode: ["night"] },
   {
     id: "late",
     prompt: "How late are we going?",
@@ -331,6 +356,7 @@ export function decodeWants(s: string | undefined | null): Wants {
 export function describeWants(w: Wants): string[] {
   const labels: Partial<Record<keyof Wants, [string, string]>> = {
     dance: ["Dancing", "No dancing"],
+    daytime: ["Day out", "Not a day place"],
     seating: ["Sit down", "Standing's fine"],
     lively: ["Loud", "Not loud"],
     talk: ["Can talk", "Don't need to talk"],

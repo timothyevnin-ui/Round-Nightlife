@@ -340,6 +340,8 @@ alter table public.venues add column if not exists bar_food boolean not null def
 alter table public.venues add column if not exists cuisine  text;
 -- ROUND's score: how much we like it, 0–100 (think Tomatometer, but it's ours).
 alter table public.venues add column if not exists score    integer check (score between 0 and 100);
+-- Daytime (V12): the day deal in one line. "Good in daylight" itself lives in attrs.
+alter table public.venues add column if not exists day_deal text;
 
 -- "Rate this bar": a verdict in words, what the room was (feeds the
 -- algorithm), where it sits on the person's own ladder, and one line.

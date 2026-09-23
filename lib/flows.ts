@@ -1,6 +1,7 @@
 import type { FlowStep } from "@/components/Flow";
 import { NEIGHBORHOODS } from "./neighborhoods";
 import { timeOptions } from "./time";
+import { effectiveWhen, nowWhen } from "./when";
 
 export function neighborhoodStep(defaultValue = "west-village"): FlowStep {
   return {
@@ -12,16 +13,23 @@ export function neighborhoodStep(defaultValue = "west-village"): FlowStep {
   };
 }
 
+/**
+ * The "When?" step starts from the chip on Home: the planned time if the
+ * person set one, otherwise the phone's clock right now (11am at the
+ * earliest, 3am at the latest). They can still move it here.
+ */
 export function timeStep(): { step: FlowStep; dow: number } {
-  const { options, defaultValue, dow } = timeOptions();
-  const now = options.find((o) => o.label === "Now")?.value;
+  const { options } = timeOptions();
+  const w = effectiveWhen();
+  const now = Math.max(11, Math.min(27, nowWhen().hour));
+  const start = Math.max(11, Math.min(27, w.hour));
   return {
-    dow,
+    dow: w.dow,
     step: {
       id: "t",
       question: "When?",
       layout: "dial",
-      defaultValue: String(defaultValue),
+      defaultValue: String(start),
       nowValue: now,
       options: options.map((o) => ({ value: String(o.value), label: o.label })),
     },

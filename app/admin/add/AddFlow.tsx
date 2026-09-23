@@ -26,8 +26,8 @@ import type { Attrs, Hours, NeighborhoodId } from "@/lib/types";
  * changed in the editor afterwards.
  */
 
-type Step = "name" | "where" | "kind" | "food" | "words" | "quick" | "hours" | "says" | "catch" | "score" | "been" | "photo" | "done";
-const ORDER: Step[] = ["name", "where", "kind", "food", "words", "quick", "hours", "says", "catch", "score", "been", "photo", "done"];
+type Step = "name" | "where" | "kind" | "food" | "words" | "quick" | "hours" | "day" | "says" | "catch" | "score" | "been" | "photo" | "done";
+const ORDER: Step[] = ["name", "where", "kind", "food", "words", "quick", "hours", "day", "says", "catch", "score", "been", "photo", "done"];
 
 const CUISINES = ["Italian", "Mexican", "Tacos", "Burgers", "Pizza", "Cheesesteaks", "Wings", "Sushi", "Oysters", "Steak", "French", "Thai", "Chinese", "Korean", "Bar snacks"];
 
@@ -43,6 +43,8 @@ export function AddFlow({ writable }: { writable: boolean }) {
   const [customTag, setCustomTag] = useState("");
   const [answers, setAnswers] = useState<SuggestionAnswers>({});
   const [hours, setHours] = useState<Hours | undefined>();
+  const [daytime, setDaytime] = useState<boolean | null>(null);
+  const [dayDeal, setDayDeal] = useState("");
   const [site, setSite] = useState("");
   const [reading, setReading] = useState(false);
   const [readNote, setReadNote] = useState<string | null>(null);
@@ -111,7 +113,8 @@ export function AddFlow({ writable }: { writable: boolean }) {
       take: take.trim(),
       theCatch: theCatch.trim() || undefined,
       tags,
-      attrs: (answers.attrs ?? {}) as Partial<Attrs>,
+      attrs: { ...(answers.attrs ?? {}), ...(daytime === null ? {} : { daytime: daytime ? 0.9 : 0.1 }) } as Partial<Attrs>,
+      dayDeal,
       groupFit: typeof big === "number" ? { two: 0.6, small: 0.75, mid: big >= 0.5 ? 0.75 : 0.45, big } : { two: 0.7, small: 0.7, mid: 0.5, big: 0.3 },
       dateFit: typeof date === "number" ? { first: date, early: date, longterm: Math.max(0.5, date) } : { first: 0.5, early: 0.5, longterm: 0.5 },
       price: answers.price ?? 2,
@@ -124,7 +127,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
       readTags: true,
       notes: answers.said?.length ? `Answered in Studio: ${answers.said.join(" · ")}.` : undefined,
     };
-  }, [name, kind, cuisine, hood, address, take, theCatch, tags, answers, verified, hours, score]);
+  }, [name, kind, cuisine, hood, address, take, theCatch, tags, answers, verified, hours, score, daytime, dayDeal]);
 
   const save = async () => {
     if (!writable) return setError("Connect Supabase first (SUPABASE.md); nothing can be saved yet.");
@@ -312,6 +315,27 @@ export function AddFlow({ writable }: { writable: boolean }) {
               <HoursEditor value={hours} onChange={setHours} />
             </div>
             <NextButton onClick={next} label={hours ? "Next" : "Don't know yet, skip"} ghost={!hours} />
+          </Screen>
+        )}
+
+        {step === "day" && (
+          <Screen key="day">
+            <Prompt text="Good during the day?" />
+            <p className="mt-2 text-[13px]" style={{ color: "var(--ink-55)" }}>
+              Saturday at 2pm, would you send someone here? Sun, a game, a deal, a long afternoon.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button onClick={() => setDaytime(true)} className="pressable flex h-16 items-center justify-center rounded-full border text-[17px] font-semibold" style={daytime === true ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", borderColor: "var(--hairline-strong)" }}>
+                Yes
+              </button>
+              <button onClick={() => setDaytime(false)} className="pressable flex h-16 items-center justify-center rounded-full border text-[17px] font-semibold" style={daytime === false ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", borderColor: "var(--hairline-strong)" }}>
+                Night only
+              </button>
+            </div>
+            {daytime && (
+              <input value={dayDeal} onChange={(e) => setDayDeal(e.target.value)} placeholder="Any day deal? ($5 pitchers till 6)" className="mt-4 w-full rounded-[16px] border px-4 text-[15px] outline-none" style={{ height: 52, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-day-deal-input />
+            )}
+            <NextButton onClick={next} label={daytime === null ? "Not sure, skip" : "Next"} ghost={daytime === null} />
           </Screen>
         )}
 

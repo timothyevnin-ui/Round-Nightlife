@@ -46,6 +46,8 @@ export type Venue = {
   take: string;
   /** ROUND's score, 0–100: how much we like it. Set in Studio; shown only once set. */
   score?: number;
+  /** The day deal, one line: "$5 pitchers till 6". Shown with the hours. */
+  dayDeal?: string;
   /** Posted hours, when known. */
   hours?: Hours;
   /** A bar with a real food menu (kitchen, not just a bowl of nuts). */

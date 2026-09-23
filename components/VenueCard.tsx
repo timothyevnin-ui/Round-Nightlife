@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { Photo } from "./Photo";
 import { VerifiedMark } from "./VerifiedMark";
 import { HoursLine } from "./Hours";
+import { DayDeal } from "./ResultCard";
 import { ScoreBadge } from "./Score";
 import { keywordLine } from "@/lib/describe";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
@@ -102,6 +103,7 @@ export function VenueCard({
           </p>
         )}
         <HoursLine hours={venue.hours} className="mt-3" />
+        <DayDeal text={venue.dayDeal} />
         {venue.theCatch && (
           <p className="mt-3 text-[12.5px] leading-snug" style={{ color: "var(--chalk-55)" }}>
             <span className="font-semibold" style={{ color: "var(--chalk-70)" }}>
