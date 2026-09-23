@@ -15,13 +15,14 @@ export function ModeCard({
 }: {
   href: string;
   label: string;
-  sub: string;
+  sub?: string;
   gradient: string;
   delay?: number;
-  size?: "tall" | "wide";
+  size?: "tall" | "wide" | "slim";
   eyebrow?: string;
 }) {
   const tall = size === "tall";
+  const slim = size === "slim";
   return (
     <motion.div
       initial={{ opacity: 0, y: 18, scale: 0.985 }}
@@ -31,7 +32,7 @@ export function ModeCard({
     >
       <Link
         href={href}
-        className={`pressable grain relative flex w-full flex-col justify-end overflow-hidden rounded-[26px] ${tall ? "min-h-[196px] p-4" : "min-h-[96px] p-4"}`}
+        className={`pressable grain relative flex w-full flex-col justify-end overflow-hidden rounded-[26px] ${tall ? "min-h-[152px] p-4" : slim ? "min-h-[60px] px-4 py-2.5" : "min-h-[88px] px-4 py-3.5"}`}
         style={{ background: gradient, color: "var(--on-photo)", boxShadow: "0 14px 34px -22px rgba(22,33,58,0.55)" }}
       >
         <div
@@ -47,12 +48,14 @@ export function ModeCard({
                 {eyebrow}
               </p>
             )}
-            <div className="serif" style={{ fontSize: tall ? 30 : 28, lineHeight: 1, letterSpacing: "-0.02em" }}>
+            <div className="serif" style={{ fontSize: tall ? 30 : slim ? 22 : 28, lineHeight: 1, letterSpacing: "-0.02em" }}>
               {label}
             </div>
-            <p className="mt-1.5 max-w-[26ch] text-[12.5px] leading-snug" style={{ color: "var(--on-photo-80)" }}>
-              {sub}
-            </p>
+            {sub && (
+              <p className={`mt-1.5 text-[12.5px] leading-snug ${tall ? "max-w-[26ch]" : "max-w-[44ch]"}`} style={{ color: "var(--on-photo-80)" }}>
+                {sub}
+              </p>
+            )}
           </div>
           <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(246,241,231,0.16)", backdropFilter: "blur(8px)" }}>
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none">

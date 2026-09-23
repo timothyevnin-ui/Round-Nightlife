@@ -111,8 +111,9 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   }
 
   const mode: Mode = m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
+  const dayDoor = m === "day";
   const n = str(sp.n);
-  if (!isNeighborhoodId(n)) redirect(`/plan/${mode}`);
+  if (!isNeighborhoodId(n)) redirect(dayDoor ? "/plan/day" : `/plan/${mode}`);
 
   if (mode === "night") {
     const group = Math.min(11, Math.max(2, num(sp.g, 4)));
@@ -122,9 +123,9 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const payload: PlanPayload = { m: "night", n, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
     const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
-    shown("night", { neighborhood: n, group }, picks.map((p) => p.venue.slug), ai);
+    shown(dayDoor ? "day" : "night", { neighborhood: n, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [neighborhoodName(n), groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/plan/night" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
   }
 
   const bars = venues.filter((v) => v.kind === "bar");

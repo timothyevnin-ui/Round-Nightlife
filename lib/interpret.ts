@@ -1,6 +1,6 @@
 import { ATTR_LIST, type AttrKey } from "./attrs";
 import { NEIGHBORHOODS } from "./neighborhoods";
-import { timeOptions } from "./time";
+import { nowInNYC, timeOptions } from "./time";
 import type { Wants } from "./questions";
 import type { DateStage, NeighborhoodId, Venue } from "./types";
 import { findVenueInText } from "./match";
@@ -73,8 +73,14 @@ function findGroup(text: string): number | undefined {
 }
 
 function findHour(text: string): number | undefined {
-  if (/\b(right now|now|asap|tonight now|already out)\b/i.test(text)) return timeOptions().defaultValue;
+  if (/\b(right now|now|asap|tonight now|already out)\b/i.test(text)) return nowHour();
   if (/\b(later|late night|after midnight|afters)\b/i.test(text) && !/\b\d{1,2}\s*(pm|:)/i.test(text)) return 24.5;
+  // Daytime words mean daytime: this afternoon if it is one, otherwise a sensible day hour.
+  if (/\b(brunch)\b/i.test(text)) return dayHour(12);
+  if (/\b(happy hour|after work)\b/i.test(text)) return 17.5;
+  if (/\b(day ?drink\w*|this afternoon|afternoon|daytime|during the day|day out|in the sun)\b/i.test(text)) return dayHour(14);
+  // "Tonight" (or "tn") with no hour means tonight, not this minute: 9 while it's daytime, now in the evening.
+  if (/\b(tonight|tn|this evening|later tonight)\b/i.test(text)) return timeOptions().defaultValue;
   const m = text.match(/\b(at|around|by|from|@)?\s*(\d{1,2})(?::(\d{2}))?\s*(pm|p\.m\.|am|a\.m\.)?\b/i);
   if (m) {
     let h = Number(m[2]);
@@ -92,6 +98,18 @@ function findHour(text: string): number | undefined {
     if (h >= 13 && h <= 23) return h + mins;
   }
   return undefined;
+}
+
+/** The clock, in ROUND hours (24+ after midnight). */
+function nowHour(): number {
+  const { hour, minute } = nowInNYC();
+  return Math.round((hour < 5 ? hour + 24 : hour) * 4 + minute / 15) / 4;
+}
+
+/** A daytime hour: now if it's daytime already, otherwise `fallback`. */
+function dayHour(fallback: number): number {
+  const h = nowHour();
+  return h >= 11 && h < 17 ? h : fallback;
 }
 
 function findStage(text: string): DateStage | undefined {
@@ -182,7 +200,7 @@ export function interpretPrompt(text: string, venues: VenueForMatch[] = []) {
   return (
     `Turn this sentence about going out in NYC into JSON for a bar recommender.\n` +
     `Sentence: """${text}"""\n\n` +
-    `Return only JSON: {"mode":"night"|"date"|"dinner" (dinner = a group wants to eat first, then drinks),"neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) or null,` +
+    `Return only JSON: {"mode":"night"|"date"|"dinner" (dinner = a group wants to eat first, then drinks),"neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) only when they name a time or a part of the day (brunch = 12, happy hour = 17.5, afternoon = 14); "tonight" alone is null,` +
     `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases], "venue": slug or null, "near": boolean, "place": {"label": string, "lat": number, "lng": number} or null}\n` +
     `Neighborhoods, with the streets and landmarks that belong to them: west-village = Greenwich Village too (Bleecker, MacDougal, Christopher, Hudson St, Washington Square, NYU); east-village (St Marks, Avenues A-C, Tompkins Square, Astor Place); lower-east-side (Ludlow, Orchard, Delancey, Rivington, Chinatown, Dimes Square); soho-nolita (Prince, Spring, Mulberry, Elizabeth, Mott, the Bowery, NoHo); tribeca (West Broadway, Duane, Hudson Square, FiDi); chelsea (Meatpacking, the High Line, Flatiron, Union Square); williamsburg (Bedford Ave, N 6th, Wythe, Domino Park); greenpoint (Franklin St, Manhattan Ave, Nassau Ave, McCarren Park).\n` +
     `"place": when they mention a street, corner, landmark, park, subway stop or address in New York that is NOT one of the ROUND places below ("near Bleecker", "by Washington Square", "around Delancey and Essex", "I'm at the Bedford L"), give its short label and its coordinates as precisely as you can, and set "neighborhood" to the neighborhood it's in. Otherwise null. Spelling is often off (Bleeker = Bleecker).\n` +

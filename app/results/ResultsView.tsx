@@ -12,6 +12,8 @@ import type { DatePlan, Mode, NightPick } from "@/lib/types";
 
 type Props = {
   mode: Mode | "near";
+  /** The door's name when it isn't the mode's ("Day out" for the daylight door). */
+  title?: string;
   summary: string[];
   /** What ROUND understood, in plain words (from the model). */
   heard?: string;
@@ -26,7 +28,7 @@ type Props = {
 
 const TITLE: Record<Mode | "near", string> = { night: "Night out", date: "Date", dinner: "Dinner & drinks", near: "Near me" };
 
-export function ResultsView({ mode, summary, heard, editHref, code, night, plans, groupWord }: Props) {
+export function ResultsView({ mode, title, summary, heard, editHref, code, night, plans, groupWord }: Props) {
   const router = useRouter();
   const { rememberResults } = useRoundStore();
 
@@ -48,7 +50,7 @@ export function ResultsView({ mode, summary, heard, editHref, code, night, plans
             <path d="M13.5 5 8 11l5.5 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span className="eyebrow">{TITLE[mode]}</span>
+        <span className="eyebrow">{title ?? TITLE[mode]}</span>
         <Link href="/" className="pressable -mr-2 flex h-11 w-11 items-center justify-center rounded-full" aria-label="Home">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />

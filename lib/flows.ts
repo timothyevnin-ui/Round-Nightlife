@@ -1,7 +1,7 @@
 import type { FlowStep } from "@/components/Flow";
 import { NEIGHBORHOODS } from "./neighborhoods";
 import { timeOptions } from "./time";
-import { effectiveWhen, nowWhen } from "./when";
+import { dayWhen, nightWhen, nowWhen } from "./when";
 
 export function neighborhoodStep(defaultValue = "west-village"): FlowStep {
   return {
@@ -18,9 +18,9 @@ export function neighborhoodStep(defaultValue = "west-village"): FlowStep {
  * person set one, otherwise the phone's clock right now (11am at the
  * earliest, 3am at the latest). They can still move it here.
  */
-export function timeStep(): { step: FlowStep; dow: number } {
+export function timeStep(kind: "night" | "day" = "night"): { step: FlowStep; dow: number } {
   const { options } = timeOptions();
-  const w = effectiveWhen();
+  const w = kind === "day" ? dayWhen() : nightWhen();
   const now = Math.max(11, Math.min(27, nowWhen().hour));
   const start = Math.max(11, Math.min(27, w.hour));
   return {
@@ -43,8 +43,8 @@ export const VIBE_ART = {
   lowlit: { from: "#16213a", to: "#2e4470", angle: 165 },
 } as const;
 
-export function nightSteps(): { steps: FlowStep[]; dow: number } {
-  const { step: t, dow } = timeStep();
+export function nightSteps(kind: "night" | "day" = "night"): { steps: FlowStep[]; dow: number } {
+  const { step: t, dow } = timeStep(kind);
   return {
     dow,
     steps: [

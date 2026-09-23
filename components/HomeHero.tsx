@@ -1,13 +1,16 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Wordmark } from "./Wordmark";
-import { WhenChip } from "./WhenChip";
 import { ModeCard } from "./ModeCard";
 import { SayIt } from "./SayIt";
 import { useAuth } from "@/lib/auth";
+import { DAY_NAMES } from "@/lib/time";
+import { nowWhen } from "@/lib/when";
+
+const noop = () => () => {};
 
 /**
  * The front door. Two doors side by side, a third for dinner with the group,
@@ -23,20 +26,41 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
   // Signed in, ROUND knows your name and says it. The tiles below never change.
   const { profile } = useAuth();
   const first = (profile?.name ?? "").trim().split(/\s+/)[0] ?? "";
+  // "It's Wednesday." from the phone's clock; empty on the server so nothing mismatches.
+  const dayName = useSyncExternalStore(noop, () => DAY_NAMES[nowWhen().dow], () => "");
 
   return (
     <div ref={ref} className="relative flex flex-col" style={{ minHeight: "min(calc(100dvh - var(--tab-height) - env(safe-area-inset-bottom, 0px) - 44px), 760px)" }}>
       <motion.div style={{ scale, opacity, y, transformOrigin: "50% 20%" }} className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between pt-4 pb-1">
+        <header className="flex items-center gap-3 pt-4 pb-1">
           <Wordmark />
-          <Link href="/hot" className="pressable eyebrow" style={{ color: "var(--ink-35)" }}>
-            NYC
-          </Link>
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+            <Link
+              href="/search"
+              className="pressable flex h-9 min-w-0 items-center gap-2 rounded-full border px-3"
+              style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)" }}
+              aria-label="Search our bars"
+              data-search-pill
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+                <circle cx="7" cy="7" r="4.5" stroke="#16213A" strokeWidth="1.6" />
+                <path d="M10.5 10.5 14 14" stroke="#16213A" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+              <span className="truncate text-[12.5px] font-medium" style={{ color: "var(--ink-70)" }}>
+                Search our bars
+              </span>
+            </Link>
+            <Link href="/hot" className="pressable eyebrow shrink-0" style={{ color: "var(--ink-35)" }}>
+              NYC
+            </Link>
+          </div>
         </header>
 
-        <section className="pt-4 pb-3">
-          <WhenChip />
-          <h1 className="serif mt-2" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em" }} data-hello={first || undefined}>
+        <section className="pt-2 pb-2">
+          <p className="eyebrow" style={{ color: "var(--ink-70)", minHeight: 14 }} data-day-line>
+            {dayName ? `It's ${dayName}.` : ""}
+          </p>
+          <h1 className="serif mt-1.5" style={{ fontSize: 36, lineHeight: 1.02, letterSpacing: "-0.02em" }} data-hello={first || undefined}>
             Where should
             <br />
             we go{first ? `, ${first}` : ""}?
@@ -44,7 +68,7 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
         </section>
 
         {/* Say it, or go by where you are. */}
-        <div className="flex items-center gap-2 pb-3">
+        <div className="flex items-center gap-2 pb-2.5">
           <div className="min-w-0 flex-1">
             <SayIt />
           </div>
@@ -63,8 +87,8 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
           </Link>
         </div>
 
-        <section className="flex min-h-0 flex-1 flex-col gap-3">
-          <div className="grid min-h-0 flex-1 grid-cols-2 gap-3" style={{ maxHeight: 400 }}>
+        <section className="flex min-h-0 flex-1 flex-col gap-2.5">
+          <div className="grid min-h-0 flex-1 grid-cols-2 gap-2.5" style={{ maxHeight: 320 }}>
             <ModeCard
               href="/plan/night"
               label="Night out"
@@ -89,20 +113,14 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
             size="wide"
             eyebrow="With friends"
           />
-          <Link
-            href="/search"
-            className="pressable flex h-12 shrink-0 items-center gap-3 rounded-full border px-4"
-            style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)" }}
-            aria-label="Search a bar"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-              <circle cx="7" cy="7" r="4.5" stroke="#16213A" strokeWidth="1.6" />
-              <path d="M10.5 10.5 14 14" stroke="#16213A" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-            <span className="truncate text-[14px]" style={{ color: "var(--ink-55)" }}>
-              Search a bar you&apos;ve heard about
-            </span>
-          </Link>
+          <ModeCard
+            href="/plan/day"
+            label="Brunch, day drinking, happy hour"
+            gradient="linear-gradient(160deg, #8a5a12 0%, #d9a441 100%)"
+            delay={0.18}
+            size="slim"
+            eyebrow="In daylight"
+          />
         </section>
 
       </motion.div>
