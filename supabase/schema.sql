@@ -96,9 +96,11 @@ alter table public.profiles enable row level security;
 drop policy if exists "profiles: own read"   on public.profiles;
 drop policy if exists "profiles: own insert" on public.profiles;
 drop policy if exists "profiles: own update" on public.profiles;
+drop policy if exists "profiles: own delete" on public.profiles;
 create policy "profiles: own read"   on public.profiles for select using (auth.uid() = id);
 create policy "profiles: own insert" on public.profiles for insert with check (auth.uid() = id);
 create policy "profiles: own update" on public.profiles for update using (auth.uid() = id);
+create policy "profiles: own delete" on public.profiles for delete using (auth.uid() = id);
 
 -- Want to go / Been / rating, one row per person per place.
 create table if not exists public.saves (

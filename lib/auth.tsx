@@ -32,7 +32,7 @@ export type AuthState = {
   sendCode: (phone: string) => Promise<string | null>;
   verifyCode: (phone: string, code: string) => Promise<string | null>;
   saveProfile: (p: { name: string; birthday: string }) => Promise<string | null>;
-  signOut: () => Promise<void>;
+  signOut: (opts?: { forget?: boolean }) => Promise<void>;
 };
 
 const Ctx = createContext<AuthState | null>(null);
@@ -64,7 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (u: User): Promise<Profile | null> => {
       if (!sb) return null;
       const { data } = await sb.from("profiles").select("id,name,birthday,phone").eq("id", u.id).maybeSingle();
-      return (data as Profile | null) ?? null;
+      if (data) return data as Profile;
+      // First sign-in: start the row now (phone only) so the person exists in
+      // the Studio even if they never finish the name step.
+      const phone = u.phone ? `+${u.phone.replace(/^\+/, "")}` : null;
+      const { data: made } = await sb.from("profiles").upsert({ id: u.id, name: "", phone }, { onConflict: "id" }).select("id,name,birthday,phone").maybeSingle();
+      return (made as Profile | null) ?? { id: u.id, name: "", birthday: null, phone };
     },
     [sb],
   );
@@ -163,15 +168,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [sb, user],
   );
 
-  const signOut = useCallback(async () => {
+  const signOut = useCallback(async (opts?: { forget?: boolean }) => {
     if (!sb) return;
+    // Under 21: they never had an account here. Remove the row started at sign-in.
+    if (opts?.forget && user) await sb.from("profiles").delete().eq("id", user.id);
     await sb.auth.signOut();
     clearPersonal();
     setUser(null);
     setProfile(null);
     setRemote(makeRemote(sb, null));
     mergedFor.current = null;
-  }, [sb]);
+  }, [sb, user]);
 
   const needsProfile = !!user && (!profile || !profile.name || !profile.birthday);
 

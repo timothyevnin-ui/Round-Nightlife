@@ -136,7 +136,7 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
     if (age === null) return setError("That birthday doesn't look right.");
     if (age < 21) {
       setUnderage(true);
-      await signOut();
+      await signOut({ forget: true });
       return;
     }
     setBusy(true);
