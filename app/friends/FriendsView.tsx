@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "@/components/Photo";
-import { TypedHeading, useTypewriter } from "@/components/QuickOnes";
+import { useTypewriter } from "@/components/QuickOnes";
 import { useAuth } from "@/lib/auth";
-import { acceptFriend, befriend, CHECKIN_HOURS, clearCheckIn, contactsSupported, loadCircle, matchContacts, myCheckIn, pickContactHashes, searchPeople, setPrivacy, unfriend, whereFriendsAre, type Checkin, type Circle, type Person } from "@/lib/friends";
+import { acceptFriend, befriend, contactsSupported, loadCircle, matchContacts, pickContactHashes, searchPeople, setPrivacy, unfriend, type Circle, type Person } from "@/lib/friends";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { getSupabase } from "@/lib/supabase";
 import { track } from "@/lib/track";
@@ -17,8 +17,8 @@ export type Regular = { slug: string; name: string; neighborhood: NeighborhoodId
 
 /**
  * Friends. Signed out, it's the pitch: the reason to add your number, typed
- * out the way the questions are. Signed in, it's your people: who's out
- * tonight, who to add, who asked, and how private you want to be.
+ * out the way the questions are. Signed in, it's your people: who to add,
+ * who asked, and whether you're public or private.
  */
 const LATER_KEY = "round:friends-later";
 const laterListeners = new Set<() => void>();
@@ -71,7 +71,7 @@ export function FriendsView({ regulars, names }: { regulars: Regular[]; names: R
             Your friends are one text away.
           </p>
           <p className="mt-2 text-[14.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
-            Add your number and we&apos;ll match it against your contacts: whoever&apos;s already here becomes a friend, and you&apos;ll see where they are tonight.
+            Add your number and we&apos;ll match it against your contacts: whoever&apos;s already here becomes a friend.
           </p>
           <button onClick={() => openSignIn("friends")} className="pressable btn-accent mt-5 flex h-12 w-full items-center justify-center text-[15px]">
             Add my number
@@ -82,18 +82,68 @@ export function FriendsView({ regulars, names }: { regulars: Regular[]; names: R
     );
   }
 
-  return <CircleView me={user.id} names={names} />;
+  void names; // kept in the props for the day friends' spots come back
+  return <CircleView me={user.id} />;
 }
 
 /* ───────────────────────── the pitch ───────────────────────── */
 
-const BENEFITS = [
-  { t: "See which friends are already here.", s: "Your contacts who have ROUND become your friends. Nobody's number is shown to anyone." },
-  { t: "See what bar they're at tonight.", s: "When a friend taps GO, you'll know. You choose who sees yours, or turn it off." },
-  { t: "Rank your spots.", s: "Loved, Good, Meh. Your favorites climb the list, and ROUND gets you." },
-  { t: "A drink on us at your favorite bar.", s: "Add your number now and you're first in line when it opens." },
-  { t: "Soon: your friends' and your favorite people's picks.", s: "Where the group actually went last Saturday, not what an ad says." },
+const SELL = [
+  {
+    key: "here",
+    t: "See who's already here.",
+    s: "Your contacts on ROUND become your friends. Nobody's number is ever shown to anyone.",
+    icon: (
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
+        <circle cx="12" cy="17" r="8.5" stroke="var(--tomato)" strokeWidth="2.4" />
+        <circle cx="22" cy="17" r="8.5" stroke="var(--on-photo)" strokeWidth="2.4" />
+      </svg>
+    ),
+  },
+  {
+    key: "ladder",
+    t: "Rank your spots. Climb the ladder.",
+    s: "Your favorites push their way up ROUND's picks. Loud opinions welcome.",
+    icon: <Ladder />,
+  },
+  {
+    key: "drink",
+    t: "A drink on us at your favorite bar.",
+    s: "Add your number now and you're first in line when it opens.",
+    icon: (
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
+        <path d="M8 6h18l-9 12z" stroke="var(--on-photo)" strokeWidth="2.2" strokeLinejoin="round" />
+        <path d="M17 18v8M11 27h12" stroke="var(--on-photo)" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M11.5 10.5h11" stroke="var(--tomato)" strokeWidth="2.4" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    key: "picks",
+    t: "Coming: your friends' picks. And your favorite people's.",
+    s: "Where the group actually went last Saturday, not what an ad says.",
+    icon: (
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
+        <path d="M17 4l3.2 8.3L29 15.5l-8.8 3.2L17 27l-3.2-8.3L5 15.5l8.8-3.2z" stroke="var(--tomato)" strokeWidth="2.2" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
 ];
+
+/** Three bars, one climbing with the check on it. */
+function Ladder() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden>
+      <rect x="6" y="6" width="22" height="5" rx="2.5" fill="rgba(246,241,231,0.22)" />
+      <rect x="6" y="23" width="22" height="5" rx="2.5" fill="rgba(246,241,231,0.22)" />
+      <motion.g initial={{ y: 8.5 }} animate={{ y: [8.5, 8.5, -8.5, -8.5, 8.5] }} transition={{ duration: 4.2, times: [0, 0.35, 0.55, 0.85, 1], repeat: Infinity, ease: "easeInOut" }}>
+        <rect x="6" y="14.5" width="22" height="5" rx="2.5" fill="var(--tomato)" />
+        <circle cx="24.5" cy="17" r="3.2" fill="var(--paper)" />
+        <path d="M22.9 17l1.1 1.1 2-2.1" stroke="var(--tomato)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      </motion.g>
+    </svg>
+  );
+}
 
 function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
   const first = "Put your number in.";
@@ -101,39 +151,73 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
   const t1 = useTypewriter(first, 34);
   const done1 = t1.length >= first.length;
   return (
-    <main className="screen screen-with-tabs relative mx-auto flex w-full max-w-md flex-col overflow-hidden" style={{ minHeight: "100dvh" }}>
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(90% 55% at 50% -10%, rgba(217,72,43,0.16), transparent 70%)" }} />
-      <header className="relative z-10 pt-5">
-        <p className="eyebrow">Friends</p>
-      </header>
-      <section className="relative z-10 flex flex-1 flex-col pt-8">
-        <TypedHeading text={first} typed={t1} ready={done1} size={40} />
-        {done1 && <SecondLine text={second} />}
-        <motion.ul initial="hidden" animate={done1 ? "show" : "hidden"} variants={{ show: { transition: { staggerChildren: 0.18, delayChildren: 1.1 } } }} className="mt-8 flex flex-col gap-4">
-          {BENEFITS.map((b) => (
-            <motion.li key={b.t} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="flex gap-3">
-              <span className="mt-2 h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--tomato)" }} />
-              <span>
-                <span className="block text-[16px] font-medium">{b.t}</span>
-                <span className="block text-[13.5px] leading-snug" style={{ color: "var(--ink-55)" }}>
-                  {b.s}
-                </span>
-              </span>
-            </motion.li>
-          ))}
-        </motion.ul>
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={done1 ? { opacity: 1, y: 0 } : {}} transition={{ delay: 2.2 }} className="mt-auto pt-8">
-          <button onClick={onAdd} className="pressable btn-accent flex h-14 w-full items-center justify-center text-[17px]">
-            Add my number
-          </button>
-          <button onClick={onLater} className="pressable mx-auto mt-3 block text-[13.5px] font-medium" style={{ color: "var(--ink-35)" }}>
-            Maybe later
-          </button>
-          <p className="mt-4 text-center text-[11.5px] leading-relaxed" style={{ color: "var(--ink-35)" }}>
-            One text with a code. Never marketing texts. 21+ only.
+    <main
+      className="screen screen-with-tabs relative mx-auto flex w-full max-w-md flex-col overflow-hidden"
+      style={{ minHeight: "100dvh", background: "var(--ink)", color: "var(--on-photo)", marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)", maxWidth: "100vw" }}
+      data-pitch
+    >
+      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(70% 45% at 50% -8%, rgba(217,72,43,0.55), transparent 70%), radial-gradient(60% 40% at 100% 110%, rgba(31,74,60,0.6), transparent 70%)" }} />
+      <div className="relative z-10 mx-auto w-full max-w-md">
+        <header className="flex items-center gap-2.5 pt-5">
+          <motion.span aria-hidden className="block h-[18px] w-[18px] rounded-full" style={{ border: "2.5px solid var(--tomato)" }} animate={{ scale: [1, 1.18, 1], opacity: [1, 0.7, 1] }} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }} />
+          <p className="eyebrow" style={{ color: "var(--on-photo-60)" }}>
+            Friends
           </p>
-        </motion.div>
-      </section>
+        </header>
+        <section className="flex flex-1 flex-col pt-7">
+          <h1 className="serif" style={{ fontSize: 44, lineHeight: 1.02, letterSpacing: "-0.02em", minHeight: "1.1em", color: "var(--paper)" }} aria-label={first}>
+            {t1}
+            <span aria-hidden className="inline-block align-baseline" style={{ width: 3, height: "0.85em", marginLeft: 3, background: done1 ? "transparent" : "var(--tomato)", transform: "translateY(0.1em)" }} />
+          </h1>
+          {done1 && <SecondLine text={second} />}
+          <motion.ul initial="hidden" animate={done1 ? "show" : "hidden"} variants={{ show: { transition: { staggerChildren: 0.16, delayChildren: 1.0 } } }} className="mt-7 flex flex-col gap-2.5">
+            {SELL.map((b) => (
+              <motion.li
+                key={b.key}
+                variants={{ hidden: { opacity: 0, y: 18, rotate: -1.2 }, show: { opacity: 1, y: 0, rotate: 0 } }}
+                transition={{ type: "spring", stiffness: 260, damping: 24 }}
+                className="flex items-center gap-4 rounded-[22px] px-4 py-3"
+                style={{ background: "rgba(246,241,231,0.07)", border: "1px solid rgba(246,241,231,0.12)", backdropFilter: "blur(6px)" }}
+              >
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px]" style={{ background: "rgba(22,33,58,0.55)", border: "1px solid rgba(246,241,231,0.1)" }}>
+                  {b.icon}
+                </span>
+                <span className="min-w-0">
+                  <span className="serif block" style={{ fontSize: 21, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--paper)" }}>
+                    {b.t}
+                  </span>
+                  <span className="mt-1 block text-[13px] leading-snug" style={{ color: "var(--on-photo-60)" }}>
+                    {b.s}
+                  </span>
+                </span>
+              </motion.li>
+            ))}
+          </motion.ul>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={done1 ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 2.0, type: "spring", stiffness: 220, damping: 26 }}
+            className="sticky mt-auto pt-7"
+            style={{ bottom: "calc(var(--tab-height) + env(safe-area-inset-bottom, 0px) + 24px)", background: "linear-gradient(180deg, rgba(22,33,58,0) 0%, rgba(22,33,58,0.92) 28%, var(--ink) 100%)", paddingBottom: 4 }}
+          >
+            <motion.button
+              onClick={onAdd}
+              className="pressable flex h-[58px] w-full items-center justify-center rounded-full text-[18px] font-semibold"
+              style={{ background: "var(--tomato)", color: "var(--on-photo)", boxShadow: "0 0 0 1px rgba(246,241,231,0.08), 0 18px 48px -12px rgba(217,72,43,0.75)" }}
+              animate={{ boxShadow: ["0 18px 48px -12px rgba(217,72,43,0.75)", "0 18px 64px -8px rgba(217,72,43,0.95)", "0 18px 48px -12px rgba(217,72,43,0.75)"] }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              Add my number
+            </motion.button>
+            <button onClick={onLater} className="pressable mx-auto mt-3 block text-[13.5px] font-medium" style={{ color: "var(--on-photo-60)" }}>
+              Maybe later
+            </button>
+            <p className="mt-4 text-center text-[11.5px] leading-relaxed" style={{ color: "rgba(246,241,231,0.42)" }}>
+              One text with a code. Never marketing texts. 21+ only.
+            </p>
+          </motion.div>
+        </section>
+      </div>
     </main>
   );
 }
@@ -141,7 +225,7 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
 function SecondLine({ text }: { text: string }) {
   const typed = useTypewriter(text, 34);
   return (
-    <h2 className="serif mt-2" style={{ fontSize: 30, lineHeight: 1.08, letterSpacing: "-0.015em", color: "var(--ink-70)", minHeight: "2.2em" }} aria-label={text}>
+    <h2 className="serif mt-2" style={{ fontSize: 28, lineHeight: 1.1, letterSpacing: "-0.015em", color: "var(--on-photo-80)", minHeight: "1.2em" }} aria-label={text}>
       {typed}
       <span aria-hidden className="inline-block align-baseline" style={{ width: 3, height: "0.8em", marginLeft: 3, background: typed.length >= text.length ? "transparent" : "var(--tomato)", transform: "translateY(0.1em)" }} />
     </h2>
@@ -150,12 +234,10 @@ function SecondLine({ text }: { text: string }) {
 
 /* ───────────────────────── signed in ───────────────────────── */
 
-function CircleView({ me, names }: { me: string; names: Record<string, string> }) {
+function CircleView({ me }: { me: string }) {
   const { profile, updateProfile } = useAuth();
   const sb = useMemo(() => getSupabase(), []);
   const [circle, setCircle] = useState<Circle>({ friends: [], requestsIn: [], requestsOut: [] });
-  const [out, setOut] = useState<Checkin[]>([]);
-  const [mine, setMine] = useState<{ slug: string; at: string } | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Person[]>([]);
@@ -167,10 +249,7 @@ function CircleView({ me, names }: { me: string; names: Record<string, string> }
   const refresh = useCallback(async () => {
     if (!sb) return;
     try {
-      const [c, w, m] = await Promise.all([loadCircle(sb, me), whereFriendsAre(sb, me), myCheckIn(sb, me)]);
-      setCircle(c);
-      setOut(w);
-      setMine(m);
+      setCircle(await loadCircle(sb, me));
       setProblem(null);
     } catch (e) {
       const msg = errMsg(e);
@@ -262,7 +341,6 @@ function CircleView({ me, names }: { me: string; names: Record<string, string> }
   };
 
   const isPublic = profile?.is_public ?? true;
-  const shares = profile?.share_location ?? true;
 
   return (
     <Shell title="Friends" eyebrow="Mutual, not public">
@@ -271,59 +349,6 @@ function CircleView({ me, names }: { me: string; names: Record<string, string> }
           {problem}
         </p>
       )}
-
-      {/* Where everyone is */}
-      <section className="mt-2">
-        <div className="flex items-baseline justify-between">
-          <h2 className="serif" style={{ fontSize: 26, letterSpacing: "-0.01em" }}>
-            Out right now
-          </h2>
-          <span className="text-[12px]" style={{ color: "var(--ink-35)" }}>
-            Last {CHECKIN_HOURS} hours
-          </span>
-        </div>
-        {mine && (
-          <div className="mt-3 flex items-center justify-between rounded-[18px] px-4 py-3" style={{ background: "var(--ink)", color: "var(--paper)" }}>
-            <span className="text-[14px]">
-              You&apos;re at <strong>{names[mine.slug] ?? mine.slug}</strong> · {ago(mine.at)}
-            </span>
-            <button
-              onClick={async () => {
-                if (!sb) return;
-                await clearCheckIn(sb, me);
-                setMine(null);
-              }}
-              className="pressable text-[12.5px]"
-              style={{ color: "var(--on-photo-60)" }}
-            >
-              Clear
-            </button>
-          </div>
-        )}
-        {out.length === 0 ? (
-          <p className="mt-3 text-[14px] leading-snug" style={{ color: "var(--ink-55)" }}>
-            Nobody&apos;s out yet. When a friend taps GO, it shows up here{shares ? ", and yours shows for them" : ""}.
-          </p>
-        ) : (
-          <ul className="mt-3 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
-            {out.map((c) => (
-              <li key={c.user_id}>
-                <Link href={`/v/${c.slug}`} className="pressable flex items-center justify-between py-3">
-                  <span>
-                    <span className="serif text-[19px]">{c.name}</span>
-                    <span className="ml-2 text-[14px]" style={{ color: "var(--ink-70)" }}>
-                      at {names[c.slug] ?? c.slug}
-                    </span>
-                  </span>
-                  <span className="text-[12px]" style={{ color: "var(--ink-35)" }}>
-                    {ago(c.at)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
 
       {/* Find people */}
       <section className="card mt-8 p-5">
@@ -429,9 +454,8 @@ function CircleView({ me, names }: { me: string; names: Record<string, string> }
           Who sees you
         </h2>
         <Row label={isPublic ? "Public: anyone can add you" : "Private: people request first"} on={isPublic} onChange={(v) => togglePrivacy("is_public", v)} />
-        <Row label="Friends can see which bar I'm at" on={shares} onChange={(v) => togglePrivacy("share_location", v)} />
         <p className="mt-2 text-[12px] leading-relaxed" style={{ color: "var(--ink-35)" }}>
-          Your number is never shown to anyone. Friends see your name, your Loved list, and, if you allow it, the bar you tapped GO on for {CHECKIN_HOURS} hours.
+          Your number is never shown to anyone. Friends see your name and, soon, your spots.
         </p>
       </section>
     </Shell>
@@ -489,11 +513,6 @@ function errMsg(e: unknown): string {
   if (e instanceof Error) return e.message;
   if (e && typeof e === "object" && "message" in e) return String((e as { message: unknown }).message);
   return String(e ?? "");
-}
-
-function ago(iso: string) {
-  const m = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
-  return m < 60 ? `${m}m ago` : `${Math.round(m / 60)}h ago`;
 }
 
 /* ───────────────────────── shell + regulars ───────────────────────── */

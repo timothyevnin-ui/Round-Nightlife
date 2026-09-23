@@ -43,7 +43,7 @@ export function makeRemote(sb: SupabaseClient, userId: string | null): Remote {
     go(slug) {
       sb.from("go_taps").insert({ user_id: userId, slug }).then(({ error }) => error && warn("go")(error));
       // Friends may see where you are for a few hours (only if you let them; the database checks).
-      if (userId) sb.from("checkins").upsert({ user_id: userId, slug, at: new Date().toISOString() }, { onConflict: "user_id" }).then(({ error }) => error && warn("checkin")(error));
+      // Check-ins ("friends can see which bar you're at") are switched off for now; the table stays for later.
     },
   };
 }

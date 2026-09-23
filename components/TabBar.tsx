@@ -17,13 +17,7 @@ export function TabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       aria-label="Primary"
     >
-      <div
-        className="mx-auto max-w-md"
-        style={{
-          background: "linear-gradient(180deg, rgba(243,237,224,0) 0%, rgba(243,237,224,0.94) 30%, #f3ede0 100%)",
-          paddingTop: 18,
-        }}
-      >
+      <div className="tabbar-ground mx-auto max-w-md" style={{ paddingTop: 18 }}>
         <div className="flex items-stretch justify-around px-6" style={{ height: "var(--tab-height)" }}>
           {TABS.map((t) => {
             const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
@@ -32,9 +26,8 @@ export function TabBar() {
               <Link
                 key={t.href}
                 href={t.href}
-                className="pressable flex flex-col items-center justify-center gap-1 min-w-[72px]"
+                className="pressable tabbar-item flex flex-col items-center justify-center gap-1 min-w-[72px]"
                 aria-current={active ? "page" : undefined}
-                style={{ color: active ? "var(--ink)" : "var(--ink-35)" }}
               >
                 <Icon active={active} />
                 <span className="text-[11px] font-medium tracking-wide">{t.label}</span>
