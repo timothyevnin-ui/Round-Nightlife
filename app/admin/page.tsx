@@ -4,10 +4,11 @@ import { dbConfig, getVenuesWithSource } from "@/lib/db";
 import { listEvents, topBySlug, topByText, type EventRow } from "@/lib/events";
 import { neighborhoodName, isNeighborhoodId } from "@/lib/neighborhoods";
 import { countBy, listGoTaps, listProfiles } from "@/lib/studio";
-import { listSuggestions } from "@/lib/suggestions";
+import { countApproved, listOwed, listSuggestions } from "@/lib/suggestions";
 import { listDisputes } from "@/lib/disputes";
 import { DashboardActions } from "./DashboardActions";
 import { VerifiedGate } from "./VerifiedGate";
+import { BountyCard } from "./BountyCard";
 import { getSettings } from "@/lib/settings";
 import { DbHealth } from "./DbHealth";
 import { checkDatabase, sqlEditorUrl } from "@/lib/health";
@@ -32,13 +33,17 @@ export default async function Dashboard() {
   let profileCount = 0;
   let waiting = 0;
   let disagreeing = 0;
+  let approved = 0;
+  let owed = 0;
   if (writable) {
-    const [events, tapsRes, profiles, w, dg] = await Promise.all([
+    const [events, tapsRes, profiles, w, dg, ap, ow] = await Promise.all([
       listEvents({ sinceDays: DAYS, limit: 1000 }).then((rows) => ({ rows }), (e: Error) => ({ rows: [] as EventRow[], problem: e.message })),
       listGoTaps(DAYS),
       listProfiles(1000),
       listSuggestions("new").then((l) => l.length).catch(() => -1),
       listDisputes("new", 300).then((l) => l.length).catch(() => 0),
+      countApproved().catch(() => 0),
+      listOwed().then((l) => l.length).catch(() => 0),
     ]);
     ev = events.rows;
     evProblem = "problem" in events ? events.problem : undefined;
@@ -46,6 +51,8 @@ export default async function Dashboard() {
     profileCount = profiles.rows.length;
     waiting = w;
     disagreeing = dg;
+    approved = ap;
+    owed = ow;
   }
 
   const live = venues.filter((v) => !v.retired);
@@ -135,6 +142,7 @@ export default async function Dashboard() {
       </div>
 
       <VerifiedGate on={settings.verifiedOnly} verified={verified} total={live.length} writable={writable} />
+      <BountyCard open={settings.bounty.open} cap={settings.bounty.cap} amount={settings.bounty.amount} approved={approved} owed={owed} writable={writable} />
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} disagreeing={disagreeing} />
 

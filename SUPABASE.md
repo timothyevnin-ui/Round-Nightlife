@@ -117,6 +117,10 @@ No SQL this time. After uploading V18, open the Studio dashboard and tap **Updat
 
 Run the current `supabase/schema.sql` again. It adds a `disputes` table (server-only, like recommendations). Until it's run, the Disagree button on the Spots tab says it can't take notes right now, and the dashboard's health check names the missing table.
 
+## 13. The $2 offer (V20)
+
+Run the current `supabase/schema.sql` again. It adds `venmo` and `paid_at` to recommendations and a `bounty` setting (on, 1,000, $2). Until it's run, recommendations still arrive but without the Venmo handle, and the dashboard's health check names the missing columns.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

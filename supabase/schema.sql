@@ -452,4 +452,11 @@ create trigger disputes_touch before update on public.disputes
   for each row execute function public.touch_updated_at();
 alter table public.disputes enable row level security;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V20. The $2 offer. Recommendations carry the person's Venmo handle (Studio
+-- only) and when they were paid; the offer itself is a Studio setting.
+alter table public.suggestions add column if not exists venmo   text;
+alter table public.suggestions add column if not exists paid_at timestamptz;
+insert into public.settings (key, value) values ('bounty', '{"open": true, "cap": 1000, "amount": 2}'::jsonb) on conflict (key) do nothing;
+
 -- Later phases (plans, census) add their tables here.

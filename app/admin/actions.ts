@@ -11,13 +11,14 @@ import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, upload
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import { geocode } from "@/lib/geocode";
-import { setSetting } from "@/lib/settings";
+import { getSettings, setSetting } from "@/lib/settings";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
 import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, Window } from "@/lib/types";
 import { cleanHours } from "@/lib/hours";
 import { slugify } from "@/lib/slug";
-import { setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
+import { markSuggestionPaid, setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
+import { asksToText, type Ask } from "@/lib/askQuestions";
 import { getDispute, setDisputeStatus } from "@/lib/disputes";
 import { aboutLabel } from "@/lib/disputeAbouts";
 
@@ -319,6 +320,51 @@ export async function lookupAddress(address: string): Promise<{ lat: number; lng
 /* ───────────────────────── the gate ───────────────────────── */
 
 /** Only verified places show in the app. Off means everything researched shows too. */
+/** The $2 offer: open or closed (the cap and the amount stay as they are). */
+export async function setBountyOpen(on: boolean): Promise<{ ok: true } | { error: string }> {
+  try {
+    await guard();
+    const { bounty } = await getSettings();
+    await setSetting("bounty", { ...bounty, open: on });
+    return { ok: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't save that." };
+  }
+}
+
+/** The $2 went out (or didn't, after all). */
+export async function markPaid(id: string, paid: boolean): Promise<SaveResult> {
+  try {
+    await guard();
+    await markSuggestionPaid(id, paid);
+    return { ok: true, slug: id };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't update that." };
+  }
+}
+
+/**
+ * Add a place, in words: the five typed questions answered, read into every
+ * field the words support (the same reader as Read my words). The take and
+ * the catch come back drafted in ROUND's voice for the next screens to edit.
+ */
+export async function readAsks(input: { name: string; neighborhood: string; kind: "bar" | "restaurant"; barFood?: boolean; cuisine?: string; words: Partial<Record<Ask["key"], string>> }): Promise<{ patch?: ReadWordsPatch; error?: string }> {
+  const text = asksToText(input.words);
+  if (text.replace(/\W/g, "").length < 12) return { error: "Answer at least one of them first." };
+  return readMyWords({
+    name: input.name,
+    neighborhood: input.neighborhood,
+    kind: input.kind,
+    barFood: input.barFood,
+    cuisine: input.cuisine ?? null,
+    take: text,
+    theCatch: "",
+    notes: "",
+    source: "questions",
+    existing: { tags: [], attrs: {}, price: 2, capacity: "medium", easyIn: 0.5, groupFit: { two: 0.7, small: 0.7, mid: 0.5, big: 0.3 }, dateFit: { first: 0.5, early: 0.5, longterm: 0.5 }, hours: null, dayDeal: null, score: null, verified: false },
+  });
+}
+
 export async function setVerifiedOnly(on: boolean): Promise<{ ok: true } | { error: string }> {
   try {
     await guard();
@@ -341,8 +387,8 @@ export type ReadWordsInput = {
   take: string;
   theCatch: string;
   notes: string;
-  /** How the words arrived, for the log line: "read my words" (the editor), "verify sprint", or "reader" (a confirmed disagreement). */
-  source?: "read my words" | "verify sprint" | "reader";
+  /** How the words arrived, for the log line: "read my words" (the editor), "verify sprint", "reader" (a confirmed disagreement) or "questions" (Add a place). */
+  source?: "read my words" | "verify sprint" | "reader" | "questions";
   existing: {
     tags: string[];
     attrs: Partial<Attrs>;
@@ -424,7 +470,7 @@ export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: Read
             content:
               `Place: ${input.name || "(unnamed)"} — ${input.kind}${input.barFood ? " with a kitchen" : ""}${input.cuisine ? `, ${input.cuisine}` : ""}, ${isNeighborhoodId(input.neighborhood) ? neighborhoodName(input.neighborhood) : input.neighborhood}.\n` +
               `Already on file (keep unless the words change it): tags ${JSON.stringify(ex.tags)}, attrs ${JSON.stringify(ex.attrs)}, price ${ex.price}, capacity ${ex.capacity}, easyIn ${ex.easyIn}, groupFit ${JSON.stringify(ex.groupFit)}, dateFit ${JSON.stringify(ex.dateFit)}, hours ${ex.hours ? "set" : "unknown"}, dayDeal ${JSON.stringify(ex.dayDeal ?? null)}, score ${ex.score ?? "unset"}, verified ${!!ex.verified}.\n\n` +
-              `${input.source === "reader" ? "The reader's words (confirmed true by the founder)" : "The founder's words"}:\n${words}\n\n` +
+              `${input.source === "reader" ? "The reader's words (confirmed true by the founder)" : input.source === "questions" ? "The founder's words, as answers to ROUND's five questions (each line starts with the question)" : "The founder's words"}:\n${words}\n\n` +
               `Return JSON: {"take": string (max 28 words), "theCatch": string (max 22 words; the practical thing: the line, when to go, what to order; omit if the words give nothing practical), "tags": [2-5], "attrs": {key: 0..1 for traits the words support}, ` +
               `"kind": "bar"|"restaurant" (omit unless the words say), "barFood": true|false (omit unless said), "cuisine": string|null (omit unless said), "price": 1-4 (1 under $10 drinks, 2 $10-16, 3 $17-24, 4 splurge; omit unless said), "capacity": "tiny"|"small"|"medium"|"large" (omit unless said), ` +
               `"easyIn": 0.85 walk in | 0.65 usually fine | 0.4 often a wait | 0.15 good luck (omit unless said), "groupFit": {"two","small","mid","big": 0-1} (omit unless said), "dateFit": {"first","early","longterm": 0-1} (omit unless said), ` +
@@ -485,8 +531,9 @@ export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: Read
     const when = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
     const sprint = input.source === "verify sprint";
     const reader = input.source === "reader";
-    const said = [rawTake && `${sprint ? "As said" : reader ? "They said" : "Take, as said"}: ${rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
-    const entry = `— ${when} · ${sprint ? "verify sprint" : reader ? "a reader disagreed, and ROUND agreed" : "read my words"}\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
+    const asked = input.source === "questions";
+    const said = [rawTake && `${sprint ? "As said" : reader ? "They said" : asked ? "Answered" : "Take, as said"}: ${asked ? "\n" + rawTake : rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
+    const entry = `— ${when} · ${sprint ? "verify sprint" : reader ? "a reader disagreed, and ROUND agreed" : asked ? "added in words (the five questions)" : "read my words"}\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
     patch.notes = `${rawNotes ? rawNotes + "\n\n" : ""}${entry}`.slice(0, 8000);
     return { patch };
   } catch (e) {

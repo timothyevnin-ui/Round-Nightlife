@@ -8,26 +8,26 @@ import { RealMap } from "@/components/RealMap";
 import { TypedHeading, useTypewriter } from "@/components/QuickOnes";
 import { HoursEditor } from "@/components/admin/HoursEditor";
 import { ScoreBadge } from "@/components/Score";
-import { fillFromWeb, lookupAddress, nextQuestion, saveVenue, type SavePayload } from "@/app/admin/actions";
+import { fillFromWeb, lookupAddress, readAsks, saveVenue, type SavePayload } from "@/app/admin/actions";
 import { SUGGESTED_TAGS } from "@/lib/attrs";
 import { weekSummary } from "@/lib/hours";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import { shrinkPhoto } from "@/lib/photo";
-import { applyRecAnswer, type RecQuestion } from "@/lib/recommendQuestions";
+import { ASKS, type Ask } from "@/lib/askQuestions";
 import { slugify } from "@/lib/slug";
 import type { SuggestionAnswers } from "@/lib/suggestions";
-import type { Attrs, Hours, NeighborhoodId } from "@/lib/types";
+import type { Attrs, Hours, NeighborhoodId, Venue } from "@/lib/types";
 
 /**
- * Add a place the way the app asks people about their night: one question at
- * a time, typed out, a couple of buttons. Every answer lands in the same
- * fields the full form edits, so the algorithm sees exactly what it would
- * have seen from the form; this is just a nicer way in. Anything can still be
- * changed in the editor afterwards.
+ * Add a place the way you'd tell a friend about it: one question at a time,
+ * and you answer in words. The five typed questions are read by the AI into
+ * the same fields the full form edits (the algorithm, tags, food, price,
+ * room, hours), and it drafts the take for you to rewrite. Anything can
+ * still be changed in the editor afterwards.
  */
 
-type Step = "name" | "where" | "kind" | "food" | "words" | "quick" | "hours" | "day" | "says" | "catch" | "score" | "been" | "photo" | "done";
-const ORDER: Step[] = ["name", "where", "kind", "food", "words", "quick", "hours", "day", "says", "catch", "score", "been", "photo", "done"];
+type Step = "name" | "where" | "kind" | "food" | "words" | "asks" | "hours" | "day" | "says" | "catch" | "score" | "been" | "photo" | "done";
+const ORDER: Step[] = ["name", "where", "kind", "food", "words", "asks", "hours", "day", "says", "catch", "score", "been", "photo", "done"];
 
 const CUISINES = ["Italian", "Mexican", "Tacos", "Burgers", "Pizza", "Cheesesteaks", "Wings", "Sushi", "Oysters", "Steak", "French", "Thai", "Chinese", "Korean", "Bar snacks"];
 
@@ -62,6 +62,10 @@ export function AddFlow({ writable }: { writable: boolean }) {
   const [tags, setTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [answers, setAnswers] = useState<SuggestionAnswers>({});
+  const [asks, setAsks] = useState<Partial<Record<Ask["key"], string>>>({});
+  const [fit, setFit] = useState<{ groupFit?: Venue["groupFit"]; dateFit?: Venue["dateFit"] }>({});
+  const [askNotes, setAskNotes] = useState<string | undefined>();
+  const [askNote, setAskNote] = useState<string | null>(null);
   const [hours, setHours] = useState<Hours | undefined>();
   const [daytime, setDaytime] = useState<boolean | null>(null);
   const [dayDeal, setDayDeal] = useState("");
@@ -137,8 +141,8 @@ export function AddFlow({ writable }: { writable: boolean }) {
       tags,
       attrs: { ...(answers.attrs ?? {}), ...(daytime === null ? {} : { daytime: daytime ? 0.9 : 0.1 }) } as Partial<Attrs>,
       dayDeal,
-      groupFit: typeof big === "number" ? { two: 0.6, small: 0.75, mid: big >= 0.5 ? 0.75 : 0.45, big } : { two: 0.7, small: 0.7, mid: 0.5, big: 0.3 },
-      dateFit: typeof date === "number" ? { first: date, early: date, longterm: Math.max(0.5, date) } : { first: 0.5, early: 0.5, longterm: 0.5 },
+      groupFit: fit.groupFit ?? (typeof big === "number" ? { two: 0.6, small: 0.75, mid: big >= 0.5 ? 0.75 : 0.45, big } : { two: 0.7, small: 0.7, mid: 0.5, big: 0.3 }),
+      dateFit: fit.dateFit ?? (typeof date === "number" ? { first: date, early: date, longterm: Math.max(0.5, date) } : { first: 0.5, early: 0.5, longterm: 0.5 }),
       price: answers.price ?? 2,
       capacity: answers.capacity ?? "medium",
       easyIn: answers.easyIn ?? 0.5,
@@ -147,9 +151,37 @@ export function AddFlow({ writable }: { writable: boolean }) {
       hours: hours ?? null,
       score,
       readTags: true,
-      notes: answers.said?.length ? `Answered in Studio: ${answers.said.join(" · ")}.` : undefined,
+      notes: askNotes ?? (answers.said?.length ? `Answered in Studio: ${answers.said.join(" · ")}.` : undefined),
     };
-  }, [name, kind, cuisine, hood, address, pin, take, theCatch, tags, answers, verified, hours, score, daytime, dayDeal]);
+  }, [name, kind, cuisine, hood, address, pin, take, theCatch, tags, answers, fit, askNotes, verified, hours, score, daytime, dayDeal]);
+
+  /** The five answers → every field the words support, and a drafted take for the next screens. */
+  const finishAsks = async () => {
+    setAskNote(null);
+    const said = Object.values(asks).some((v) => (v ?? "").trim());
+    if (!said) return next();
+    const r = await readAsks({ name, neighborhood: hood ?? "", kind: kind === "restaurant" ? "restaurant" : "bar", barFood: kind === "kitchen", cuisine: kind === "bar" ? "" : cuisine, words: asks });
+    if (r.error || !r.patch) {
+      setAskNote(r.error ?? "Couldn't read that. Your words are kept in the notes.");
+      setAskNotes(ASKS.map((a) => (asks[a.key] ? `${a.prompt} ${asks[a.key]}` : "")).filter(Boolean).join("\n"));
+      return next();
+    }
+    const p = r.patch;
+    setAnswers((x) => ({ ...x, attrs: { ...(x.attrs ?? {}), ...(p.attrs ?? {}) }, price: (p.price as SuggestionAnswers["price"]) ?? x.price, capacity: p.capacity ?? x.capacity, easyIn: p.easyIn ?? x.easyIn }));
+    if (p.groupFit || p.dateFit) setFit({ groupFit: p.groupFit, dateFit: p.dateFit });
+    if (p.tags?.length) setTags((cur) => [...new Set([...cur, ...p.tags!])].slice(0, 8));
+    if (p.kind === "restaurant") setKind("restaurant");
+    else if (p.barFood === true && kind === "bar") setKind("kitchen");
+    if (p.cuisine && !cuisine) setCuisine(p.cuisine);
+    if (p.hours && !hours) setHours(p.hours);
+    if (p.dayDeal && !dayDeal) setDayDeal(p.dayDeal);
+    if (typeof p.attrs?.daytime === "number" && daytime === null) setDaytime(p.attrs.daytime >= 0.6);
+    if (p.take && !take.trim()) setTake(p.take);
+    if (p.theCatch && !theCatch.trim()) setTheCatch(p.theCatch);
+    setAskNotes(p.notes);
+    setAskNote(`Read. ${p.learned ? `Learned: ${p.learned}. ` : ""}${p.changed.length ? `Filled in ${p.changed.join(", ")}.` : ""}`);
+    next();
+  };
 
   const save = async () => {
     if (!writable) return setError("Connect Supabase first (SUPABASE.md); nothing can be saved yet.");
@@ -165,7 +197,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
     setStep("done");
   };
 
-  const answered = answers.said?.length ?? 0;
+  const answered = ASKS.filter((a) => (asks[a.key] ?? "").trim()).length;
 
   return (
     <main className="screen flex flex-col pb-16" style={{ minHeight: "100dvh" }}>
@@ -313,14 +345,19 @@ export function AddFlow({ writable }: { writable: boolean }) {
           </Screen>
         )}
 
-        {step === "quick" && (
-          <Screen key="quick">
-            <Quick place={{ name, kind: kind === "restaurant" ? "restaurant" : "bar", barFood: kind === "kitchen", cuisine, tags }} answers={answers} onChange={setAnswers} onDone={next} />
+        {step === "asks" && (
+          <Screen key="asks">
+            <Asks words={asks} onChange={setAsks} onDone={finishAsks} />
           </Screen>
         )}
 
         {step === "hours" && (
           <Screen key="hours">
+            {askNote && (
+              <p className="mb-3 rounded-[14px] px-3.5 py-2.5 text-[13px]" style={{ background: "rgba(31,74,60,0.10)", color: "var(--pine)" }} data-asks-note>
+                {askNote}
+              </p>
+            )}
             <Prompt text="Hours?" />
             <div className="mt-5 flex gap-2">
               <input value={site} onChange={(e) => setSite(e.target.value)} placeholder="Paste the website, I'll read the hours" className="h-12 flex-1 rounded-[16px] border px-4 text-[14px] outline-none" style={{ background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} />
@@ -498,104 +535,79 @@ export function AddFlow({ writable }: { writable: boolean }) {
 
 /* ───────────────────────── the quick ones: Claude asks, one at a time ───────────────────────── */
 
-type Place = { name: string; kind: "bar" | "restaurant"; barFood: boolean; cuisine: string; tags: string[] };
+/* ───────────────────────── the five, in words ───────────────────────── */
 
-function Quick({ place, answers, onChange, onDone }: { place: Place; answers: SuggestionAnswers; onChange: (a: SuggestionAnswers) => void; onDone: () => void }) {
-  const [q, setQ] = useState<RecQuestion | null>(null);
-  const [source, setSource] = useState<"claude" | "bank">("bank");
-  const [loading, setLoading] = useState(true);
-  const [asked, setAsked] = useState(0);
-  const [finished, setFinished] = useState(false);
-
-  const ask = async (current: SuggestionAnswers, n: number) => {
-    setLoading(true);
-    const r = await nextQuestion({ name: place.name, kind: place.kind, barFood: place.barFood, cuisine: place.cuisine, tags: place.tags, said: current.said ?? [], asked: n, attrs: current.attrs ?? {} });
-    setLoading(false);
-    setSource(r.source);
-    if (r.done || !r.question) {
-      setFinished(true);
-      window.setTimeout(onDone, 500);
-      return;
-    }
-    setQ(r.question);
+function Asks({ words, onChange, onDone }: { words: Partial<Record<Ask["key"], string>>; onChange: (w: Partial<Record<Ask["key"], string>>) => void; onDone: () => Promise<void> }) {
+  const [i, setI] = useState(0);
+  const [reading, setReading] = useState(false);
+  const a = ASKS[i];
+  const value = a ? (words[a.key] ?? "") : "";
+  const finish = async () => {
+    setReading(true);
+    await onDone();
   };
-  // First question, once the screen is up (the cleanup keeps dev's double-mount to one ask).
-  useEffect(() => {
-    const t = window.setTimeout(() => void ask(answers, 0), 0);
-    return () => window.clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const pick = (k: number) => {
-    if (!q) return;
-    const next = applyRecAnswer(answers, q, k);
-    onChange(next);
-    setQ(null);
-    setAsked(asked + 1);
-    void ask(next, asked + 1);
+  const advance = () => {
+    if (i + 1 >= ASKS.length) void finish();
+    else setI(i + 1);
   };
-  const skip = () => {
-    if (!q) return;
-    const next: SuggestionAnswers = { ...answers, said: [...(answers.said ?? []), `${q.prompt} (skipped)`] };
-    onChange(next);
-    setQ(null);
-    setAsked(asked + 1);
-    void ask(next, asked + 1);
-  };
-
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex items-baseline justify-between">
-        <p className="eyebrow">{source === "claude" ? "Claude is asking · this is the algorithm" : "The quick ones · this is the algorithm"}</p>
+        <p className="eyebrow">In your words · this is the algorithm</p>
         <span className="text-[12px] font-medium" style={{ color: "var(--ink-35)" }}>
-          {asked + 1} of ~{place.kind === "restaurant" ? 9 : 10}
+          {Math.min(i + 1, ASKS.length)} of {ASKS.length}
         </span>
       </div>
-      <div className="flex flex-1 flex-col justify-center py-8">
+      <div className="flex flex-1 flex-col justify-center py-6">
         <AnimatePresence mode="wait">
-          {finished ? (
-            <motion.p key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="serif text-center" style={{ fontSize: 34 }}>
-              Got it.
+          {reading ? (
+            <motion.p key="reading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="serif animate-pulse text-center" style={{ fontSize: 30 }} data-asks-reading>
+              Reading your words…
             </motion.p>
-          ) : q ? (
-            <Q key={q.id + asked} prompt={q.prompt} labels={q.options.map((o) => o.label)} onPick={pick} />
-          ) : (
-            <motion.p key={`thinking-${asked}`} initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} className="serif" style={{ fontSize: 30, minHeight: "2.1em" }} aria-live="polite">
-              {loading ? "…" : ""}
-            </motion.p>
-          )}
+          ) : a ? (
+            <motion.div key={a.key} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, transition: { duration: 0.16 } }} transition={{ duration: 0.22 }}>
+              <AskHeading text={a.prompt} />
+              <p className="mt-2 text-[13px]" style={{ color: "var(--ink-55)" }}>
+                {a.hint}
+              </p>
+              <textarea
+                autoFocus
+                value={value}
+                onChange={(e) => onChange({ ...words, [a.key]: e.target.value.slice(0, 800) })}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") advance();
+                }}
+                rows={5}
+                placeholder={a.placeholder}
+                className="mt-4 w-full resize-none rounded-[18px] border px-4 py-3 text-[17px] leading-snug outline-none"
+                style={{ background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
+                data-ask={a.key}
+              />
+              <p className="mt-1.5 text-[11.5px]" style={{ color: "var(--ink-35)" }}>
+                Any tone. Dates, prices, complaints. The AI fills the sliders from this; the take gets drafted for you to rewrite.
+              </p>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
-      <div className="flex items-center justify-between">
-        <button onClick={skip} disabled={!q} className="pressable text-[13px] font-medium" style={{ color: "var(--ink-35)" }}>
-          Not sure, skip
-        </button>
-        <button onClick={onDone} className="pressable btn-ghost flex h-11 items-center px-5 text-[14px]">
-          That&apos;s enough
-        </button>
-      </div>
+      {!reading && (
+        <div className="flex items-center justify-between gap-2">
+          <button onClick={() => void finish()} className="pressable text-[13px] font-medium" style={{ color: "var(--ink-35)" }} data-asks-enough>
+            That&apos;s enough, read it
+          </button>
+          <button onClick={advance} className={`pressable flex h-12 items-center px-6 text-[15px] ${value.trim() ? "btn-primary" : "btn-ghost"}`} data-asks-next>
+            {value.trim() ? (i + 1 >= ASKS.length ? "Read my words" : "Next") : "Skip"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function Q({ prompt, labels, onPick }: { prompt: string; labels: string[]; onPick: (k: number) => void }) {
-  const typed = useTypewriter(prompt);
-  const ready = typed.length >= prompt.length;
-  return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, transition: { duration: 0.16 } }} transition={{ duration: 0.22 }}>
-      <TypedHeading text={prompt} typed={typed} ready={ready} />
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: ready ? 1 : 0, y: ready ? 0 : 8 }} transition={{ duration: 0.25 }} className={`mt-8 grid gap-3 ${labels.length === 3 ? "grid-cols-3" : "grid-cols-2"}`} style={{ pointerEvents: ready ? "auto" : "none" }}>
-        {labels.map((l, k) => (
-          <button key={l} onClick={() => onPick(k)} className="pressable flex h-16 min-w-[100px] items-center justify-center rounded-full border px-3 text-[17px] font-semibold" style={k === 0 ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline-strong)" }}>
-            {l}
-          </button>
-        ))}
-      </motion.div>
-    </motion.div>
-  );
+function AskHeading({ text }: { text: string }) {
+  const typed = useTypewriter(text);
+  return <TypedHeading text={text} typed={typed} ready={typed.length >= text.length} size={30} />;
 }
-
-/* ───────────────────────── bits ───────────────────────── */
 
 function Screen({ children }: { children: React.ReactNode }) {
   return (

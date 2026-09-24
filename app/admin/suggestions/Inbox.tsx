@@ -7,12 +7,19 @@ import { neighborhoodName } from "@/lib/neighborhoods";
 import { isNeighborhoodId } from "@/lib/neighborhoods";
 import type { Suggestion } from "@/lib/suggestions";
 import { describeSaid } from "@/lib/recommendQuestions";
-import { markSuggestion } from "@/app/admin/actions";
+import { markPaid, markSuggestion } from "@/app/admin/actions";
+import { ASKS } from "@/lib/askQuestions";
 
-export function Inbox({ items }: { items: Suggestion[] }) {
+export function Inbox({ items, amount = 2 }: { items: Suggestion[]; amount?: number }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
+  const pay = (id: string, paid: boolean) =>
+    start(async () => {
+      const r = await markPaid(id, paid);
+      setMsg(r.ok ? null : r.error);
+      if (r.ok) router.refresh();
+    });
 
   const mark = (id: string, status: "dismissed" | "new") =>
     start(async () => {
@@ -45,10 +52,25 @@ export function Inbox({ items }: { items: Suggestion[] }) {
               <Status s={s} />
             </div>
 
-            {s.why && (
-              <p className="mt-3 text-[14.5px] leading-snug" style={{ color: "var(--ink)" }}>
-                &ldquo;{s.why}&rdquo;
-              </p>
+            {s.answers.words ? (
+              <dl className="mt-3 flex flex-col gap-2" data-inbox-words>
+                {ASKS.filter((a) => s.answers.words?.[a.key]).map((a) => (
+                  <div key={a.key}>
+                    <dt className="text-[11.5px] font-medium" style={{ color: "var(--ink-35)" }}>
+                      {a.prompt}
+                    </dt>
+                    <dd className="text-[14.5px] leading-snug" style={{ color: "var(--ink)" }}>
+                      &ldquo;{s.answers.words?.[a.key]}&rdquo;
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              s.why && (
+                <p className="mt-3 text-[14.5px] leading-snug" style={{ color: "var(--ink)" }}>
+                  &ldquo;{s.why}&rdquo;
+                </p>
+              )
             )}
 
             {s.answers.said && s.answers.said.length > 0 && (
@@ -68,6 +90,15 @@ export function Inbox({ items }: { items: Suggestion[] }) {
             <p className="mt-3 text-[12px]" style={{ color: "var(--ink-35)" }}>
               {s.fromName || "Someone"}
               {s.fromContact ? ` · ${s.fromContact}` : ""} · {new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              {s.venmo ? (
+                <>
+                  {" · "}
+                  <span style={{ color: "var(--ink-70)" }} data-inbox-venmo>
+                    Venmo @{s.venmo}
+                  </span>
+                  {s.paidAt ? ` · paid ${new Date(s.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : s.status === "added" ? ` · owed $${amount}` : ""}
+                </>
+              ) : null}
               {s.status === "added" && s.venueSlug ? (
                 <>
                   {" · "}
@@ -78,6 +109,19 @@ export function Inbox({ items }: { items: Suggestion[] }) {
               ) : null}
             </p>
 
+            {s.status === "added" && s.venmo && (
+              <div className="mt-3 flex gap-2">
+                {s.paidAt ? (
+                  <button onClick={() => pay(s.id, false)} disabled={pending} className="pressable btn-ghost flex h-10 items-center px-4 text-[13px]" data-inbox-unpay>
+                    Not paid after all
+                  </button>
+                ) : (
+                  <button onClick={() => pay(s.id, true)} disabled={pending} className="pressable btn-pine flex h-10 items-center px-4 text-[13px]" data-inbox-pay>
+                    Paid ${amount} to @{s.venmo}
+                  </button>
+                )}
+              </div>
+            )}
             {s.status !== "added" && (
               <div className="mt-4 flex gap-2">
                 <Link href={`/admin/new?from=${s.id}`} className="pressable btn-primary flex h-11 flex-1 items-center justify-center text-[14px]">

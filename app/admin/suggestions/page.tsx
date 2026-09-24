@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/adminAuth";
 import { dbConfig } from "@/lib/db";
-import { listSuggestions, type Suggestion } from "@/lib/suggestions";
+import { listOwed, listSuggestions, type Suggestion } from "@/lib/suggestions";
+import { getSettings } from "@/lib/settings";
 import { Inbox } from "./Inbox";
 
 export const dynamic = "force-dynamic";
@@ -10,14 +11,16 @@ export default async function SuggestionsPage(props: PageProps<"/admin/suggestio
   await requireAdmin();
   const sp = await props.searchParams;
   const showAll = sp.all === "1";
+  const owedOnly = sp.owed === "1";
   const { writable } = dbConfig();
+  const { bounty } = await getSettings();
 
   let items: Suggestion[] = [];
   let problem: string | null = null;
   if (!writable) problem = "Connect Supabase (SUPABASE.md) to receive recommendations.";
   else {
     try {
-      items = await listSuggestions(showAll ? undefined : "new");
+      items = owedOnly ? await listOwed() : await listSuggestions(showAll ? undefined : "new");
     } catch (e) {
       problem = e instanceof Error ? e.message : "Couldn't load the inbox.";
     }
@@ -31,19 +34,28 @@ export default async function SuggestionsPage(props: PageProps<"/admin/suggestio
             <path d="M13.5 5 8 11l5.5 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <span className="eyebrow">Recommendations</span>
-        <Link href={showAll ? "/admin/suggestions" : "/admin/suggestions?all=1"} className="pressable text-[12.5px] font-medium" style={{ color: "var(--ink-55)" }}>
-          {showAll ? "Only new" : "Show all"}
-        </Link>
+        <span className="eyebrow">{owedOnly ? "Payouts" : "Recommendations"}</span>
+        <span className="flex items-center gap-3">
+          <Link href={owedOnly ? "/admin/suggestions" : "/admin/suggestions?owed=1"} className="pressable text-[12.5px] font-medium" style={{ color: "var(--ink-55)" }} data-owed-link>
+            {owedOnly ? "Inbox" : "Owed"}
+          </Link>
+          {!owedOnly && (
+            <Link href={showAll ? "/admin/suggestions" : "/admin/suggestions?all=1"} className="pressable text-[12.5px] font-medium" style={{ color: "var(--ink-55)" }}>
+              {showAll ? "Only new" : "Show all"}
+            </Link>
+          )}
+        </span>
       </header>
 
       <section className="pt-5">
-        <p className="eyebrow">From the app</p>
-        <h1 className="serif mt-1" style={{ fontSize: 38, lineHeight: 1.02 }}>
-          {problem ? "The inbox." : items.length === 0 ? (showAll ? "Nothing yet." : "Inbox zero.") : `${items.length} ${showAll ? "in total" : "waiting"}.`}
+        <p className="eyebrow">{owedOnly ? `The $${bounty.amount} offer` : "From the app"}</p>
+        <h1 className="serif mt-1" style={{ fontSize: 38, lineHeight: 1.02 }} data-inbox-count={items.length}>
+          {problem ? "The inbox." : owedOnly ? (items.length === 0 ? "Nobody's owed." : `${items.length} owed · $${(items.length * bounty.amount).toLocaleString()}.`) : items.length === 0 ? (showAll ? "Nothing yet." : "Inbox zero.") : `${items.length} ${showAll ? "in total" : "waiting"}.`}
         </h1>
         <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--ink-55)" }}>
-          Anyone can send one from &ldquo;Know a spot we don&apos;t?&rdquo; on the home page. Add the good ones; they land in the form with the answers filled in.
+          {owedOnly
+            ? `Approved places whose recommender left a Venmo and hasn't been paid. Send the $${bounty.amount}, tap Paid.`
+            : "Anyone can send one from Spots → Add a spot. They answer five questions in their own words; add the good ones and the words land in the place's notes, ready for Read my words."}
         </p>
       </section>
 
@@ -53,7 +65,7 @@ export default async function SuggestionsPage(props: PageProps<"/admin/suggestio
         </div>
       )}
 
-      <Inbox items={items} />
+      <Inbox items={items} amount={bounty.amount} />
     </main>
   );
 }
