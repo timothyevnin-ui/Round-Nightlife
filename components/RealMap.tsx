@@ -31,8 +31,6 @@ const LABELS: Record<NeighborhoodId, LngLat> = {
   "lower-east-side": [-73.9855, 40.7175],
   "soho-nolita": [-73.9968, 40.7238],
   tribeca: [-74.0088, 40.7182],
-  williamsburg: [-73.955, 40.7135],
-  greenpoint: [-73.951, 40.731],
   "murray-hill": [-73.9795, 40.7415],
 };
 
@@ -58,10 +56,11 @@ function bounds(): [LngLat, LngLat] {
 const INK = "#16213a";
 const TOMATO = "#d9482b";
 
-export function RealMap({ value, onSelect, height = 360, pin }: { value?: NeighborhoodId; onSelect: (id: NeighborhoodId) => void; height?: number; pin?: { lat: number; lng: number } | null }) {
+export function RealMap({ value, onSelect, height = 360, pin, you }: { value?: NeighborhoodId; onSelect: (id: NeighborhoodId) => void; height?: number; pin?: { lat: number; lng: number } | null; /** Where the person is, when they allowed it: the blue dot. */ you?: { lat: number; lng: number } | null }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const pinRef = useRef<Marker | null>(null);
+  const youRef = useRef<Marker | null>(null);
   const labelsRef = useRef<Map<NeighborhoodId, HTMLDivElement>>(new Map());
   const selectRef = useRef(onSelect);
   const [ready, setReady] = useState(false);
@@ -176,6 +175,23 @@ export function RealMap({ value, onSelect, height = 360, pin }: { value?: Neighb
       pinRef.current = new Marker({ element: el, anchor: "center" }).setLngLat([pin.lng, pin.lat]).addTo(map);
     } else pinRef.current.setLngLat([pin.lng, pin.lat]);
   }, [pin, ready]);
+
+  // The person: the blue dot everyone knows, with a soft halo.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    if (!you) {
+      youRef.current?.remove();
+      youRef.current = null;
+      return;
+    }
+    if (!youRef.current) {
+      const el = document.createElement("div");
+      el.setAttribute("data-map-you", "1");
+      el.style.cssText = "width:16px;height:16px;border-radius:999px;background:#1f6fe0;border:3px solid #ffffff;box-shadow:0 0 0 6px rgba(31,111,224,0.22),0 1px 4px rgba(22,33,58,0.35);pointer-events:none";
+      youRef.current = new Marker({ element: el, anchor: "center" }).setLngLat([you.lng, you.lat]).addTo(map);
+    } else youRef.current.setLngLat([you.lng, you.lat]);
+  }, [you, ready]);
 
   useEffect(() => {
     const map = mapRef.current;

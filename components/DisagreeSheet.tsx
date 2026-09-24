@@ -130,3 +130,36 @@ export function DisagreeSheet({ venue, open, onClose }: { venue: Pick<Venue, "sl
     document.body,
   );
 }
+
+/**
+ * The button that opens it, for every card a place appears on: the venue
+ * page, a result card, a plan, the map card. Same words everywhere, so people
+ * learn that ROUND can be argued with.
+ */
+export function DisagreeButton({ venue, full = false, className = "", stop = false }: { venue: Pick<Venue, "slug" | "name" | "take">; full?: boolean; className?: string; stop?: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          if (stop) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          setOpen(true);
+        }}
+        className={`pressable flex items-center justify-center gap-1.5 rounded-full border font-medium ${full ? "h-12 w-full px-5 text-[14px]" : "h-9 px-3.5 text-[12.5px]"} ${className}`}
+        style={{ borderColor: "rgba(217,72,43,0.45)", color: "var(--tomato)", background: "transparent" }}
+        data-disagree-open={venue.slug}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M8 5v3.4M8 11h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+        {full ? "Disagree with our take" : "Disagree"}
+      </button>
+      {open && <DisagreeSheet venue={venue} open onClose={() => setOpen(false)} />}
+    </>
+  );
+}

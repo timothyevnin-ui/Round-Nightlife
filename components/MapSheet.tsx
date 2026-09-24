@@ -1,15 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ComponentType } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Photo } from "./Photo";
+import { DisagreeButton } from "./DisagreeSheet";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
+import type { NightMapProps } from "./NightMap";
 
-const NightMap = dynamic(() => import("./NightMap").then((m) => m.NightMap), { ssr: false });
+const NightMap = dynamic(() => import("./NightMap").then((m) => m.NightMap as ComponentType<NightMapProps<Venue>>), { ssr: false });
 
 /**
  * The map, full screen: pinch, pan, zoom buttons, every pin. Tap a pin and
@@ -69,6 +71,9 @@ export function MapSheet({ open, onClose, venues, saved, been, title = "Your NYC
                     Open
                   </span>
                 </Link>
+                <div className="mt-2 flex justify-end">
+                  <DisagreeButton venue={selected} />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

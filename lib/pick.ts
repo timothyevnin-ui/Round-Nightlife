@@ -2,7 +2,8 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ATTRS, type AttrKey } from "./attrs";
 import { haversineMeters, isDaytime } from "./engine";
-import { NEIGHBORHOODS, neighborhoodName } from "./neighborhoods";
+import { NEIGHBORHOODS, NEIGHBORHOOD_MAP, neighborhoodName } from "./neighborhoods";
+import { isNearby, whereRead } from "./where";
 import { allowModelCall } from "./ratelimit";
 import { CARDS, type Wants } from "./questions";
 import { formatHour } from "./time";
@@ -36,6 +37,8 @@ export type PickRequest = {
   place?: { label: string; lat: number; lng: number; /** When the spot is one of ours. */ slug?: string };
   /** A ROUND place they named ("like Bar Primi but louder"). */
   anchor?: Venue;
+  /** Where the person is standing, when they allowed it (night, date and dinner modes). */
+  me?: { lat: number; lng: number };
   group?: number;
   hour: number;
   dow: number;
@@ -108,7 +111,7 @@ export function buildCatalog(venues: Venue[]): string {
     `You are ROUND, a nightlife guide for New York. Below is every place ROUND covers: the slug, what it is, where, price ($ cheap … $$$$ splurge), room size, group fit, how hard the door is, when it's good, what it's known for (is / isn't), and ROUND's own take and catch.\n` +
     `Neighborhoods: ${hoods}.\n\n` +
     sorted.map(venueLine).join("\n") +
-    `\n\n✓ VERIFIED means someone from ROUND has been and stands behind the entry; everything else is researched but unvisited. "ROUND score" is how much we like a place, 0–100; between two places that fit equally, prefer the higher score. Only ever recommend places from this list, by slug. Never invent a place.`;
+    `\n\n✓ VERIFIED means ROUND stands behind the entry: someone from ROUND has been, or (restaurants) ROUND's desk researched it from several sources and checked it; everything else is researched but unchecked. "ROUND score" is how much we like a place, 0–100; between two places that fit equally, prefer the higher score. Only ever recommend places from this list, by slug. Never invent a place.`;
   catalogCache = { key, text };
   return text;
 }
@@ -151,6 +154,13 @@ function requestWords(r: PickRequest, hints: string[]): string {
   else if (r.mode === "dinner") lines.push(`Dinner and drinks for a group of ${r.group ?? 4}${r.neighborhood ? ` in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
   else lines.push(`A night out for ${r.group ?? 4} people${r.neighborhood ? ` in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
   if (r.place && r.mode !== "near") lines.push(`They mentioned being near ${r.place.label}.`);
+  if (r.me && r.mode !== "near" && r.neighborhood) {
+    lines.push(
+      isNearby(r.me, r.neighborhood)
+        ? `They are in or right by ${neighborhoodName(r.neighborhood)} right now, and the hints carry the walk from where they stand. A shorter walk is worth something; a place that fits what they asked is worth more.`
+        : `They're heading to ${neighborhoodName(r.neighborhood)} from somewhere else, so distances in the hints are from the neighborhood itself, not from them.`,
+    );
+  }
   const { want, avoid } = wantsWords(r.wants);
   if (want.length) lines.push(`They want: ${want.join(", ")}.`);
   if (avoid.length) lines.push(`They want to avoid: ${avoid.join(", ")}.`);
@@ -176,7 +186,8 @@ function instructions(r: PickRequest, count: number): string {
   return (
     `Pick the ${count} best${pairs ? " restaurants, each with the one bar to go to after (a short walk, ideally under 10 minutes)" : " bars"}, best first. ` +
     `Match what they actually asked for over what merely scores well; a place that nails their one stated need beats a generally great place that doesn't. ` +
-    `Stay in the neighborhood they asked for unless something next door is clearly the better answer for their request. Keep the list varied: not six of the same room. ` +
+    `The neighborhood they chose is a general area, not a wall: a place a few minutes' walk past its edge (the hints say how far) is fair game when it's the better answer; twenty minutes away is not. Between two places that fit, prefer the shorter walk; between two that fit and are equally close, prefer the higher ROUND score. ` +
+    `Never pick a place that's closed at that hour (the hints are already open then; if you reach past them, check the posted hours). Keep the list varied: not six of the same room. ` +
     `If they named a specific place that's in the catalog, it goes first. ` +
     `Verified places (✓) are ROUND's own word: when a verified and an unverified place fit about equally, the verified one goes first, and a verified place that fits well should not lose to an unverified one that fits about as well. Never pick a verified place that doesn't fit what they asked; the check is trust, not a thumb on the scale. ` +
     `For each, "why" is one line, ≤ 14 words, in ROUND's voice: specific and honest about why it fits this request tonight (never generic praise, never a warning dressed as praise). ` +
@@ -191,7 +202,7 @@ function instructions(r: PickRequest, count: number): string {
 const memo = new Map<string, { at: number; value: PickResult }>();
 
 function memoKey(r: PickRequest, slugs: string[]): string {
-  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.taste ?? null, r.name ?? "", r.favorite ?? "", r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
+  return JSON.stringify([r.mode, r.said ?? "", r.neighborhood ?? "", r.me ? `${r.me.lat.toFixed(3)},${r.me.lng.toFixed(3)}` : "", r.taste ?? null, r.name ?? "", r.favorite ?? "", r.place ? `${r.place.label}@${r.place.lat.toFixed(3)},${r.place.lng.toFixed(3)}` : "", r.anchor?.slug ?? "", r.group ?? 0, Math.round(r.hour * 4), r.dow, r.stage ?? "", r.dinner ?? "", r.wants, (r.been ?? []).slice().sort(), slugs.slice(0, 12)]);
 }
 
 /**
@@ -214,8 +225,14 @@ export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { 
   const bySlug = new Map(venues.map((v) => [v.slug, v]));
   const hints = ranked.slice(0, 12).map((p) => {
     const v = bySlug.get(p.slug);
-    const walk = r.place && v ? ` (${Math.max(1, Math.round(haversineMeters(r.place, v) / 80))} min walk)` : "";
-    return `${p.slug}${walk}`;
+    if (!v) return p.slug;
+    if (r.place) return `${p.slug} (${Math.max(1, Math.round(haversineMeters(r.place, v) / 80))} min walk)`;
+    if (r.mode !== "near" && r.neighborhood) {
+      const w = whereRead(v, { hood: r.neighborhood, me: r.me });
+      if (w?.fromMe) return `${p.slug} (${Math.max(1, w.walk)} min walk${w.inHood ? "" : ` · in ${NEIGHBORHOOD_MAP[v.neighborhood].short}`})`;
+      if (w && !w.inHood) return `${p.slug} (in ${NEIGHBORHOOD_MAP[v.neighborhood].short} · ${Math.max(1, w.walk)} min past the ${NEIGHBORHOOD_MAP[r.neighborhood].short} edge)`;
+    }
+    return p.slug;
   });
   const nearby =
     r.place && r.mode === "near"
@@ -322,7 +339,7 @@ export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues
     let label: PickLabel = out.length === 0 ? "The pick" : p.label && !taken.has(p.label) ? p.label : prior?.label && !taken.has(prior.label) ? prior.label : nextLabel(taken);
     if (out.length > 0 && label === "The pick") label = nextLabel(taken);
     taken.add(label);
-    out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "" });
+    out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "", far: prior?.far });
   }
   return out.slice(0, count);
 }
@@ -351,7 +368,7 @@ export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues:
     const walk = Math.max(2, Math.round(dist / 80));
     const dinnerAt = prior?.dinnerAt ?? template?.dinnerAt;
     const drinksAt = prior?.drinksAt ?? template?.drinksAt ?? (dinnerAt ?? 20) + 1.75;
-    out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "" });
+    out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "", far: prior?.far });
   }
   return (out.length ? out : rulesPlans).slice(0, count);
 }
@@ -371,7 +388,7 @@ export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venu
     let label: PickLabel = out.length === 0 ? "The pick" : p.label && !taken.has(p.label) ? p.label : prior?.label && !taken.has(prior.label) ? prior.label : nextLabel(taken);
     if (out.length > 0 && label === "The pick") label = nextLabel(taken);
     taken.add(label);
-    out.push({ bar, label, score: prior?.score ?? 0.5, drinksAt: prior?.drinksAt ?? template?.drinksAt ?? 21, why: p.why || prior?.why || "" });
+    out.push({ bar, label, score: prior?.score ?? 0.5, drinksAt: prior?.drinksAt ?? template?.drinksAt ?? 21, why: p.why || prior?.why || "", far: prior?.far });
   }
   return (out.length ? out : rulesPlans).slice(0, count);
 }

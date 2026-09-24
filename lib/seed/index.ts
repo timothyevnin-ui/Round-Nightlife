@@ -8,9 +8,8 @@ import lowerEastSide from "./lower-east-side.json";
 import sohoNolita from "./soho-nolita.json";
 import tribeca from "./tribeca.json";
 import chelsea from "./chelsea.json";
-import williamsburg from "./williamsburg.json";
-import greenpoint from "./greenpoint.json";
 import murrayHill from "./murray-hill.json";
+import restaurants from "./restaurants.json";
 
 /**
  * The researched places (V6): one JSON file per neighborhood, written from
@@ -45,6 +44,10 @@ type Researched = {
   barFood?: boolean;
   cuisine?: string;
   score?: number;
+  /** ROUND's desk stands behind it (restaurants.json): researched from several sources, checked, written in our words. */
+  verified?: boolean;
+  /** Closed or moved: hidden everywhere, kept for the record. */
+  retired?: boolean;
 };
 
 const WINDOWS: Record<string, Window[]> = {
@@ -56,10 +59,6 @@ const WINDOWS: Record<string, Window[]> = {
   earlyEvening: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 17, to: 23 }],
   dinner: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 23 }],
   cocktailHours: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 19, to: 25 }],
-  brooklynLate: [
-    { days: [4, 5, 6], from: 21, to: 28 },
-    { days: [0, 1, 2, 3], from: 19, to: 26 },
-  ],
 };
 
 const GRADIENTS = [
@@ -105,7 +104,8 @@ function toSeed(r: Researched): SeedVenue {
     easyIn: r.easyIn,
     photo: gradientFor(r.slug),
     friendsBeen: 0,
-    verified: false,
+    verified: !!r.verified,
+    retired: !!r.retired,
     sources: r.sources,
     notes: r.notes,
     hours: seedHours(r.hours),
@@ -121,6 +121,15 @@ function seedHours(h: Researched["hours"]): Hours | undefined {
   return cleanHours(h.map((d) => d ?? null));
 }
 
-const FILES = [westVillage, eastVillage, lowerEastSide, sohoNolita, tribeca, chelsea, williamsburg, greenpoint, murrayHill] as unknown as Researched[][];
+const FILES = [westVillage, eastVillage, lowerEastSide, sohoNolita, tribeca, chelsea, murrayHill] as unknown as Researched[][];
 
 export const RESEARCHED: SeedVenue[] = FILES.flat().map(toSeed);
+
+/**
+ * The restaurant desk (V18). Every restaurant on ROUND, researched from
+ * several review sites and written as a description of the vibe and the kind
+ * of food, verified by the desk (`sources` starts with "desk"); closed ones
+ * come through retired. These entries replace the same slug anywhere else in
+ * the seed, and new ones (Murray Hill & Kips Bay) are added.
+ */
+export const DESK: SeedVenue[] = (restaurants as unknown as Researched[]).map(toSeed);

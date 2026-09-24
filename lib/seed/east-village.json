@@ -507,7 +507,7 @@
     },
     "price": 2,
     "capacity": "medium",
-    "bestWindows": "brooklynLate",
+    "bestWindows": "weekendLate",
     "easyIn": 0.35,
     "sources": [
       "https://www.theinfatuation.com/new-york/reviews/wiggle-room",

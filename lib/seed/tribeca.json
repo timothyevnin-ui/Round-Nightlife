@@ -42,7 +42,7 @@
     "dateFit": { "first": 0.3, "early": 0.45, "longterm": 0.55 },
     "price": 1,
     "capacity": "medium",
-    "bestWindows": "brooklynLate",
+    "bestWindows": "weekendLate",
     "easyIn": 0.75,
     "sources": [
       "https://nancywhiskeypub.nyc/",

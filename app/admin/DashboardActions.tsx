@@ -60,7 +60,7 @@ export function DashboardActions({ writable, source, dbCount, shelfEmpty, waitin
               run(async () => {
                 const r = await syncSeed();
                 if (!r.ok) return r.error;
-                const bits = [`${r.added} added`, `${r.refreshed} refreshed`, r.kept ? `${r.kept} verified left alone` : ""].filter(Boolean).join(" · ");
+                const bits = [`${r.added} added`, `${r.refreshed} refreshed`, r.kept ? `${r.kept} verified left alone` : "", r.hoursFilled ? `hours filled in for ${r.hoursFilled}` : ""].filter(Boolean).join(" · ");
                 const extra = r.missing.length ? ` Not on ROUND's list (yours, or closed): ${r.missing.slice(0, 6).join(", ")}${r.missing.length > 6 ? "…" : ""}.` : "";
                 return `Up to date: ${bits}.${extra}`;
               })

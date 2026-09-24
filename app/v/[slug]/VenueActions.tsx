@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GoButton, SaveButton, ShareButton, useSignInNudge } from "@/components/Actions";
 import { RateSheet, VERDICTS } from "@/components/RateSheet";
+import { DisagreeButton } from "@/components/DisagreeSheet";
 import { useRoundStore } from "@/lib/store";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
@@ -49,6 +50,7 @@ export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUr
           {verdict ? (ladderAt >= 0 ? `#${ladderAt + 1} on your ladder` : "Change") : "Four taps"}
         </span>
       </button>
+      <DisagreeButton venue={venue} full className="mt-2.5" />
       {been?.note && (
         <p className="serif mt-3 text-[17px] leading-snug" style={{ color: "var(--ink-70)" }}>
           &ldquo;{been.note}&rdquo;

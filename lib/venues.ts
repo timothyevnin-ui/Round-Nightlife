@@ -1,7 +1,9 @@
 import type { Venue, Window } from "./types";
 import { normalizeSeed, type SeedVenue } from "./normalize";
 import { SEED_STORIES } from "./stories";
-import { RESEARCHED } from "./seed";
+import { DESK, RESEARCHED } from "./seed";
+import HOURS_DESK from "./seed/hours.json";
+import { cleanHours } from "./hours";
 
 /**
  * SEED DATA — every entry is `verified: false`.
@@ -37,10 +39,6 @@ const W: Record<string, Window[]> = {
   earlyEvening: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 17, to: 23 }],
   dinner: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 23 }],
   cocktailHours: [{ days: [0, 1, 2, 3, 4, 5, 6], from: 19, to: 25 }],
-  brooklynLate: [
-    { days: [4, 5, 6], from: 21, to: 28 },
-    { days: [0, 1, 2, 3], from: 19, to: 26 },
-  ],
 };
 
 const bar = (v: Omit<SeedVenue, "kind" | "verified">): SeedVenue => ({ ...v, kind: "bar", verified: false });
@@ -800,271 +798,16 @@ const RAW: SeedVenue[] = [
     price: 3, capacity: "large", bestWindows: W.dinner, easyIn: 0.6,
     photo: P.forest, friendsBeen: 1,
   }),
-
-  // ───────────────────────── WILLIAMSBURG ─────────────────────────
-  bar({
-    slug: "westlight",
-    attrs: { rooftop: 1, upscale: 0.9, dressy: 0.7, scene: 0.6 },
-    name: "Westlight",
-    neighborhood: "williamsburg",
-    address: "111 N 12th St, Brooklyn, NY 11249",
-    lat: 40.7222, lng: -73.9576,
-    take: "Twenty-two floors up with the whole skyline; a date here does half the talking for you.",
-    theCatch: "Elevator lines on weekend nights; go on a weeknight for the view without the wait.",
-    tags: ["Rooftop", "Views", "Date"],
-    vibe: { lively: 0.7, chill: 0.55, talk: 0.5 },
-    groupFit: { two: 0.95, small: 0.8, mid: 0.5, big: 0.2 },
-    dateFit: { first: 0.9, early: 0.9, longterm: 0.8 },
-    price: 3, capacity: "medium", bestWindows: W.cocktailHours, easyIn: 0.35,
-    photo: P.ink, friendsBeen: 3,
-  }),
-  bar({
-    slug: "union-pool",
-    attrs: { dance: 0.7, liveMusic: 0.9, outdoor: 1, social: 0.9, late: 1, food: 0.6 },
-    name: "Union Pool",
-    neighborhood: "williamsburg",
-    address: "484 Union Ave, Brooklyn, NY 11211",
-    lat: 40.7139, lng: -73.9517,
-    take: "A backyard, a taco truck, a band inside, and a crowd that came out to meet people; the group night that runs itself.",
-    tags: ["Backyard", "Lively", "Groups"],
-    vibe: { lively: 0.95, chill: 0.35, talk: 0.15 },
-    groupFit: { two: 0.6, small: 0.85, mid: 0.95, big: 0.85 },
-    dateFit: { first: 0.4, early: 0.6, longterm: 0.5 },
-    price: 1, capacity: "large", bestWindows: W.brooklynLate, easyIn: 0.55,
-    photo: P.forest, friendsBeen: 5,
-  }),
-  bar({
-    slug: "the-commodore",
-    attrs: { frozen: 1, food: 0.8, late: 1, cheap: 0.9 },
-    name: "The Commodore",
-    neighborhood: "williamsburg",
-    address: "366 Metropolitan Ave, Brooklyn, NY 11211",
-    lat: 40.7139, lng: -73.9536,
-    take: "Frozen drinks, fried chicken, a dark room that's always a little too full; a Williamsburg rite of passage.",
-    tags: ["Dive", "Lively", "Fried Chicken"],
-    vibe: { lively: 0.9, chill: 0.4, talk: 0.2 },
-    groupFit: { two: 0.7, small: 0.85, mid: 0.75, big: 0.45 },
-    dateFit: { first: 0.5, early: 0.65, longterm: 0.6 },
-    price: 1, capacity: "medium", bestWindows: W.brooklynLate, easyIn: 0.4,
-    photo: P.plum, friendsBeen: 4,
-  }),
-  bar({
-    slug: "maison-premiere",
-    attrs: { outdoor: 1, food: 0.8, upscale: 0.7 },
-    name: "Maison Premiere",
-    neighborhood: "williamsburg",
-    address: "298 Bedford Ave, Brooklyn, NY 11249",
-    lat: 40.7143, lng: -73.9615,
-    take: "Oysters, absinthe, a garden in back; New Orleans by way of Bedford Avenue, and the most romantic bar in the borough.",
-    theCatch: "The garden fills first; put your name in and take the bar.",
-    tags: ["Oysters", "Garden", "Date"],
-    vibe: { lively: 0.5, chill: 0.75, talk: 0.7 },
-    groupFit: { two: 0.95, small: 0.75, mid: 0.35, big: 0.1 },
-    dateFit: { first: 0.9, early: 0.95, longterm: 0.9 },
-    price: 3, capacity: "medium", bestWindows: W.cocktailHours, easyIn: 0.35,
-    photo: P.forest, friendsBeen: 3,
-  }),
-  bar({
-    slug: "skinny-dennis",
-    attrs: { liveMusic: 1, frozen: 0.8, cheap: 0.9, late: 1, social: 0.7 },
-    name: "Skinny Dennis",
-    neighborhood: "williamsburg",
-    address: "152 Metropolitan Ave, Brooklyn, NY 11249",
-    lat: 40.7148, lng: -73.9629,
-    take: "A honky-tonk with live country most nights and frozen coffee drinks; loud, cheap, and impossible not to enjoy.",
-    tags: ["Live Music", "Honky-Tonk", "Groups"],
-    vibe: { lively: 0.95, chill: 0.35, talk: 0.1 },
-    groupFit: { two: 0.65, small: 0.85, mid: 0.85, big: 0.6 },
-    dateFit: { first: 0.5, early: 0.65, longterm: 0.6 },
-    price: 1, capacity: "medium", bestWindows: W.brooklynLate, easyIn: 0.45,
-    photo: P.amber, friendsBeen: 2,
-  }),
-  bar({
-    slug: "bar-blondeau",
-    attrs: { rooftop: 0.9, upscale: 0.9, dressy: 0.6 },
-    name: "Bar Blondeau",
-    neighborhood: "williamsburg",
-    address: "80 Wythe Ave, Brooklyn, NY 11249",
-    lat: 40.722, lng: -73.9581,
-    take: "Top of the Wythe, French-leaning, the skyline through big windows; the polished date bar on the north side.",
-    tags: ["Views", "Cocktails", "Date"],
-    vibe: { lively: 0.6, chill: 0.65, talk: 0.6 },
-    groupFit: { two: 0.95, small: 0.75, mid: 0.4, big: 0.15 },
-    dateFit: { first: 0.85, early: 0.9, longterm: 0.85 },
-    price: 3, capacity: "medium", bestWindows: W.cocktailHours, easyIn: 0.4,
-    photo: P.ink, friendsBeen: 1,
-  }),
-  bar({
-    slug: "radegast-hall",
-    attrs: { beer: 1, seating: 1, food: 0.7, outdoor: 0.7, sports: 0.5, cheap: 0.6 },
-    name: "Radegast Hall & Biergarten",
-    neighborhood: "williamsburg",
-    address: "113 N 3rd St, Brooklyn, NY 11249",
-    lat: 40.716, lng: -73.9617,
-    take: "Long tables, big beers, a retractable roof; the answer to 'there are eleven of us' every single time.",
-    tags: ["Beer Hall", "Big Groups", "Easy"],
-    vibe: { lively: 0.85, chill: 0.5, talk: 0.3 },
-    groupFit: { two: 0.4, small: 0.7, mid: 0.9, big: 1.0 },
-    dateFit: { first: 0.25, early: 0.35, longterm: 0.4 },
-    price: 2, capacity: "large", bestWindows: W.everyNight, easyIn: 0.8,
-    photo: P.brass, friendsBeen: 2,
-  }),
-  bar({
-    slug: "clems",
-    attrs: { cheap: 1, late: 1, activity: 0.3 },
-    name: "Clem's",
-    neighborhood: "williamsburg",
-    address: "264 Grand St, Brooklyn, NY 11211",
-    lat: 40.7126, lng: -73.9583,
-    take: "A neighborhood dive with a good jukebox and no agenda; cheap, chill, and open late.",
-    tags: ["Dive", "Chill", "Late"],
-    vibe: { lively: 0.6, chill: 0.8, talk: 0.55 },
-    groupFit: { two: 0.8, small: 0.85, mid: 0.6, big: 0.3 },
-    dateFit: { first: 0.5, early: 0.65, longterm: 0.65 },
-    price: 1, capacity: "medium", bestWindows: W.brooklynLate, easyIn: 0.7,
-    photo: P.slate, friendsBeen: 1,
-  }),
-  bar({
-    slug: "the-four-horsemen",
-    attrs: { wine: 1, food: 0.9, upscale: 0.6 },
-    name: "The Four Horsemen",
-    neighborhood: "williamsburg",
-    address: "295 Grand St, Brooklyn, NY 11211",
-    lat: 40.7119, lng: -73.9575,
-    take: "Natural wine and small plates in a room designed by people with taste; a date that's more conversation than cocktails.",
-    theCatch: "Small and beloved; expect to wait for a table, less for the bar.",
-    tags: ["Wine", "Can Actually Talk", "Date"],
-    vibe: { lively: 0.45, chill: 0.8, talk: 0.85 },
-    groupFit: { two: 0.95, small: 0.7, mid: 0.3, big: 0.05 },
-    dateFit: { first: 0.85, early: 0.9, longterm: 0.9 },
-    price: 3, capacity: "small", bestWindows: W.cocktailHours, easyIn: 0.3,
-    photo: P.wine, friendsBeen: 2,
-  }),
-  restaurant({
-    slug: "llama-inn",
-    attrs: { rooftop: 0.7, outdoor: 0.6 },
-    name: "Llama Inn",
-    neighborhood: "williamsburg",
-    address: "50 Withers St, Brooklyn, NY 11211",
-    lat: 40.7163, lng: -73.9509,
-    take: "Peruvian, festive, with a rooftop in season; a date dinner that's fun for four too.",
-    tags: ["Peruvian", "Festive", "Rooftop"],
-    vibe: { lively: 0.75, chill: 0.5, talk: 0.5 },
-    groupFit: { two: 0.85, small: 0.9, mid: 0.6, big: 0.25 },
-    dateFit: { first: 0.8, early: 0.85, longterm: 0.75 },
-    price: 3, capacity: "medium", bestWindows: W.dinner, easyIn: 0.4,
-    photo: P.rose, friendsBeen: 2,
-  }),
-  restaurant({
-    slug: "lilia",
-    name: "Lilia",
-    neighborhood: "williamsburg",
-    address: "567 Union Ave, Brooklyn, NY 11211",
-    lat: 40.7175, lng: -73.952,
-    take: "The reservation everyone wants and the pasta that justifies it; if you got the table, the date is already going well.",
-    theCatch: "Reservations are famously hard; the walk-in bar is the only realistic play.",
-    tags: ["Italian", "Occasion", "Pasta"],
-    vibe: { lively: 0.7, chill: 0.5, talk: 0.55 },
-    groupFit: { two: 0.9, small: 0.8, mid: 0.4, big: 0.1 },
-    dateFit: { first: 0.6, early: 0.9, longterm: 0.95 },
-    price: 3, capacity: "medium", bestWindows: W.dinner, easyIn: 0.1,
-    photo: P.amber, friendsBeen: 4,
-  }),
-  restaurant({
-    slug: "diner",
-    name: "Diner",
-    neighborhood: "williamsburg",
-    address: "85 Broadway, Brooklyn, NY 11249",
-    lat: 40.7105, lng: -73.9654,
-    take: "A dining car under the bridge with a chalkboard menu and real charm; the low-key date that ages well.",
-    tags: ["American", "Date", "Under the Bridge"],
-    vibe: { lively: 0.55, chill: 0.7, talk: 0.7 },
-    groupFit: { two: 0.95, small: 0.75, mid: 0.35, big: 0.1 },
-    dateFit: { first: 0.85, early: 0.9, longterm: 0.85 },
-    price: 3, capacity: "small", bestWindows: W.dinner, easyIn: 0.4,
-    photo: P.brass, friendsBeen: 2,
-  }),
-
-  // ───────────────────────── GREENPOINT ─────────────────────────
-  restaurant({
-    slug: "bernies",
-    attrs: { social: 0.6, cocktails: 0.7 },
-    name: "Bernie's",
-    neighborhood: "greenpoint",
-    address: "332 Driggs Ave, Brooklyn, NY 11222",
-    lat: 40.7228, lng: -73.9516,
-    take: "Red booths, mozzarella sticks, martinis: dinner that feels like a party and treats a group of six like regulars.",
-    theCatch: "Waits on weekends; the bar in front is the move while you wait.",
-    tags: ["American", "Groups", "Fun"],
-    vibe: { lively: 0.85, chill: 0.45, talk: 0.4 },
-    groupFit: { two: 0.75, small: 0.9, mid: 0.9, big: 0.5 },
-    dateFit: { first: 0.7, early: 0.75, longterm: 0.7 },
-    price: 2, capacity: "medium", bestWindows: W.dinner, easyIn: 0.35,
-    photo: P.wine, friendsBeen: 3,
-  }),
-  bar({
-    slug: "ramona",
-    attrs: { dance: 0.3, late: 0.8 },
-    name: "Ramona",
-    neighborhood: "greenpoint",
-    address: "113 Franklin St, Brooklyn, NY 11222",
-    lat: 40.7305, lng: -73.9583,
-    take: "High ceilings, good cocktails, a room that's lively on weekends and quietly perfect on a Tuesday.",
-    tags: ["Cocktails", "Lively", "Date"],
-    vibe: { lively: 0.7, chill: 0.6, talk: 0.5 },
-    groupFit: { two: 0.85, small: 0.85, mid: 0.65, big: 0.35 },
-    dateFit: { first: 0.75, early: 0.8, longterm: 0.75 },
-    price: 2, capacity: "medium", bestWindows: W.brooklynLate, easyIn: 0.55,
-    photo: P.plum, friendsBeen: 2,
-  }),
-  bar({
-    slug: "pencil-factory",
-    attrs: { classic: 0.5, happyHour: 0.6, cheap: 0.8 },
-    name: "Pencil Factory",
-    neighborhood: "greenpoint",
-    address: "142 Franklin St, Brooklyn, NY 11222",
-    lat: 40.7316, lng: -73.9581,
-    take: "A corner bar that's never trying too hard; good beer, decent room, easy for a group that just wants to sit.",
-    tags: ["Corner", "Beer", "Chill"],
-    vibe: { lively: 0.6, chill: 0.8, talk: 0.6 },
-    groupFit: { two: 0.75, small: 0.85, mid: 0.75, big: 0.45 },
-    dateFit: { first: 0.5, early: 0.65, longterm: 0.65 },
-    price: 1, capacity: "medium", bestWindows: W.everyNight, easyIn: 0.7,
-    photo: P.slate, friendsBeen: 1,
-  }),
-  bar({
-    slug: "broken-land",
-    attrs: { cheap: 0.7, late: 0.8 },
-    name: "Broken Land",
-    neighborhood: "greenpoint",
-    address: "105 Franklin St, Brooklyn, NY 11222",
-    lat: 40.7304, lng: -73.9583,
-    take: "Cocktails in a bar that looks like a dive and drinks like a good one; unbothered, affordable, right.",
-    tags: ["Cocktails", "Dive", "Chill"],
-    vibe: { lively: 0.6, chill: 0.75, talk: 0.55 },
-    groupFit: { two: 0.85, small: 0.85, mid: 0.6, big: 0.3 },
-    dateFit: { first: 0.65, early: 0.75, longterm: 0.7 },
-    price: 2, capacity: "small", bestWindows: W.brooklynLate, easyIn: 0.6,
-    photo: P.night, friendsBeen: 1,
-  }),
-  restaurant({
-    slug: "oxomoco",
-    name: "Oxomoco",
-    neighborhood: "greenpoint",
-    address: "128 Greenpoint Ave, Brooklyn, NY 11222",
-    lat: 40.7304, lng: -73.9556,
-    take: "Wood-fired Mexican in a skylit room; a date dinner with energy and a mezcal list to get lost in.",
-    tags: ["Mexican", "Wood-Fired", "Date"],
-    vibe: { lively: 0.7, chill: 0.55, talk: 0.55 },
-    groupFit: { two: 0.9, small: 0.85, mid: 0.5, big: 0.2 },
-    dateFit: { first: 0.85, early: 0.9, longterm: 0.8 },
-    price: 3, capacity: "medium", bestWindows: W.dinner, easyIn: 0.4,
-    photo: P.amber, friendsBeen: 2,
-  }),
 ];
 
 /** Normalized seed — the fallback whenever no database is configured. */
-/** The hand-written originals plus the researched neighborhoods; later entries never override an earlier slug. */
+/**
+ * The hand-written originals plus the researched neighborhoods; later entries
+ * never override an earlier slug. Then the restaurant desk, which does: its
+ * entry replaces the same slug wherever it was (keeping the placeholder art),
+ * and its new places are added.
+ */
+const desk_asOf = (HOURS_DESK as { asOf: string }).asOf;
 const ALL_RAW: SeedVenue[] = (() => {
   const seen = new Set<string>();
   const out: SeedVenue[] = [];
@@ -1073,7 +816,28 @@ const ALL_RAW: SeedVenue[] = (() => {
     seen.add(v.slug);
     out.push(v);
   }
-  return out;
+  for (const d of DESK) {
+    const i = out.findIndex((v) => v.slug === d.slug);
+    if (i >= 0) out[i] = { ...d, photo: out[i].photo, photoUrl: out[i].photoUrl ?? d.photoUrl };
+    else out.push(d);
+  }
+  // The hours desk (V24): posted hours for every place that had none, and the
+  // places it found permanently closed go to "not for ROUND".
+  const desk = HOURS_DESK as { closed: string[]; hours: Record<string, unknown>; sources: Record<string, string>; notes: Record<string, string> };
+  const closed = new Set(desk.closed);
+  return out.map((v) => {
+    const found = v.hours ? undefined : cleanHours(desk.hours[v.slug]);
+    const note = desk.notes[v.slug];
+    const retired = v.retired || closed.has(v.slug);
+    if (!found && !retired && !note) return v;
+    return {
+      ...v,
+      hours: v.hours ?? found,
+      retired,
+      sources: found && desk.sources[v.slug] ? [...(v.sources ?? []), desk.sources[v.slug]] : v.sources,
+      notes: [v.notes, closed.has(v.slug) ? `Desk, ${desk_asOf}: reported permanently closed.` : null, note ? `Hours (desk, ${desk_asOf}): ${note}` : null].filter(Boolean).join("\n\n") || v.notes,
+    };
+  });
 })();
 
 export const SEED_VENUES: Venue[] = ALL_RAW.map(normalizeSeed).map((v) => {
@@ -1093,11 +857,11 @@ export const QUIZ_SLUGS = [
   "rays-bar",
   "dante-west-village",
   "death-and-co",
-  "union-pool",
+  "employees-only",
   "the-spaniard",
-  "maison-premiere",
+  "the-back-room",
   "fanelli-cafe",
-  "westlight",
+  "smith-and-mills",
   "attaboy",
-  "the-commodore",
+  "walkers",
 ];

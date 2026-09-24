@@ -4,7 +4,7 @@ export type Neighborhood = {
   id: NeighborhoodId;
   name: string;
   short: string;
-  borough: "Manhattan" | "Brooklyn";
+  borough: "Manhattan";
   center: { lat: number; lng: number };
   adjacent: NeighborhoodId[];
 };
@@ -65,22 +65,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     borough: "Manhattan",
     center: { lat: 40.7415, lng: -73.9795 },
     adjacent: ["chelsea", "east-village"],
-  },
-  {
-    id: "williamsburg",
-    name: "Williamsburg",
-    short: "Williamsburg",
-    borough: "Brooklyn",
-    center: { lat: 40.7158, lng: -73.9581 },
-    adjacent: ["greenpoint"],
-  },
-  {
-    id: "greenpoint",
-    name: "Greenpoint",
-    short: "Greenpoint",
-    borough: "Brooklyn",
-    center: { lat: 40.7295, lng: -73.9558 },
-    adjacent: ["williamsburg"],
   },
 ];
 

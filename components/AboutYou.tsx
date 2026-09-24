@@ -241,9 +241,11 @@ function PhotoQ({ current, onSave, onNext, busy }: { current: string | null; onS
 
 /** Round face, or the first letter. */
 export function Avatar({ url, name, size = 44 }: { url?: string | null; name?: string | null; size?: number }) {
-  return url ? (
+  // A photo that won't load (a storage bucket that isn't public, an old upload) becomes the initial, never a broken-image icon.
+  const [broken, setBroken] = useState<string | null>(null);
+  return url && broken !== url ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt="" width={size} height={size} className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} data-avatar />
+    <img src={url} alt="" width={size} height={size} className="shrink-0 rounded-full object-cover" style={{ width: size, height: size, background: "rgba(43,77,255,0.12)" }} onError={() => setBroken(url)} data-avatar />
   ) : (
     <span className="serif flex shrink-0 items-center justify-center rounded-full" style={{ width: size, height: size, fontSize: size * 0.45, background: "rgba(43,77,255,0.22)", color: "var(--chalk)" }} data-avatar-initial>
       {(name ?? "?").trim().slice(0, 1).toUpperCase() || "?"}

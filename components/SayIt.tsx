@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { toResultsParams, type Interpretation } from "@/lib/interpret";
+import { locate } from "@/lib/locate";
+import { formatMe } from "@/lib/where";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { formatHour } from "@/lib/time";
 import { nightWhen } from "@/lib/when";
@@ -12,11 +14,11 @@ import { useRoundStore } from "@/lib/store";
 
 const EXAMPLES = [
   "Six of us in the West Village, want to dance but not a club, no line",
-  "First date in Williamsburg, quiet, low light, around 9",
+  "First date in Tribeca, quiet, low light, around 9",
   "Cheap dive in the East Village where we can watch the game",
-  "Rooftop in Brooklyn for four, a little bougie, cocktails",
+  "Rooftop in Chelsea for four, a little bougie, cocktails",
   "Somewhere near Bleecker I can actually hear my friends",
-  "Dinner then drinks in Greenpoint, Thursday, eight of us",
+  "Dinner then drinks on the Lower East Side, Thursday, eight of us",
   "Bars near Rubirosa, we're getting out of dinner at 10",
 ];
 
@@ -86,6 +88,9 @@ export function SayIt() {
       const w = nightWhen();
       if (i.hour === undefined) i.hour = w.hour;
       const params = toResultsParams(i, w.dow, text);
+      // If the phone already shares where it is, the walk is measured from there (never a prompt from here).
+      const me = await locate("silent");
+      if (me && params.get("m") !== "near") params.set("me", formatMe(me));
       if ((i.wants.new ?? 0) > 0) {
         const been = Object.keys(state.been);
         if (been.length) params.set("b", been.join(","));

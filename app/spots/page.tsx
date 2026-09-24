@@ -10,8 +10,9 @@ export const revalidate = 60;
 export const metadata: Metadata = { title: "Spots", description: "Every place on ROUND: the take, the score, and your say." };
 
 /**
- * The Spots tab: every place ROUND stands behind, in one scroll. The take and
- * the score up front; Want to go, Been, Rate and Disagree on every row.
+ * The Spots tab: every place ROUND stands behind, on a map first (with you on
+ * it, when you allow it) and as a list. The take and the score up front;
+ * Want to go, Been, Rate and Disagree on every pin and every row.
  */
 export default async function SpotsPage() {
   const venues = await getVenues();
@@ -27,6 +28,7 @@ export default async function SpotsPage() {
     lat: v.lat,
     lng: v.lng,
     take: v.take,
+    hours: v.hours ?? null,
     tags: v.tags.slice(0, 3),
     price: v.price,
     score: v.score ?? null,

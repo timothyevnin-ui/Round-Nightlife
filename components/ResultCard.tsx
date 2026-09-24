@@ -8,6 +8,7 @@ import { HoursLine } from "./Hours";
 import { ScoreBadge } from "./Score";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { LabelChip, FriendsChip } from "./VenueCard";
+import { DisagreeButton } from "./DisagreeSheet";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { keywordLine } from "@/lib/describe";
 import { formatHour } from "@/lib/time";
@@ -67,7 +68,21 @@ function Catch({ text }: { text?: string }) {
   );
 }
 
-export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: Venue; label: PickLabel; why?: string; shareUrl: string; index?: number }) {
+/** "8 min into SoHo" or "6 min walk": the distance part of a pick, when it's worth saying. */
+export function FarLine({ text, className = "mt-2" }: { text?: string; className?: string }) {
+  if (!text) return null;
+  return (
+    <p className={`flex items-center gap-1.5 text-[13px] ${className}`} style={{ color: "var(--ink-70)" }} data-far>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+        <circle cx="9" cy="2.6" r="1.4" fill="currentColor" />
+        <path d="M7.2 5.6 5.4 9l2 1.3-.9 3.6M7.2 5.6l2.6.6 1.4 2.2M7.2 5.6 5 7.8 3.6 6.9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span>{text}</span>
+    </p>
+  );
+}
+
+export function ResultCard({ venue, label, why, far, shareUrl, index = 0 }: { venue: Venue; label: PickLabel; why?: string; far?: string; shareUrl: string; index?: number }) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 18 }}
@@ -105,6 +120,7 @@ export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: 
         )}
 
         <HoursLine hours={venue.hours} className="mt-3" />
+        <FarLine text={far} />
         <DayDeal text={venue.dayDeal} />
         <Catch text={venue.theCatch} />
 
@@ -113,6 +129,7 @@ export function ResultCard({ venue, label, why, shareUrl, index = 0 }: { venue: 
           <SaveButton slug={venue.slug} />
           <ShareButton url={shareUrl} title={`${venue.name} — ROUND`} text={`${venue.name}, ${neighborhoodName(venue.neighborhood)}. ${venue.take}`} />
         </div>
+        <DisagreeButton venue={venue} className="mt-2.5 self-start" />
       </div>
     </motion.article>
   );
@@ -177,6 +194,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
         )}
 
         <HoursLine hours={first.hours} className="mt-3" />
+        <FarLine text={plan.far} />
         <DayDeal text={first.dayDeal} />
         <Catch text={first.theCatch} />
 
@@ -188,6 +206,10 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
             title="Tonight — ROUND"
             text={restaurant ? `Dinner at ${restaurant.name}, drinks after at ${bar.name}${groupWord ? ` for ${groupWord}` : ""}.` : `${bar.name}. ${bar.take}`}
           />
+        </div>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          <DisagreeButton venue={first} />
+          {restaurant && <DisagreeButton venue={bar} className="opacity-90" />}
         </div>
       </div>
     </motion.article>

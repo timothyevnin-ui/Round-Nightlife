@@ -207,20 +207,21 @@ export async function importSeed(): Promise<SaveResult> {
  * photos, credit, the shelf, the story, regulars, perks, verified. Verified
  * places are never touched. Nothing is ever deleted.
  */
-export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: number; kept: number; missing: string[] } | { ok: false; error: string }> {
+export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: number; kept: number; hoursFilled?: number; missing: string[] } | { ok: false; error: string }> {
   try {
     await guard();
     const { venues: current, source } = await getVenuesFresh();
     if (source !== "db") {
       const n = await upsertVenues(SEED_VENUES);
       updateTag(VENUES_TAG);
-      return { ok: true, added: n, refreshed: 0, kept: 0, missing: [] };
+      return { ok: true, added: n, refreshed: 0, kept: 0, hoursFilled: 0, missing: [] };
     }
     const bySlug = new Map(current.map((v) => [v.slug, v]));
     const writes: Venue[] = [];
     let added = 0;
     let refreshed = 0;
     let kept = 0;
+    let hoursFilled = 0;
     for (const seed of SEED_VENUES) {
       const db = bySlug.get(seed.slug);
       if (!db) {
@@ -229,6 +230,12 @@ export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: 
         continue;
       }
       if (db.verified || db.retired) {
+        // A verified place is Tim's word and stays as it is, with one exception:
+        // posted hours the desk found for a place that has none (V24).
+        if (!db.hours && seed.hours && !db.retired) {
+          writes.push({ ...db, hours: seed.hours });
+          hoursFilled++;
+        }
         kept++;
         continue;
       }
@@ -255,7 +262,7 @@ export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: 
     const seedSlugs = new Set(SEED_VENUES.map((v) => v.slug));
     const missing = current.filter((v) => !seedSlugs.has(v.slug)).map((v) => v.name);
     updateTag(VENUES_TAG);
-    return { ok: true, added, refreshed, kept, missing };
+    return { ok: true, added, refreshed, kept, hoursFilled, missing };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Update failed." };
   }

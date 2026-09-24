@@ -27,6 +27,8 @@ export type Interpretation = {
   near?: boolean;
   /** A street, corner, landmark or address they mentioned (not a ROUND place): "near Bleecker", "by Washington Square". */
   place?: { label: string; lat: number; lng: number };
+  /** They named somewhere ROUND doesn't cover yet ("Brooklyn"); results start from the nearest neighborhood we do. */
+  outside?: { label: string; nearest: NeighborhoodId };
 };
 
 export type VenueForMatch = Pick<Venue, "slug" | "name" | "neighborhood" | "lat" | "lng">;
@@ -39,10 +41,30 @@ const HOOD_ALIASES: Record<NeighborhoodId, string[]> = {
   "soho-nolita": ["soho", "nolita", "noho", "little italy", "prince st", "prince street", "spring st", "spring street", "mulberry", "elizabeth st", "elizabeth street", "mott st", "mott street", "kenmare", "lafayette", "bowery", "bond st", "bond street", "great jones"],
   tribeca: ["tribeca", "fidi", "financial district", "west broadway", "duane", "hudson square", "chambers", "warren st", "greenwich st", "stone street", "stone st"],
   chelsea: ["chelsea", "meatpacking", "west 20s", "flatiron", "high line", "highline", "gansevoort", "little west 12th", "9th ave", "ninth ave", "10th ave", "tenth ave", "west 23rd", "w 23rd", "west 14th", "w 14th", "chelsea market", "union square", "union sq"],
-  williamsburg: ["williamsburg", "wburg", "w'burg", "billyburg", "bedford ave", "bedford avenue", "bedford", "n 6th", "north 6th", "n 7th", "north 7th", "wythe", "berry st", "berry street", "metropolitan ave", "kent ave", "domino park", "south williamsburg"],
-  greenpoint: ["greenpoint", "gp", "franklin st", "franklin street", "franklin ave", "manhattan ave", "manhattan avenue", "nassau ave", "nassau avenue", "mcguinness", "greenpoint ave", "transmitter park", "mccarren"],
   "murray-hill": ["murray hill", "kips bay", "kip's bay", "kipsbay", "rose hill", "nomad", "gramercy", "east 30s", "e 30s", "east 20s", "e 20s", "3rd ave and 3", "lexington", "lex ave", "lex and", "park ave south", "park avenue south", "east 34th", "e 34th", "34th st", "east 33rd", "e 33rd", "east 28th", "e 28th", "grand central", "midtown east", "curry hill", "baruch", "stuy town", "stuyvesant town", "peter cooper", "irving place", "irving pl", "union square east", "east 14th", "e 14th", "east 18th", "e 18th", "east 23rd", "e 23rd"],
 };
+
+/**
+ * Places ROUND doesn't cover yet. Saying one shouldn't silently become the
+ * West Village: the strip says "not yet", and results start from the nearest
+ * neighborhood we do cover.
+ */
+const OUTSIDE: { label: string; nearest: NeighborhoodId; words: string[] }[] = [
+  { label: "Brooklyn", nearest: "lower-east-side", words: ["brooklyn", "bk", "williamsburg", "wburg", "w'burg", "billyburg", "greenpoint", "bushwick", "bed-stuy", "bed stuy", "bedstuy", "park slope", "dumbo", "cobble hill", "carroll gardens", "gowanus", "red hook", "fort greene", "clinton hill", "crown heights", "prospect heights", "bedford ave", "domino park", "mccarren"] },
+  { label: "Queens", nearest: "murray-hill", words: ["queens", "astoria", "long island city", "lic", "ridgewood", "jackson heights", "flushing", "sunnyside"] },
+  { label: "Uptown", nearest: "murray-hill", words: ["upper east side", "ues", "upper west side", "uws", "harlem", "morningside", "columbia", "yorkville", "lenox hill", "carnegie hill", "upper east", "upper west", "uptown"] },
+  { label: "Midtown", nearest: "chelsea", words: ["midtown", "hell's kitchen", "hells kitchen", "times square", "theater district", "theatre district", "koreatown", "k-town", "ktown", "herald square", "bryant park", "rockefeller", "columbus circle", "hudson yards", "garment district", "penn station", "port authority"] },
+  { label: "Jersey", nearest: "west-village", words: ["hoboken", "jersey city", "new jersey", "jersey"] },
+];
+
+export function findOutside(text: string): { label: string; nearest: NeighborhoodId } | undefined {
+  for (const o of OUTSIDE)
+    for (const w of o.words) {
+      const re = new RegExp(`(^|[^a-z])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`, "i");
+      if (re.test(text)) return { label: o.label, nearest: o.nearest };
+    }
+  return undefined;
+}
 
 const NUMBER_WORDS: Record<string, number> = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 11, dozen: 11, couple: 2, few: 3, handful: 5 };
 
@@ -133,6 +155,7 @@ export function interpretText(raw: string, venues: VenueForMatch[] = []): Interp
   const mode: Interpretation["mode"] = isDate ? "date" : wantsDinner ? "dinner" : "night";
 
   const neighborhood = findNeighborhood(text);
+  const outside = neighborhood ? undefined : findOutside(text);
   const group = findGroup(text);
   const hour = findHour(text);
   const stage = isDate ? findStage(text) : undefined;
@@ -180,9 +203,10 @@ export function interpretText(raw: string, venues: VenueForMatch[] = []): Interp
   }
 
   if (neighborhood) understood.unshift(NEIGHBORHOODS.find((n) => n.id === neighborhood)!.name);
+  else if (outside) understood.unshift(`${outside.label}: not yet`);
   if (group) understood.push(group >= 11 ? "11+ of you" : `${group} of you`);
 
-  const out: Interpretation = { mode, neighborhood, group, hour, stage, dinner, wants, understood: [...new Set(understood)].slice(0, 7) };
+  const out: Interpretation = { mode, neighborhood, group, hour, stage, dinner, wants, understood: [...new Set(understood)].slice(0, 7), outside };
   if (named) {
     const v = named.venue;
     out.venue = { slug: v.slug, name: v.name, neighborhood: v.neighborhood, lat: v.lat, lng: v.lng };
@@ -202,8 +226,8 @@ export function interpretPrompt(text: string, venues: VenueForMatch[] = []) {
     `Turn this sentence about going out in NYC into JSON for a bar recommender.\n` +
     `Sentence: """${text}"""\n\n` +
     `Return only JSON: {"mode":"night"|"date"|"dinner" (dinner = a group wants to eat first, then drinks),"neighborhood": one of [${hoods}] or null,"group": integer 2-11 or null,"hour": number (24h, 24-27 for after midnight) only when they name a time or a part of the day (brunch = 12, happy hour = 17.5, afternoon = 14); "tonight" alone is null,` +
-    `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases], "venue": slug or null, "near": boolean, "place": {"label": string, "lat": number, "lng": number} or null}\n` +
-    `Neighborhoods, with the streets and landmarks that belong to them: west-village = Greenwich Village too (Bleecker, MacDougal, Christopher, Hudson St, Washington Square, NYU); east-village (St Marks, Avenues A-C, Tompkins Square, Astor Place); lower-east-side (Ludlow, Orchard, Delancey, Rivington, Chinatown, Dimes Square); soho-nolita (Prince, Spring, Mulberry, Elizabeth, Mott, the Bowery, NoHo); tribeca (West Broadway, Duane, Hudson Square, FiDi); chelsea (Meatpacking, the High Line, Flatiron, Union Square); williamsburg (Bedford Ave, N 6th, Wythe, Domino Park); greenpoint (Franklin St, Manhattan Ave, Nassau Ave, McCarren Park); murray-hill = Murray Hill, Kips Bay and Gramercy, 14th to 42nd east of Park Ave South (3rd Ave, Lexington, Irving Place, Stuy Town, the East 20s and 30s, Curry Hill, Rose Hill, NoMad, Grand Central).\n` +
+    `"stage":"first"|"early"|"longterm"|null,"dinner": boolean|null,"wants": {attribute: number in -1..1}, "understood": [short phrases], "venue": slug or null, "near": boolean, "place": {"label": string, "lat": number, "lng": number} or null, "outside": null or a short label ("Brooklyn", "Queens", "Uptown", "Midtown") when they name somewhere ROUND doesn't cover}\n` +
+    `Neighborhoods, with the streets and landmarks that belong to them: west-village = Greenwich Village too (Bleecker, MacDougal, Christopher, Hudson St, Washington Square, NYU); east-village (St Marks, Avenues A-C, Tompkins Square, Astor Place); lower-east-side (Ludlow, Orchard, Delancey, Rivington, Chinatown, Dimes Square); soho-nolita (Prince, Spring, Mulberry, Elizabeth, Mott, the Bowery, NoHo); tribeca (West Broadway, Duane, Hudson Square, FiDi); chelsea (Meatpacking, the High Line, Flatiron, Union Square); murray-hill = Murray Hill, Kips Bay and Gramercy, 14th to 42nd east of Park Ave South (3rd Ave, Lexington, Irving Place, Stuy Town, the East 20s and 30s, Curry Hill, Rose Hill, NoMad, Grand Central). ROUND covers Manhattan below 42nd only: Brooklyn, Queens, uptown and Midtown are "outside" (neighborhood null, "outside" set), never mapped onto one of these.\n` +
     `"place": when they mention a street, corner, landmark, park, subway stop or address in New York that is NOT one of the ROUND places below ("near Bleecker", "by Washington Square", "around Delancey and Essex", "I'm at the Bedford L"), give its short label and its coordinates as precisely as you can, and set "neighborhood" to the neighborhood it's in. Otherwise null. Spelling is often off (Bleeker = Bleecker).\n` +
     `Attributes (use only these keys; positive = wants it, negative = wants to avoid it; also allowed: "noLine" for no waiting, "new" for somewhere they haven't been):\n${attrs}\n` +
     (places
@@ -239,7 +263,7 @@ export function toResultsParams(i: Interpretation, fallbackDow: number, said?: s
   }
   p.set("m", i.mode);
   if (i.venue) p.set("a", i.venue.slug);
-  p.set("n", i.neighborhood ?? "west-village");
+  p.set("n", i.neighborhood ?? i.outside?.nearest ?? "west-village");
   p.set("t", String(i.hour ?? timeOptions().defaultValue));
   p.set("d", String(fallbackDow));
   if (i.mode === "night" || i.mode === "dinner") p.set("g", String(i.group ?? 4));

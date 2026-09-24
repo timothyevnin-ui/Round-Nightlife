@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { RealMap } from "./RealMap";
 import { TimeDial, Wheel } from "./Pickers";
+import { locate } from "@/lib/locate";
+import { neighborhoodAt } from "@/lib/shapes";
+import { formatMe, type Point } from "@/lib/where";
 import type { NeighborhoodId } from "@/lib/types";
 
 export type FlowOption = {
@@ -46,6 +49,8 @@ export function Flow({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [pending, setPending] = useState<string | null>(null);
   const [draft, setDraft] = useState<string | null>(null);
+  // Answers no step asks for out loud: where the phone is, when they allowed it.
+  const [extras, setExtras] = useState<Record<string, string>>({});
   const advancing = useRef(false);
 
   const step = steps[Math.min(index, steps.length - 1)];
@@ -58,10 +63,11 @@ export function Flow({
 
   const finish = useCallback(
     (partial: Record<string, string>, quick = false) => {
-      onComplete({ ...defaults, ...partial }, quick);
+      onComplete({ ...defaults, ...extras, ...partial }, quick);
     },
-    [defaults, onComplete],
+    [defaults, extras, onComplete],
   );
+  const onLocate = useCallback((p: Point) => setExtras((x) => ({ ...x, me: formatMe(p) })), []);
 
   const select = useCallback(
     (value: string) => {
@@ -164,7 +170,7 @@ export function Flow({
 
             <div className={step.layout === "map" ? "mt-5" : "mt-8"}>
               {step.layout === "map" ? (
-                <MapStep step={step} current={current} suggested={suggested} onSelect={select} />
+                <MapStep step={step} current={current} suggested={suggested} onSelect={select} onLocate={onLocate} />
               ) : step.layout === "wheel" || step.layout === "dial" ? (
                 <ConfirmStep key={step.id} step={step} initial={current ?? step.defaultValue ?? step.options[0]?.value ?? ""} draft={draft} setDraft={setDraft} onConfirm={(v) => { setDraft(null); select(v); }} />
               ) : (
@@ -342,17 +348,60 @@ function Options({
   );
 }
 
-/** The map, plus the same neighborhoods as small chips underneath. */
-function MapStep({ step, current, suggested, onSelect }: { step: FlowStep; current?: string; suggested?: string; onSelect: (v: string) => void }) {
-  const value = (current ?? suggested) as NeighborhoodId | undefined;
+/**
+ * The map, plus the same neighborhoods as small chips underneath. If the
+ * phone already shares its location, the blue dot is on the map and the
+ * neighborhood they're standing in is the suggestion; otherwise one tap on
+ * "Use where I am" asks. Either way the fix rides along to results as `me`,
+ * so the walk is measured from them, not from the middle of the neighborhood.
+ */
+function MapStep({ step, current, suggested, onSelect, onLocate }: { step: FlowStep; current?: string; suggested?: string; onSelect: (v: string) => void; onLocate: (p: Point) => void }) {
+  const [me, setMe] = useState<Point | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [denied, setDenied] = useState(false);
+  const found = useCallback(
+    (p: Point | null) => {
+      setAsking(false);
+      if (!p) return setDenied(true);
+      setMe(p);
+      onLocate(p);
+    },
+    [onLocate],
+  );
+  useEffect(() => {
+    let live = true;
+    locate("silent").then((p) => live && p && found(p));
+    return () => {
+      live = false;
+    };
+  }, [found]);
+  const here = me ? neighborhoodAt(me.lat, me.lng) : null;
+  const value = (current ?? (here && !current ? here : suggested)) as NeighborhoodId | undefined;
   return (
     <div>
       <div className="overflow-hidden rounded-[24px] border" style={{ borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
-        <RealMap value={value} onSelect={(id) => onSelect(id)} />
+        <RealMap value={value} onSelect={(id) => onSelect(id)} you={me} />
       </div>
-      <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
-        Tap a neighborhood. More of the city as ROUND grows.
-      </p>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <p className="text-[12.5px]" style={{ color: "var(--ink-55)" }} data-where-hint>
+          {me ? (here ? `You're in ${step.options.find((o) => o.value === here)?.label ?? "the city"}. Tap it, or somewhere else.` : "That's you. Tap where you want to be.") : denied ? "Tap a neighborhood." : "Tap a neighborhood, or"}
+        </p>
+        {!me && !denied && (
+          <button
+            type="button"
+            onClick={() => {
+              setAsking(true);
+              locate("ask").then(found);
+            }}
+            className="pressable flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[12.5px] font-medium"
+            style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)", color: "var(--ink)" }}
+            data-use-location
+          >
+            <span className="block h-2.5 w-2.5 rounded-full" style={{ background: "#1f6fe0", boxShadow: "0 0 0 3px rgba(31,111,224,0.22)" }} aria-hidden />
+            {asking ? "Finding you…" : "Use where I am"}
+          </button>
+        )}
+      </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {step.options.map((o) => (
           <button

@@ -30,14 +30,6 @@ It's the place for the night that has no plan: someone's coming from work, someo
 
 Beer and a burger is the correct order. The corner table is the correct table. If you see it open, take it and text the group the address.`,
   },
-  clems: {
-    rank: 5,
-    story: `A proper dive on a corner that gets busy for the right reasons: it's cheap, it's easy, and it's open late. Nobody is dressed up. The jukebox is doing more work than any DJ within a mile.
-
-This is the second stop, the "let's just go somewhere" stop, the place a night out gets a second wind. A group of five can find a stretch of bar without a fight, and the backyard-ish situation in warmer months takes the pressure off.
-
-If you want to sit, come before eleven. If you want the night to get a little unhinged, come after.`,
-  },
   "thai-diner": {
     rank: 6,
     story: `The rare restaurant that's a full night out on its own. Loud in a good way, colorful, a menu you'll argue about, and a crowd that looks like it walked over from three different parties.

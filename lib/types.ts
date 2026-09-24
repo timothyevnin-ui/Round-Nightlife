@@ -8,8 +8,6 @@ export type NeighborhoodId =
   | "soho-nolita"
   | "tribeca"
   | "chelsea"
-  | "williamsburg"
-  | "greenpoint"
   | "murray-hill";
 
 export type GroupBucket = "two" | "small" | "mid" | "big"; // 2 · 3–4 · 5–7 · 8+
@@ -105,6 +103,8 @@ export function vibeOf(v: Pick<Venue, "attrs">) {
 
 export type NightQuery = {
   neighborhood: NeighborhoodId;
+  /** Where the person is standing, when they allowed it: the walk is measured from here if it's in or by the neighborhood. */
+  me?: { lat: number; lng: number };
   group: number; // 2..11 (11 = 11+)
   hour: number; // 24h, may be 24+ for after midnight
   dow: number; // 0..6
@@ -115,6 +115,8 @@ export type NightQuery = {
 
 export type DateQuery = {
   neighborhood: NeighborhoodId;
+  /** Where the person is standing, when they allowed it: the walk is measured from here if it's in or by the neighborhood. */
+  me?: { lat: number; lng: number };
   stage: DateStage;
   dinner: boolean;
   hour: number;
@@ -126,6 +128,8 @@ export type DateQuery = {
 /** Dinner and drinks for a group: a restaurant that fits everyone, then a bar nearby. */
 export type DinnerQuery = {
   neighborhood: NeighborhoodId;
+  /** Where the person is standing, when they allowed it: the walk is measured from here if it's in or by the neighborhood. */
+  me?: { lat: number; lng: number };
   group: number;
   hour: number;
   dow: number;
@@ -140,6 +144,8 @@ export type NightPick = {
   label: PickLabel;
   score: number;
   why: string;
+  /** The walk, when it's worth saying: "8 min into SoHo", "6 min walk". */
+  far?: string;
 };
 
 export type DatePlan = {
@@ -151,4 +157,6 @@ export type DatePlan = {
   drinksAt: number;
   walkMinutes?: number;
   why: string;
+  /** The walk to the first stop, when it's worth saying. */
+  far?: string;
 };

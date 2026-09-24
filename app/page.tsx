@@ -1,6 +1,7 @@
 import { TabBar } from "@/components/TabBar";
 import { HomeHero } from "@/components/HomeHero";
 import { HotShelf } from "@/components/HotShelf";
+import { InstallHint } from "@/components/InstallHint";
 import { getVenues } from "@/lib/db";
 import { hotVenues } from "@/lib/hot";
 
@@ -12,6 +13,7 @@ export default async function Home() {
     <main className="screen screen-with-tabs mx-auto w-full max-w-md">
       <HomeHero hotCount={hot.length} />
       <HotShelf venues={hot.slice(0, 6)} />
+      <InstallHint />
       <TabBar />
     </main>
   );

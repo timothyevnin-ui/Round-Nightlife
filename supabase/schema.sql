@@ -471,4 +471,11 @@ create view public.people with (security_invoker = false) as
   select id, name, is_public, avatar_url, hometown, fav_bar, fav_bar_slug from public.profiles;
 grant select on public.people to authenticated;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V24. Manhattan only, for now: anything in Williamsburg or Greenpoint goes
+-- to "not for ROUND" (Studio can bring a place back). Hours arrive through
+-- Studio → Update from seed, never through SQL.
+update public.venues set retired = true
+  where neighborhood in ('williamsburg', 'greenpoint') and retired = false;
+
 -- Later phases (plans, census) add their tables here.

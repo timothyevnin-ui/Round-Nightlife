@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Wordmark } from "@/components/Wordmark";
 import { Photo } from "@/components/Photo";
 import { GoButton, SaveButton } from "@/components/Actions";
+import { DisagreeButton } from "@/components/DisagreeSheet";
 import { LabelChip } from "@/components/VenueCard";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { decodePlan } from "@/lib/plan";
@@ -89,6 +90,10 @@ export default async function PlanPage({ params }: PageProps<"/p/[code]">) {
                   <GoButton venue={s.restaurant} className="flex-1" />
                   <SaveButton slug={s.restaurant.slug} />
                 </div>
+                <div className="mt-2.5 flex flex-wrap gap-2">
+                  <DisagreeButton venue={s.restaurant} />
+                  <DisagreeButton venue={s.bar} />
+                </div>
               </div>
             ) : (
               <>
@@ -111,6 +116,7 @@ export default async function PlanPage({ params }: PageProps<"/p/[code]">) {
                     <GoButton venue={s.bar} className="flex-1" />
                     <SaveButton slug={s.bar.slug} />
                   </div>
+                  <DisagreeButton venue={s.bar} className="mt-2.5" />
                 </div>
               </>
             )}

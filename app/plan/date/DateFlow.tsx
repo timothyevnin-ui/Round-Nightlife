@@ -19,6 +19,7 @@ export function DateFlow() {
     const params = new URLSearchParams({ m: "date", n: a.n, s: a.s, dn: a.dn, t: a.t, d: String(dow) });
     const w = encodeWants(wants);
     if (w) params.set("w", w);
+    if (a.me) params.set("me", a.me);
     if ((wants.new ?? 0) > 0) {
       const been = Object.keys(state.been);
       if (been.length) params.set("b", been.join(","));

@@ -121,7 +121,7 @@ function Yours({ venues }: { venues: Venue[] }) {
             {enabled ? `Hi, ${first}.` : "You"}
           </h1>
           {subline && (
-            <p className="mt-1 truncate text-[12.5px]" style={{ color: "var(--ink-55)" }} data-about-lines>
+            <p className="mt-1 text-[12.5px] leading-snug" style={{ color: "var(--ink-55)" }} data-about-lines>
               {subline}
             </p>
           )}

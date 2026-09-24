@@ -67,6 +67,83 @@ export function openNow(hours: Hours | undefined, now = new Date()): boolean | n
   return within(hours[wd], t) || within(hours[(wd + 6) % 7], t + 24);
 }
 
+const withinSpan = (d: DayHours, t: number) => {
+  if (!d) return false;
+  const o = toDecimal(d.open);
+  let c = toDecimal(d.close);
+  if (c <= o) c += 24;
+  return t >= o && t < c;
+};
+
+/**
+ * Open at a given hour on the night of `dow`? Plans use hours 11–28: 25 is
+ * 1am, still "tonight", and reads off that day's posted hours (a 5pm–2am
+ * Friday covers 25 on Friday). Null when hours are unknown.
+ */
+export function openAt(hours: Hours | undefined, dow: number, hour: number): boolean | null {
+  if (!hours) return null;
+  const d = ((dow % 7) + 7) % 7;
+  if (hour >= 24) return withinSpan(hours[d], hour) || withinSpan(hours[(d + 1) % 7], hour - 24);
+  return withinSpan(hours[d], hour) || withinSpan(hours[(d + 6) % 7], hour + 24);
+}
+
+/** When the span that covers `hour` closes (decimal, may be ≥ 24), or null if not open then. */
+export function closesAt(hours: Hours | undefined, dow: number, hour: number): number | null {
+  if (!hours) return null;
+  const d = ((dow % 7) + 7) % 7;
+  const closeOf = (x: DayHours, offset: number) => {
+    if (!x) return null;
+    const o = toDecimal(x.open) + offset;
+    let c = toDecimal(x.close) + offset;
+    if (c <= o) c += 24;
+    return hour >= o && hour < c ? c : null;
+  };
+  return closeOf(hours[d], 0) ?? closeOf(hours[(d + 6) % 7], -24) ?? closeOf(hours[(d + 1) % 7], 24);
+}
+
+/** The next opening later the same night, when it's closed at `hour` but opens after. */
+export function opensAt(hours: Hours | undefined, dow: number, hour: number): number | null {
+  if (!hours) return null;
+  const x = hours[((dow % 7) + 7) % 7];
+  if (!x) return null;
+  const o = toDecimal(x.open);
+  return o > hour ? o : null;
+}
+
+/** 25.5 → "1:30am", 2 → "2am": for hours that may run past midnight. */
+export function fmtHour(h: number): string {
+  const d = ((h % 24) + 24) % 24;
+  const hh = Math.floor(d);
+  const m = Math.round((d - hh) * 60);
+  const h12 = hh % 12 === 0 ? 12 : hh % 12;
+  return `${h12}${m ? `:${String(m).padStart(2, "0")}` : ""}${hh < 12 ? "am" : "pm"}`;
+}
+
+export type OpenWord = { state: "open" | "later" | "closed"; text: string };
+
+/**
+ * One phrase for a row or a card: "Open till 2am", "Opens 5pm", "Closed
+ * tonight" (or "Closed Mondays" when the night isn't today). Null when hours
+ * are unknown, so nothing is claimed.
+ */
+export function openWord(hours: Hours | undefined, dow: number, hour: number, tonight = true): OpenWord | null {
+  if (!hours) return null;
+  const close = closesAt(hours, dow, hour);
+  if (close !== null) return { state: "open", text: `Open till ${fmtHour(close)}` };
+  const opens = opensAt(hours, dow, hour);
+  if (opens !== null) return { state: "later", text: `Opens ${fmtHour(opens)}` };
+  return { state: "closed", text: tonight ? "Closed tonight" : `Closed ${DAY_LONG[((dow % 7) + 7) % 7]}s` };
+}
+
+/** The hour right now in New York on the 11–28 scale (1am → 25), and the night's weekday. */
+export function nowInNewYork(now = new Date()): { hour: number; dow: number } {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "numeric", hour12: false }).formatToParts(now);
+  const h = Number(parts.find((p) => p.type === "hour")?.value ?? 0) % 24;
+  const m = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+  const t = h + m / 60;
+  return { hour: h < 5 ? t + 24 : t, dow: nightDayIndex(now) };
+}
+
 /** Group identical consecutive days: "Mon–Thu 5pm–2am · Fri–Sat 5pm–4am · Sun Closed". */
 export function weekSummary(hours: Hours): string {
   const out: string[] = [];

@@ -60,26 +60,6 @@ export const SHAPES: Record<NeighborhoodId, LngLat[]> = {
     [-73.968, 40.7478], // 42nd & the river
     [-73.9735, 40.7284], // 14th & the river
   ],
-  williamsburg: [
-    [-73.9615, 40.7255], // Bushwick Inlet
-    [-73.9545, 40.7212], // McCarren Park, Bedford & N 12th
-    [-73.947, 40.719], // Meeker & the BQE
-    [-73.9425, 40.712], // BQE & Metropolitan
-    [-73.9475, 40.703], // Broadway & Flushing
-    [-73.9625, 40.7095], // Williamsburg Bridge
-    [-73.9675, 40.7145], // Domino Park
-    [-73.9645, 40.72],
-  ],
-  greenpoint: [
-    [-73.9615, 40.7255], // Bushwick Inlet
-    [-73.9545, 40.7212], // McCarren Park corner
-    [-73.9495, 40.7245], // Nassau & Manhattan Ave
-    [-73.9425, 40.7265], // Nassau & the BQE
-    [-73.939, 40.733], // Newtown Creek, Kingsland
-    [-73.9485, 40.7378], // Newtown Creek
-    [-73.9605, 40.7372], // the north tip
-    [-73.9615, 40.7305], // Transmitter Park
-  ],
 };
 
 /** Ray casting: is the point inside the polygon? */

@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { after, NextResponse } from "next/server";
 import { logEvent } from "@/lib/events";
-import { interpretPrompt, interpretText, type Interpretation } from "@/lib/interpret";
+import { findOutside, interpretPrompt, interpretText, type Interpretation } from "@/lib/interpret";
 import { isNeighborhoodId } from "@/lib/neighborhoods";
 import { ATTR_KEYS } from "@/lib/attrs";
 import { getVenues } from "@/lib/db";
@@ -54,7 +54,7 @@ function spotInText(text: string): string | undefined {
   if (!m) return undefined;
   const spot = m[1].trim().replace(/\s+(st|street|ave|avenue)\.?$/i, (x) => x);
   // Neighborhood names are handled by the neighborhood pass, not the geocoder.
-  if (/^(the )?(west village|east village|village|les|lower east side|soho|nolita|tribeca|chelsea|williamsburg|greenpoint|murray hill|kips bay|city|bar|bars|restaurant)$/i.test(spot)) return undefined;
+  if (/^(the )?(west village|east village|village|les|lower east side|soho|nolita|tribeca|chelsea|murray hill|kips bay|city|bar|bars|restaurant)$/i.test(spot)) return undefined;
   return spot.length >= 3 ? spot : undefined;
 }
 
@@ -63,6 +63,12 @@ function spotInText(text: string): string | undefined {
  * otherwise. POST { text, peek: true } is the live "ROUND hears" strip while
  * someone is still typing: keywords only, no model, no geocoder, no log.
  */
+/** The model said they named somewhere ROUND doesn't cover: our own word list first, its label as a fallback. */
+function modelOutside(raw: unknown, hasHood: boolean, text: string): Interpretation["outside"] {
+  if (hasHood || typeof raw !== "string" || !raw.trim()) return undefined;
+  return findOutside(text) ?? { label: raw.trim().slice(0, 20), nearest: "east-village" };
+}
+
 export async function POST(req: Request) {
   let text = "";
   let peek = false;
@@ -106,7 +112,7 @@ export async function POST(req: Request) {
         messages: [{ role: "user", content: interpretPrompt(text, forMatch) }],
       });
       const out = res.content.map((c) => (c.type === "text" ? c.text : "")).join("");
-      return { model, json: JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as Partial<Omit<Interpretation, "venue" | "place">> & { venue?: string | null; near?: boolean; place?: unknown } };
+      return { model, json: JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) as Partial<Omit<Interpretation, "venue" | "place">> & { venue?: string | null; near?: boolean; place?: unknown; outside?: unknown } };
     };
     let got: Awaited<ReturnType<typeof ask>>;
     try {
@@ -139,7 +145,9 @@ export async function POST(req: Request) {
       venue,
       near,
       place: venue ? undefined : await settlePlace(text, nycPoint(json.place), forMatch),
+      outside: keyword.outside ?? modelOutside(json.outside, isNeighborhoodId(json.neighborhood), text),
     };
+    if (merged.outside && !merged.neighborhood && !merged.understood.some((u) => /not yet/i.test(u))) merged.understood = [`${merged.outside.label}: not yet`, ...merged.understood].slice(0, 7);
     if (venue && !isNeighborhoodId(json.neighborhood)) merged.neighborhood = venue.neighborhood;
     if (venue && !merged.understood.some((u) => u.toLowerCase().includes(venue.name.toLowerCase()))) merged.understood = [near ? `near ${venue.name}` : venue.name, ...merged.understood].slice(0, 7);
     if (merged.place && !merged.understood.some((u) => u.toLowerCase().includes(merged.place!.label.toLowerCase()))) merged.understood = [`near ${merged.place.label}`, ...merged.understood].slice(0, 7);

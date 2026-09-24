@@ -235,6 +235,15 @@ body:has([data-pitch]) .tabbar-item[aria-current="page"] { color: var(--paper); 
 .round-marker[data-kind="been"] {
   width: 16px; height: 16px; background: #16213a; border: 2px solid #f3ede0;
 }
+/* The Spots map: every pin big enough for a thumb, restaurants a shade warmer, the open one on top. */
+.round-marker[data-size="big"] { width: 18px; height: 18px; background: rgba(22, 33, 58, 0.62); border-width: 2px; box-shadow: 0 1px 4px rgba(22, 33, 58, 0.25); }
+[data-zoom="far"] .round-marker[data-size="big"] { width: 13px; height: 13px; border-width: 1.5px; }
+.round-marker[data-size="big"][data-what="restaurant"] { background: rgba(138, 106, 42, 0.78); }
+.round-marker[data-size="big"][data-kind="saved"] { width: 22px; height: 22px; background: #d9482b; }
+.round-marker[data-size="big"][data-kind="been"] { width: 20px; height: 20px; background: #16213a; }
+.round-marker[data-selected="1"] { transform: scale(1.45); z-index: 5; background: #d9482b; box-shadow: 0 0 0 5px rgba(217, 72, 43, 0.25); }
+.round-marker[data-selected="1"]:active { transform: scale(1.35); }
+.maplibregl-marker:has(.round-marker[data-selected="1"]) { z-index: 5; }
 
 /* The evening dial (a range input with a filled track) */
 .dial {
