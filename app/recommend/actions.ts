@@ -4,7 +4,9 @@ import { dbConfig } from "@/lib/db";
 import { isNeighborhoodId } from "@/lib/neighborhoods";
 import { insertSuggestion, type SuggestionAnswers } from "@/lib/suggestions";
 import { ATTR_KEYS } from "@/lib/attrs";
+import { ASKS, type Ask } from "@/lib/askQuestions";
 import { clamp01 } from "@/lib/normalize";
+import { whoami } from "@/lib/whoami";
 import type { Attrs } from "@/lib/types";
 
 export type RecommendPayload = {
@@ -16,6 +18,12 @@ export type RecommendPayload = {
   answers: SuggestionAnswers;
   fromName?: string;
   fromContact?: string;
+  /** The typed answers (V20). */
+  words?: Partial<Record<Ask["key"], string>>;
+  /** Their Venmo, for the $2 (V20). */
+  venmo?: string;
+  /** The session's access token, so the recommendation is tied to the account that gets paid. */
+  token?: string;
   /** Honeypot. Humans never see it; bots fill it. */
   website?: string;
 };
@@ -23,6 +31,7 @@ export type RecommendPayload = {
 export type RecommendResult = { ok: true } | { ok: false; error: string };
 
 const cut = (s: unknown, n: number) => (typeof s === "string" ? s.trim().slice(0, n) : "");
+const accountsOn = () => !!(process.env.NEXT_PUBLIC_SUPABASE_URL && (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY));
 
 /** Anyone can call this. It only ever writes one row, capped and cleaned. */
 export async function submitRecommendation(p: RecommendPayload): Promise<RecommendResult> {
@@ -45,6 +54,16 @@ export async function submitRecommendation(p: RecommendPayload): Promise<Recomme
       dateFit: typeof p.answers?.dateFit === "number" ? clamp01(p.answers.dateFit, 0.5) : undefined,
       said: Array.isArray(p.answers?.said) ? p.answers.said.map((s) => cut(s, 80)).filter(Boolean).slice(0, 20) : [],
     };
+    const words: NonNullable<SuggestionAnswers["words"]> = {};
+    for (const a of ASKS) {
+      const v = cut(p.words?.[a.key], 800);
+      if (v) words[a.key] = v;
+    }
+    if (Object.keys(words).length) answers.words = words;
+    const venmo = cut(p.venmo, 40).replace(/^@+/, "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 30) || undefined;
+    // Adding a spot takes an account: the token says who. (Without accounts configured at all, anyone can.)
+    const me = await whoami(p.token);
+    if (!me && accountsOn()) return { ok: false, error: "Sign in to add a spot: your number, a code, done." };
 
     await insertSuggestion({
       name,
@@ -55,6 +74,8 @@ export async function submitRecommendation(p: RecommendPayload): Promise<Recomme
       answers,
       fromName: cut(p.fromName, 60) || undefined,
       fromContact: cut(p.fromContact, 80) || undefined,
+      userId: me?.id,
+      venmo,
     });
     return { ok: true };
   } catch (e) {

@@ -58,12 +58,18 @@ function spotInText(text: string): string | undefined {
   return spot.length >= 3 ? spot : undefined;
 }
 
-/** POST { text } → an Interpretation. Claude when a key is set, keywords otherwise. */
+/**
+ * POST { text } → an Interpretation. Claude when a key is set, keywords
+ * otherwise. POST { text, peek: true } is the live "ROUND hears" strip while
+ * someone is still typing: keywords only, no model, no geocoder, no log.
+ */
 export async function POST(req: Request) {
   let text = "";
+  let peek = false;
   try {
-    const body = (await req.json()) as { text?: string };
+    const body = (await req.json()) as { text?: string; peek?: boolean };
     text = (body.text ?? "").toString().slice(0, 400);
+    peek = body.peek === true;
   } catch {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
@@ -72,6 +78,7 @@ export async function POST(req: Request) {
   const venues = await getVenues();
   const forMatch = venues.map((v) => ({ slug: v.slug, name: v.name, neighborhood: v.neighborhood, lat: v.lat, lng: v.lng }));
   const keyword = interpretText(text, forMatch);
+  if (peek) return NextResponse.json({ interpretation: keyword, engine: "peek" });
   const key = process.env.ANTHROPIC_API_KEY;
   const log = (i: Interpretation, engine: string) =>
     after(() => logEvent({ kind: "sayit", q: text, slug: i.venue?.slug ?? null, data: { engine, mode: i.mode, neighborhood: i.neighborhood ?? null, near: !!i.near, place: i.place?.label ?? null, wants: Object.keys(i.wants), understood: i.understood } }));

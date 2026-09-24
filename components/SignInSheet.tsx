@@ -18,6 +18,8 @@ const COPY: Record<SignInReason, { title: string; sub: string }> = {
   rate: { title: "Keep your ladder.", sub: "Your ratings are the start of your ranked NYC. Don't lose them to a new phone." },
   menu: { title: "Sign in.", sub: "Your number, a code, done." },
   friends: { title: "Find your friends.", sub: "Your number is how they find you, and how you find them. One text, a code, done." },
+  recommend: { title: "Add your number so we can pay you.", sub: "One text, a code. Then your Venmo, and the $2 is yours when we add the place." },
+  spot: { title: "Adding a spot takes an account.", sub: "One text, a code, done. It's how we know who's telling us what, and who to thank." },
 };
 
 type Step = "phone" | "code" | "profile" | "about" | "done";
@@ -148,7 +150,8 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
     setBusy(false);
     if (err) return setError(err);
     // First time in: a few quick ones (photo, where you're from, favorites). Every one skippable.
-    setStep("about");
+    // Mid-recommendation, they have a Venmo to type; the quick ones can wait for YOU.
+    setStep(reason === "recommend" || reason === "spot" ? "done" : "about");
   };
 
   if (underage) {

@@ -33,7 +33,7 @@ export type Profile = {
 export type About = Pick<Profile, "hometown" | "fav_bar" | "fav_bar_slug" | "fav_restaurant" | "fun" | "avatar_url">;
 const ABOUT_COLUMNS = "hometown,fav_bar,fav_bar_slug,fav_restaurant,fun,avatar_url";
 
-export type SignInReason = "keep" | "you" | "rate" | "menu" | "friends";
+export type SignInReason = "keep" | "you" | "rate" | "menu" | "friends" | "recommend" | "spot";
 
 export type AuthState = {
   /** False when the app runs without a database: every sign-in surface hides itself. */
