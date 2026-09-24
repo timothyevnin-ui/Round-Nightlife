@@ -105,6 +105,10 @@ Run the current `supabase/schema.sql` again (safe to re-run). It adds the about-
 
 Run the current `supabase/schema.sql` again. It adds a small `settings` table and a row that turns the gate **on**: from then on the app shows only places someone from ROUND has verified. The Studio dashboard has the switch if you ever want everything to show. Until the SQL is run, everything shows, as before.
 
+## 10. The verify sprint (V17): "Not for ROUND"
+
+Run the current `supabase/schema.sql` again. It adds a `retired` column to `venues`: the sprint's **Not for ROUND** button. Until it's run, that button appears to work but the place comes back on the next load (the dashboard's health check names the missing column); **Been** and **Skip** need nothing new.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

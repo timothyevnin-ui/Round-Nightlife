@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 /** The blog: what's on the shelf, what's written, and a way to start a new one. */
 export default async function StoriesPage() {
   await requireAdmin();
-  const { venues } = await getVenuesWithSource();
+  const { venues: every } = await getVenuesWithSource();
+  const venues = every.filter((v) => !v.retired);
   const shelf = hotVenues(venues);
   const written = venues.filter((v) => v.story && !v.hot).sort((a, b) => a.name.localeCompare(b.name));
   const options = venues.map((v) => ({ slug: v.slug, name: v.name, hood: neighborhoodName(v.neighborhood) })).sort((a, b) => a.name.localeCompare(b.name));

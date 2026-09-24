@@ -72,6 +72,7 @@ export type VenueRow = {
   perk: string | null;
   group_booking: Venue["groupBooking"] | null;
   verified: boolean;
+  retired?: boolean | null;
   notes: string | null;
   sources: string[] | null;
   hot: boolean | null;
@@ -128,6 +129,7 @@ export function rowToVenue(r: VenueRow): Venue | null {
     perk: r.perk ?? undefined,
     groupBooking: r.group_booking ?? undefined,
     verified: !!r.verified,
+    retired: !!r.retired,
     notes: r.notes ?? undefined,
     sources: r.sources ?? undefined,
     hot: !!r.hot,
@@ -166,6 +168,7 @@ export function venueToRow(v: Venue): VenueRow {
     perk: v.perk ?? null,
     group_booking: v.groupBooking ?? null,
     verified: v.verified,
+    retired: !!v.retired,
     notes: v.notes ?? null,
     sources: v.sources ?? null,
     hot: !!v.hot,
@@ -226,18 +229,19 @@ function withNewSeed(fromDb: Venue[]): Venue[] {
 /**
  * What the app shows. With the verified-only switch on (the default), that's
  * only the places someone from ROUND has been: results, search, the shelf,
- * the maps and the picker's catalog all read from here. The Studio reads
+ * the maps and the picker's catalog all read from here. A place ROUND passed
+ * on ("not for ROUND") never shows, switch or no switch. The Studio reads
  * everything (getVenuesFresh / getVenuesWithSource).
  */
 export async function getVenues(): Promise<Venue[]> {
   const { venues } = await getVenuesWithSource();
   const { verifiedOnly } = await getSettings();
-  return verifiedOnly ? venues.filter((v) => v.verified) : venues;
+  return venues.filter((v) => !v.retired && (!verifiedOnly || v.verified));
 }
 
-/** Every place, verified or not: for a venue page reached by its link, and for the Studio. */
+/** Every place, verified or not (never the passed-on ones): for a venue page reached by its link, and for the Studio's lists. */
 export async function getAllVenues(): Promise<Venue[]> {
-  return (await getVenuesWithSource()).venues;
+  return (await getVenuesWithSource()).venues.filter((v) => !v.retired);
 }
 
 /**
@@ -251,8 +255,9 @@ export async function getVenuesFresh(): Promise<{ venues: Venue[]; source: Venue
   return { venues: SEED_VENUES, source: "seed" };
 }
 
+/** One place by its slug, passed-on ones included (the editor needs them; the public page 404s those itself). */
 export async function getVenue(slug: string): Promise<Venue | undefined> {
-  return (await getAllVenues()).find((v) => v.slug === slug);
+  return (await getVenuesWithSource()).venues.find((v) => v.slug === slug);
 }
 
 /* ───────────────────────── writes (service role, server only) ───────────────────────── */

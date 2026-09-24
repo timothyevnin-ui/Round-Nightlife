@@ -81,6 +81,12 @@ export type Venue = {
   groupBooking?: { maxGroup: number; minSpend?: number; contact?: string };
   /** Seed data is unverified until a human has been and says yes. */
   verified: boolean;
+  /**
+   * "Not for ROUND": someone from ROUND knows the place and passed on it.
+   * Hidden everywhere, left out of the verify sprint, and the seed sync
+   * never refreshes or un-passes it. Undone from Studio → Places.
+   */
+  retired?: boolean;
   /** Private notes from the back office (never rendered publicly). */
   notes?: string;
   sources?: string[];

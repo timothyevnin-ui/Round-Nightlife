@@ -44,8 +44,9 @@ export default async function Dashboard() {
     waiting = w;
   }
 
-  const verified = venues.filter((v) => v.verified).length;
-  const hot = venues.filter((v) => v.hot).length;
+  const live = venues.filter((v) => !v.retired);
+  const verified = live.filter((v) => v.verified).length;
+  const hot = live.filter((v) => v.hot).length;
   const goTop = countBy(taps, (t) => t.slug, 8);
   const viewTop = topBySlug(ev, "view", 8);
   const saveTop = topBySlug(ev, "save", 8);
@@ -94,7 +95,7 @@ export default async function Dashboard() {
     <main className="screen pb-16 pt-6">
       <p className="eyebrow">ROUND Studio</p>
       <h1 className="serif mt-1" style={{ fontSize: 38, lineHeight: 1.02 }}>
-        {venues.length} places.
+        {live.length} places.
         <br />
         <span style={{ color: "var(--ink-55)" }}>
           {verified} verified · {hot} on the shelf.
@@ -129,7 +130,7 @@ export default async function Dashboard() {
         </span>
       </div>
 
-      <VerifiedGate on={settings.verifiedOnly} verified={verified} total={venues.length} writable={writable} />
+      <VerifiedGate on={settings.verifiedOnly} verified={verified} total={live.length} writable={writable} />
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} />
 

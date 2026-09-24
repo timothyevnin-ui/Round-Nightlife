@@ -31,7 +31,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/v/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const v = await getVenue(slug);
-  if (!v) return { title: "ROUND" };
+  if (!v || v.retired) return { title: "ROUND" };
   const title = `${v.name} · ${neighborhoodName(v.neighborhood)}`;
   return {
     title: v.name,
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps<"/v/[slug]">): Prom
 export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
   const { slug } = await params;
   const v = await getVenue(slug);
-  if (!v) notFound();
+  if (!v || v.retired) notFound(); // passed on ("not for ROUND"): gone from the app, kept in Studio
   const shareCode = encodePlan({ m: "night", n: v.neighborhood, t: 21, s: [{ bar: v.slug }] });
   const [all, crowd] = await Promise.all([getVenues(), crowdScores([v.slug])]);
   const names: Record<string, string> = Object.fromEntries(all.map((x) => [x.slug, x.name]));

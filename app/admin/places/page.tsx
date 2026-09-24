@@ -15,6 +15,7 @@ export default async function PlacesPage() {
     kind: v.kind,
     price: v.price,
     verified: v.verified,
+    retired: !!v.retired,
     hot: !!v.hot,
     hotRank: v.hotRank ?? null,
     story: !!v.story,

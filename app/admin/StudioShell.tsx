@@ -15,6 +15,7 @@ import { logout } from "./actions";
 const NAV: { href: string; label: string; hint: string; wide?: boolean }[] = [
   { href: "/admin", label: "Dashboard", hint: "What's happening", wide: true },
   { href: "/admin/places", label: "Places", hint: "Every bar and restaurant", wide: true },
+  { href: "/admin/verify", label: "Verify", hint: "One place at a time" },
   { href: "/admin/stories", label: "Stories", hint: "The blog and the shelf" },
   { href: "/admin/suggestions", label: "Recommendations", hint: "What people sent in" },
   { href: "/admin/people", label: "People", hint: "Accounts", wide: true },

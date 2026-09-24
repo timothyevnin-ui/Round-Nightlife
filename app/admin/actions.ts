@@ -152,6 +152,7 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       perk: p.perk?.trim() || existing?.perk,
       groupBooking: existing?.groupBooking,
       verified: !!p.verified,
+      retired: existing?.retired && !p.verified ? true : false,
       sources: existing?.sources,
       hot: !!p.hot,
       hotRank: Number.isFinite(Number(p.hotRank)) && p.hotRank !== null && p.hotRank !== undefined ? Number(p.hotRank) : undefined,
@@ -224,7 +225,7 @@ export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: 
         added++;
         continue;
       }
-      if (db.verified) {
+      if (db.verified || db.retired) {
         kept++;
         continue;
       }
@@ -335,6 +336,8 @@ export type ReadWordsInput = {
   take: string;
   theCatch: string;
   notes: string;
+  /** How the words arrived, for the log line: "read my words" (the editor) or "verify sprint". */
+  source?: "read my words" | "verify sprint";
   existing: {
     tags: string[];
     attrs: Partial<Attrs>;
@@ -473,12 +476,118 @@ export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: Read
 
     // The log: what was said, as said, and what it taught, dated.
     const when = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
-    const said = [rawTake && `Take, as said: ${rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
-    const entry = `— ${when} · read my words\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
+    const sprint = input.source === "verify sprint";
+    const said = [rawTake && `${sprint ? "As said" : "Take, as said"}: ${rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
+    const entry = `— ${when} · ${sprint ? "verify sprint" : "read my words"}\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
     patch.notes = `${rawNotes ? rawNotes + "\n\n" : ""}${entry}`.slice(0, 8000);
     return { patch };
   } catch (e) {
     return { error: e instanceof Error ? `Couldn't read that: ${e.message}` : "Couldn't read that." };
+  }
+}
+
+/* ───────────────────────── the verify sprint ───────────────────────── */
+
+const NY_DATE = () => new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
+
+/** The Read-my-words patch, laid onto a place (the same merge the editor does). */
+function applyWords(v: Venue, p: ReadWordsPatch): Venue {
+  return {
+    ...v,
+    take: p.take ?? v.take,
+    theCatch: p.theCatch ?? v.theCatch,
+    tags: p.tags ?? v.tags,
+    attrs: { ...v.attrs, ...(p.attrs ?? {}) },
+    kind: p.kind ?? v.kind,
+    barFood: p.barFood ?? v.barFood,
+    cuisine: p.cuisine ?? v.cuisine,
+    price: (p.price ?? v.price) as Venue["price"],
+    capacity: p.capacity ?? v.capacity,
+    easyIn: p.easyIn ?? v.easyIn,
+    groupFit: p.groupFit ?? v.groupFit,
+    dateFit: p.dateFit ?? v.dateFit,
+    hours: p.hours ?? v.hours,
+    dayDeal: p.dayDeal ?? v.dayDeal,
+    score: p.score ?? v.score,
+    notes: p.notes,
+  };
+}
+
+export type SprintResult = { ok: true; slug: string; learned?: string; changed?: string[]; readError?: string } | { ok: false; error: string };
+
+/**
+ * One tap in the sprint: "Been — it's ROUND." The place goes verified (live
+ * within a minute when the gate is on), the score you tapped sticks, and if
+ * you said anything Claude reads it into every field the words support and
+ * logs it in the notes, dated. If the reading fails (no key, a timeout), the
+ * place is still verified and your words are still logged, as said, so
+ * nothing you typed is lost; you can Read my words in the editor later.
+ */
+export async function sprintVerify(input: { slug: string; words?: string; score?: number | null }): Promise<SprintResult> {
+  try {
+    await guard();
+    const { venues, source } = await getVenuesFresh();
+    if (source !== "db") return { ok: false, error: "Connect the database first (Studio → Dashboard)." };
+    const v = venues.find((x) => x.slug === input.slug);
+    if (!v) return { ok: false, error: "That place isn't in the database." };
+    const words = (input.words ?? "").replace(/\s+/g, " ").trim().slice(0, 1200);
+    const score = typeof input.score === "number" && Number.isFinite(input.score) ? Math.max(0, Math.min(100, Math.round(input.score))) : undefined;
+    let next: Venue = { ...v, verified: true, retired: false, ...(score !== undefined ? { score } : {}) };
+    let learned: string | undefined;
+    let changed: string[] | undefined;
+    let readError: string | undefined;
+    if (words.replace(/\W/g, "").length >= 12) {
+      const r = await readMyWords({
+        name: v.name,
+        neighborhood: v.neighborhood,
+        kind: v.kind,
+        barFood: v.barFood,
+        cuisine: v.cuisine ?? null,
+        take: words,
+        theCatch: "",
+        notes: v.notes ?? "",
+        source: "verify sprint",
+        existing: { tags: v.tags, attrs: v.attrs, price: v.price, capacity: v.capacity, easyIn: v.easyIn, groupFit: v.groupFit, dateFit: v.dateFit, hours: v.hours ?? null, dayDeal: v.dayDeal ?? null, score: score ?? v.score ?? null, verified: true },
+      });
+      if (r.patch) {
+        next = applyWords(next, r.patch);
+        if (score !== undefined) next.score = score; // the tap wins over anything read
+        learned = r.patch.learned || undefined;
+        changed = r.patch.changed;
+      } else {
+        readError = r.error ?? "Couldn't read that.";
+        next.notes = `${v.notes ? v.notes + "\n\n" : ""}— ${NY_DATE()} · verify sprint, as said: ${words}`.slice(0, 8000);
+      }
+    } else if (words) {
+      next.notes = `${v.notes ? v.notes + "\n\n" : ""}— ${NY_DATE()} · verify sprint, as said: ${words}`.slice(0, 8000);
+    }
+    await upsertVenues([next]);
+    updateTag(VENUES_TAG);
+    return { ok: true, slug: v.slug, learned, changed, readError };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't verify that." };
+  }
+}
+
+/**
+ * "Not for ROUND." The place is kept (with your reason in its notes, dated)
+ * but hidden everywhere and dropped from the sprint; the seed sync leaves it
+ * alone. Studio → Places → "Not for ROUND" lists them, with a way back.
+ */
+export async function sprintPass(input: { slug: string; words?: string }): Promise<SprintResult> {
+  try {
+    await guard();
+    const { venues, source } = await getVenuesFresh();
+    if (source !== "db") return { ok: false, error: "Connect the database first (Studio → Dashboard)." };
+    const v = venues.find((x) => x.slug === input.slug);
+    if (!v) return { ok: false, error: "That place isn't in the database." };
+    const words = (input.words ?? "").replace(/\s+/g, " ").trim().slice(0, 600);
+    const entry = `— ${NY_DATE()} · not for ROUND${words ? `: ${words}` : ""}`;
+    await upsertVenues([{ ...v, verified: false, hot: false, retired: true, notes: `${v.notes ? v.notes + "\n\n" : ""}${entry}`.slice(0, 8000) }]);
+    updateTag(VENUES_TAG);
+    return { ok: true, slug: v.slug };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't do that." };
   }
 }
 
@@ -811,13 +920,15 @@ export async function draftFromNotes(notes: string): Promise<{ draft?: DraftedPl
 
 /* ───────────────────────── Studio: flags and stories ───────────────────────── */
 
-/** Flip verified / on-the-shelf for one or many places, touching nothing else. */
-export async function setFlags(slugs: string[], patch: { verified?: boolean; hot?: boolean }): Promise<SaveResult> {
+/** Flip verified / on-the-shelf / not-for-ROUND for one or many places, touching nothing else. */
+export async function setFlags(slugs: string[], patch: { verified?: boolean; hot?: boolean; retired?: boolean }): Promise<SaveResult> {
   try {
     await guard();
     const { venues } = await getVenuesFresh();
     const set = new Set(slugs);
-    const changed = venues.filter((v) => set.has(v.slug)).map((v) => ({ ...v, ...(patch.verified !== undefined ? { verified: patch.verified } : {}), ...(patch.hot !== undefined ? { hot: patch.hot } : {}) }));
+    const changed = venues
+      .filter((v) => set.has(v.slug))
+      .map((v) => ({ ...v, ...(patch.verified !== undefined ? { verified: patch.verified } : {}), ...(patch.hot !== undefined ? { hot: patch.hot } : {}), ...(patch.retired !== undefined ? { retired: patch.retired } : {}) }));
     if (changed.length) await upsertVenues(changed);
     updateTag(VENUES_TAG);
     return { ok: true, slug: String(changed.length) };

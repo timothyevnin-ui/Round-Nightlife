@@ -421,4 +421,10 @@ create policy "settings are public" on public.settings for select using (true);
 -- The gate: only places verified by ROUND show in the app. On by default.
 insert into public.settings (key, value) values ('verified_only', 'true'::jsonb) on conflict (key) do nothing;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V17. "Not for ROUND." The verify sprint's third button: someone from ROUND
+-- knows the place and passed on it. Hidden everywhere, and the built-in list
+-- never refreshes or revives it. Undone from Studio → Places.
+alter table public.venues add column if not exists retired boolean not null default false;
+
 -- Later phases (plans, census) add their tables here.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { setVerifiedOnly } from "./actions";
 
@@ -30,6 +31,14 @@ export function VerifiedGate({ on, verified, total, writable }: { on: boolean; v
         ) : (
           <>
             {verified} verified, {total - verified} researched-and-unvisited, all showing.
+          </>
+        )}
+        {total - verified > 0 && (
+          <>
+            {" "}
+            <Link href="/admin/verify" className="pressable font-medium underline underline-offset-2" style={{ color: "var(--pine)" }} data-sprint-link>
+              Verify sprint: {total - verified} to go →
+            </Link>
           </>
         )}
         {err && (

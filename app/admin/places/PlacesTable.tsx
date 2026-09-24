@@ -14,6 +14,8 @@ export type PlaceRow = {
   kind: "bar" | "restaurant";
   price: number;
   verified: boolean;
+  /** "Not for ROUND": passed on in the verify sprint. Hidden everywhere; only the "Not for ROUND" filter lists it. */
+  retired: boolean;
   hot: boolean;
   hotRank: number | null;
   story: boolean;
@@ -29,7 +31,7 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
   const [q, setQ] = useState("");
   const [hood, setHood] = useState<string>("all");
   const [kind, setKind] = useState<"all" | "bar" | "restaurant">("all");
-  const [only, setOnly] = useState<"all" | "unverified" | "verified" | "hot" | "nophoto" | "story">("all");
+  const [only, setOnly] = useState<"all" | "unverified" | "verified" | "hot" | "nophoto" | "story" | "retired">("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "name", dir: 1 });
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [pending, start] = useTransition();
@@ -40,6 +42,7 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
     return rows
       .filter((r) => hood === "all" || r.neighborhood === hood)
       .filter((r) => kind === "all" || r.kind === kind)
+      .filter((r) => (only === "retired" ? r.retired : !r.retired))
       .filter((r) => (only === "unverified" ? !r.verified : only === "verified" ? r.verified : only === "hot" ? r.hot : only === "nophoto" ? !r.photo : only === "story" ? r.story : true))
       .filter((r) => !needle || r.name.toLowerCase().includes(needle) || r.tags.some((t) => t.toLowerCase().includes(needle)))
       .sort((a, b) => {
@@ -52,7 +55,7 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
   }, [rows, q, hood, kind, only, sort]);
 
   const toggleSort = (key: SortKey) => setSort((s) => (s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: 1 }));
-  const flag = (slugs: string[], patch: { verified?: boolean; hot?: boolean }) =>
+  const flag = (slugs: string[], patch: { verified?: boolean; hot?: boolean; retired?: boolean }) =>
     start(async () => {
       const r = await setFlags(slugs, patch);
       setMsg(r.ok ? `Updated ${r.slug}.` : r.error);
@@ -72,9 +75,14 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
             {list.length === rows.length ? `${rows.length} places.` : `${list.length} of ${rows.length}.`}
           </h1>
         </div>
-        <Link href="/admin/add" className="pressable btn-primary flex h-11 items-center px-5 text-[14px]">
-          + Add a place
-        </Link>
+        <span className="flex items-center gap-2">
+          <Link href="/admin/verify" className="pressable btn-pine flex h-11 items-center px-4 text-[14px]" data-verify-link>
+            Verify sprint
+          </Link>
+          <Link href="/admin/add" className="pressable btn-primary flex h-11 items-center px-5 text-[14px]">
+            + Add a place
+          </Link>
+        </span>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
@@ -99,6 +107,7 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
           <option value="hot">On the shelf</option>
           <option value="story">Has a story</option>
           <option value="nophoto">No photo</option>
+          <option value="retired">Not for ROUND</option>
         </select>
       </div>
 
@@ -117,6 +126,15 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
           <button onClick={() => flag([...picked], { hot: false })} disabled={pending} className="pressable btn-ghost h-9 px-3.5 text-[13px]">
             Take off the shelf
           </button>
+          {only === "retired" ? (
+            <button onClick={() => flag([...picked], { retired: false })} disabled={pending} className="pressable btn-ghost h-9 px-3.5 text-[13px]" data-bring-back>
+              Bring back
+            </button>
+          ) : (
+            <button onClick={() => flag([...picked], { retired: true, verified: false, hot: false })} disabled={pending} className="pressable btn-ghost h-9 px-3.5 text-[13px]" style={{ color: "var(--tomato)" }}>
+              Not for ROUND
+            </button>
+          )}
           <button onClick={() => setPicked(new Set())} className="pressable ml-auto text-[12.5px]" style={{ color: "var(--ink-35)" }}>
             Clear
           </button>
@@ -168,7 +186,13 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
                 <td>{"$".repeat(r.price)}</td>
                 <td className="max-w-[220px] truncate" style={{ color: "var(--ink-55)" }}>{r.tags.join(" · ")}</td>
                 <td>
-                  <Flag on={r.verified} onLabel="Verified" offLabel="Draft" disabled={!writable || pending} onClick={() => flag([r.slug], { verified: !r.verified })} tone="pine" />
+                  {r.retired ? (
+                    <button onClick={() => flag([r.slug], { retired: false })} disabled={!writable || pending} className="pressable text-[12.5px] underline-offset-2 hover:underline" style={{ color: "var(--tomato)" }}>
+                      Not for ROUND · bring back
+                    </button>
+                  ) : (
+                    <Flag on={r.verified} onLabel="Verified" offLabel="Draft" disabled={!writable || pending} onClick={() => flag([r.slug], { verified: !r.verified })} tone="pine" />
+                  )}
                 </td>
                 <td>
                   <Flag on={r.hot} onLabel={r.hotRank ? `#${r.hotRank}` : "On"} offLabel="Off" disabled={!writable || pending} onClick={() => flag([r.slug], { hot: !r.hot })} tone="tomato" />
@@ -206,7 +230,7 @@ export function PlacesTable({ rows, writable }: { rows: PlaceRow[]; writable: bo
             </Link>
             <span className="flex shrink-0 items-center gap-1.5">
               {r.hot && <Badge tone="tomato">Hot</Badge>}
-              <Badge tone={r.verified ? "pine" : "ink"}>{r.verified ? "Verified" : "Draft"}</Badge>
+              {r.retired ? <Badge tone="tomato">Not for ROUND</Badge> : <Badge tone={r.verified ? "pine" : "ink"}>{r.verified ? "Verified" : "Draft"}</Badge>}
             </span>
           </li>
         ))}
