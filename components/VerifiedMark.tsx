@@ -15,12 +15,16 @@ export function VerifiedMark({ size = 18, label = "Verified by ROUND", className
   );
 }
 
-/** The longer form for the venue page. */
-export function VerifiedLine({ verified }: { verified: boolean }) {
+/**
+ * The longer form for the venue page. Two ways a place earns the mark:
+ * someone from ROUND has been (bars, mostly), or ROUND's desk researched it
+ * from several sources and checked it (restaurants); the line says which.
+ */
+export function VerifiedLine({ verified, desk = false }: { verified: boolean; desk?: boolean }) {
   return verified ? (
-    <p className="mt-3 inline-flex items-center gap-2 rounded-full py-1 pl-1.5 pr-3 text-[12.5px] font-medium" style={{ background: "rgba(217,72,43,0.1)", color: "var(--tomato-deep, var(--tomato))" }} data-verified-line>
+    <p className="mt-3 inline-flex items-center gap-2 rounded-full py-1 pl-1.5 pr-3 text-[12.5px] font-medium" style={{ background: "rgba(217,72,43,0.1)", color: "var(--tomato-deep, var(--tomato))" }} data-verified-line={desk ? "desk" : "been"}>
       <VerifiedMark size={18} />
-      Verified. ROUND has been.
+      {desk ? "Checked by ROUND." : "Verified. ROUND has been."}
     </p>
   ) : (
     <p className="mt-3 text-[12.5px]" style={{ color: "var(--chalk-35)" }} data-unverified-line>
