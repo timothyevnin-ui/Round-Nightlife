@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
   { href: "/", label: "Home", icon: HomeIcon },
+  { href: "/spots", label: "Spots", icon: SpotsIcon },
   { href: "/friends", label: "Friends", icon: FriendsIcon },
   { href: "/you", label: "You", icon: YouIcon },
 ] as const;
@@ -26,7 +27,7 @@ export function TabBar() {
               <Link
                 key={t.href}
                 href={t.href}
-                className="pressable tabbar-item flex flex-col items-center justify-center gap-1 min-w-[72px]"
+                className="pressable tabbar-item flex flex-col items-center justify-center gap-1 min-w-[64px]"
                 aria-current={active ? "page" : undefined}
               >
                 <Icon active={active} />
@@ -45,6 +46,15 @@ function HomeIcon({ active }: { active: boolean }) {
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} />
       {active && <circle cx="12" cy="12" r="3" fill="var(--tomato)" />}
+    </svg>
+  );
+}
+
+function SpotsIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} strokeLinejoin="round" />
+      <circle cx="12" cy="10" r="2.4" fill={active ? "var(--tomato)" : "none"} stroke="currentColor" strokeWidth={active ? 0 : 1.8} />
     </svg>
   );
 }

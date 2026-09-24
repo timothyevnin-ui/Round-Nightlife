@@ -427,4 +427,29 @@ insert into public.settings (key, value) values ('verified_only', 'true'::jsonb)
 -- never refreshes or revives it. Undone from Studio → Places.
 alter table public.venues add column if not exists retired boolean not null default false;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V19. "Disagree with our take." From the Spots tab: a reader says what we got
+-- wrong about a place, in their words. Only the server writes or reads this
+-- (secret key); Studio confirms or declines, and a confirmed one is read into
+-- the place by the AI. No public policy at all, like suggestions.
+create table if not exists public.disputes (
+  id          uuid primary key default gen_random_uuid(),
+  slug        text not null,
+  text        text not null,
+  about       text,
+  from_name   text,
+  user_id     uuid references auth.users (id) on delete set null,
+  status      text not null default 'new' check (status in ('new', 'confirmed', 'declined')),
+  learned     text,
+  resolved_at timestamptz,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create index if not exists disputes_status_idx on public.disputes (status, created_at desc);
+create index if not exists disputes_slug_idx on public.disputes (slug);
+drop trigger if exists disputes_touch on public.disputes;
+create trigger disputes_touch before update on public.disputes
+  for each row execute function public.touch_updated_at();
+alter table public.disputes enable row level security;
+
 -- Later phases (plans, census) add their tables here.

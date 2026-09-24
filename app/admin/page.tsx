@@ -5,6 +5,7 @@ import { listEvents, topBySlug, topByText, type EventRow } from "@/lib/events";
 import { neighborhoodName, isNeighborhoodId } from "@/lib/neighborhoods";
 import { countBy, listGoTaps, listProfiles } from "@/lib/studio";
 import { listSuggestions } from "@/lib/suggestions";
+import { listDisputes } from "@/lib/disputes";
 import { DashboardActions } from "./DashboardActions";
 import { VerifiedGate } from "./VerifiedGate";
 import { getSettings } from "@/lib/settings";
@@ -30,18 +31,21 @@ export default async function Dashboard() {
   let taps: { slug: string; at: string }[] = [];
   let profileCount = 0;
   let waiting = 0;
+  let disagreeing = 0;
   if (writable) {
-    const [events, tapsRes, profiles, w] = await Promise.all([
+    const [events, tapsRes, profiles, w, dg] = await Promise.all([
       listEvents({ sinceDays: DAYS, limit: 1000 }).then((rows) => ({ rows }), (e: Error) => ({ rows: [] as EventRow[], problem: e.message })),
       listGoTaps(DAYS),
       listProfiles(1000),
       listSuggestions("new").then((l) => l.length).catch(() => -1),
+      listDisputes("new", 300).then((l) => l.length).catch(() => 0),
     ]);
     ev = events.rows;
     evProblem = "problem" in events ? events.problem : undefined;
     taps = tapsRes.rows;
     profileCount = profiles.rows.length;
     waiting = w;
+    disagreeing = dg;
   }
 
   const live = venues.filter((v) => !v.retired);
@@ -132,7 +136,7 @@ export default async function Dashboard() {
 
       <VerifiedGate on={settings.verifiedOnly} verified={verified} total={live.length} writable={writable} />
 
-      <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} />
+      <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} disagreeing={disagreeing} />
 
       <section className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat n={taps.length} label={`GO taps · ${DAYS}d`} />

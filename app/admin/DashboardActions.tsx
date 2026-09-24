@@ -7,7 +7,7 @@ import type { VenueSource } from "@/lib/db";
 import { importSeed, importStories, syncSeed } from "./actions";
 
 /** The buttons under the headline: add a place, sync the list, the inbox. */
-export function DashboardActions({ writable, source, dbCount, shelfEmpty, waiting }: { writable: boolean; source: VenueSource; dbCount: number; shelfEmpty: boolean; waiting: number }) {
+export function DashboardActions({ writable, source, dbCount, shelfEmpty, waiting, disagreeing = 0 }: { writable: boolean; source: VenueSource; dbCount: number; shelfEmpty: boolean; waiting: number; disagreeing?: number }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
@@ -29,6 +29,14 @@ export function DashboardActions({ writable, source, dbCount, shelfEmpty, waitin
           {waiting > 0 && (
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[12px] font-semibold" style={{ background: "var(--tomato)", color: "var(--on-photo)" }}>
               {waiting}
+            </span>
+          )}
+        </Link>
+        <Link href="/admin/disputes" className="pressable btn-ghost flex h-11 items-center gap-2 px-4 text-[14px]" data-disputes-link>
+          Disagreements
+          {disagreeing > 0 && (
+            <span className="flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[12px] font-semibold" style={{ background: "var(--tomato)", color: "var(--on-photo)" }}>
+              {disagreeing}
             </span>
           )}
         </Link>

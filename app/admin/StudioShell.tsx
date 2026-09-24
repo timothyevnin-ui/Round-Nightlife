@@ -18,6 +18,7 @@ const NAV: { href: string; label: string; hint: string; wide?: boolean }[] = [
   { href: "/admin/verify", label: "Verify", hint: "One place at a time" },
   { href: "/admin/stories", label: "Stories", hint: "The blog and the shelf" },
   { href: "/admin/suggestions", label: "Recommendations", hint: "What people sent in" },
+  { href: "/admin/disputes", label: "Disagreements", hint: "What we got wrong, they say" },
   { href: "/admin/people", label: "People", hint: "Accounts", wide: true },
   { href: "/admin/activity", label: "Activity", hint: "Everything, in order", wide: true },
 ];

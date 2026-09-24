@@ -109,6 +109,14 @@ Run the current `supabase/schema.sql` again. It adds a small `settings` table an
 
 Run the current `supabase/schema.sql` again. It adds a `retired` column to `venues`: the sprint's **Not for ROUND** button. Until it's run, that button appears to work but the place comes back on the next load (the dashboard's health check names the missing column); **Been** and **Skip** need nothing new.
 
+## 11. The restaurant desk (V18): one tap
+
+No SQL this time. After uploading V18, open the Studio dashboard and tap **Update from ROUND's list** once: every restaurant comes through verified by the desk with its new description, and the two that closed go into "Not for ROUND". Bars aren't touched, and neither is any restaurant you verified yourself.
+
+## 12. Disagree with our take (V19)
+
+Run the current `supabase/schema.sql` again. It adds a `disputes` table (server-only, like recommendations). Until it's run, the Disagree button on the Spots tab says it can't take notes right now, and the dashboard's health check names the missing table.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

@@ -18,6 +18,8 @@ import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, Window } from "@/li
 import { cleanHours } from "@/lib/hours";
 import { slugify } from "@/lib/slug";
 import { setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
+import { getDispute, setDisputeStatus } from "@/lib/disputes";
+import { aboutLabel } from "@/lib/disputeAbouts";
 
 /* ───────────────────────── auth ───────────────────────── */
 
@@ -240,7 +242,10 @@ export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: 
         friendsBeen: db.friendsBeen ?? seed.friendsBeen,
         perk: db.perk,
         groupBooking: db.groupBooking,
-        verified: false,
+        score: db.score ?? seed.score,
+        // The desk's verification (restaurants) comes through; a place the desk found closed goes into "not for ROUND".
+        verified: !!seed.verified,
+        retired: !!seed.retired,
         notes: db.notes && db.notes !== seed.notes ? [db.notes, seed.notes].filter(Boolean).join("\n\n") : seed.notes,
       });
       refreshed++;
@@ -336,8 +341,8 @@ export type ReadWordsInput = {
   take: string;
   theCatch: string;
   notes: string;
-  /** How the words arrived, for the log line: "read my words" (the editor) or "verify sprint". */
-  source?: "read my words" | "verify sprint";
+  /** How the words arrived, for the log line: "read my words" (the editor), "verify sprint", or "reader" (a confirmed disagreement). */
+  source?: "read my words" | "verify sprint" | "reader";
   existing: {
     tags: string[];
     attrs: Partial<Attrs>;
@@ -405,7 +410,9 @@ export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: Read
         model,
         max_tokens: 1400,
         system:
-          "You read the founder of ROUND (a NYC nightlife app) blurting about one bar or restaurant: whatever they typed into the Take box, the Catch box and their private notes, in any tone, half-sentences fine, dates and prices and complaints included. " +
+          (input.source === "reader"
+          ? "You read a reader of ROUND (a NYC nightlife app) telling us what we got wrong about one bar or restaurant, in their own words; the founder has confirmed they're right, so treat their words as true. "
+          : "You read the founder of ROUND (a NYC nightlife app) blurting about one bar or restaurant: whatever they typed into the Take box, the Catch box and their private notes, in any tone, half-sentences fine, dates and prices and complaints included. ") +
           "From those words only, you fill in the place. Never invent: a field the words don't speak to stays as it is. " +
           "Voice for take and theCatch: editorial, confident, dry, specific, warm; one sentence each; no exclamation points; never marketing; the founder's opinion, cleaned up, not softened. " +
           "Attributes are 0 to 1 (0 not at all, 0.5 some, 1 very) and only for traits the words support; tags are 2 to 5 short labels a person would say (\"Live music\", \"Dive\", \"Burgers\"; the founder's own words are welcome). " +
@@ -417,7 +424,7 @@ export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: Read
             content:
               `Place: ${input.name || "(unnamed)"} — ${input.kind}${input.barFood ? " with a kitchen" : ""}${input.cuisine ? `, ${input.cuisine}` : ""}, ${isNeighborhoodId(input.neighborhood) ? neighborhoodName(input.neighborhood) : input.neighborhood}.\n` +
               `Already on file (keep unless the words change it): tags ${JSON.stringify(ex.tags)}, attrs ${JSON.stringify(ex.attrs)}, price ${ex.price}, capacity ${ex.capacity}, easyIn ${ex.easyIn}, groupFit ${JSON.stringify(ex.groupFit)}, dateFit ${JSON.stringify(ex.dateFit)}, hours ${ex.hours ? "set" : "unknown"}, dayDeal ${JSON.stringify(ex.dayDeal ?? null)}, score ${ex.score ?? "unset"}, verified ${!!ex.verified}.\n\n` +
-              `The founder's words:\n${words}\n\n` +
+              `${input.source === "reader" ? "The reader's words (confirmed true by the founder)" : "The founder's words"}:\n${words}\n\n` +
               `Return JSON: {"take": string (max 28 words), "theCatch": string (max 22 words; the practical thing: the line, when to go, what to order; omit if the words give nothing practical), "tags": [2-5], "attrs": {key: 0..1 for traits the words support}, ` +
               `"kind": "bar"|"restaurant" (omit unless the words say), "barFood": true|false (omit unless said), "cuisine": string|null (omit unless said), "price": 1-4 (1 under $10 drinks, 2 $10-16, 3 $17-24, 4 splurge; omit unless said), "capacity": "tiny"|"small"|"medium"|"large" (omit unless said), ` +
               `"easyIn": 0.85 walk in | 0.65 usually fine | 0.4 often a wait | 0.15 good luck (omit unless said), "groupFit": {"two","small","mid","big": 0-1} (omit unless said), "dateFit": {"first","early","longterm": 0-1} (omit unless said), ` +
@@ -477,8 +484,9 @@ export async function readMyWords(input: ReadWordsInput): Promise<{ patch?: Read
     // The log: what was said, as said, and what it taught, dated.
     const when = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
     const sprint = input.source === "verify sprint";
-    const said = [rawTake && `${sprint ? "As said" : "Take, as said"}: ${rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
-    const entry = `— ${when} · ${sprint ? "verify sprint" : "read my words"}\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
+    const reader = input.source === "reader";
+    const said = [rawTake && `${sprint ? "As said" : reader ? "They said" : "Take, as said"}: ${rawTake}`, rawCatch && `Catch, as said: ${rawCatch}`].filter(Boolean).join("\n");
+    const entry = `— ${when} · ${sprint ? "verify sprint" : reader ? "a reader disagreed, and ROUND agreed" : "read my words"}\n${said}${said ? "\n" : ""}Learned: ${patch.learned || patch.changed.join(", ") || "nothing new"}`;
     patch.notes = `${rawNotes ? rawNotes + "\n\n" : ""}${entry}`.slice(0, 8000);
     return { patch };
   } catch (e) {
@@ -586,6 +594,79 @@ export async function sprintPass(input: { slug: string; words?: string }): Promi
     await upsertVenues([{ ...v, verified: false, hot: false, retired: true, notes: `${v.notes ? v.notes + "\n\n" : ""}${entry}`.slice(0, 8000) }]);
     updateTag(VENUES_TAG);
     return { ok: true, slug: v.slug };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Couldn't do that." };
+  }
+}
+
+/* ───────────────────────── disagreements ───────────────────────── */
+
+export type ResolveResult = { ok: true; learned?: string; changed?: string[]; readError?: string } | { ok: false; error: string };
+
+/**
+ * A reader disagreed with our take. Confirm: the AI reads their words into
+ * the place (attributes, tags, food, price, room, hours, day deal; never the
+ * take itself, which stays ROUND's to rewrite) and logs it in the notes,
+ * dated, as what they said. Decline: nothing changes, it's just filed.
+ */
+export async function resolveDispute(id: string, verdict: "confirmed" | "declined"): Promise<ResolveResult> {
+  try {
+    await guard();
+    const d = await getDispute(id);
+    if (!d) return { ok: false, error: "That one's gone." };
+    if (verdict === "declined") {
+      await setDisputeStatus(id, "declined");
+      return { ok: true };
+    }
+    const { venues } = await getVenuesFresh();
+    const v = venues.find((x) => x.slug === d.slug);
+    if (!v) return { ok: false, error: "That place isn't in the database." };
+    const who = d.fromName ? `${d.fromName}` : "A reader";
+    const about = aboutLabel(d.about);
+    const words = `${who}${about ? `, on ${about.toLowerCase()}` : ""}: ${d.text}`;
+    const r = await readMyWords({
+      name: v.name,
+      neighborhood: v.neighborhood,
+      kind: v.kind,
+      barFood: v.barFood,
+      cuisine: v.cuisine ?? null,
+      take: words,
+      theCatch: "",
+      notes: v.notes ?? "",
+      source: "reader",
+      existing: { tags: v.tags, attrs: v.attrs, price: v.price, capacity: v.capacity, easyIn: v.easyIn, groupFit: v.groupFit, dateFit: v.dateFit, hours: v.hours ?? null, dayDeal: v.dayDeal ?? null, score: v.score ?? null, verified: v.verified },
+    });
+    let learned: string | undefined;
+    let changed: string[] | undefined;
+    let readError: string | undefined;
+    if (r.patch) {
+      const p = r.patch;
+      // Everything but the voice: the take and the catch stay ROUND's.
+      const next: Venue = {
+        ...v,
+        tags: p.tags ?? v.tags,
+        attrs: { ...v.attrs, ...(p.attrs ?? {}) },
+        barFood: p.barFood ?? v.barFood,
+        cuisine: p.cuisine ?? v.cuisine,
+        price: (p.price ?? v.price) as Venue["price"],
+        capacity: p.capacity ?? v.capacity,
+        easyIn: p.easyIn ?? v.easyIn,
+        groupFit: p.groupFit ?? v.groupFit,
+        dateFit: p.dateFit ?? v.dateFit,
+        hours: p.hours ?? v.hours,
+        dayDeal: p.dayDeal ?? v.dayDeal,
+        notes: p.notes,
+      };
+      await upsertVenues([next]);
+      learned = p.learned || undefined;
+      changed = p.changed.filter((c) => c !== "take" && c !== "catch");
+    } else {
+      readError = r.error ?? "Couldn't read that.";
+      await upsertVenues([{ ...v, notes: `${v.notes ? v.notes + "\n\n" : ""}— ${NY_DATE()} · a reader disagreed, and ROUND agreed\nThey said: ${words}`.slice(0, 8000) }]);
+    }
+    updateTag(VENUES_TAG);
+    await setDisputeStatus(id, "confirmed", learned ?? (changed?.length ? changed.join(", ") : undefined));
+    return { ok: true, learned, changed, readError };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Couldn't do that." };
   }
