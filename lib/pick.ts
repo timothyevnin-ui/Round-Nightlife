@@ -4,6 +4,7 @@ import { ATTRS, type AttrKey } from "./attrs";
 import { haversineMeters, isDaytime } from "./engine";
 import { NEIGHBORHOODS, NEIGHBORHOOD_MAP, neighborhoodName } from "./neighborhoods";
 import { isNearby, whereRead } from "./where";
+import { BAR_FROM_DEFAULT, doorsOf } from "./places";
 import { allowModelCall } from "./ratelimit";
 import { CARDS, type Wants } from "./questions";
 import { formatHour } from "./time";
@@ -86,7 +87,7 @@ function venueLine(v: Venue): string {
   const groups = fit.big >= 0.75 ? "big groups fine" : fit.mid >= 0.75 ? "up to 7" : fit.small >= 0.7 ? "2–4" : "twos";
   const dateWord = v.dateFit.first >= 0.7 ? "first-date safe" : v.dateFit.longterm >= 0.7 ? "good for couples" : v.dateFit.first <= 0.25 ? "not a date place" : "";
   return [
-    `• ${v.slug} — ${v.name} (${v.kind}${v.barFood ? " with a kitchen" : ""}, ${neighborhoodName(v.neighborhood)}, ${street})${v.verified ? " ✓ VERIFIED" : ""}${typeof v.score === "number" ? ` · ROUND score ${v.score}/100` : ""}`,
+    `• ${v.slug} — ${v.name} (${v.kind}${v.barFood ? " with a kitchen" : ""}${v.barLater ? `, and a real bar from ${formatHour(v.barFrom ?? BAR_FROM_DEFAULT)} on` : ""}, ${neighborhoodName(v.neighborhood)}, ${street}${v.locations?.length ? `; also at ${v.locations.map((l) => `${l.address.replace(/,\s*(New York|Brooklyn).*$/i, "")} (${neighborhoodName(l.neighborhood)})`).join(" and ")}` : ""})${v.verified ? " ✓ VERIFIED" : ""}${typeof v.score === "number" ? ` · ROUND score ${v.score}/100` : ""}`,
     `  ${"$".repeat(v.price)} · ${v.capacity} room · ${groups} · walk-in ${v.easyIn >= 0.7 ? "easy" : v.easyIn >= 0.45 ? "possible" : "hard"} · ${windowWord(v)}${dateWord ? ` · ${dateWord}` : ""}`,
     `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}${v.cuisine || v.barFood ? ` · food: ${v.cuisine ?? "yes"}${v.barFood ? " (bar with a kitchen)" : ""}` : ""}${v.hours ? ` · hours: ${weekSummary(v.hours)}` : ""} · in daylight: ${v.attrs.daytime >= 0.7 ? "good" : v.attrs.daytime >= 0.4 ? "fine" : "no"}${v.dayDeal ? ` · day deal: ${v.dayDeal}` : ""}`,
     `  ${v.take}${v.theCatch ? ` Catch: ${v.theCatch}` : ""}`,
@@ -100,7 +101,7 @@ export function buildCatalog(venues: Venue[]): string {
   // A cheap fingerprint of everything that goes into the text.
   let h = 5381;
   for (const v of [...venues].sort((a, b) => a.slug.localeCompare(b.slug))) {
-    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}|${v.notes ?? ""}|${v.story ?? ""}`;
+    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${JSON.stringify(v.locations ?? null)}|${v.barLater ? v.barFrom ?? BAR_FROM_DEFAULT : ""}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}|${v.notes ?? ""}|${v.story ?? ""}`;
     for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
   }
   const key = `${venues.length}:${h}`;
@@ -111,7 +112,7 @@ export function buildCatalog(venues: Venue[]): string {
     `You are ROUND, a nightlife guide for New York. Below is every place ROUND covers: the slug, what it is, where, price ($ cheap … $$$$ splurge), room size, group fit, how hard the door is, when it's good, what it's known for (is / isn't), and ROUND's own take and catch.\n` +
     `Neighborhoods: ${hoods}.\n\n` +
     sorted.map(venueLine).join("\n") +
-    `\n\n✓ VERIFIED means ROUND stands behind the entry: someone from ROUND has been, or (restaurants) ROUND's desk researched it from several sources and checked it; everything else is researched but unchecked. "ROUND score" is how much we like a place, 0–100; between two places that fit equally, prefer the higher score. Only ever recommend places from this list, by slug. Never invent a place.`;
+    `\n\nA restaurant that is "a real bar from 10pm on" counts as a bar for drinks at or after that hour (and as a restaurant before). A place with more than one address is one place; pick it by its slug. ✓ VERIFIED means ROUND stands behind the entry: someone from ROUND has been, or (restaurants) ROUND's desk researched it from several sources and checked it; everything else is researched but unchecked. "ROUND score" is how much we like a place, 0–100; between two places that fit equally, prefer the higher score. Only ever recommend places from this list, by slug. Never invent a place.`;
   catalogCache = { key, text };
   return text;
 }
@@ -228,7 +229,8 @@ export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { 
     if (!v) return p.slug;
     if (r.place) return `${p.slug} (${Math.max(1, Math.round(haversineMeters(r.place, v) / 80))} min walk)`;
     if (r.mode !== "near" && r.neighborhood) {
-      const w = whereRead(v, { hood: r.neighborhood, me: r.me });
+      const anchor = { hood: r.neighborhood, me: r.me };
+      const w = doorsOf(v).map((d) => whereRead(d, anchor)).filter((x) => x !== null).sort((a, b) => b.where - a.where)[0];
       if (w?.fromMe) return `${p.slug} (${Math.max(1, w.walk)} min walk${w.inHood ? "" : ` · in ${NEIGHBORHOOD_MAP[v.neighborhood].short}`})`;
       if (w && !w.inHood) return `${p.slug} (in ${NEIGHBORHOOD_MAP[v.neighborhood].short} · ${Math.max(1, w.walk)} min past the ${NEIGHBORHOOD_MAP[r.neighborhood].short} edge)`;
     }
@@ -339,7 +341,7 @@ export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues
     let label: PickLabel = out.length === 0 ? "The pick" : p.label && !taken.has(p.label) ? p.label : prior?.label && !taken.has(prior.label) ? prior.label : nextLabel(taken);
     if (out.length > 0 && label === "The pick") label = nextLabel(taken);
     taken.add(label);
-    out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "", far: prior?.far });
+    out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door });
   }
   return out.slice(0, count);
 }
@@ -368,7 +370,7 @@ export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues:
     const walk = Math.max(2, Math.round(dist / 80));
     const dinnerAt = prior?.dinnerAt ?? template?.dinnerAt;
     const drinksAt = prior?.drinksAt ?? template?.drinksAt ?? (dinnerAt ?? 20) + 1.75;
-    out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "", far: prior?.far });
+    out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door, barDoor: prior?.bar.slug === bar.slug ? prior?.barDoor : undefined });
   }
   return (out.length ? out : rulesPlans).slice(0, count);
 }
@@ -388,7 +390,7 @@ export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venu
     let label: PickLabel = out.length === 0 ? "The pick" : p.label && !taken.has(p.label) ? p.label : prior?.label && !taken.has(prior.label) ? prior.label : nextLabel(taken);
     if (out.length > 0 && label === "The pick") label = nextLabel(taken);
     taken.add(label);
-    out.push({ bar, label, score: prior?.score ?? 0.5, drinksAt: prior?.drinksAt ?? template?.drinksAt ?? 21, why: p.why || prior?.why || "", far: prior?.far });
+    out.push({ bar, label, score: prior?.score ?? 0.5, drinksAt: prior?.drinksAt ?? template?.drinksAt ?? 21, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door });
   }
   return (out.length ? out : rulesPlans).slice(0, count);
 }

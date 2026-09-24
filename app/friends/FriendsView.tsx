@@ -149,7 +149,7 @@ function Ladder() {
   );
 }
 
-function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
+export function Pitch({ onAdd, onLater, eyebrow = "Friends", children }: { onAdd?: () => void; onLater?: () => void; eyebrow?: string; /** The sign-in itself, right here on the page (the YOU tab), instead of a button that opens it. */ children?: React.ReactNode }) {
   const first = "Put your number in.";
   const second = "We'll connect you with your friends.";
   const t1 = useTypewriter(first, 34);
@@ -165,7 +165,7 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
         <header className="flex items-center gap-2.5 pt-5">
           <motion.span aria-hidden className="block h-[18px] w-[18px] rounded-full" style={{ border: "2.5px solid var(--tomato)" }} animate={{ scale: [1, 1.18, 1], opacity: [1, 0.7, 1] }} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }} />
           <p className="eyebrow" style={{ color: "var(--on-photo-60)" }}>
-            Friends
+            {eyebrow}
           </p>
         </header>
         <section className="flex flex-1 flex-col pt-5">
@@ -203,6 +203,11 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
             transition={{ delay: 2.0, type: "spring", stiffness: 220, damping: 26 }}
             className="mt-auto pt-5"
           >
+            {children ? (
+              <div className="card p-5" style={{ background: "var(--surface)", color: "var(--ink)" }} data-you-signin>
+                {children}
+              </div>
+            ) : (
             <motion.button
               onClick={onAdd}
               className="pressable flex h-14 w-full items-center justify-center rounded-full text-[17px] font-semibold"
@@ -212,9 +217,12 @@ function Pitch({ onAdd, onLater }: { onAdd: () => void; onLater: () => void }) {
             >
               Add my number
             </motion.button>
-            <button onClick={onLater} className="pressable mx-auto mt-2.5 block text-[13.5px] font-medium" style={{ color: "var(--on-photo-60)" }}>
-              Maybe later
-            </button>
+            )}
+            {onLater && (
+              <button onClick={onLater} className="pressable mx-auto mt-2.5 block text-[13.5px] font-medium" style={{ color: "var(--on-photo-60)" }}>
+                Maybe later
+              </button>
+            )}
             <p className="mt-2.5 text-center text-[11.5px] leading-relaxed" style={{ color: "rgba(246,241,231,0.42)" }}>
               One text with a code. Never marketing texts. 21+ only.
             </p>
@@ -237,8 +245,7 @@ function SecondLine({ text }: { text: string }) {
 
 /* ───────────────────────── signed in ───────────────────────── */
 
-function CircleView({ me, places, regulars }: { me: string; places: Record<string, Place>; regulars: Regular[] }) {
-  const { profile, updateProfile } = useAuth();
+export function CircleView({ me, places, regulars, embedded = false, onCount }: { me: string; places: Record<string, Place>; regulars: Regular[]; /** Inside the YOU page: a section, not a screen; the privacy card is rendered by the page. */ embedded?: boolean; onCount?: (n: number) => void }) {
   const sb = useMemo(() => getSupabase(), []);
   const [circle, setCircle] = useState<Circle>({ friends: [], requestsIn: [], requestsOut: [] });
   const [spots, setSpots] = useState<FriendSpot[]>([]);
@@ -338,25 +345,17 @@ function CircleView({ me, places, regulars }: { me: string; places: Record<strin
     setNote("Done.");
   };
 
-  const togglePrivacy = async (key: "is_public" | "share_location", value: boolean) => {
-    if (!sb) return;
-    updateProfile({ [key]: value });
-    try {
-      await setPrivacy(sb, me, { [key]: value });
-    } catch {
-      updateProfile({ [key]: !value });
-    }
-  };
-
-  const isPublic = profile?.is_public ?? true;
   const friendIds = new Set(circle.friends.map((f) => f.id));
   const byFriend = new Map<string, FriendSpot[]>();
   for (const sp of spots) if (friendIds.has(sp.user_id)) byFriend.set(sp.user_id, [...(byFriend.get(sp.user_id) ?? []), sp]);
   const feed = spots.filter((sp) => friendIds.has(sp.user_id) && places[sp.slug]).slice(0, 14);
   const n = circle.friends.length;
+  useEffect(() => {
+    onCount?.(n);
+  }, [n, onCount]);
 
-  return (
-    <Shell title="Friends" eyebrow={n ? `${n} ${n === 1 ? "friend" : "friends"} · mutual, never public` : "Mutual, not public"}>
+  const body = (
+    <>
       {problem && (
         <p className="card mt-1 p-4 text-[13.5px]" style={{ color: "var(--tomato-deep)" }}>
           {problem}
@@ -560,19 +559,57 @@ function CircleView({ me, places, regulars }: { me: string; places: Record<strin
 
       {n === 0 && <Regulars regulars={regulars} />}
 
-      {/* Privacy */}
-      <section className="card mt-8 p-5">
-        <h2 className="serif" style={{ fontSize: 24, lineHeight: 1.1 }}>
-          Who sees you
-        </h2>
-        <Row label={isPublic ? "Public: anyone can add you" : "Private: people request first"} on={isPublic} onChange={(v) => togglePrivacy("is_public", v)} />
-        <p className="mt-2 text-[12px] leading-relaxed" style={{ color: "var(--ink-35)" }}>
-          Your number is never shown to anyone. Friends see your name, your photo, where you live, and your spots.
-        </p>
-      </section>
+      {!embedded && <PrivacyCard />}
 
       <FriendSheet person={peek} spots={peek ? (byFriend.get(peek.id) ?? []) : []} places={places} onClose={() => setPeek(null)} onRemove={peek ? () => { void remove(peek); setPeek(null); } : undefined} />
+    </>
+  );
+
+  if (embedded)
+    return (
+      <section className="mt-8" data-friends-block data-friends-count={n}>
+        <div className="flex items-baseline justify-between">
+          <h2 className="serif" style={{ fontSize: 28, lineHeight: 1 }}>
+            Friends
+          </h2>
+          <span className="text-[12px] font-medium uppercase tracking-wide" style={{ color: "var(--ink-55)" }}>
+            {n ? `${n} · mutual, never public` : "Mutual, never public"}
+          </span>
+        </div>
+        {body}
+      </section>
+    );
+  return (
+    <Shell title="Friends" eyebrow={n ? `${n} ${n === 1 ? "friend" : "friends"} · mutual, never public` : "Mutual, not public"}>
+      {body}
     </Shell>
+  );
+}
+
+/** Public (anyone can add you) or private (people request first). Its own card so the YOU page can place it last. */
+export function PrivacyCard() {
+  const { user, profile, updateProfile } = useAuth();
+  const sb = useMemo(() => getSupabase(), []);
+  const isPublic = profile?.is_public ?? true;
+  const toggle = async (value: boolean) => {
+    if (!sb || !user) return;
+    updateProfile({ is_public: value });
+    try {
+      await setPrivacy(sb, user.id, { is_public: value });
+    } catch {
+      updateProfile({ is_public: !value });
+    }
+  };
+  return (
+    <section className="card mt-8 p-5" data-privacy-card>
+      <h2 className="serif" style={{ fontSize: 24, lineHeight: 1.1 }}>
+        Who sees you
+      </h2>
+      <Row label={isPublic ? "Public: anyone can add you" : "Private: people request first"} on={isPublic} onChange={toggle} />
+      <p className="mt-2 text-[12px] leading-relaxed" style={{ color: "var(--ink-35)" }}>
+        Your number is never shown to anyone. Friends see your name, your photo, where you live, and your spots.
+      </p>
+    </section>
   );
 }
 

@@ -16,7 +16,7 @@ const STYLE = process.env.NEXT_PUBLIC_MAP_STYLE ?? "https://tiles.openfreemap.or
 export type MarkerKind = "saved" | "been" | "all";
 
 /** What a pin needs. Venues and the lighter Spots rows both qualify. */
-export type MapVenue = Pick<Venue, "slug" | "name" | "lat" | "lng"> & { kind?: Venue["kind"] };
+export type MapVenue = Pick<Venue, "slug" | "name" | "lat" | "lng"> & { kind?: Venue["kind"]; /** When one place has several pins (one per door). */ pinId?: string };
 
 export type NightMapProps<V extends MapVenue> = {
   venues: V[];
@@ -120,7 +120,7 @@ export function NightMap<V extends MapVenue>({
         e.stopPropagation();
         onSelect?.(v);
       });
-      markersRef.current.set(v.slug, new Marker({ element: el, anchor: "center" }).setLngLat([v.lng, v.lat]).addTo(map));
+      markersRef.current.set(v.pinId ?? v.slug, new Marker({ element: el, anchor: "center" }).setLngLat([v.lng, v.lat]).addTo(map));
     }
     // A tap on the map itself closes the card. A tap on a pin is the pin's business, however the
     // browser orders the events (MapLibre builds its own click from mousedown/up, so stopPropagation
@@ -138,9 +138,9 @@ export function NightMap<V extends MapVenue>({
 
   // The open pin sits on top and grows a little.
   useEffect(() => {
-    markersRef.current.forEach((m, slug) => {
+    markersRef.current.forEach((m) => {
       const el = m.getElement();
-      if (slug === selected) el.setAttribute("data-selected", "1");
+      if (selected && el.dataset.slug === selected) el.setAttribute("data-selected", "1");
       else el.removeAttribute("data-selected");
     });
   }, [selected, venues]);

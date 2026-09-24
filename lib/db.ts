@@ -3,7 +3,7 @@ import { SEED_VENUES } from "./venues";
 import { emptyAttrs, clamp01 } from "./normalize";
 import { ATTR_KEYS, deriveDaytime } from "./attrs";
 import { isNeighborhoodId } from "./neighborhoods";
-import type { Attrs, Capacity, Hours, Venue, Window } from "./types";
+import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, VenueLocation, VenuePhoto, Window } from "./types";
 import { cleanHours } from "./hours";
 import { getSettings } from "./settings";
 
@@ -83,7 +83,44 @@ export type VenueRow = {
   cuisine?: string | null;
   score?: number | null;
   day_deal?: string | null;
+  photos?: VenuePhoto[] | null;
+  locations?: VenueLocation[] | null;
+  bar_later?: boolean | null;
+  bar_from?: number | null;
 };
+
+/** Clean a photos column: real https URLs only, cover first. */
+export function cleanPhotos(x: unknown): VenuePhoto[] | undefined {
+  if (!Array.isArray(x)) return undefined;
+  const out: VenuePhoto[] = [];
+  for (const p of x) {
+    if (!p || typeof p !== "object") continue;
+    const o = p as { url?: unknown; credit?: unknown };
+    if (typeof o.url !== "string" || !/^https?:\/\//.test(o.url.trim())) continue;
+    const credit = typeof o.credit === "string" && o.credit.trim() ? o.credit.trim().slice(0, 160) : undefined;
+    out.push(credit ? { url: o.url.trim(), credit } : { url: o.url.trim() });
+    if (out.length >= 12) break;
+  }
+  return out.length ? out : undefined;
+}
+
+/** Clean a locations column: a real address with coordinates in a neighborhood ROUND covers. */
+export function cleanLocations(x: unknown): VenueLocation[] | undefined {
+  if (!Array.isArray(x)) return undefined;
+  const out: VenueLocation[] = [];
+  for (const l of x) {
+    if (!l || typeof l !== "object") continue;
+    const o = l as { address?: unknown; lat?: unknown; lng?: unknown; neighborhood?: unknown; label?: unknown };
+    const lat = Number(o.lat);
+    const lng = Number(o.lng);
+    const hood = typeof o.neighborhood === "string" ? o.neighborhood : "";
+    if (typeof o.address !== "string" || !o.address.trim() || !Number.isFinite(lat) || !Number.isFinite(lng) || !isNeighborhoodId(hood)) continue;
+    const label = typeof o.label === "string" && o.label.trim() ? o.label.trim().slice(0, 60) : undefined;
+    out.push({ address: o.address.trim().slice(0, 160), lat, lng, neighborhood: hood as NeighborhoodId, ...(label ? { label } : {}) });
+    if (out.length >= 8) break;
+  }
+  return out.length ? out : undefined;
+}
 
 const CAPACITIES: Capacity[] = ["tiny", "small", "medium", "large"];
 const DEFAULT_PHOTO = { from: "#1f2a3a", to: "#4a5a6e", angle: 180 };
@@ -123,8 +160,12 @@ export function rowToVenue(r: VenueRow): Venue | null {
     bestWindows: Array.isArray(r.best_windows) && r.best_windows.length ? r.best_windows : [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 26 }],
     easyIn: clamp01(r.easy_in, 0.5),
     photo: r.photo && typeof r.photo.from === "string" ? r.photo : DEFAULT_PHOTO,
-    photoUrl: r.photo_url ?? undefined,
-    photoCredit: r.photo_credit ?? undefined,
+    photoUrl: r.photo_url ?? cleanPhotos(r.photos)?.[0]?.url ?? undefined,
+    photoCredit: r.photo_credit ?? cleanPhotos(r.photos)?.[0]?.credit ?? undefined,
+    photos: cleanPhotos(r.photos),
+    locations: cleanLocations(r.locations),
+    barLater: !!r.bar_later,
+    barFrom: typeof r.bar_from === "number" && r.bar_from >= 12 && r.bar_from <= 28 ? r.bar_from : undefined,
     friendsBeen: r.friends_been ?? undefined,
     perk: r.perk ?? undefined,
     groupBooking: r.group_booking ?? undefined,
@@ -164,6 +205,10 @@ export function venueToRow(v: Venue): VenueRow {
     photo: v.photo,
     photo_url: v.photoUrl ?? null,
     photo_credit: v.photoCredit ?? null,
+    photos: v.photos ?? null,
+    locations: v.locations ?? null,
+    bar_later: !!v.barLater,
+    bar_from: v.barLater ? v.barFrom ?? null : null,
     friends_been: v.friendsBeen ?? 0,
     perk: v.perk ?? null,
     group_booking: v.groupBooking ?? null,
@@ -310,14 +355,14 @@ export async function deleteVenue(slug: string): Promise<void> {
 }
 
 /** Upload a photo to the public `photos` bucket; returns its public URL. */
-export async function uploadPhoto(slug: string, file: File): Promise<string> {
-  return uploadPhotoBytes(slug, Buffer.from(await file.arrayBuffer()), file.type || "image/jpeg");
+export async function uploadPhoto(slug: string, file: File, n = 0): Promise<string> {
+  return uploadPhotoBytes(slug, Buffer.from(await file.arrayBuffer()), file.type || "image/jpeg", n);
 }
 
-export async function uploadPhotoBytes(slug: string, bytes: Buffer, contentType: string): Promise<string> {
+export async function uploadPhotoBytes(slug: string, bytes: Buffer, contentType: string, n = 0): Promise<string> {
   const { url, auth } = serviceHeaders();
   const ext = contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
-  const path = `${slug}-${Date.now()}.${ext}`;
+  const path = `${slug}-${Date.now()}${n ? `-${n}` : ""}.${ext}`;
   const res = await fetch(`${url}/storage/v1/object/photos/${path}`, {
     method: "POST",
     headers: { ...auth, "Content-Type": contentType, "x-upsert": "true" },

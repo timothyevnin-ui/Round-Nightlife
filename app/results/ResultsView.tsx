@@ -82,7 +82,7 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
       {count > 0 ? (
         <Carousel count={count} labels={labels}>
           {bars
-            ? night!.map((p, i) => <ResultCard key={p.venue.slug} venue={p.venue} label={p.label} why={p.why} far={p.far} shareUrl={`/p/${p.shareCode}`} index={i} />)
+            ? night!.map((p, i) => <ResultCard key={p.venue.slug} venue={p.venue} label={p.label} why={p.why} far={p.far} door={p.door} shareUrl={`/p/${p.shareCode}`} index={i} />)
             : plans!.map((p, i) => <PlanResultCard key={`${p.restaurant?.slug ?? ""}-${p.bar.slug}`} plan={p} shareUrl={`/p/${p.shareCode}`} index={i} groupWord={groupWord} />)}
         </Carousel>
       ) : (

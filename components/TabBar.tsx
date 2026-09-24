@@ -5,8 +5,7 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
   { href: "/", label: "Home", icon: HomeIcon },
-  { href: "/spots", label: "Spots", icon: SpotsIcon },
-  { href: "/friends", label: "Friends", icon: FriendsIcon },
+  { href: "/map", label: "Map", icon: SpotsIcon },
   { href: "/you", label: "You", icon: YouIcon },
 ] as const;
 
@@ -21,7 +20,8 @@ export function TabBar() {
       <div className="tabbar-ground mx-auto max-w-md" style={{ paddingTop: 18 }}>
         <div className="flex items-stretch justify-around px-6" style={{ height: "var(--tab-height)" }}>
           {TABS.map((t) => {
-            const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
+            const href: string = t.href;
+            const active = href === "/" ? pathname === "/" : href === "/you" ? pathname.startsWith("/you") || pathname.startsWith("/friends") : pathname.startsWith("/map") || pathname.startsWith("/spots");
             const Icon = t.icon;
             return (
               <Link
@@ -59,14 +59,6 @@ function SpotsIcon({ active }: { active: boolean }) {
   );
 }
 
-function FriendsIcon({ active }: { active: boolean }) {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="9" cy="12" r="6.5" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} />
-      <circle cx="15.5" cy="12" r="6.5" stroke="currentColor" strokeWidth={active ? 2.4 : 1.8} />
-    </svg>
-  );
-}
 
 function YouIcon({ active }: { active: boolean }) {
   return (

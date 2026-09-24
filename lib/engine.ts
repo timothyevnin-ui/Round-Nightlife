@@ -2,6 +2,7 @@ import { NEIGHBORHOOD_MAP } from "./neighborhoods";
 import { ATTRS, type AttrKey } from "./attrs";
 import { closesAt, openAt } from "./hours";
 import { whereRead, type Anchor, type Point, type WhereRead } from "./where";
+import { doorsOf, isBarAt, nearestDoor, type Door } from "./places";
 import type { Wants } from "./questions";
 import type { DatePlan, DateQuery, DinnerQuery, GroupBucket, NightPick, NightQuery, PickLabel, Venue, Window } from "./types";
 
@@ -40,6 +41,16 @@ export function hoursFactor(venue: Venue, hour: number, dow: number): number | n
 }
 
 const anchorOf = (q: { neighborhood: NightQuery["neighborhood"]; me?: Point }): Anchor => ({ hood: q.neighborhood, me: q.me });
+
+/** How a place answers "where?", through whichever of its doors answers best. */
+export function whereReadVenue(venue: Venue, anchor: Anchor): (WhereRead & { door: Door }) | null {
+  let best: (WhereRead & { door: Door }) | null = null;
+  for (const door of doorsOf(venue)) {
+    const w = whereRead(door, anchor);
+    if (w && (!best || w.where > best.where)) best = { ...w, door };
+  }
+  return best;
+}
 
 /* ───────────────────────── helpers ───────────────────────── */
 
@@ -170,15 +181,18 @@ const HIT_WORD: Partial<Record<AttrKey, string>> = {
 /** How many cards a results carousel shows. */
 export const RESULT_COUNT = 6;
 
-type Scored = { venue: Venue; score: number; hits: AttrKey[]; group: number; where?: WhereRead };
+type Scored = { venue: Venue; score: number; hits: AttrKey[]; group: number; where?: WhereRead & { door: Door } };
 
 /** The distance part of a "why": how far past the neighborhood, or from the person. */
-export function whereWord(w: WhereRead | undefined, venue: Venue): string | null {
+export function whereWord(w: (WhereRead & { door: Door }) | undefined): string | null {
   if (!w) return null;
   if (w.fromMe) return `${Math.max(1, w.walk)} min walk`;
   if (w.inHood) return null;
-  return `${Math.max(1, w.walk)} min into ${NEIGHBORHOOD_MAP[venue.neighborhood].short}`;
+  return `${Math.max(1, w.walk)} min into ${NEIGHBORHOOD_MAP[w.door.neighborhood].short}`;
 }
+
+/** The door a pick is about, when it isn't the venue's own address. */
+const doorOf = (w: (WhereRead & { door: Door }) | undefined): Door | undefined => (w && !w.door.main ? w.door : undefined);
 
 /** A label for slots four through six: what makes this one different. */
 function flavorLabel(venue: Venue, taken: Set<PickLabel>): PickLabel {
@@ -243,9 +257,9 @@ export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_CO
   const bucket = groupBucket(q.group);
   const anchor = anchorOf(q);
   const scored: Scored[] = venues
-    .filter((v) => v.kind === "bar")
+    .filter((v) => isBarAt(v, q.hour))
     .map((venue) => {
-      const where = whereRead(venue, anchor);
+      const where = whereReadVenue(venue, anchor);
       if (!where) return null;
       const open = hoursFactor(venue, q.hour, q.dow);
       if (open === null) return null;
@@ -268,7 +282,7 @@ export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_CO
     return parts.slice(0, 3).join(" · ");
   };
 
-  return diversify(scored, bucket, count).map(({ s, label }) => ({ venue: s.venue, label, score: s.score, why: why(s, label), far: whereWord(s.where, s.venue) ?? undefined }));
+  return diversify(scored, bucket, count).map(({ s, label }) => ({ venue: s.venue, label, score: s.score, why: why(s, label), far: whereWord(s.where) ?? undefined, door: doorOf(s.where) }));
 }
 
 /**
@@ -294,7 +308,7 @@ export function recommendAround(anchor: Venue, q: NightQuery, venues: Venue[], c
 const STAGE_WORD = { first: "First date", early: "A few dates in", longterm: "Long-term" } as const;
 
 function scoreDateVenue(venue: Venue, q: DateQuery, hour: number, weights: { fit: number; prefs: number; nb: number; time: number; score: number }): Scored | null {
-  const where = whereRead(venue, anchorOf(q));
+  const where = whereReadVenue(venue, anchorOf(q));
   if (!where) return null;
   const open = hoursFactor(venue, hour, q.dow);
   if (open === null) return null;
@@ -311,7 +325,7 @@ export function recommendDate(q: DateQuery, venues: Venue[], count = RESULT_COUN
   // Drinks only: the bar at the hour they said. Dinner first: the bar is for later.
   const drinksAt = q.dinner ? Math.round((q.hour + 1.75) * 4) / 4 : q.hour;
   const bars: Scored[] = venues
-    .filter((v) => v.kind === "bar")
+    .filter((v) => isBarAt(v, drinksAt))
     .map((venue) => scoreDateVenue(venue, q, drinksAt, { fit: 0.34, prefs: 0.36, nb: 0.12, time: 0.08, score: 0.1 }))
     .filter((x): x is Scored => x !== null)
     .sort((a, b) => b.score - a.score);
@@ -325,7 +339,8 @@ export function recommendDate(q: DateQuery, venues: Venue[], count = RESULT_COUN
       score: s.score,
       drinksAt: q.hour,
       why: [STAGE_WORD[q.stage], ...hitWords(s.hits), label === "Easy in" ? "Room to walk in" : null].filter(Boolean).slice(0, 3).join(" · "),
-      far: whereWord(s.where, s.venue) ?? undefined,
+      far: whereWord(s.where) ?? undefined,
+      door: doorOf(s.where),
     }));
   }
 
@@ -353,17 +368,18 @@ function pairWithBars(
   const drinksAt = Math.round((dinnerAt + 1.75) * 4) / 4;
   for (const { s: r, label } of picks) {
     const candidates = bars
-      .filter((b) => !usedBars.has(b.venue.slug) && openAt(b.venue.hours, dow, drinksAt) !== false)
-      .map((b) => ({ ...b, dist: haversineMeters(r.venue, b.venue) }))
+      .filter((b) => !usedBars.has(b.venue.slug) && b.venue.slug !== r.venue.slug && openAt(b.venue.hours, dow, drinksAt) !== false)
+      .map((b) => ({ ...b, dist: haversineMeters(r.where?.door ?? r.venue, nearestDoor(b.venue, r.where?.door ?? r.venue)) }))
       .filter((b) => b.dist <= 900)
       .map((b) => ({ ...b, combined: b.score * (1 - Math.min(b.dist, 900) / 3000) }))
       .sort((a, b) => b.combined - a.combined);
     const bar = candidates[0] ?? bars.find((b) => !usedBars.has(b.venue.slug)) ?? bars[0];
     if (!bar) continue;
     usedBars.add(bar.venue.slug);
-    const dist = haversineMeters(r.venue, bar.venue);
+    const from = r.where?.door ?? r.venue;
+    const dist = haversineMeters(from, nearestDoor(bar.venue, from));
     const walk = Math.max(2, Math.round(dist / 80));
-    plans.push({ restaurant: r.venue, bar: bar.venue, label, score: r.score, dinnerAt, drinksAt, walkMinutes: walk, why: why(r, bar, walk), far: whereWord(r.where, r.venue) ?? undefined });
+    plans.push({ restaurant: r.venue, bar: bar.venue, label, score: r.score, dinnerAt, drinksAt, walkMinutes: walk, why: why(r, bar, walk), far: whereWord(r.where) ?? undefined, door: doorOf(r.where), barDoor: doorOf(bar.where) });
   }
   return plans;
 }
@@ -380,7 +396,7 @@ export function recommendDinner(q: DinnerQuery, venues: Venue[], count = RESULT_
   const anchor = anchorOf(q);
   const drinksAt = Math.round((q.hour + 1.75) * 4) / 4;
   const score = (venue: Venue, hour: number, w: { nb: number; group: number; time: number; prefs: number; score: number }): Scored | null => {
-    const where = whereRead(venue, anchor);
+    const where = whereReadVenue(venue, anchor);
     if (!where) return null;
     const open = hoursFactor(venue, hour, q.dow);
     if (open === null) return null;
@@ -397,7 +413,7 @@ export function recommendDinner(q: DinnerQuery, venues: Venue[], count = RESULT_
     .filter((x): x is Scored => x !== null)
     .sort((a, b) => b.score - a.score);
   const bars = venues
-    .filter((v) => v.kind === "bar")
+    .filter((v) => isBarAt(v, drinksAt))
     .map((v) => score(v, drinksAt, { nb: 0.13, group: 0.27, time: 0.12, prefs: 0.36, score: 0.12 }))
     .filter((x): x is Scored => x !== null)
     .sort((a, b) => b.score - a.score);
@@ -436,9 +452,10 @@ export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUN
   const wants = q.wants ?? {};
   const hasWants = Object.keys(wants).length > 0;
   const scored = venues
-    .filter((v) => v.kind === "bar" && v.slug !== q.exclude)
+    .filter((v) => isBarAt(v, q.hour) && v.slug !== q.exclude)
     .map((venue) => {
-      const meters = haversineMeters(q, venue);
+      const door = nearestDoor(venue, q);
+      const meters = haversineMeters(q, door);
       if (meters > radius) return null;
       const open = hoursFactor(venue, q.hour, q.dow);
       if (open === null) return null;
@@ -452,7 +469,7 @@ export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUN
       const score = (hasWants
         ? near * 0.35 + prefs * 0.3 + time * 0.1 + rating * 0.15 + (venue.verified ? 0.1 : 0)
         : near * 0.45 + time * 0.15 + rating * 0.2 + (venue.verified ? 0.15 : 0) + venue.easyIn * 0.05) * open;
-      return { venue, meters, score, hits, time };
+      return { venue, meters, score, hits, time, door };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null)
     .sort((a, b) => b.score - a.score)
@@ -463,6 +480,6 @@ export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUN
     const walk = Math.max(1, Math.round(s.meters / 80));
     const label: PickLabel = i === 0 ? "The pick" : i === 1 ? "Also great" : s.venue.easyIn >= 0.7 && i === 2 ? "Easy in" : labels[Math.min(i, labels.length - 1)];
     const parts = [`${walk} min walk`, ...s.hits.slice(0, 1).map((h) => HIT_WORD[h]).filter(Boolean), s.time >= 1 ? "Good right now" : null].filter(Boolean) as string[];
-    return { venue: s.venue, label, score: s.score, why: parts.slice(0, 3).join(" · "), meters: s.meters, walkMinutes: walk };
+    return { venue: s.venue, label, score: s.score, why: parts.slice(0, 3).join(" · "), meters: s.meters, walkMinutes: walk, door: s.door.main ? undefined : s.door };
   });
 }

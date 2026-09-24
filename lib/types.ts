@@ -33,14 +33,25 @@ export type Attrs = Record<AttrKey, number>;
 export type DayHours = { open: string; close: string } | null;
 export type Hours = [DayHours, DayHours, DayHours, DayHours, DayHours, DayHours, DayHours];
 
+/** Another door for the same place (Wogies on Greenwich Ave and on Bleecker). The main one is the venue's own address. */
+export type VenueLocation = { address: string; lat: number; lng: number; neighborhood: NeighborhoodId; label?: string };
+/** One photo of the place; the first is the cover. */
+export type VenuePhoto = { url: string; credit?: string };
+
 export type Venue = {
   slug: string;
   name: string;
   kind: "bar" | "restaurant";
+  /** A restaurant that turns into a proper bar later in the night (see `barFrom`). */
+  barLater?: boolean;
+  /** The hour (24h, may pass 24) from which a restaurant counts as a bar; default 22. */
+  barFrom?: number;
   neighborhood: NeighborhoodId;
   address: string;
   lat: number;
   lng: number;
+  /** Other locations of the same place, if any. */
+  locations?: VenueLocation[];
   /** ROUND's Take — one sentence, in the house voice. */
   take: string;
   /** ROUND's score, 0–100: how much we like it. Set in Studio; shown only once set. */
@@ -71,6 +82,8 @@ export type Venue = {
   photoUrl?: string;
   /** Who to credit for the photo (Wikimedia Commons uploads ask for this). */
   photoCredit?: string;
+  /** Every photo, cover first; `photoUrl`/`photoCredit` mirror the first one. */
+  photos?: VenuePhoto[];
   /** Seeded social proof for the demo; becomes real with the friend graph. */
   friendsBeen?: number;
   /** Membership perk slot — unused in V1, wired for later. */
@@ -146,6 +159,8 @@ export type NightPick = {
   why: string;
   /** The walk, when it's worth saying: "8 min into SoHo", "6 min walk". */
   far?: string;
+  /** Which door, when the pick is about one of the place's other locations. */
+  door?: VenueLocation;
 };
 
 export type DatePlan = {
@@ -159,4 +174,7 @@ export type DatePlan = {
   why: string;
   /** The walk to the first stop, when it's worth saying. */
   far?: string;
+  /** Which door of the first stop / the bar, when it's one of their other locations. */
+  door?: VenueLocation;
+  barDoor?: VenueLocation;
 };

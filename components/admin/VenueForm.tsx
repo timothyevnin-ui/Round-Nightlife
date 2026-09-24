@@ -6,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { ATTR_GROUPS, ATTR_LIST, SUGGESTED_TAGS, type AttrKey } from "@/lib/attrs";
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 import { slugify } from "@/lib/slug";
-import type { Attrs, Capacity, Venue, Window } from "@/lib/types";
+import type { Attrs, Capacity, NeighborhoodId, Venue, Window } from "@/lib/types";
+import { formatHour } from "@/lib/time";
+import { photosOf } from "@/lib/places";
 import { adoptPhoto, draftFromNotes, draftTake, fillFromWeb, findPhotos, lookupAddress, readMyWords, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
 import { HoursEditor } from "./HoursEditor";
 import { ScoreBadge } from "@/components/Score";
@@ -98,6 +100,10 @@ function blank(): Draft {
     address: "",
     lat: null,
     lng: null,
+    photos: [],
+    locations: [],
+    barLater: false,
+    barFrom: null,
     take: "",
     theCatch: "",
     notes: "",
@@ -147,6 +153,10 @@ function fromVenue(v: Venue): Draft {
     friendsBeen: v.friendsBeen ?? 0,
     photoUrl: v.photoUrl,
     photoCredit: v.photoCredit ?? "",
+    photos: photosOf(v),
+    locations: v.locations ?? [],
+    barLater: !!v.barLater,
+    barFrom: v.barFrom ?? null,
     perk: v.perk,
     hot: !!v.hot,
     hotRank: v.hotRank ?? null,
@@ -162,8 +172,9 @@ function fromVenue(v: Venue): Draft {
 export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; writable: boolean; prefill?: Prefill }) {
   const router = useRouter();
   const [d, setD] = useState<Draft>(() => (venue ? fromVenue(venue) : prefill ? fromPrefill(prefill) : blank()));
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  /** More photos picked on the phone, not yet uploaded (they go after the kept ones; the first photo is the cover). */
+  const [newPhotos, setNewPhotos] = useState<{ file: File; preview: string }[]>([]);
+  const [doorBusy, setDoorBusy] = useState<number | null>(null);
   const [tagInput, setTagInput] = useState("");
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [pending, start] = useTransition();
@@ -216,13 +227,13 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
     start(async () => {
       setMsg(null);
       const fd = new FormData();
-      const payload: SavePayload = { ...d, slug: d.slug || slugify(d.name) };
+      const payload: SavePayload = { ...d, slug: d.slug || slugify(d.name), photos: d.photos ?? [], locations: (d.locations ?? []).filter((l) => l.address.trim()) };
       fd.set("payload", JSON.stringify(payload));
-      if (photoFile) fd.set("photo", photoFile);
+      for (const n of newPhotos) fd.append("photos", n.file);
       const r = await saveVenue(fd);
       if (r.ok) {
         setMsg({ kind: "ok", text: "Saved. Live within a minute." });
-        setPhotoFile(null);
+        setNewPhotos([]);
         if (isNew || r.slug !== venue?.slug) router.push(`/admin/v/${r.slug}`);
         router.refresh();
       } else setMsg({ kind: "err", text: r.error });
@@ -327,9 +338,11 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
       const r = await adoptPhoto({ slug: d.slug || slugify(d.name) || "place", thumb: p.thumb, credit: p.credit });
       if ("error" in r) setFinder((f) => ({ ...f, using: null, error: r.error }));
       else {
-        setPhotoFile(null);
-        setPhotoPreview(null);
-        setD((x) => ({ ...x, photoUrl: r.photoUrl, photoCredit: r.photoCredit }));
+        // Into the gallery (cover if it's the first); the single fields mirror the cover.
+        setD((x) => {
+          const photos = [...(x.photos ?? []).filter((ph) => ph.url !== r.photoUrl), { url: r.photoUrl, credit: r.photoCredit || undefined }];
+          return { ...x, photos, photoUrl: photos[0].url, photoCredit: photos[0].credit ?? "" };
+        });
         setFinder((f) => ({ ...f, using: null, open: false }));
         setMsg({ kind: "ok", text: "Photo's in. Hit Save to keep it." });
       }
@@ -360,19 +373,6 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
       found.push("it has a kitchen");
     }
     setReadNote(found.length ? `Got ${found.join(", ")}.` : `Read the page but it doesn't post hours. ${r.fill.summary ?? ""}`);
-  };
-
-  const pickPhoto = async (f: File | null) => {
-    if (!f) {
-      setPhotoFile(null);
-      setPhotoPreview(null);
-      return;
-    }
-    setMsg(null);
-    const small = await shrinkPhoto(f).catch(() => f);
-    setPhotoFile(small);
-    setPhotoPreview(URL.createObjectURL(small));
-    setD((x) => ({ ...x, photoCredit: "" }));
   };
 
   return (
@@ -435,7 +435,31 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
             </select>
           </Field>
           <Field label="Kind">
-            <Segmented options={[{ v: "bar", label: "Bar" }, { v: "restaurant", label: "Restaurant" }]} value={d.kind} onChange={(v) => set("kind", v as "bar" | "restaurant")} />
+            <Segmented
+              options={[
+                { v: "bar", label: "Bar" },
+                { v: "kitchen", label: "Bar · kitchen" },
+                { v: "restaurant", label: "Restaurant" },
+                { v: "both", label: "Restaurant & bar" },
+              ]}
+              value={d.kind === "restaurant" ? (d.barLater ? "both" : "restaurant") : d.barFood ? "kitchen" : "bar"}
+              onChange={(v) => setD((x) => ({ ...x, kind: v === "restaurant" || v === "both" ? "restaurant" : "bar", barFood: v === "kitchen", barLater: v === "both", barFrom: v === "both" ? x.barFrom ?? 22 : null }))}
+              small
+              wrap
+            />
+            {d.kind === "restaurant" && d.barLater && (
+              <div className="mt-2 flex items-center gap-2 text-[13px]" style={{ color: "var(--chalk-70)" }}>
+                <span>A real bar from</span>
+                <select value={String(d.barFrom ?? 22)} onChange={(e) => set("barFrom", Number(e.target.value))} className="h-9 rounded-[10px] border px-2 text-[13px] outline-none" style={inputStyle} aria-label="Bar from" data-bar-from>
+                  {[20, 21, 21.5, 22, 22.5, 23, 24].map((h) => (
+                    <option key={h} value={h}>
+                      {formatHour(h, true)}
+                    </option>
+                  ))}
+                </select>
+                <span>on. Dinner before that; drinks picks after.</span>
+              </div>
+            )}
           </Field>
         </div>
         <Field label="Address">
@@ -449,6 +473,54 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
             {geo ?? (d.lat && d.lng ? `${d.lat.toFixed(4)}, ${d.lng.toFixed(4)}` : "Tap Find to put it on the map.")}
           </p>
         </Field>
+        {(d.locations ?? []).map((l, i) => (
+          <div key={i} className="mt-3 rounded-[16px] border p-3" style={{ borderColor: "var(--hairline)" }} data-door={i}>
+            <div className="flex items-center justify-between">
+              <p className="eyebrow">Another location</p>
+              <button onClick={() => set("locations", (d.locations ?? []).filter((_, j) => j !== i))} className="pressable text-[12px]" style={{ color: "var(--chalk-35)" }} data-door-remove>
+                Remove
+              </button>
+            </div>
+            <div className="mt-2 flex gap-2">
+              <TextInput value={l.address} onChange={(v) => set("locations", (d.locations ?? []).map((x, j) => (j === i ? { ...x, address: v } : x)))} placeholder="39 Greenwich Ave, New York, NY 10014" />
+              <button
+                onClick={() =>
+                  start(async () => {
+                    setDoorBusy(i);
+                    const r = await lookupAddress(l.address);
+                    setDoorBusy(null);
+                    if ("error" in r) return setMsg({ kind: "err", text: r.error });
+                    set("locations", (d.locations ?? []).map((x, j) => (j === i ? { ...x, lat: r.lat, lng: r.lng, neighborhood: r.neighborhood ?? x.neighborhood } : x)));
+                  })
+                }
+                disabled={pending}
+                className="pressable btn-ghost shrink-0 px-4 text-[13px]"
+                data-door-find
+              >
+                {doorBusy === i ? "…" : "Find"}
+              </button>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <select value={l.neighborhood} onChange={(e) => set("locations", (d.locations ?? []).map((x, j) => (j === i ? { ...x, neighborhood: e.target.value as NeighborhoodId } : x)))} className={selectCls} style={inputStyle} aria-label="Neighborhood of this location">
+                {NEIGHBORHOODS.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    {n.name}
+                  </option>
+                ))}
+              </select>
+              <input value={l.label ?? ""} onChange={(e) => set("locations", (d.locations ?? []).map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} placeholder="Label (optional): the Bleecker one" className="h-12 w-full rounded-[14px] border px-4 text-[13px] outline-none" style={inputStyle} />
+            </div>
+            <p className="mt-1.5 text-[11.5px]" style={{ color: "var(--chalk-35)" }}>
+              {l.lat && l.lng ? `${l.lat.toFixed(4)}, ${l.lng.toFixed(4)}` : "Tap Find to put it on the map."}
+            </p>
+          </div>
+        ))}
+        <button onClick={() => set("locations", [...(d.locations ?? []), { address: "", lat: 0, lng: 0, neighborhood: d.neighborhood as NeighborhoodId }])} className="pressable btn-ghost mt-3 flex h-11 items-center px-4 text-[13.5px]" data-door-add>
+          + Another location
+        </button>
+        <p className="mt-1.5 text-[11.5px]" style={{ color: "var(--chalk-35)" }}>
+          Same place, another door (Wogies on Greenwich Ave and on Bleecker). Each one is a pin on the map, and the picks measure from whichever is closer.
+        </p>
       </Section>
 
       {/* ── The verdict ── */}
@@ -599,9 +671,6 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
         <Field label="Posted hours">
           <HoursEditor value={d.hours ?? undefined} onChange={(h) => set("hours", h ?? null)} />
         </Field>
-        <Row label={d.kind === "restaurant" ? "It's a restaurant (food is the point)" : "Bar with a kitchen (real food menu)"}>
-          <Toggle on={d.kind === "restaurant" ? true : !!d.barFood} onChange={(v) => d.kind !== "restaurant" && set("barFood", v)} />
-        </Row>
         <Field label="What kind of food" hint="Shows first in the keywords line: Italian, Cheesesteaks, Tacos.">
           <input value={d.cuisine ?? ""} onChange={(e) => set("cuisine", e.target.value)} placeholder={d.kind === "restaurant" || d.barFood ? "Cheesesteaks" : "Leave blank for drinks-only"} className="h-12 w-full rounded-[14px] border px-4 text-[15px] outline-none" style={inputStyle} />
         </Field>
@@ -627,43 +696,87 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
         </Field>
       </Section>
 
-      <Section title="Photo" hint="Yours is best: shot at night, in the room, no filters. Or find a free-to-use one from Wikimedia Commons; the credit rides along.">
-        <div className="flex items-center gap-4">
-          <div className="grain relative h-24 w-24 shrink-0 overflow-hidden rounded-[18px]" style={{ background: "linear-gradient(160deg, #161922, #3a4150)" }}>
-            {(photoPreview ?? d.photoUrl) && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={photoPreview ?? d.photoUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
-            )}
-          </div>
-          <div className="flex min-w-0 flex-col gap-2">
-            <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={(e) => pickPhoto(e.target.files?.[0] ?? null)} />
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => fileRef.current?.click()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]">
-                {d.photoUrl || photoPreview ? "Replace" : "Upload yours"}
-              </button>
-              <button onClick={openFinder} disabled={!d.name.trim()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]" style={{ opacity: d.name.trim() ? 1 : 0.5 }}>
-                Find a photo
-              </button>
-            </div>
-            {d.photoCredit ? (
-              <p className="truncate text-[11.5px]" style={{ color: "var(--chalk-55)" }}>
-                {d.photoCredit}
-              </p>
-            ) : null}
-            {(d.photoUrl || photoPreview) && (
-              <button
-                onClick={() => {
-                  pickPhoto(null);
-                  setD((x) => ({ ...x, photoUrl: "", photoCredit: "" }));
-                }}
-                className="pressable text-left text-[12px]"
-                style={{ color: "var(--chalk-35)" }}
-              >
-                Remove
-              </button>
-            )}
-          </div>
+      <Section title="Photos" hint="Yours are best: shot at night, in the room, no filters. The first one is the cover (on cards, in a text). Tap Cover on any other to move it first. Or find a free-to-use one from Wikimedia Commons; the credit rides along.">
+        <ul className="grid grid-cols-3 gap-2" data-photo-grid>
+          {(d.photos ?? []).map((ph, i) => (
+            <li key={ph.url} className="relative overflow-hidden rounded-[16px] border" style={{ borderColor: i === 0 ? "var(--cobalt)" : "var(--hairline)", aspectRatio: "1" }} data-photo={i}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={ph.url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              {i === 0 && (
+                <span className="absolute left-1.5 top-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider" style={{ background: "var(--cobalt)", color: "var(--chalk)" }}>
+                  Cover
+                </span>
+              )}
+              <div className="absolute inset-x-0 bottom-0 flex justify-between p-1.5" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.55))" }}>
+                {i > 0 ? (
+                  <button onClick={() => set("photos", [ph, ...(d.photos ?? []).filter((_, j) => j !== i)])} className="pressable rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: "rgba(246,241,231,0.9)", color: "var(--ink)" }} data-photo-cover>
+                    Cover
+                  </button>
+                ) : (
+                  <span />
+                )}
+                <button onClick={() => set("photos", (d.photos ?? []).filter((_, j) => j !== i))} className="pressable rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: "rgba(246,241,231,0.9)", color: "#c0392b" }} data-photo-remove>
+                  Remove
+                </button>
+              </div>
+              {ph.credit && (
+                <span className="absolute right-1.5 top-1.5 max-w-[70%] truncate rounded-full px-1.5 py-0.5 text-[9px]" style={{ background: "rgba(0,0,0,0.45)", color: "rgba(246,241,231,0.9)" }} title={ph.credit}>
+                  {ph.credit}
+                </span>
+              )}
+            </li>
+          ))}
+          {newPhotos.map((n, i) => (
+            <li key={n.preview} className="relative overflow-hidden rounded-[16px] border border-dashed" style={{ borderColor: "var(--cobalt)", aspectRatio: "1" }} data-photo-new={i}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={n.preview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <span className="absolute left-1.5 top-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider" style={{ background: "rgba(246,241,231,0.9)", color: "var(--ink)" }}>
+                New
+              </span>
+              <div className="absolute inset-x-0 bottom-0 flex justify-end p-1.5" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.55))" }}>
+                <button onClick={() => setNewPhotos((x) => x.filter((_, j) => j !== i))} className="pressable rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: "rgba(246,241,231,0.9)", color: "#c0392b" }}>
+                  Remove
+                </button>
+              </div>
+            </li>
+          ))}
+          {(d.photos ?? []).length + newPhotos.length === 0 && (
+            <li className="grain relative overflow-hidden rounded-[16px]" style={{ background: "linear-gradient(160deg, #161922, #3a4150)", aspectRatio: "1" }} aria-hidden />
+          )}
+        </ul>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="sr-only"
+          onChange={async (e) => {
+            const files = Array.from(e.target.files ?? []);
+            e.target.value = "";
+            if (!files.length) return;
+            setMsg(null);
+            const picked: { file: File; preview: string }[] = [];
+            for (const f of files.slice(0, 12)) {
+              const small = await shrinkPhoto(f).catch(() => f);
+              picked.push({ file: small, preview: URL.createObjectURL(small) });
+            }
+            setNewPhotos((x) => [...x, ...picked].slice(0, 12));
+          }}
+          data-photo-input
+        />
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button onClick={() => fileRef.current?.click()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]" data-photo-add>
+            {(d.photos ?? []).length + newPhotos.length ? "Add photos" : "Upload yours"}
+          </button>
+          <button onClick={openFinder} disabled={!d.name.trim()} className="pressable btn-ghost flex h-11 items-center px-4 text-[13.5px]" style={{ opacity: d.name.trim() ? 1 : 0.5 }}>
+            Find a photo
+          </button>
         </div>
+        {newPhotos.length > 0 && (
+          <p className="mt-2 text-[12px]" style={{ color: "var(--chalk-55)" }}>
+            {newPhotos.length} new {newPhotos.length === 1 ? "photo uploads" : "photos upload"} when you Save.
+          </p>
+        )}
 
         {finder.open && (
           <div className="card mt-2 p-4">

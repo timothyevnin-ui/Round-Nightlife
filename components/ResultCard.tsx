@@ -12,7 +12,7 @@ import { DisagreeButton } from "./DisagreeSheet";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { keywordLine } from "@/lib/describe";
 import { formatHour } from "@/lib/time";
-import type { DatePlan, PickLabel, Venue } from "@/lib/types";
+import type { DatePlan, PickLabel, Venue, VenueLocation } from "@/lib/types";
 
 /**
  * One card in the results carousel, kept to what decides a night: the photo,
@@ -82,7 +82,17 @@ export function FarLine({ text, className = "mt-2" }: { text?: string; className
   );
 }
 
-export function ResultCard({ venue, label, why, far, shareUrl, index = 0 }: { venue: Venue; label: PickLabel; why?: string; far?: string; shareUrl: string; index?: number }) {
+/** "The one on Greenwich Ave · West Village": which door, when the place has more than one. */
+export function DoorLine({ door, className = "mt-1" }: { door?: VenueLocation; className?: string }) {
+  if (!door) return null;
+  return (
+    <p className={`text-[12px] ${className}`} style={{ color: "var(--ink-55)" }} data-door>
+      {door.label ? door.label : `The one at ${door.address.replace(/,\s*New York.*$/i, "")}`} · {neighborhoodName(door.neighborhood)}
+    </p>
+  );
+}
+
+export function ResultCard({ venue, label, why, far, door, shareUrl, index = 0 }: { venue: Venue; label: PickLabel; why?: string; far?: string; door?: VenueLocation; shareUrl: string; index?: number }) {
   return (
     <motion.article
       initial={{ opacity: 0, y: 18 }}
@@ -111,6 +121,7 @@ export function ResultCard({ venue, label, why, far, shareUrl, index = 0 }: { ve
           <p className="mt-1 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
             {keywordLine(venue)}
           </p>
+          <DoorLine door={door} />
         </Link>
 
         {why && (
@@ -165,14 +176,14 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
       <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
         {restaurant ? (
           <>
-            <Stop eyebrow={`Dinner · ${formatHour(plan.dinnerAt ?? 20, true)}`} venue={restaurant} big />
+            <Stop eyebrow={`Dinner · ${formatHour(plan.dinnerAt ?? 20, true)}`} venue={restaurant} big door={plan.door} />
             <div className="my-2 flex items-center gap-3">
               <span className="block h-6 w-px" style={{ background: "var(--hairline-strong)", marginLeft: 6 }} />
               <span className="text-[12px]" style={{ color: "var(--ink-35)" }}>
                 {plan.walkMinutes ?? 5} min walk
               </span>
             </div>
-            <Stop eyebrow={`Drinks · ${formatHour(plan.drinksAt, true)}`} venue={bar} />
+            <Stop eyebrow={`Drinks · ${formatHour(plan.drinksAt, true)}`} venue={bar} door={plan.barDoor} />
           </>
         ) : (
           <Link href={`/v/${bar.slug}`} className="block">
@@ -184,6 +195,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
             <p className="mt-1 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
               {keywordLine(bar)}
             </p>
+            <DoorLine door={plan.door} />
           </Link>
         )}
 
@@ -216,7 +228,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
   );
 }
 
-function Stop({ eyebrow, venue, big }: { eyebrow: string; venue: Venue; big?: boolean }) {
+function Stop({ eyebrow, venue, big, door }: { eyebrow: string; venue: Venue; big?: boolean; door?: VenueLocation }) {
   return (
     <Link href={`/v/${venue.slug}`} className="pressable block">
       <p className="eyebrow">{eyebrow}</p>
@@ -227,6 +239,7 @@ function Stop({ eyebrow, venue, big }: { eyebrow: string; venue: Venue; big?: bo
       <p className="mt-0.5 text-[12px] font-medium tracking-wide" style={{ color: "var(--ink-55)" }}>
         {keywordLine(venue)}
       </p>
+      <DoorLine door={door} className="mt-0.5" />
       <p className={`mt-1 ${big ? "" : "line-clamp-2"} text-[13.5px] leading-snug`} style={{ color: "var(--ink-70)" }}>
         <span className="font-semibold" style={{ color: "var(--tomato)" }}>
           ROUND says

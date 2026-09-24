@@ -129,6 +129,10 @@ Run the current `supabase/schema.sql` again. It lets friends read each other's s
 
 Run the current `supabase/schema.sql` again. Any place in Williamsburg or Greenpoint moves to Not for ROUND (Studio → Places → Not for ROUND can bring one back). Then, on the dashboard, tap **Update from ROUND's list** once: it fills posted hours into every verified place that has none (the message says how many) and leaves the rest of a verified place alone.
 
+## 16. More photos, more doors, restaurant & bar (V25)
+
+Run the current `supabase/schema.sql` again. It adds `photos`, `locations`, `bar_later` and `bar_from` to venues. Until it's run, a save from Studio still works (the app drops the columns it can't write and says so in the logs), but extra photos and locations won't stick, and the dashboard's health check names the missing columns.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

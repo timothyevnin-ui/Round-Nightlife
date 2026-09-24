@@ -26,6 +26,7 @@ const PROBES: { key: string; label: string; what: string; path: string }[] = [
   { key: "checkins", label: "Where friends are", what: "the checkins table (V8)", path: "checkins?select=user_id&limit=1" },
   { key: "venues.hours", label: "Hours, food and ROUND's score", what: "the hours, bar_food, cuisine and score columns on venues (V11)", path: "venues?select=hours,bar_food,cuisine,score&limit=1" },
   { key: "venues.day_deal", label: "Day deals", what: "the day_deal column on venues (V12)", path: "venues?select=day_deal&limit=1" },
+  { key: "venues.photos", label: "More photos, more doors, restaurant & bar", what: "the photos, locations, bar_later and bar_from columns on venues (V25)", path: "venues?select=photos,locations,bar_later,bar_from&limit=1" },
   { key: "venues.retired", label: "Not for ROUND", what: "the retired column on venues (V17): the verify sprint's pass button", path: "venues?select=retired&limit=1" },
   { key: "suggestions.venmo", label: "The $2 offer", what: "the venmo and paid_at columns on suggestions (V20)", path: "suggestions?select=venmo,paid_at&limit=1" },
   { key: "disputes", label: "Disagree with our take", what: "the disputes table (V19): what readers say we got wrong", path: "disputes?select=id&limit=1" },

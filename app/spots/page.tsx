@@ -7,7 +7,7 @@ import { SpotsView, type Spot } from "./SpotsView";
 
 export const revalidate = 60;
 
-export const metadata: Metadata = { title: "Spots", description: "Every place on ROUND: the take, the score, and your say." };
+export const metadata: Metadata = { title: "Map", description: "Every place on ROUND, on the map: the take, the score, and your say." };
 
 /**
  * The Spots tab: every place ROUND stands behind, on a map first (with you on
@@ -29,6 +29,8 @@ export default async function SpotsPage() {
     lng: v.lng,
     take: v.take,
     hours: v.hours ?? null,
+    locations: v.locations ?? null,
+    barLater: !!v.barLater,
     tags: v.tags.slice(0, 3),
     price: v.price,
     score: v.score ?? null,

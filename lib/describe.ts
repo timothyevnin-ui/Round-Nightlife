@@ -1,3 +1,4 @@
+import { kindWord } from "./places";
 import { vibeOf, type Venue, type Window } from "./types";
 import { formatHour } from "./time";
 import { neighborhoodName } from "./neighborhoods";
@@ -50,7 +51,7 @@ export function priceLabel(p: Venue["price"]) {
 
 /** The keywords line on a card: "West Village · Bar · Cheesesteaks · Sports · $$". */
 export function keywordLine(v: Venue): string {
-  const kind = v.kind === "restaurant" ? "Restaurant" : v.barFood ? "Bar · kitchen" : "Bar";
+  const kind = kindWord(v);
   const words = [...(v.cuisine ? [v.cuisine] : []), ...(v.tags.length ? v.tags : strongAttrLabels(v, 3))];
   return [neighborhoodName(v.neighborhood), kind, ...[...new Set(words)].slice(0, 3), priceLabel(v.price)].join(" · ");
 }

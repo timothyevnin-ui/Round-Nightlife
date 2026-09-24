@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VerifiedLine, VerifiedMark } from "@/components/VerifiedMark";
-import { Photo } from "@/components/Photo";
+import { Gallery } from "@/components/Gallery";
 import { TrackView } from "@/components/TrackView";
 import { FriendsChip } from "@/components/VenueCard";
 import { VenueActions } from "./VenueActions";
@@ -20,6 +20,7 @@ import { getVenue, getVenues } from "@/lib/db";
 import { strongAttrLabels } from "@/lib/engine";
 import type { Venue } from "@/lib/types";
 import { storyParagraphs } from "@/lib/hot";
+import { doorsOf, kindWord as kindOf } from "@/lib/places";
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -53,14 +54,14 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
     <main className="mx-auto w-full max-w-md pb-14">
       <TrackView slug={v.slug} />
       <div className="relative">
-        <Photo venue={v} rounded="rounded-none" className="aspect-[4/5] w-full" credit>
+        <Gallery venue={v}>
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" }}>
             <BackButton />
           </div>
           <div className="absolute bottom-5 left-5">
             <FriendsChip count={v.friendsBeen} />
           </div>
-        </Photo>
+        </Gallery>
       </div>
 
       <div className="screen" style={{ minHeight: 0, paddingTop: 20 }}>
@@ -93,7 +94,7 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
         <p className="mt-2.5 text-[13px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
           {keywords(v).join(" · ")}
         </p>
-        <VerifiedLine verified={!!v.verified} />
+        <VerifiedLine verified={!!v.verified} desk={!!v.sources?.includes("desk")} />
 
         <VenueActions venue={v} shareUrl={`/p/${shareCode}`} names={names} />
         <StudioBar slug={v.slug} verified={!!v.verified} />
@@ -134,10 +135,19 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
         )}
 
         <section className="mt-7 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
-          <p className="eyebrow">Address</p>
-          <p className="mt-1.5 text-[14.5px]" style={{ color: "var(--chalk-70)" }}>
-            {v.address}
-          </p>
+          <p className="eyebrow">{v.locations?.length ? `${v.locations.length + 1} locations` : "Address"}</p>
+          <ul className="mt-1.5 flex flex-col gap-1.5" data-doors={(v.locations?.length ?? 0) + 1}>
+            {doorsOf(v).map((d) => (
+              <li key={d.address} className="text-[14.5px]" style={{ color: "var(--chalk-70)" }}>
+                {d.address}
+                {v.locations?.length ? (
+                  <span className="ml-1.5 text-[12.5px]" style={{ color: "var(--chalk-35)" }}>
+                    · {d.label ?? neighborhoodName(d.neighborhood)}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         </section>
 
         <div className="mt-8 flex justify-center">
@@ -151,9 +161,9 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
   );
 }
 
-/** "Bar", "Bar · kitchen", "Restaurant". */
+/** "Bar", "Bar · kitchen", "Restaurant", "Restaurant & bar". */
 function kindWord(v: Venue) {
-  return v.kind === "restaurant" ? "Restaurant" : v.barFood ? "Bar · kitchen" : "Bar";
+  return kindOf(v);
 }
 
 /** The keywords line: what kind of food, the tags (or the strongest attributes), the price. */

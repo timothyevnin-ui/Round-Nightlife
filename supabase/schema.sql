@@ -478,4 +478,12 @@ grant select on public.people to authenticated;
 update public.venues set retired = true
   where neighborhood in ('williamsburg', 'greenpoint') and retired = false;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V25. More than one photo (cover first), more than one door (Wogies on
+-- Greenwich and on Bleecker), and a restaurant that turns into a bar later.
+alter table public.venues add column if not exists photos    jsonb;
+alter table public.venues add column if not exists locations jsonb;
+alter table public.venues add column if not exists bar_later boolean not null default false;
+alter table public.venues add column if not exists bar_from  numeric;
+
 -- Later phases (plans, census) add their tables here.

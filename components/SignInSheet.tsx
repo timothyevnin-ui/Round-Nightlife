@@ -68,12 +68,12 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
 }
 
 /** The same flow, inline on a page (the YOU tab for someone we don't know yet). `onSignedIn` fires once the code checks out, `onDone` when the whole thing (about-you included) is over. */
-export function SignInFlow({ reason, onSignedIn, onDone }: { reason: SignInReason; onSignedIn?: () => void; onDone?: () => void }) {
+export function SignInFlow({ reason, onSignedIn, onDone, bare = false }: { reason: SignInReason; onSignedIn?: () => void; onDone?: () => void; /** On a page that already says why (the YOU pitch): just the box and the button. */ bare?: boolean }) {
   const { user, needsProfile, profile } = useAuth();
-  return <Flow reason={reason} startAt={user ? (needsProfile ? "profile" : "done") : "phone"} name={profile?.name} onSignedIn={onSignedIn} onDone={onDone} />;
+  return <Flow reason={reason} startAt={user ? (needsProfile ? "profile" : "done") : "phone"} name={profile?.name} onSignedIn={onSignedIn} onDone={onDone} bare={bare} />;
 }
 
-function Flow({ reason, startAt, name: existingName, onSignedIn, onDone }: { reason: SignInReason; startAt: Step; name?: string; onSignedIn?: () => void; onDone?: () => void }) {
+function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = false }: { reason: SignInReason; startAt: Step; name?: string; onSignedIn?: () => void; onDone?: () => void; bare?: boolean }) {
   const { sendCode, verifyCode, saveProfile, signOut, closeSignIn, user, needsProfile, profile } = useAuth();
   const [step, setStep] = useState<Step>(startAt);
   const [phoneInput, setPhoneInput] = useState("");
@@ -185,14 +185,18 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone }: { rea
     const c = COPY[reason];
     return (
       <>
-        <p className="eyebrow">Your number</p>
-        <h2 className="serif mt-1" style={{ fontSize: 30, lineHeight: 1.05 }}>
-          {c.title}
-        </h2>
-        <p className="mt-2 text-[14px] leading-snug" style={{ color: "var(--chalk-55)" }}>
-          {c.sub}
-        </p>
-        <div className="mt-5 flex items-center gap-2 rounded-[18px] border px-4" style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", height: 60 }}>
+        {!bare && (
+          <>
+            <p className="eyebrow">Your number</p>
+            <h2 className="serif mt-1" style={{ fontSize: 30, lineHeight: 1.05 }}>
+              {c.title}
+            </h2>
+            <p className="mt-2 text-[14px] leading-snug" style={{ color: "var(--chalk-55)" }}>
+              {c.sub}
+            </p>
+          </>
+        )}
+        <div className={`${bare ? "mt-1" : "mt-5"} flex items-center gap-2 rounded-[18px] border px-4`} style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", height: 60 }}>
           {!phoneInput.trim().startsWith("+") && (
             <span className="text-[20px]" style={{ color: "var(--chalk-35)" }}>
               +1
@@ -224,12 +228,16 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone }: { rea
         <button onClick={() => send()} disabled={!e164 || busy} className="pressable btn-primary mt-4 flex h-14 w-full items-center justify-center text-[16px]" style={{ opacity: !e164 || busy ? 0.55 : 1 }}>
           {busy ? "Sending…" : "Text me a code"}
         </button>
-        <button onClick={closeSignIn} className="pressable mt-3 flex h-10 w-full items-center justify-center text-[14px]" style={{ color: "var(--chalk-55)" }}>
-          Not now
-        </button>
-        <p className="mt-2 text-center text-[11.5px] leading-relaxed" style={{ color: "var(--chalk-35)" }}>
-          One text with a code. Never marketing texts. 21+ only.
-        </p>
+        {!bare && (
+          <>
+            <button onClick={closeSignIn} className="pressable mt-3 flex h-10 w-full items-center justify-center text-[14px]" style={{ color: "var(--chalk-55)" }}>
+              Not now
+            </button>
+            <p className="mt-2 text-center text-[11.5px] leading-relaxed" style={{ color: "var(--chalk-35)" }}>
+              One text with a code. Never marketing texts. 21+ only.
+            </p>
+          </>
+        )}
       </>
     );
   }

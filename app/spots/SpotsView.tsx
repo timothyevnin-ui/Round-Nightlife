@@ -18,7 +18,8 @@ import { locate } from "@/lib/locate";
 import { nowInNewYork, openWord, type OpenWord } from "@/lib/hours";
 import { metersBetween, walkMinutes, type Point } from "@/lib/where";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
-import type { Hours, NeighborhoodId, Venue } from "@/lib/types";
+import { doorsOf, hasBar, kindWord, nearestDoor } from "@/lib/places";
+import type { Hours, NeighborhoodId, Venue, VenueLocation } from "@/lib/types";
 
 export type Spot = {
   slug: string;
@@ -32,6 +33,8 @@ export type Spot = {
   lng: number;
   take: string;
   hours: Hours | null;
+  locations: VenueLocation[] | null;
+  barLater: boolean;
   tags: string[];
   price: number;
   score: number | null;
@@ -52,7 +55,9 @@ const readNow = () => {
   return `${n.dow}|${Math.round(n.hour * 60)}`;
 };
 
-const NightMap = dynamic(() => import("@/components/NightMap").then((m) => m.NightMap as ComponentType<NightMapProps<Spot>>), { ssr: false });
+/** One pin per door: a place with two addresses is two pins that open the same card. */
+type Pin = Spot & { pinId: string; door: VenueLocation };
+const NightMap = dynamic(() => import("@/components/NightMap").then((m) => m.NightMap as ComponentType<NightMapProps<Pin>>), { ssr: false });
 
 type Sort = "score" | "az" | "near";
 type View = "map" | "list";
@@ -77,7 +82,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
   const [shown, setShown] = useState(PAGE);
   const [rating, setRating] = useState<Spot | null>(null);
   const [disputing, setDisputing] = useState<Spot | null>(null);
-  const [selected, setSelected] = useState<Spot | null>(null);
+  const [selected, setSelected] = useState<Pin | null>(null);
   const [me, setMe] = useState<Point | null>(null);
   const [asking, setAsking] = useState(false);
   const [denied, setDenied] = useState(false);
@@ -122,18 +127,18 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
   }, [spots]);
   const saved = useMemo(() => new Set(Object.keys(state.saved).filter((k) => state.saved[k])), [state.saved]);
   const been = useMemo(() => new Set(Object.keys(state.been)), [state.been]);
-  const walk = useCallback((s: Spot) => (me ? walkMinutes(metersBetween(me, s)) : null), [me]);
+  const walk = useCallback((s: Spot) => (me ? walkMinutes(metersBetween(me, nearestDoor(s, me))) : null), [me]);
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const by = sort === "near" && me ? "near" : sort === "near" ? "score" : sort;
     return spots
       .filter((s) => hood === "all" || s.neighborhood === hood)
-      .filter((s) => kind === "all" || s.kind === kind)
+      .filter((s) => kind === "all" || (kind === "bar" ? hasBar(s) : s.kind === "restaurant"))
       .filter((s) => !needle || s.name.toLowerCase().includes(needle) || s.tags.some((t) => t.toLowerCase().includes(needle)) || (s.cuisine ?? "").toLowerCase().includes(needle) || neighborhoodName(s.neighborhood).toLowerCase().includes(needle))
       .sort((a, b) =>
         by === "near" && me
-          ? metersBetween(me, a) - metersBetween(me, b)
+          ? metersBetween(me, nearestDoor(a, me)) - metersBetween(me, nearestDoor(b, me))
           : by === "score"
             ? (b.score ?? -1) - (a.score ?? -1) || a.name.localeCompare(b.name)
             : a.name.localeCompare(b.name),
@@ -141,7 +146,8 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
   }, [spots, q, hood, kind, sort, me]);
 
   const visible = list.slice(0, shown);
-  const onPin = useCallback((s: Spot | null) => setSelected(s), []);
+  const pins = useMemo<Pin[]>(() => list.flatMap((s) => doorsOf(s).map((door, i) => ({ ...s, lat: door.lat, lng: door.lng, pinId: `${s.slug}#${i}`, door }))), [list]);
+  const onPin = useCallback((p: Pin | null) => setSelected(p), []);
   const filtered = list.length !== spots.length;
 
   // The map takes everything between the header and the tab bar.
@@ -278,7 +284,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
 
       {view === "map" && spots.length > 0 && (
         <div className="relative -mx-5 mt-1 overflow-hidden" style={{ height: mapHeight, borderTop: "1px solid var(--hairline)", borderBottom: "1px solid var(--hairline)" }} data-spots-map>
-          <NightMap venues={list} saved={saved} been={been} onSelect={onPin} height="100%" interactive rounded={false} focus={HOME} you={me} flyTo={fly} selected={selected?.slug ?? null} big controls="top-right" />
+          <NightMap venues={pins} saved={saved} been={been} onSelect={onPin} height="100%" interactive rounded={false} focus={HOME} you={me} flyTo={fly} selected={selected?.slug ?? null} big controls="top-right" />
           <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5 text-[11px]" style={{ color: "var(--chalk-70)" }}>
             <span className="rounded-full px-2.5 py-1 font-medium" style={{ background: "rgba(243,237,224,0.92)", color: "var(--ink)", backdropFilter: "blur(8px)" }} data-spots-count>
               {!filtered ? `${spots.length} spots · Manhattan` : `${list.length} of ${spots.length} spots`}
@@ -286,28 +292,23 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
             <Legend color="#d9482b" label="Want to go" ring />
             <Legend color="#16213a" label="Been" />
           </div>
-          <button
-            type="button"
-            onClick={locateMe}
-            className="pressable absolute right-3 flex h-11 w-11 items-center justify-center rounded-full border"
-            style={{ bottom: selected ? 196 : 14, background: "rgba(251,248,241,0.96)", borderColor: "var(--hairline-strong)", backdropFilter: "blur(10px)", transition: "bottom 200ms" }}
-            aria-label={me ? "Center on me" : "Show me on the map"}
-            data-spots-locate
-            data-located={me ? "1" : "0"}
-          >
-            {asking ? (
-              <span className="block h-3 w-3 animate-pulse rounded-full" style={{ background: "#1f6fe0" }} />
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <circle cx="10" cy="10" r="3" fill={me ? "#1f6fe0" : "none"} stroke={me ? "#1f6fe0" : "currentColor"} strokeWidth="1.8" />
-                <circle cx="10" cy="10" r="6.5" stroke={me ? "#1f6fe0" : "currentColor"} strokeWidth="1.6" />
-                <path d="M10 1v2.5M10 16.5V19M1 10h2.5M16.5 10H19" stroke={me ? "#1f6fe0" : "currentColor"} strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            )}
-          </button>
-          {!me && denied && (
-            <p className="pointer-events-none absolute bottom-4 left-3 rounded-full px-2.5 py-1 text-[11px]" style={{ background: "rgba(243,237,224,0.92)", color: "var(--ink-55)" }}>
-              Location is off for ROUND. Turn it on in Settings to see yourself here.
+          {!selected && (
+            <button
+              type="button"
+              onClick={locateMe}
+              className="pressable absolute left-3 flex h-10 items-center gap-2 rounded-full border pl-3 pr-3.5 text-[13px] font-medium"
+              style={{ bottom: 34, background: "rgba(251,248,241,0.96)", borderColor: "var(--hairline-strong)", color: "var(--ink)", backdropFilter: "blur(10px)", boxShadow: "0 2px 10px rgba(22,33,58,0.12)" }}
+              aria-label={me ? "Center the map on you" : "See where you are on the map"}
+              data-spots-locate
+              data-located={me ? "1" : "0"}
+            >
+              <span className="block h-3 w-3 rounded-full" style={{ background: "#1f6fe0", boxShadow: "0 0 0 3px rgba(31,111,224,0.22)" }} aria-hidden />
+              {asking ? "Finding you…" : me ? "Where you are" : denied ? "Location is off" : "See where you are"}
+            </button>
+          )}
+          {!me && denied && !selected && (
+            <p className="pointer-events-none absolute left-3 rounded-full px-2.5 py-1 text-[11px]" style={{ bottom: 78, background: "rgba(243,237,224,0.92)", color: "var(--ink-55)" }}>
+              Turn location on for this site in Settings, then tap again.
             </p>
           )}
           {list.length === 0 && (
@@ -333,6 +334,11 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
                           <p className="truncate text-[12px]" style={{ color: "var(--ink-55)" }}>
                             {metaLine(selected)}
                           </p>
+                          {selected.locations?.length ? (
+                            <p className="truncate text-[11.5px]" style={{ color: "var(--ink-35)" }} data-spot-door>
+                              {selected.door.label ?? selected.door.address.replace(/,\s*New York.*$/i, "")} · one of {selected.locations.length + 1}
+                            </p>
+                          ) : null}
                         </Link>
                         <ScoreBadge score={selected.score ?? undefined} size={38} />
                       </div>
@@ -385,7 +391,8 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
 }
 
 function metaLine(spot: Spot) {
-  return [neighborhoodName(spot.neighborhood), spot.kind === "restaurant" ? spot.cuisine || "Restaurant" : spot.barFood ? "Bar · kitchen" : "Bar", ...spot.tags.filter((t) => t !== spot.cuisine).slice(0, 2), "$".repeat(spot.price)].join(" · ");
+  const what = spot.kind === "restaurant" ? [spot.cuisine, spot.barLater ? "Restaurant & bar" : null].filter(Boolean).join(" · ") || "Restaurant" : kindWord(spot);
+  return [neighborhoodName(spot.neighborhood), what, ...spot.tags.filter((t) => t !== spot.cuisine).slice(0, 2), "$".repeat(spot.price)].join(" · ");
 }
 
 /** "Open till 2am · 4 min walk", in the colors that mean it. */

@@ -57,7 +57,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
     }, 700);
     return () => window.clearTimeout(t);
   }, [address, pin?.label]);
-  const [kind, setKind] = useState<"bar" | "kitchen" | "restaurant">("bar");
+  const [kind, setKind] = useState<"bar" | "kitchen" | "restaurant" | "both">("bar");
   const [cuisine, setCuisine] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
@@ -129,8 +129,10 @@ export function AddFlow({ writable }: { writable: boolean }) {
     const date = answers.dateFit;
     return {
       name: name.trim(),
-      kind: kind === "restaurant" ? "restaurant" : "bar",
+      kind: kind === "restaurant" || kind === "both" ? "restaurant" : "bar",
       barFood: kind === "kitchen",
+      barLater: kind === "both",
+      barFrom: kind === "both" ? 22 : null,
       cuisine: kind === "bar" ? "" : cuisine,
       neighborhood: hood ?? "",
       address: address.trim(),
@@ -160,7 +162,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
     setAskNote(null);
     const said = Object.values(asks).some((v) => (v ?? "").trim());
     if (!said) return next();
-    const r = await readAsks({ name, neighborhood: hood ?? "", kind: kind === "restaurant" ? "restaurant" : "bar", barFood: kind === "kitchen", cuisine: kind === "bar" ? "" : cuisine, words: asks });
+    const r = await readAsks({ name, neighborhood: hood ?? "", kind: kind === "restaurant" || kind === "both" ? "restaurant" : "bar", barFood: kind === "kitchen", cuisine: kind === "bar" ? "" : cuisine, words: asks });
     if (r.error || !r.patch) {
       setAskNote(r.error ?? "Couldn't read that. Your words are kept in the notes.");
       setAskNotes(ASKS.map((a) => (asks[a.key] ? `${a.prompt} ${asks[a.key]}` : "")).filter(Boolean).join("\n"));
@@ -170,7 +172,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
     setAnswers((x) => ({ ...x, attrs: { ...(x.attrs ?? {}), ...(p.attrs ?? {}) }, price: (p.price as SuggestionAnswers["price"]) ?? x.price, capacity: p.capacity ?? x.capacity, easyIn: p.easyIn ?? x.easyIn }));
     if (p.groupFit || p.dateFit) setFit({ groupFit: p.groupFit, dateFit: p.dateFit });
     if (p.tags?.length) setTags((cur) => [...new Set([...cur, ...p.tags!])].slice(0, 8));
-    if (p.kind === "restaurant") setKind("restaurant");
+    if (p.kind === "restaurant") setKind((k) => (k === "both" ? "both" : "restaurant"));
     else if (p.barFood === true && kind === "bar") setKind("kitchen");
     if (p.cuisine && !cuisine) setCuisine(p.cuisine);
     if (p.hours && !hours) setHours(p.hours);
@@ -262,6 +264,7 @@ export function AddFlow({ writable }: { writable: boolean }) {
                   ["bar", "A bar", "Drinks. Maybe a bowl of nuts."],
                   ["kitchen", "A bar with a kitchen", "Real food, but you came for the bar."],
                   ["restaurant", "A restaurant", "You came to eat; the drinks are good too."],
+                  ["both", "A restaurant that turns into a bar", "Dinner till ten, then the room becomes the night."],
                 ] as const
               ).map(([k, label, sub]) => (
                 <button

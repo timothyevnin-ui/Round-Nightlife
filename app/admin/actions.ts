@@ -7,14 +7,14 @@ import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, adminPin, isAdmin, pinMatches, signPin } from "@/lib/adminAuth";
 import { ATTR_KEYS, ATTR_LIST, SUGGESTED_TAGS } from "@/lib/attrs";
 import { questionsFor, type RecOption, type RecQuestion } from "@/lib/recommendQuestions";
-import { dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
+import { cleanLocations, cleanPhotos, dbConfig, deleteVenue as dbDelete, getVenuesFresh, upsertVenues, uploadPhoto, uploadPhotoBytes, VENUES_TAG } from "@/lib/db";
 import { fetchCommonsBytes, searchCommons, type CommonsPhoto } from "@/lib/commons";
 import { isNeighborhoodId, NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import { geocode } from "@/lib/geocode";
 import { getSettings, setSetting } from "@/lib/settings";
 import { clamp01, emptyAttrs } from "@/lib/normalize";
 import { SEED_VENUES } from "@/lib/venues";
-import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, Window } from "@/lib/types";
+import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, VenueLocation, VenuePhoto, Window } from "@/lib/types";
 import { cleanHours } from "@/lib/hours";
 import { slugify } from "@/lib/slug";
 import { markSuggestionPaid, setSuggestionStatus, type SuggestionStatus } from "@/lib/suggestions";
@@ -89,6 +89,13 @@ export type SavePayload = {
   cuisine?: string;
   score?: number | null;
   dayDeal?: string;
+  /** V25: every kept photo in order (cover first); new files ride in the form as "photos". Omitted = leave as is. */
+  photos?: VenuePhoto[];
+  /** V25: the place's other doors. Omitted = leave as is; [] = none. */
+  locations?: VenueLocation[];
+  /** V25: a restaurant that turns into a bar later, and from when. */
+  barLater?: boolean;
+  barFrom?: number | null;
 };
 
 export type SaveResult = { ok: true; slug: string } | { ok: false; error: string };
@@ -113,12 +120,18 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       for (const [k, v] of Object.entries(nudges) as [keyof Attrs, number][]) if (typeof p.attrs?.[k] !== "number") attrs[k] = Math.max(attrs[k], v);
     }
 
-    let photoUrl = p.photoUrl?.trim() || existing?.photoUrl;
-    const photo = formData.get("photo");
-    if (photo instanceof File && photo.size > 0) {
-      if (photo.size > 8 * 1024 * 1024) return { ok: false, error: "Photo is over 8 MB. Pick a smaller one." };
-      photoUrl = await uploadPhoto(slug, photo);
-    }
+    // Photos (V25): the kept ones in the order given, then anything new uploaded; the first is the cover.
+    const existingPhotos = existing?.photos ?? (existing?.photoUrl ? [{ url: existing.photoUrl, credit: existing.photoCredit }] : []);
+    const kept: VenuePhoto[] = p.photos === undefined ? existingPhotos : (cleanPhotos(p.photos) ?? []);
+    const files = [...formData.getAll("photos"), formData.get("photo")].filter((f): f is File => f instanceof File && f.size > 0);
+    for (const f of files) if (f.size > 8 * 1024 * 1024) return { ok: false, error: `${f.name || "A photo"} is over 8 MB. Pick a smaller one.` };
+    const uploaded: VenuePhoto[] = [];
+    for (const [i, f] of files.entries()) uploaded.push({ url: await uploadPhoto(slug, f, i) });
+    // The single-photo fields still work on their own (older forms): a typed URL becomes the cover.
+    const typed = p.photos === undefined && p.photoUrl?.trim() && p.photoUrl.trim() !== existing?.photoUrl ? [{ url: p.photoUrl.trim(), credit: p.photoCredit?.trim() || undefined }] : [];
+    const photos = [...typed, ...kept, ...uploaded].filter((x, i, arr) => arr.findIndex((y) => y.url === x.url) === i).slice(0, 12);
+    const photoUrl = photos[0]?.url;
+    const locations = p.locations === undefined ? existing?.locations : cleanLocations(p.locations);
 
     const venue: Venue = {
       slug,
@@ -150,7 +163,11 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       bestWindows: Array.isArray(p.bestWindows) && p.bestWindows.length ? p.bestWindows : existing?.bestWindows ?? [{ days: [0, 1, 2, 3, 4, 5, 6], from: 18, to: 26 }],
       photo: existing?.photo ?? pickGradient(slug),
       photoUrl,
-      photoCredit: photoUrl && !(photo instanceof File && photo.size > 0) ? p.photoCredit?.trim() || undefined : undefined,
+      photoCredit: photos[0]?.credit,
+      photos: photos.length ? photos : undefined,
+      locations: locations?.length ? locations : undefined,
+      barLater: p.kind === "restaurant" && (p.barLater === undefined ? !!existing?.barLater : !!p.barLater),
+      barFrom: p.kind === "restaurant" ? (p.barFrom === undefined ? existing?.barFrom : typeof p.barFrom === "number" && p.barFrom >= 12 && p.barFrom <= 28 ? p.barFrom : undefined) : undefined,
       friendsBeen: Number.isFinite(Number(p.friendsBeen)) ? Number(p.friendsBeen) : existing?.friendsBeen,
       perk: p.perk?.trim() || existing?.perk,
       groupBooking: existing?.groupBooking,
