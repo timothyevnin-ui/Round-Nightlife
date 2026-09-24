@@ -27,11 +27,13 @@ export type Profile = {
   fav_restaurant?: string | null;
   fun?: Record<string, string> | null;
   avatar_url?: string | null;
+  /** When the account was made (V27: "Member since"). */
+  created_at?: string | null;
 };
 
 /** The about-you fields a person can edit. */
 export type About = Pick<Profile, "hometown" | "fav_bar" | "fav_bar_slug" | "fav_restaurant" | "fun" | "avatar_url">;
-const ABOUT_COLUMNS = "hometown,fav_bar,fav_bar_slug,fav_restaurant,fun,avatar_url";
+const ABOUT_COLUMNS = "hometown,fav_bar,fav_bar_slug,fav_restaurant,fun,avatar_url,created_at";
 
 export type SignInReason = "keep" | "you" | "rate" | "menu" | "friends" | "recommend" | "spot";
 
@@ -104,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // First sign-in: start the row now (phone only) so the person exists in
       // the Studio even if they never finish the name step.
       const phone = u.phone ? `+${u.phone.replace(/^\+/, "")}` : null;
-      const { data: made } = await sb.from("profiles").upsert({ id: u.id, name: "", phone }, { onConflict: "id" }).select("id,name,birthday,phone").maybeSingle();
+      const { data: made } = await sb.from("profiles").upsert({ id: u.id, name: "", phone }, { onConflict: "id" }).select("id,name,birthday,phone,created_at").maybeSingle();
       return (made as Profile | null) ?? { id: u.id, name: "", birthday: null, phone };
     },
     [sb],

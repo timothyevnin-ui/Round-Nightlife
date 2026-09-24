@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { toResultsParams, type Interpretation } from "@/lib/interpret";
 import { locate } from "@/lib/locate";
@@ -19,14 +19,19 @@ const EXAMPLES = [
   "Rooftop in Chelsea for four, a little bougie, cocktails",
   "Somewhere near Bleecker I can actually hear my friends",
   "Dinner then drinks on the Lower East Side, Thursday, eight of us",
+  "Brunch in Nolita, then somewhere to keep it going",
   "Bars near Rubirosa, we're getting out of dinner at 10",
 ];
 
 /**
- * "Just say it." The front door. Tap the pill and the whole screen goes dark:
- * one big box, examples drifting through it until you type, and under the box
- * ROUND says what it's hearing as you go: the neighborhood, the hour, how
- * many, what you care about. Then Show me, and the same picks as any door.
+ * "Just say it." The front door, and the biggest thing on the home screen
+ * (V27): a dark box with the examples drifting through it. Tap it and the
+ * whole screen goes dark with the keyboard already up, no second tap: the
+ * box is focused inside the tap itself (iPhone only shows the keyboard for
+ * that). Under the box ROUND says what it's hearing as you go: the
+ * neighborhood, the hour, how many, what you care about. Then Show me, and the
+ * same picks as any door. It's not only for nights, so it asks "What are we
+ * thinking?"
  */
 export function SayIt() {
   const router = useRouter();
@@ -39,15 +44,16 @@ export function SayIt() {
   const q = text.trim();
   const heard = q.length >= 6 ? heardFor.chips : [];
   const listening = q.length >= 6 && heardFor.q !== q;
-  const [exampleAt, setExampleAt] = useState(() => Math.floor(Math.random() * EXAMPLES.length));
+  // Starts on the first example on the server and the phone alike (no mismatch), then drifts.
+  const [exampleAt, setExampleAt] = useState(0);
   const box = useRef<HTMLTextAreaElement>(null);
 
-  // Examples drift through the empty box.
+  // Examples drift through the box on the home screen, and through the empty box once it's open.
   useEffect(() => {
-    if (!open || text) return;
+    if (text) return;
     const t = window.setInterval(() => setExampleAt((i) => (i + 1) % EXAMPLES.length), 3200);
     return () => window.clearInterval(t);
-  }, [open, text]);
+  }, [text]);
 
   // The live strip: keywords only, a beat after each pause in typing.
   useEffect(() => {
@@ -64,11 +70,11 @@ export function SayIt() {
     return () => window.clearTimeout(t);
   }, [q, open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const t = window.setTimeout(() => box.current?.focus(), 250);
-    return () => window.clearTimeout(t);
-  }, [open]);
+  /** Open and focus in the same tap: the screen is committed right away so the box exists to focus, and the keyboard comes up with it. */
+  const openIt = () => {
+    flushSync(() => setOpen(true));
+    box.current?.focus({ preventScroll: true });
+  };
 
   const close = () => {
     if (busy) return;
@@ -103,18 +109,51 @@ export function SayIt() {
 
   return (
     <>
+      {/* The box on the home screen: dark, big, the examples drifting through it. */}
       <button
-        onClick={() => setOpen(true)}
-        className="pressable flex w-full items-center gap-3 rounded-full border px-4 text-left"
-        style={{ height: 52, borderColor: "var(--hairline-strong)", background: "rgba(22,33,58,0.04)" }}
-        aria-label="Just say what kind of night"
+        onClick={openIt}
+        className="pressable grain relative w-full overflow-hidden rounded-[26px] p-4 text-left"
+        style={{ background: "var(--ink)", color: "var(--on-photo)", boxShadow: "0 18px 40px -22px rgba(22,33,58,0.65)" }}
+        aria-label="Just say it"
         data-sayit-open
       >
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--ink)" }}>
-          <span className="block h-2.5 w-2.5 rounded-full" style={{ background: "var(--tomato)" }} aria-hidden />
+        <span className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(80% 60% at 90% 0%, rgba(232,105,74,0.32), transparent 60%)" }} aria-hidden />
+        <span className="relative flex items-center gap-2.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
+            <span className="block h-2.5 w-2.5 rounded-full" style={{ background: "var(--on-photo)" }} />
+          </span>
+          <span className="serif" style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.015em" }} data-sayit-title>
+            Just say it.
+          </span>
+          <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato-bright)" }}>
+            ROUND listens
+          </span>
         </span>
-        <span className="truncate text-[14px]" style={{ color: "var(--chalk-55)" }}>
-          Or just say it…
+        <span className="relative mt-3 block" style={{ minHeight: 50 }}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={exampleAt}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8, transition: { duration: 0.3 } }}
+              transition={{ duration: 0.45 }}
+              className="serif block"
+              style={{ fontSize: 20, lineHeight: 1.2, color: "var(--on-photo-80)" }}
+              data-sayit-example-home
+            >
+              &ldquo;{EXAMPLES[exampleAt]}&rdquo;
+            </motion.span>
+          </AnimatePresence>
+        </span>
+        <span className="relative mt-3.5 flex h-12 items-center rounded-full pl-4 pr-1.5" style={{ background: "rgba(246,241,231,0.1)", border: "1px solid rgba(246,241,231,0.18)" }}>
+          <span className="min-w-0 flex-1 truncate text-[14px]" style={{ color: "var(--on-photo-60)" }}>
+            Type it like a text, or talk.
+          </span>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="#F6F1E7" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
         </span>
       </button>
 
@@ -128,7 +167,7 @@ export function SayIt() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 transition={{ duration: 0.22 }}
-                className="fixed inset-0 z-[60] flex justify-center"
+                className="fixed inset-0 z-[60] flex justify-center overflow-y-auto"
                 style={{ background: "var(--ink)", color: "var(--on-photo)" }}
                 data-sayit-sheet
                 role="dialog"
@@ -155,11 +194,12 @@ export function SayIt() {
                     <span className="w-11" aria-hidden />
                   </div>
 
-                  <h2 className="serif mt-6" style={{ fontSize: 34, lineHeight: 1.04, letterSpacing: "-0.02em" }}>
-                    What kind of night?
+                  {/* Everything sits up top, so the keyboard covers nothing that matters. */}
+                  <h2 className="serif mt-4" style={{ fontSize: 32, lineHeight: 1.04, letterSpacing: "-0.02em" }} data-sayit-heading>
+                    What are we thinking?
                   </h2>
 
-                  <div className="relative mt-5 flex-1" style={{ minHeight: 168 }}>
+                  <div className="relative mt-4" style={{ minHeight: 140 }}>
                     <textarea
                       ref={box}
                       value={text}
@@ -173,9 +213,11 @@ export function SayIt() {
                       }}
                       rows={4}
                       maxLength={400}
+                      enterKeyHint="go"
+                      autoCapitalize="sentences"
                       className="serif relative z-10 w-full resize-none bg-transparent outline-none"
-                      style={{ fontSize: 28, lineHeight: 1.2, color: "var(--on-photo)", caretColor: "var(--tomato-bright)" }}
-                      aria-label="What kind of night"
+                      style={{ fontSize: 27, lineHeight: 1.2, color: "var(--on-photo)", caretColor: "var(--tomato-bright)" }}
+                      aria-label="What are we thinking"
                       data-sayit-input
                     />
                     <AnimatePresence mode="wait">
@@ -187,7 +229,7 @@ export function SayIt() {
                           exit={{ opacity: 0, y: -6, transition: { duration: 0.35 } }}
                           transition={{ duration: 0.5 }}
                           className="serif pointer-events-none absolute inset-x-0 top-0"
-                          style={{ fontSize: 28, lineHeight: 1.2, color: "var(--on-photo-60)" }}
+                          style={{ fontSize: 27, lineHeight: 1.2, color: "var(--on-photo-60)" }}
                           aria-hidden
                           data-sayit-example
                         >
@@ -197,7 +239,7 @@ export function SayIt() {
                     </AnimatePresence>
                   </div>
 
-                  <div className="mt-2" style={{ minHeight: 64 }} data-sayit-heard>
+                  <div className="mt-1" style={{ minHeight: 58 }} data-sayit-heard>
                     <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--on-photo-60)" }}>
                       <span className={`inline-block h-2 w-2 rounded-full ${listening ? "animate-pulse" : ""}`} style={{ background: heard.length || listening ? "var(--tomato-bright)" : "rgba(246,241,231,0.25)" }} aria-hidden />
                       ROUND hears
@@ -218,13 +260,10 @@ export function SayIt() {
                     </div>
                   </div>
 
-                  <p className="mt-4 text-[12px]" style={{ color: "rgba(246,241,231,0.45)" }}>
-                    Type it like you&apos;d text a friend, or tap the mic on your keyboard and talk.
-                  </p>
                   <button
                     onClick={() => void go()}
                     disabled={busy || !text.trim()}
-                    className="pressable mt-3 flex h-14 w-full items-center justify-center gap-2 rounded-full text-[16px] font-semibold"
+                    className="pressable mt-3 flex h-14 w-full shrink-0 items-center justify-center gap-2 rounded-full text-[16px] font-semibold"
                     style={{ background: "var(--tomato)", color: "var(--on-photo)", opacity: !text.trim() && !busy ? 0.45 : 1 }}
                     data-sayit-go
                   >
@@ -237,6 +276,9 @@ export function SayIt() {
                       "Show me"
                     )}
                   </button>
+                  <p className="mt-3 text-[12px]" style={{ color: "rgba(246,241,231,0.45)" }}>
+                    Type it like you&apos;d text a friend, or tap the mic on your keyboard and talk. Any time of day.
+                  </p>
                 </motion.div>
               </motion.div>
             )}

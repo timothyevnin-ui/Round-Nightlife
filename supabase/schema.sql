@@ -486,4 +486,55 @@ alter table public.venues add column if not exists locations jsonb;
 alter table public.venues add column if not exists bar_later boolean not null default false;
 alter table public.venues add column if not exists bar_from  numeric;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V26. Following and followers. Following someone is one direction: they
+-- see nothing new, and they follow you back only if they choose to. Public
+-- accounts are followed on the spot; private ones get a request to accept.
+-- Unfollow removes your own edge; remove_follower removes theirs. The same
+-- function names as before, so older builds keep working.
+create or replace function public.befriend(target uuid) returns text
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); pub boolean;
+begin
+  if me is null or target is null or target = me then raise exception 'not allowed'; end if;
+  select is_public into pub from public.profiles where id = target;
+  if pub is null then raise exception 'no such person'; end if;
+  if pub then
+    insert into public.friends (user_id, friend_id, status) values (me, target, 'following')
+      on conflict (user_id, friend_id) do update set status = 'following';
+    return 'following';
+  else
+    insert into public.friends (user_id, friend_id, status) values (me, target, 'pending')
+      on conflict (user_id, friend_id) do nothing;
+    return 'pending';
+  end if;
+end $$;
+
+create or replace function public.accept_friend(requester uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not allowed'; end if;
+  update public.friends set status = 'following' where user_id = requester and friend_id = me and status = 'pending';
+  if not found then raise exception 'no request'; end if;
+end $$;
+
+create or replace function public.unfriend(target uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not allowed'; end if;
+  delete from public.friends where user_id = me and friend_id = target;
+end $$;
+
+create or replace function public.remove_follower(target uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not allowed'; end if;
+  delete from public.friends where user_id = target and friend_id = me;
+end $$;
+revoke all on function public.remove_follower(uuid) from public;
+grant execute on function public.remove_follower(uuid) to authenticated;
+
 -- Later phases (plans, census) add their tables here.

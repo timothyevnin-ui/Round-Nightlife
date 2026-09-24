@@ -14,7 +14,8 @@ export type Person = { id: string; name: string; is_public: boolean; avatar_url?
 /** One of a friend's spots: want to go, or been (with the verdict, the rank on their ladder, their one line). */
 export type FriendSpot = { user_id: string; slug: string; state: "want" | "been"; verdict?: "again" | "back" | "fine" | "never" | null; rank?: number | null; note?: string | null; at: string; updated_at?: string | null };
 export type Edge = { user_id: string; friend_id: string; status: "following" | "pending"; at: string };
-export type Circle = { friends: Person[]; requestsIn: Person[]; requestsOut: Person[] };
+/** V26: who you follow, who follows you, requests to follow you (private account), requests you've sent. */
+export type Circle = { following: Person[]; followers: Person[]; requestsIn: Person[]; requestsOut: Person[] };
 export type Checkin = { user_id: string; slug: string; at: string; name: string };
 
 export const CHECKIN_HOURS = 4;
@@ -31,23 +32,27 @@ export async function loadCircle(sb: SupabaseClient, me: string): Promise<Circle
   ids.delete(me);
   const people = await peopleByIds(sb, [...ids]);
   const person = (id: string) => people.get(id);
-  const friends: Person[] = [];
+  const following: Person[] = [];
+  const followers: Person[] = [];
   const requestsIn: Person[] = [];
   const requestsOut: Person[] = [];
   for (const e of edges) {
     if (e.user_id === me && e.status === "following") {
       const p = person(e.friend_id);
-      if (p) friends.push(p);
+      if (p) following.push(p);
     } else if (e.user_id === me && e.status === "pending") {
       const p = person(e.friend_id);
       if (p) requestsOut.push(p);
+    } else if (e.friend_id === me && e.status === "following") {
+      const p = person(e.user_id);
+      if (p) followers.push(p);
     } else if (e.friend_id === me && e.status === "pending") {
       const p = person(e.user_id);
       if (p) requestsIn.push(p);
     }
   }
   const byName = (a: Person, b: Person) => a.name.localeCompare(b.name);
-  return { friends: friends.sort(byName), requestsIn: requestsIn.sort(byName), requestsOut: requestsOut.sort(byName) };
+  return { following: following.sort(byName), followers: followers.sort(byName), requestsIn: requestsIn.sort(byName), requestsOut: requestsOut.sort(byName) };
 }
 
 /**
@@ -81,6 +86,15 @@ export async function searchPeople(sb: SupabaseClient, me: string, q: string): P
   return ((data ?? []) as Person[]).filter((p) => p.name);
 }
 
+/** One person by id (a shared profile link, V27); null when there's no such person. */
+export async function personById(sb: SupabaseClient, id: string): Promise<Person | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const { data, error } = await peopleSelect(sb).eq("id", id).maybeSingle();
+  if (error || !data) return null;
+  const p = data as Person;
+  return { ...p, name: p.name || "Someone" };
+}
+
 /** "following" (friends now) or "pending" (they're private; they'll get a request). */
 export async function befriend(sb: SupabaseClient, target: string): Promise<"following" | "pending"> {
   const { data, error } = await sb.rpc("befriend", { target });
@@ -93,8 +107,15 @@ export async function acceptFriend(sb: SupabaseClient, requester: string): Promi
   if (error) throw error;
 }
 
+/** Stop following someone (your edge only; they keep following you if they do). */
 export async function unfriend(sb: SupabaseClient, target: string): Promise<void> {
   const { error } = await sb.rpc("unfriend", { target });
+  if (error) throw error;
+}
+
+/** Take someone off your followers (their edge only). */
+export async function removeFollower(sb: SupabaseClient, target: string): Promise<void> {
+  const { error } = await sb.rpc("remove_follower", { target });
   if (error) throw error;
 }
 

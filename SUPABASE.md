@@ -133,6 +133,14 @@ Run the current `supabase/schema.sql` again. Any place in Williamsburg or Greenp
 
 Run the current `supabase/schema.sql` again. It adds `photos`, `locations`, `bar_later` and `bar_from` to venues. Until it's run, a save from Studio still works (the app drops the columns it can't write and says so in the logs), but extra photos and locations won't stick, and the dashboard's health check names the missing columns.
 
+## 17. Following and followers (V26)
+
+Run the current `supabase/schema.sql` again. It redefines the four friend functions so that following is one direction (and adds `remove_follower`). Until it's run, a Follow still makes both people follow each other, the way it used to, and Remove on a follower doesn't stick.
+
+## 18. The profile page (V27)
+
+Nothing to run. "Member since" reads `profiles.created_at`, which the table has had since the first schema; the profile link (`/you?follow=<id>`) reads the `people` view the same way the finder does.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.
