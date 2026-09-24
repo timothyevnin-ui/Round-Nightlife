@@ -459,4 +459,16 @@ alter table public.suggestions add column if not exists venmo   text;
 alter table public.suggestions add column if not exists paid_at timestamptz;
 insert into public.settings (key, value) values ('bounty', '{"open": true, "cap": 1000, "amount": 2}'::jsonb) on conflict (key) do nothing;
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- V21. Friends see each other's spots (want to go, been, the ladder), and the
+-- people view carries a favorite bar. Still never a phone, never a birthday.
+drop policy if exists "saves: friends can see" on public.saves;
+create policy "saves: friends can see" on public.saves for select using (
+  exists (select 1 from public.friends f where f.user_id = auth.uid() and f.friend_id = saves.user_id and f.status = 'following')
+);
+drop view if exists public.people;
+create view public.people with (security_invoker = false) as
+  select id, name, is_public, avatar_url, hometown, fav_bar, fav_bar_slug from public.profiles;
+grant select on public.people to authenticated;
+
 -- Later phases (plans, census) add their tables here.

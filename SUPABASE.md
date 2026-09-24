@@ -121,6 +121,10 @@ Run the current `supabase/schema.sql` again. It adds a `disputes` table (server-
 
 Run the current `supabase/schema.sql` again. It adds `venmo` and `paid_at` to recommendations and a `bounty` setting (on, 1,000, $2). Until it's run, recommendations still arrive but without the Venmo handle, and the dashboard's health check names the missing columns.
 
+## 14. Friends see each other's spots (V21)
+
+Run the current `supabase/schema.sql` again. It lets friends read each other's saves (want to go, been, the ladder) and adds the favorite bar to the people view. Until it's run, the Friends tab shows friends without their spots, and the dashboard's health check names it.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

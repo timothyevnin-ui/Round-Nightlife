@@ -10,7 +10,9 @@ import { toE164 } from "./phone";
  * hashed here and only the hashes are compared.
  */
 
-export type Person = { id: string; name: string; is_public: boolean; avatar_url?: string | null; hometown?: string | null };
+export type Person = { id: string; name: string; is_public: boolean; avatar_url?: string | null; hometown?: string | null; fav_bar?: string | null; fav_bar_slug?: string | null };
+/** One of a friend's spots: want to go, or been (with the verdict, the rank on their ladder, their one line). */
+export type FriendSpot = { user_id: string; slug: string; state: "want" | "been"; verdict?: "again" | "back" | "fine" | "never" | null; rank?: number | null; note?: string | null; at: string; updated_at?: string | null };
 export type Edge = { user_id: string; friend_id: string; status: "following" | "pending"; at: string };
 export type Circle = { friends: Person[]; requestsIn: Person[]; requestsOut: Person[] };
 export type Checkin = { user_id: string; slug: string; at: string; name: string };
@@ -46,6 +48,17 @@ export async function loadCircle(sb: SupabaseClient, me: string): Promise<Circle
   }
   const byName = (a: Person, b: Person) => a.name.localeCompare(b.name);
   return { friends: friends.sort(byName), requestsIn: requestsIn.sort(byName), requestsOut: requestsOut.sort(byName) };
+}
+
+/**
+ * Friends' spots (V21): the database only returns rows of people you follow,
+ * so this is safe to ask for broadly. Newest first. Empty until the policy
+ * exists; never throws.
+ */
+export async function friendsSpots(sb: SupabaseClient, me: string, limit = 400): Promise<FriendSpot[]> {
+  const { data, error } = await sb.from("saves").select("user_id,slug,state,verdict,rank,note,at,updated_at").neq("user_id", me).order("updated_at", { ascending: false, nullsFirst: false }).limit(limit);
+  if (error) return [];
+  return (data ?? []) as FriendSpot[];
 }
 
 /** Whatever the people view has: name and privacy always, a face and a hometown once the V14 schema is in. */

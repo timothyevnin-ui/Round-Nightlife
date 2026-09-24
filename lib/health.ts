@@ -21,6 +21,7 @@ const PROBES: { key: string; label: string; what: string; path: string }[] = [
   { key: "events", label: "Activity log", what: "the events table (V7)", path: "events?select=id&limit=1" },
   { key: "profiles.privacy", label: "Public / private accounts", what: "the phone_hash, is_public and share_location columns on profiles (V8)", path: "profiles?select=phone_hash,is_public,share_location&limit=1" },
   { key: "people", label: "Finding friends by name", what: "the people view (V8)", path: "people?select=id&limit=1" },
+  { key: "people.fav_bar", label: "Friends' favorite bars", what: "the people view with fav_bar (V21)", path: "people?select=fav_bar,fav_bar_slug&limit=1" },
   { key: "friends", label: "Friends", what: "the friends table and its functions (V8)", path: "friends?select=user_id&limit=1" },
   { key: "checkins", label: "Where friends are", what: "the checkins table (V8)", path: "checkins?select=user_id&limit=1" },
   { key: "venues.hours", label: "Hours, food and ROUND's score", what: "the hours, bar_food, cuisine and score columns on venues (V11)", path: "venues?select=hours,bar_food,cuisine,score&limit=1" },

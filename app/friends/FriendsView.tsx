@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { Photo } from "@/components/Photo";
 import { useTypewriter } from "@/components/QuickOnes";
 import { useAuth } from "@/lib/auth";
-import { acceptFriend, befriend, contactsSupported, loadCircle, matchContacts, pickContactHashes, searchPeople, setPrivacy, unfriend, type Circle, type Person } from "@/lib/friends";
+import { acceptFriend, befriend, contactsSupported, friendsSpots, loadCircle, matchContacts, pickContactHashes, searchPeople, setPrivacy, unfriend, type Circle, type FriendSpot, type Person } from "@/lib/friends";
+import { createPortal } from "react-dom";
 import { Avatar } from "@/components/AboutYou";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { getSupabase } from "@/lib/supabase";
@@ -15,6 +16,8 @@ import type { NeighborhoodId, Venue } from "@/lib/types";
 import { InviteButton } from "./InviteButton";
 
 export type Regular = { slug: string; name: string; neighborhood: NeighborhoodId; tags: string[]; photo: Venue["photo"]; photoUrl?: string; regulars: number };
+/** What a friend's spot needs to render: name, neighborhood, art. */
+export type Place = { slug: string; name: string; neighborhood: NeighborhoodId; photo: Venue["photo"]; photoUrl?: string };
 
 /**
  * Friends. Signed out, it's the pitch: the reason to add your number, typed
@@ -47,7 +50,7 @@ const laterStore = {
   },
 };
 
-export function FriendsView({ regulars, names }: { regulars: Regular[]; names: Record<string, string> }) {
+export function FriendsView({ regulars, names, places = {} }: { regulars: Regular[]; names: Record<string, string>; places?: Record<string, Place> }) {
   const { enabled, ready, user, openSignIn } = useAuth();
   const later = useSyncExternalStore(laterStore.subscribe, laterStore.get, () => false);
 
@@ -83,8 +86,8 @@ export function FriendsView({ regulars, names }: { regulars: Regular[]; names: R
     );
   }
 
-  void names; // kept in the props for the day friends' spots come back
-  return <CircleView me={user.id} />;
+  void names;
+  return <CircleView me={user.id} places={places} regulars={regulars} />;
 }
 
 /* ───────────────────────── the pitch ───────────────────────── */
@@ -234,10 +237,13 @@ function SecondLine({ text }: { text: string }) {
 
 /* ───────────────────────── signed in ───────────────────────── */
 
-function CircleView({ me }: { me: string }) {
+function CircleView({ me, places, regulars }: { me: string; places: Record<string, Place>; regulars: Regular[] }) {
   const { profile, updateProfile } = useAuth();
   const sb = useMemo(() => getSupabase(), []);
   const [circle, setCircle] = useState<Circle>({ friends: [], requestsIn: [], requestsOut: [] });
+  const [spots, setSpots] = useState<FriendSpot[]>([]);
+  const [peek, setPeek] = useState<Person | null>(null);
+  const [finding, setFinding] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Person[]>([]);
@@ -249,8 +255,10 @@ function CircleView({ me }: { me: string }) {
   const refresh = useCallback(async () => {
     if (!sb) return;
     try {
-      setCircle(await loadCircle(sb, me));
+      const c = await loadCircle(sb, me);
+      setCircle(c);
       setProblem(null);
+      setSpots(c.friends.length ? await friendsSpots(sb, me) : []);
     } catch (e) {
       const msg = errMsg(e);
       setProblem(/relation|does not exist|schema cache|Could not find/i.test(msg) ? "Friends aren't switched on in the database yet." : msg);
@@ -341,67 +349,29 @@ function CircleView({ me }: { me: string }) {
   };
 
   const isPublic = profile?.is_public ?? true;
+  const friendIds = new Set(circle.friends.map((f) => f.id));
+  const byFriend = new Map<string, FriendSpot[]>();
+  for (const sp of spots) if (friendIds.has(sp.user_id)) byFriend.set(sp.user_id, [...(byFriend.get(sp.user_id) ?? []), sp]);
+  const feed = spots.filter((sp) => friendIds.has(sp.user_id) && places[sp.slug]).slice(0, 14);
+  const n = circle.friends.length;
 
   return (
-    <Shell title="Friends" eyebrow="Mutual, not public">
+    <Shell title="Friends" eyebrow={n ? `${n} ${n === 1 ? "friend" : "friends"} · mutual, never public` : "Mutual, not public"}>
       {problem && (
         <p className="card mt-1 p-4 text-[13.5px]" style={{ color: "var(--tomato-deep)" }}>
           {problem}
         </p>
       )}
 
-      {/* Find people */}
-      <section className="card mt-8 p-5">
-        <h2 className="serif" style={{ fontSize: 24, lineHeight: 1.1 }}>
-          Find your friends
-        </h2>
-        {canPick ? (
-          <>
-            <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
-              Pick the contacts you&apos;d go out with. Numbers are matched as scrambled codes; your contacts never leave your phone.
-            </p>
-            <button onClick={pick} disabled={busy === "contacts"} className="pressable btn-accent mt-4 flex h-12 w-full items-center justify-center text-[15px]" style={{ opacity: busy === "contacts" ? 0.6 : 1 }}>
-              {busy === "contacts" ? "Matching…" : "Allow contacts"}
-            </button>
-          </>
-        ) : (
-          <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
-            Matching your contacts works from Safari on an iPhone. Here, search by name or send your link.
-          </p>
-        )}
-        {matched && matched.length > 0 && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between">
-              <p className="eyebrow">In your contacts</p>
-              <button onClick={addAll} disabled={busy === "all"} className="pressable text-[12.5px] font-semibold" style={{ color: "var(--tomato)" }}>
-                Add all
-              </button>
-            </div>
-            <PeopleList people={matched} statusOf={statusOf} busy={busy} onAdd={add} onRemove={remove} />
-          </div>
-        )}
-        <label className="mt-4 block">
-          <span className="eyebrow">Or by name</span>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a friend's name" className="mt-2 h-12 w-full rounded-full border px-4 text-[15px] outline-none" style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} />
-        </label>
-        {clean.length >= 2 && (shown.length ? <PeopleList people={shown} statusOf={statusOf} busy={busy} onAdd={add} onRemove={remove} /> : <p className="mt-3 text-[13px]" style={{ color: "var(--ink-35)" }}>Nobody by that name yet.</p>)}
-        {note && (
-          <p className="mt-3 text-[13px]" style={{ color: "var(--ink-70)" }}>
-            {note}
-          </p>
-        )}
-        <InviteButton />
-      </section>
-
-      {/* Requests */}
+      {/* Requests, first: somebody's waiting on you. */}
       {circle.requestsIn.length > 0 && (
-        <section className="mt-8">
-          <h2 className="serif" style={{ fontSize: 24, lineHeight: 1.1 }}>
+        <section className="card mt-1 p-4" data-requests>
+          <p className="eyebrow" style={{ color: "var(--tomato)" }}>
             Asked to be friends
-          </h2>
-          <ul className="mt-2 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
+          </p>
+          <ul className="mt-1 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
             {circle.requestsIn.map((p) => (
-              <li key={p.id} className="flex items-center justify-between py-3">
+              <li key={p.id} className="flex items-center justify-between py-3" style={{ borderColor: "var(--hairline)" }}>
                 <Who p={p} />
                 <span className="flex gap-2">
                   <button onClick={() => add(p)} disabled={busy === p.id} className="pressable btn-primary h-9 px-4 text-[13px]">
@@ -417,36 +387,178 @@ function CircleView({ me }: { me: string }) {
         </section>
       )}
 
-      {/* Friends */}
-      <section className="mt-8">
-        <div className="flex items-baseline justify-between">
-          <h2 className="serif" style={{ fontSize: 24, lineHeight: 1.1 }}>
-            {circle.friends.length ? `${circle.friends.length} ${circle.friends.length === 1 ? "friend" : "friends"}` : "No friends yet"}
-          </h2>
-          {circle.requestsOut.length > 0 && (
-            <span className="text-[12px]" style={{ color: "var(--ink-35)" }}>
-              {circle.requestsOut.length} requested
-            </span>
+      {/* The row of faces, and the way in. */}
+      <section className="mt-2 flex items-center justify-between gap-3" data-friends-row>
+        <div className="flex min-w-0 items-center">
+          {n > 0 ? (
+            <>
+              <div className="flex -space-x-2.5">
+                {circle.friends.slice(0, 6).map((p) => (
+                  <button key={p.id} onClick={() => setPeek(p)} className="pressable rounded-full ring-2" style={{ boxShadow: "0 0 0 2px var(--paper)" }} aria-label={p.name}>
+                    <Avatar url={p.avatar_url} name={p.name} size={40} />
+                  </button>
+                ))}
+              </div>
+              {n > 6 && (
+                <span className="ml-2 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+                  +{n - 6}
+                </span>
+              )}
+            </>
+          ) : (
+            <p className="text-[14px]" style={{ color: "var(--ink-70)" }} data-no-friends>
+              No friends yet. Find them below.
+            </p>
           )}
         </div>
-        {circle.friends.length > 0 && (
-          <ul className="mt-2 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
-            {circle.friends.map((p) => (
-              <li key={p.id} className="flex items-center justify-between py-3">
-                <Who p={p} />
-                <button onClick={() => remove(p)} disabled={busy === p.id} className="pressable text-[12px]" style={{ color: "var(--ink-35)" }}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {circle.requestsOut.length > 0 && (
-          <p className="mt-2 text-[12.5px]" style={{ color: "var(--ink-35)" }}>
-            Waiting on {circle.requestsOut.map((p) => p.name).join(", ")}.
-          </p>
-        )}
+        <button onClick={() => setFinding((v) => !v)} className={`pressable flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-[13.5px] font-semibold ${finding ? "btn-ghost" : "btn-primary"}`} data-find-toggle>
+          {finding ? "Done" : "+ Find friends"}
+        </button>
       </section>
+
+      {/* Find people (folds away once you have some) */}
+      {(finding || n === 0) && (
+        <section className="card mt-4 p-5" data-find>
+          <h2 className="serif" style={{ fontSize: 24, lineHeight: 1.1 }}>
+            Find your friends
+          </h2>
+          {canPick ? (
+            <>
+              <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
+                Pick the contacts you&apos;d go out with. Numbers are matched as scrambled codes; your contacts never leave your phone.
+              </p>
+              <button onClick={pick} disabled={busy === "contacts"} className="pressable btn-accent mt-4 flex h-12 w-full items-center justify-center text-[15px]" style={{ opacity: busy === "contacts" ? 0.6 : 1 }}>
+                {busy === "contacts" ? "Matching…" : "Allow contacts"}
+              </button>
+            </>
+          ) : (
+            <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
+              Matching your contacts works from Safari on an iPhone. Here, search by name or send your link.
+            </p>
+          )}
+          {matched && matched.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between">
+                <p className="eyebrow">In your contacts</p>
+                <button onClick={addAll} disabled={busy === "all"} className="pressable text-[12.5px] font-semibold" style={{ color: "var(--tomato)" }}>
+                  Add all
+                </button>
+              </div>
+              <PeopleList people={matched} statusOf={statusOf} busy={busy} onAdd={add} onRemove={remove} />
+            </div>
+          )}
+          <label className="mt-4 block">
+            <span className="eyebrow">Or by name</span>
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a friend's name" className="mt-2 h-12 w-full rounded-full border px-4 text-[15px] outline-none" style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} />
+          </label>
+          {clean.length >= 2 && (shown.length ? <PeopleList people={shown} statusOf={statusOf} busy={busy} onAdd={add} onRemove={remove} /> : <p className="mt-3 text-[13px]" style={{ color: "var(--ink-35)" }}>Nobody by that name yet.</p>)}
+          {note && (
+            <p className="mt-3 text-[13px]" style={{ color: "var(--ink-70)" }}>
+              {note}
+            </p>
+          )}
+          <InviteButton />
+        </section>
+      )}
+      {!finding && n > 0 && note && (
+        <p className="mt-3 text-[13px]" style={{ color: "var(--ink-70)" }}>
+          {note}
+        </p>
+      )}
+      {n === 0 && circle.requestsOut.length > 0 && (
+        <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-35)" }}>
+          Waiting on {circle.requestsOut.map((p) => p.name).join(", ")}.
+        </p>
+      )}
+
+      {/* What they've been up to */}
+      {feed.length > 0 && (
+        <section className="mt-7" data-feed>
+          <h2 className="serif" style={{ fontSize: 26, letterSpacing: "-0.01em" }}>
+            From your friends
+          </h2>
+          <ul className="mt-3 flex flex-col">
+            {feed.map((sp) => {
+              const who = circle.friends.find((f) => f.id === sp.user_id);
+              const pl = places[sp.slug];
+              if (!who || !pl) return null;
+              return (
+                <li key={`${sp.user_id}-${sp.slug}`} className="flex items-center gap-3 border-b py-3" style={{ borderColor: "var(--hairline)" }} data-feed-row>
+                  <button onClick={() => setPeek(who)} className="pressable shrink-0" aria-label={who.name}>
+                    <Avatar url={who.avatar_url} name={who.name} size={36} />
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[12.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
+                      <span className="font-semibold" style={{ color: "var(--ink)" }}>
+                        {who.name.split(/\s+/)[0]}
+                      </span>{" "}
+                      {verb(sp)} · {ago(sp.updated_at ?? sp.at)}
+                    </p>
+                    <Link href={`/v/${pl.slug}`} className="serif block truncate underline-offset-2 hover:underline" style={{ fontSize: 19, lineHeight: 1.15 }}>
+                      {pl.name}
+                    </Link>
+                    <p className="truncate text-[12px]" style={{ color: "var(--ink-55)" }}>
+                      {sp.note ? `“${sp.note}” · ` : ""}
+                      {neighborhoodName(pl.neighborhood)}
+                    </p>
+                  </div>
+                  <Link href={`/v/${pl.slug}`} className="pressable shrink-0">
+                    <Photo venue={pl} rounded="rounded-[12px]" className="h-12 w-12" />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* The people */}
+      {n > 0 && (
+        <section className="mt-7" data-friends-grid>
+          <div className="flex items-baseline justify-between">
+            <h2 className="serif" style={{ fontSize: 26, letterSpacing: "-0.01em" }}>
+              {n === 1 ? "1 friend" : `${n} friends`}
+            </h2>
+            {circle.requestsOut.length > 0 && (
+              <span className="text-[12px]" style={{ color: "var(--ink-35)" }}>
+                {circle.requestsOut.length} requested
+              </span>
+            )}
+          </div>
+          <ul className="mt-3 grid grid-cols-2 gap-3">
+            {circle.friends.map((p) => {
+              const theirs = byFriend.get(p.id) ?? [];
+              const beenN = theirs.filter((x) => x.state === "been").length;
+              const top = theirs.filter((x) => x.state === "been" && x.rank).sort((x, y) => (x.rank ?? 99) - (y.rank ?? 99))[0];
+              return (
+                <li key={p.id}>
+                  <button onClick={() => setPeek(p)} className="pressable card flex w-full flex-col items-start p-4 text-left" data-friend-tile>
+                    <Avatar url={p.avatar_url} name={p.name} size={48} />
+                    <span className="serif mt-3 block w-full truncate" style={{ fontSize: 21, lineHeight: 1.1 }}>
+                      {p.name}
+                    </span>
+                    <span className="mt-0.5 block w-full truncate text-[12px]" style={{ color: "var(--ink-55)" }}>
+                      {p.hometown ? p.hometown : "NYC"}
+                      {p.fav_bar ? ` · ${p.fav_bar} regular` : ""}
+                    </span>
+                    <span className="mt-2 block w-full truncate text-[12px]" style={{ color: "var(--ink-70)" }}>
+                      {beenN ? `${beenN} been` : "Just joined"}
+                      {top && places[top.slug] ? ` · #1 ${places[top.slug].name}` : ""}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {circle.requestsOut.length > 0 && (
+            <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-35)" }}>
+              Waiting on {circle.requestsOut.map((p) => p.name).join(", ")}.
+            </p>
+          )}
+        </section>
+      )}
+
+      {n === 0 && <Regulars regulars={regulars} />}
 
       {/* Privacy */}
       <section className="card mt-8 p-5">
@@ -455,10 +567,144 @@ function CircleView({ me }: { me: string }) {
         </h2>
         <Row label={isPublic ? "Public: anyone can add you" : "Private: people request first"} on={isPublic} onChange={(v) => togglePrivacy("is_public", v)} />
         <p className="mt-2 text-[12px] leading-relaxed" style={{ color: "var(--ink-35)" }}>
-          Your number is never shown to anyone. Friends see your name and, soon, your spots.
+          Your number is never shown to anyone. Friends see your name, your photo, where you live, and your spots.
         </p>
       </section>
+
+      <FriendSheet person={peek} spots={peek ? (byFriend.get(peek.id) ?? []) : []} places={places} onClose={() => setPeek(null)} onRemove={peek ? () => { void remove(peek); setPeek(null); } : undefined} />
     </Shell>
+  );
+}
+
+/** "been to", "would go back to", "wants to go to": the feed's verb, from the row. */
+function verb(sp: FriendSpot): string {
+  if (sp.state === "want") return "wants to go to";
+  if (sp.verdict === "again") return "would go back tonight to";
+  if (sp.verdict === "back") return "would go back to";
+  if (sp.verdict === "never") return "is done with";
+  return "went to";
+}
+
+function ago(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  const m = Math.max(1, Math.round(ms / 60000));
+  if (m < 60) return `${m}m ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.round(h / 24);
+  if (d < 14) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/** A friend, up close: their ladder, everything they've been to, what they want to go to. */
+function FriendSheet({ person, spots, places, onClose, onRemove }: { person: Person | null; spots: FriendSpot[]; places: Record<string, Place>; onClose: () => void; onRemove?: () => void }) {
+  if (typeof document === "undefined") return null;
+  const ladder = spots.filter((s) => s.state === "been" && s.rank).sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  const been = spots.filter((s) => s.state === "been" && !s.rank);
+  const want = spots.filter((s) => s.state === "want");
+  return createPortal(
+    <AnimatePresence>
+      {person && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={onClose} role="dialog" aria-modal data-friend-sheet>
+          <motion.div initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 48, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 32 }} onClick={(e) => e.stopPropagation()} className="max-h-[86dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border p-5" style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}>
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--chalk-20)" }} />
+            <div className="flex items-center gap-3">
+              <Avatar url={person.avatar_url} name={person.name} size={56} />
+              <div className="min-w-0 flex-1">
+                <p className="serif truncate" style={{ fontSize: 28, lineHeight: 1.05 }}>
+                  {person.name}
+                </p>
+                <p className="truncate text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+                  {[person.hometown ? `Lives in ${person.hometown}` : null, person.fav_bar ? `${person.fav_bar} regular` : null].filter(Boolean).join(" · ") || "On ROUND"}
+                </p>
+              </div>
+            </div>
+            {person.fav_bar_slug && places[person.fav_bar_slug] && (
+              <Link href={`/v/${person.fav_bar_slug}`} className="pressable card mt-4 flex items-center gap-3 p-3">
+                <Photo venue={places[person.fav_bar_slug]} rounded="rounded-[12px]" className="h-12 w-12 shrink-0" />
+                <span className="min-w-0 flex-1">
+                  <span className="eyebrow block" style={{ color: "var(--tomato)" }}>
+                    Favorite bar
+                  </span>
+                  <span className="serif block truncate" style={{ fontSize: 19, lineHeight: 1.1 }}>
+                    {places[person.fav_bar_slug].name}
+                  </span>
+                </span>
+              </Link>
+            )}
+            {ladder.length > 0 && (
+              <section className="mt-5">
+                <p className="eyebrow">{person.name.split(/\s+/)[0]}&apos;s ladder</p>
+                <ol className="mt-1 flex flex-col divide-y" style={{ borderColor: "var(--hairline)" }}>
+                  {ladder.slice(0, 10).map((s, i) => (
+                    <li key={s.slug} style={{ borderColor: "var(--hairline)" }}>
+                      <Link href={`/v/${s.slug}`} className="pressable flex items-center gap-3 py-2.5">
+                        <span className="serif w-6 shrink-0 text-right" style={{ fontSize: 20, color: i === 0 ? "var(--tomato)" : "var(--chalk-35)" }}>
+                          {i + 1}
+                        </span>
+                        {places[s.slug] && <Photo venue={places[s.slug]} rounded="rounded-[10px]" className="h-10 w-10 shrink-0" />}
+                        <span className="min-w-0 flex-1">
+                          <span className="serif block truncate" style={{ fontSize: 18, lineHeight: 1.1 }}>
+                            {places[s.slug]?.name ?? s.slug}
+                          </span>
+                          {s.note && (
+                            <span className="block truncate text-[12px]" style={{ color: "var(--ink-55)" }}>
+                              “{s.note}”
+                            </span>
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+            {been.length > 0 && (
+              <section className="mt-5">
+                <p className="eyebrow">Been</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {been.slice(0, 16).map((s) => (
+                    <Link key={s.slug} href={`/v/${s.slug}`} className="pressable rounded-full border px-3 py-1 text-[13px]" style={{ borderColor: "var(--hairline-strong)" }}>
+                      {places[s.slug]?.name ?? s.slug}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+            {want.length > 0 && (
+              <section className="mt-5">
+                <p className="eyebrow">Wants to go</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {want.slice(0, 16).map((s) => (
+                    <Link key={s.slug} href={`/v/${s.slug}`} className="pressable rounded-full px-3 py-1 text-[13px]" style={{ background: "rgba(217,72,43,0.1)", color: "var(--tomato-deep)" }}>
+                      {places[s.slug]?.name ?? s.slug}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+            {!ladder.length && !been.length && !want.length && (
+              <p className="mt-5 text-[13.5px]" style={{ color: "var(--ink-55)" }}>
+                Nothing saved yet. Their nights will show up here.
+              </p>
+            )}
+            <div className="mt-6 flex items-center justify-between">
+              {onRemove ? (
+                <button onClick={onRemove} className="pressable text-[12.5px]" style={{ color: "var(--ink-35)" }}>
+                  Remove friend
+                </button>
+              ) : (
+                <span />
+              )}
+              <button onClick={onClose} className="pressable btn-primary h-11 px-6 text-[14px]">
+                Done
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body,
   );
 }
 
@@ -468,7 +714,7 @@ function PeopleList({ people, statusOf, busy, onAdd, onRemove }: { people: Perso
       {people.map((p) => {
         const s = statusOf(p);
         return (
-          <li key={p.id} className="flex items-center justify-between py-3">
+          <li key={p.id} className="flex items-center justify-between py-3" style={{ borderColor: "var(--hairline)" }}>
             <Who p={p} privateTag={!p.is_public} />
             {s === "friend" ? (
               <button onClick={() => onRemove(p)} disabled={busy === p.id} className="pressable btn-ghost h-9 px-3.5 text-[13px]">

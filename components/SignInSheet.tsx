@@ -67,7 +67,13 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
   );
 }
 
-function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; startAt: Step; name?: string }) {
+/** The same flow, inline on a page (the YOU tab for someone we don't know yet). `onSignedIn` fires once the code checks out, `onDone` when the whole thing (about-you included) is over. */
+export function SignInFlow({ reason, onSignedIn, onDone }: { reason: SignInReason; onSignedIn?: () => void; onDone?: () => void }) {
+  const { user, needsProfile, profile } = useAuth();
+  return <Flow reason={reason} startAt={user ? (needsProfile ? "profile" : "done") : "phone"} name={profile?.name} onSignedIn={onSignedIn} onDone={onDone} />;
+}
+
+function Flow({ reason, startAt, name: existingName, onSignedIn, onDone }: { reason: SignInReason; startAt: Step; name?: string; onSignedIn?: () => void; onDone?: () => void }) {
   const { sendCode, verifyCode, saveProfile, signOut, closeSignIn, user, needsProfile, profile } = useAuth();
   const [step, setStep] = useState<Step>(startAt);
   const [phoneInput, setPhoneInput] = useState("");
@@ -97,9 +103,12 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
 
   useEffect(() => {
     if (shown !== "done") return;
-    const t = window.setTimeout(closeSignIn, 1400);
+    const t = window.setTimeout(() => {
+      closeSignIn();
+      onDone?.();
+    }, 1400);
     return () => window.clearTimeout(t);
-  }, [shown, closeSignIn]);
+  }, [shown, closeSignIn, onDone]);
 
   const e164 = toE164(phoneInput);
 
@@ -130,6 +139,7 @@ function Flow({ reason, startAt, name: existingName }: { reason: SignInReason; s
       return;
     }
     // AuthProvider now knows the user; profile presence decides the next step.
+    onSignedIn?.();
     setStep("profile");
   };
 

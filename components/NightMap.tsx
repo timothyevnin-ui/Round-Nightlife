@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Map as MapLibreMap, Marker } from "maplibre-gl";
+import { Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { prepareMapLibre } from "@/lib/maplibre";
 import type { Venue } from "@/lib/types";
@@ -22,13 +22,18 @@ export function NightMap({
   onSelect,
   height = 320,
   focus,
+  interactive = true,
+  rounded = true,
 }: {
   venues: Venue[];
   saved: Set<string>;
   been: Set<string>;
   onSelect?: (v: Venue | null) => void;
-  height?: number;
+  height?: number | string;
   focus?: { lat: number; lng: number; zoom?: number };
+  /** False: a picture that scrolls with the page (tap it to open the real thing). True: pan, pinch, zoom buttons. */
+  interactive?: boolean;
+  rounded?: boolean;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -48,6 +53,15 @@ export function NightMap({
       pitchWithRotate: false,
     });
     map.touchZoomRotate.disableRotation();
+    if (!interactive) {
+      map.dragPan.disable();
+      map.scrollZoom.disable();
+      map.touchZoomRotate.disable();
+      map.doubleClickZoom.disable();
+      map.keyboard.disable();
+    } else {
+      map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
+    }
     mapRef.current = map;
     map.on("load", () => setReady(true));
     map.on("error", () => setReady(true)); // tiles offline → still show markers
@@ -84,7 +98,7 @@ export function NightMap({
   }, [venues, saved, been, onSelect]);
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] border" style={{ height, borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
+    <div className={`relative overflow-hidden ${rounded ? "rounded-[24px] border" : ""}`} style={{ height, borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
