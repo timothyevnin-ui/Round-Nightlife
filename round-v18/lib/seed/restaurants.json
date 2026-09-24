@@ -1,0 +1,5901 @@
+[
+  {
+    "slug": "cafe-chelsea",
+    "kind": "restaurant",
+    "name": "Café Chelsea",
+    "neighborhood": "chelsea",
+    "address": "218 W 23rd St, New York, NY 10011",
+    "lat": 40.7443,
+    "lng": -73.9966,
+    "take": "French bistro classics served all day inside the Hotel Chelsea, mirrored walls, tightly set tables, and an omelet menu that runs from breakfast straight through last call.",
+    "tags": [
+      "French",
+      "Brunch",
+      "Date",
+      "Classic",
+      "Daytime"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "classic": 0.6,
+      "date": 0.5,
+      "daytime": 0.8,
+      "upscale": 0.5,
+      "chill": 0.3,
+      "talk": 0.4,
+      "groups": 0.4,
+      "late": 0.8
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "07:00",
+        "close": "23:00"
+      },
+      {
+        "open": "07:00",
+        "close": "23:00"
+      },
+      {
+        "open": "07:00",
+        "close": "23:00"
+      },
+      {
+        "open": "07:00",
+        "close": "23:00"
+      },
+      {
+        "open": "07:00",
+        "close": "00:00"
+      },
+      {
+        "open": "07:00",
+        "close": "00:00"
+      },
+      {
+        "open": "07:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/cafe-chelsea",
+      "https://hotelchelsea.com/dining-and-bar/cafe-chelsea",
+      "https://www.cafechelseanyc.com/dinner/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from cafechelseanyc.com, hotelchelsea.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; walk-ins welcome daily, bar seating is first-come, first-served.\n• Opened in 2022 as part of the Hotel Chelsea's reopening\n• All-day French bistro menu: steak frites, maitake au poivre, pain perdu, omelets served morning through night\n• Art Deco dining rooms hung with pieces from the hotel's art collection\n• Popular for brunch and for people-watching from the mirrored bar area\n• Has private event spaces (a wine room and a bar area) for up to about 60\n• Open 7am, closing at 11pm Sunday-Wednesday and midnight Thursday-Saturday"
+  },
+  {
+    "slug": "cookshop",
+    "kind": "restaurant",
+    "name": "Cookshop",
+    "neighborhood": "chelsea",
+    "address": "156 10th Ave, New York, NY 10011",
+    "lat": 40.7439,
+    "lng": -74.0054,
+    "take": "Chelsea's long-running farm-to-table standby: stone-oven pizzas, a spit-roasted chicken, and a dining room that fills fastest for weekend brunch and the sidewalk tables outside.",
+    "tags": [
+      "American",
+      "Brunch",
+      "Outdoor",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.4,
+      "talk": 0.4,
+      "date": 0.3,
+      "groups": 0.6,
+      "scene": 0.3,
+      "upscale": 0.4,
+      "classic": 0.5,
+      "dive": 0,
+      "cheap": 0.2,
+      "cocktails": 0.3,
+      "wine": 0.4,
+      "beer": 0.2,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.7,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "American farm-to-table",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "22:00"
+      },
+      {
+        "open": "08:00",
+        "close": "23:00"
+      },
+      {
+        "open": "08:00",
+        "close": "23:00"
+      },
+      {
+        "open": "08:00",
+        "close": "23:00"
+      },
+      {
+        "open": "08:00",
+        "close": "23:00"
+      },
+      {
+        "open": "08:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/cookshop",
+      "https://blog.resy.com/2022/06/vicki-freeman-new-york-restaurateur/",
+      "https://www.opentable.com/r/cookshop"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from opentable.com, resy.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; weekends and brunch get busy, but same-week tables are usually findable.\n• Opened in 2005 by chef Marc Meyer and partner Vicki Freeman.\n• An early adopter of naming its farms and suppliers on a chalkboard by the door.\n• Known for stone-oven pizzas, spit-roasted chicken, and a heavily attended weekend brunch.\n• Has a sizeable outdoor seating section along 10th Avenue.\n• Long regarded as one of Chelsea's most dependable everyday restaurants."
+  },
+  {
+    "slug": "el-quijote",
+    "kind": "restaurant",
+    "name": "El Quijote",
+    "neighborhood": "chelsea",
+    "address": "226 W 23rd St, New York, NY 10011",
+    "lat": 40.7443,
+    "lng": -73.9967,
+    "take": "A century-old Spanish dining room inside the Hotel Chelsea, murals of Don Quixote overhead, serving garlic shrimp, patatas bravas, and a paella meant for the table.",
+    "tags": [
+      "Spanish",
+      "Tapas",
+      "Old NYC",
+      "Date",
+      "Classic"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "classic": 1,
+      "date": 0.6,
+      "groups": 0.5,
+      "cocktails": 0.5,
+      "wine": 0.3,
+      "upscale": 0.4,
+      "talk": 0.5,
+      "chill": 0.4,
+      "late": 0.8
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "Spanish",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/el-quijote",
+      "https://en.wikipedia.org/wiki/El_Quijote_(restaurant)",
+      "https://www.elquijotenyc.com/location/el-quijote-restaurant/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from elquijotenyc.com, en.wikipedia.org, theinfatuation.com; written in ROUND's words.\nReservations: Resy or OpenTable; bar seats make walk-ins a realistic option most nights.\n• Open since 1930, now the oldest running Spanish restaurant in New York City\n• Sits inside the Hotel Chelsea, sold along with the hotel in 2014\n• Closed for renovation in 2018 and reopened in 2022, preserving its Don Quixote murals and sandblasted-glass artwork\n• Historically a hangout for Andy Warhol, William S. Burroughs, and Janis Joplin\n• Known for paella, patatas bravas, gambas al ajillo, and a Basque cheesecake\n• Open 5pm to 11pm Sunday-Thursday, 5pm to midnight Friday-Saturday"
+  },
+  {
+    "slug": "los-mariscos",
+    "kind": "restaurant",
+    "name": "Los Mariscos",
+    "neighborhood": "chelsea",
+    "address": "409 W 15th St, New York, NY 10011",
+    "lat": 40.7415,
+    "lng": -74.0051,
+    "take": "A Baja-style seafood counter inside Chelsea Market: fish and shrimp tacos on handmade tortillas, ceviche by the cup, eaten fast at shared picnic tables.",
+    "tags": [
+      "Mexican",
+      "Seafood",
+      "Tacos",
+      "Cheap",
+      "Casual"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.15,
+      "groups": 0.5,
+      "scene": 0.2,
+      "upscale": 0,
+      "classic": 0.3,
+      "dive": 0.3,
+      "cheap": 0.85,
+      "cocktails": 0.3,
+      "wine": 0,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.7,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.5,
+      "mid": 0.3,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.1,
+      "early": 0.2,
+      "longterm": 0.3
+    },
+    "price": 1,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.85,
+    "cuisine": "Mexican seafood",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/los-mariscos",
+      "https://www.chelseamarket.com/directory-all/los-mariscos",
+      "https://www.biteofthebest.com/los-mariscos-chelsea-nyc/",
+      "https://losmariscos.shop/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from biteofthebest.com, chelseamarket.com, losmariscos.shop, theinfatuation.com; written in ROUND's words.\nReservations: Walk-in only, food hall counter — no reservations taken\n• Baja/Tijuana-style seafood counter inside Chelsea Market's main concourse\n• Known for fish and shrimp tacos on handmade tortillas, ceviche, and aguachile\n• Counter service with picnic tables and a small bar pouring margaritas\n• Tacos priced under $6 each\n• Gets crowded at peak lunch and dinner hours"
+  },
+  {
+    "slug": "pastis",
+    "kind": "restaurant",
+    "name": "Pastis",
+    "neighborhood": "chelsea",
+    "address": "52 Gansevoort St, New York, NY 10014",
+    "lat": 40.7394,
+    "lng": -74.0063,
+    "take": "A big, mirrored French brasserie rebuilt from the 90s original: steak frites, escargot, and trout amandine, served at a volume built for people-watching and mirror selfies.",
+    "tags": [
+      "French",
+      "Bistro",
+      "Brunch",
+      "Groups",
+      "Outdoor"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "scene": 0.7,
+      "groups": 0.7,
+      "classic": 0.6,
+      "daytime": 0.8,
+      "upscale": 0.4,
+      "cocktails": 0.4,
+      "wine": 0.3,
+      "outdoor": 0.8
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.8,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/pastis",
+      "https://guide.michelin.com/us/en/article/dining-out/pastis-restaurant-nyc-reopening",
+      "https://www.nyctourism.com/restaurants/pastis/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from michelin.com, nyctourism.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; a big room makes walk-ins and bar seats a decent bet.\n• Opened in 1999 by Keith McNally in the Meatpacking District, closed in 2014\n• Reopened in summer 2019 one block away at 52 Gansevoort St, an $8 million rebuild with Stephen Starr as a partner\n• Recreates the original's curved zinc bar, subway tile, and vintage mirrors\n• Known for steak frites, escargot, trout amandine, and a double-patty cheeseburger\n• Outdoor seating available\n• Large, high-energy room aimed at groups and people-watching"
+  },
+  {
+    "slug": "shukette",
+    "kind": "restaurant",
+    "name": "Shukette",
+    "neighborhood": "chelsea",
+    "address": "230 9th Ave, New York, NY 10011",
+    "lat": 40.7473,
+    "lng": -74.0004,
+    "take": "Mediterranean small plates built for sharing in a loud Chelsea room: warm frena bread, whole grilled fish, and lamb meatballs meant for a table of four or more.",
+    "tags": [
+      "Middle Eastern",
+      "Small Plates",
+      "Groups",
+      "Loud",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.5,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "groups": 0.8,
+      "scene": 0.5,
+      "cocktails": 0.4,
+      "talk": 0.3,
+      "date": 0.4,
+      "cheap": 0.3
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.8,
+      "mid": 0.9,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.15,
+    "cuisine": "Levantine",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "16:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/shukette",
+      "https://blog.resy.com/2023/03/how-to-get-into-shukette/",
+      "https://shukette.org/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from resy.com, shukette.org, theinfatuation.com; written in ROUND's words.\nReservations: Resy, released 30 days out and gone within the hour; 20+ seats held nightly for walk-ins, expect a wait.\n• Sister restaurant to Shuka in SoHo\n• Levantine/Mediterranean sharing menu: frena and lafa breads, whole fish grilled in a wire cage, joojeh chicken, tahini soft serve\n• Resy reservations release 30 days out and are typically gone within the first hour\n• Waitlist reportedly runs into the thousands on weekend nights\n• 20 to 60 seats are held each night specifically for walk-ins, with waits from 20 minutes to about 90\n• Open Monday-Saturday 5pm-11pm, Sunday 4pm-10pm"
+  },
+  {
+    "slug": "bar-primi",
+    "kind": "restaurant",
+    "name": "Bar Primi",
+    "neighborhood": "east-village",
+    "address": "325 Bowery, New York, NY 10003",
+    "lat": 40.7255,
+    "lng": -73.9917,
+    "take": "A pasta-forward Italian spot on the Bowery built for groups: no reservations, fast-turning tables, and a run of housemade noodles anchored by a slow-cooked lamb bucatini.",
+    "tags": [
+      "Italian",
+      "Pasta",
+      "Groups",
+      "Casual",
+      "Loud"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.3,
+      "groups": 0.8,
+      "scene": 0.4,
+      "upscale": 0.2,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0.3,
+      "cocktails": 0.4,
+      "wine": 0.5,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.7,
+      "mid": 0.8,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.4,
+      "longterm": 0.4
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": null,
+    "verified": false,
+    "retired": true,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/bar-primi",
+      "https://www.barprimi.com/location/bar-primi-bowery/",
+      "https://www.nyctourism.com/restaurants/bar-primi/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from barprimi.com, nyctourism.com, theinfatuation.com; written in ROUND's words.\nReservations: Historically walk-in only, no reservations; the location is currently closed so nothing is bookable.\n• Opened in 2014 by chef Andrew Carmellini's restaurant group as a casual, pasta-focused Italian spot on the Bowery.\n• Known for housemade pasta specials, including a slow-cooked lamb bucatini and Thursday-night lamb chops.\n• Historically took no reservations, relying on quick table turns across a two-level dining room.\n• As of late September 2026, the restaurant's own site and NYC's tourism site list the Bowery location as temporarily closed for renovations, with no reopening date given.\n• The same ownership group has since opened a separate Bar Primi location in the Penn District.\nTemporarily closed for renovations as of September 2026 (the Penn District location is open). Bring it back from Studio → Places when the Bowery reopens."
+  },
+  {
+    "slug": "bungalow",
+    "kind": "restaurant",
+    "name": "Bungalow",
+    "neighborhood": "east-village",
+    "address": "24 1st Ave, New York, NY 10009",
+    "lat": 40.7238,
+    "lng": -73.9884,
+    "take": "East Village Indian dressed like a vintage social club: chandeliers, pink walls, a thumping playlist, and lamb chops nearly every table orders.",
+    "tags": [
+      "Indian",
+      "Date",
+      "Scene",
+      "Loud",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3,
+      "date": 0.6,
+      "groups": 0.7,
+      "scene": 0.9,
+      "upscale": 0.7,
+      "classic": 0,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.5,
+      "wine": 0.3,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.7,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.6,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Indian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      null,
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://en.wikipedia.org/wiki/Bungalow_(restaurant)",
+      "https://www.theinfatuation.com/new-york/reviews/bungalow-nyc",
+      "https://www.bungalowny.com/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from bungalowny.com, en.wikipedia.org, theinfatuation.com; written in ROUND's words.\nReservations: Resy opens 20 days ahead at 11am; walk-ins possible at the 8-seat bar, best early on weekdays\n• Opened 2024 by chef Vikas Khanna and restaurateur Jimmy Rizvi\n• Interior styled after vintage Indian social clubs, designed by Shaila Rizvi\n• Given three stars by the New York Times and listed in the Michelin Guide since June 2024\n• Known for Ammi's Lamb Chops, Anarkali Chicken, and slow-cooked Rajasthani lamb\n• Parties of 8 or more need 40-45 days' notice"
+  },
+  {
+    "slug": "claud",
+    "kind": "restaurant",
+    "name": "Claud",
+    "neighborhood": "east-village",
+    "address": "90 E 10th St, New York, NY 10003",
+    "lat": 40.7309,
+    "lng": -73.9897,
+    "take": "European bistro in the East Village made to feel like an apartment dinner party: razor clams, agnolotti in brown butter, and a chocolate cake meant for two.",
+    "tags": [
+      "European",
+      "Bistro",
+      "Date",
+      "Wine",
+      "Upscale"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.4,
+      "chill": 0.5,
+      "talk": 0.6,
+      "date": 0.8,
+      "groups": 0.3,
+      "scene": 0.5,
+      "upscale": 0.7,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.4,
+      "wine": 0.6,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.5,
+      "mid": 0.2,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.8,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "European",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/claud",
+      "https://www.claudnyc.com/location/claud-nyc/",
+      "https://www.yelp.com/biz/claud-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from claudnyc.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy opens 14 days ahead at 9am; parties capped at 6, no walk-in bar\n• Opened by partners Chase Sinzer and Joshua Pinsky\n• Listed in the Michelin Guide\n• Known for a chocolate cake for two, chicken liver agnolotti, and razor clams\n• Small East Village storefront with an open kitchen counter\n• Cancellations inside 24 hours are charged a fee"
+  },
+  {
+    "slug": "lil-frankies",
+    "kind": "restaurant",
+    "name": "Lil' Frankie's",
+    "neighborhood": "east-village",
+    "address": "19 1st Ave, New York, NY 10003",
+    "lat": 40.7238,
+    "lng": -73.9882,
+    "take": "East Village red-sauce spot for wood-fired pizza and pasta, cash only, loud enough for a big table and open past 2am on weekends.",
+    "tags": [
+      "Italian",
+      "Pizza",
+      "Late Night",
+      "Groups",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.5,
+      "groups": 0.7,
+      "scene": 0.3,
+      "upscale": 0.1,
+      "classic": 0.5,
+      "dive": 0.2,
+      "cheap": 0.5,
+      "cocktails": 0.3,
+      "wine": 0.3,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "02:00"
+      },
+      {
+        "open": "11:00",
+        "close": "02:00"
+      },
+      {
+        "open": "11:00",
+        "close": "02:00"
+      },
+      {
+        "open": "11:00",
+        "close": "02:00"
+      },
+      {
+        "open": "11:00",
+        "close": "02:00"
+      },
+      {
+        "open": "11:00",
+        "close": "04:00"
+      },
+      {
+        "open": "11:00",
+        "close": "04:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/lil-frankies",
+      "https://www.lilfrankies.com/",
+      "https://www.yelp.com/biz/lil-frankies-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from lilfrankies.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Reservations via the restaurant's site; mostly a walk-in room, cash only\n• Neapolitan-style wood-fired pizza and pasta in the East Village\n• Cash only, no cards accepted\n• Part of the same small local group as Frank and Supper\n• Known for whole roasted eggplant, handmade gnocchi, and Margherita pizza\n• Open until 2am on weeknights and 4am on weekends"
+  },
+  {
+    "slug": "lucien",
+    "kind": "restaurant",
+    "name": "Lucien",
+    "neighborhood": "east-village",
+    "address": "14 1st Ave, New York, NY 10009",
+    "lat": 40.7235,
+    "lng": -73.9888,
+    "take": "First Avenue French bistro that hasn't updated its look since 1998, steak au poivre and cramped little tables that fill up loud after dark.",
+    "tags": [
+      "French",
+      "Old NYC",
+      "Scene",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3,
+      "date": 0.5,
+      "groups": 0.3,
+      "scene": 0.8,
+      "upscale": 0.4,
+      "classic": 0.6,
+      "dive": 0.3,
+      "cheap": 0.2,
+      "cocktails": 0.4,
+      "wine": 0.5,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.2,
+      "late": 0.5,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.4,
+      "mid": 0.2,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/lucien",
+      "https://en.wikipedia.org/wiki/Lucien_(restaurant)",
+      "https://luciennyc.com/contact.html"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, luciennyc.com, theinfatuation.com; written in ROUND's words.\nReservations: Now listed on OpenTable, though it has long run on phone calls and a notebook behind the bar; call ahead to be safe.\n• Opened in 1998 by Lucien Bahaj; now run by his son Zac.\n• Known for steak au poivre, steak tartare, and pâté maison.\n• Small, worn-in room long associated with downtown artists, photographers, and models.\n• Founder Lucien Bahaj died in 2019.\n• Room fills in and gets louder after about 7pm."
+  },
+  {
+    "slug": "superiority-burger",
+    "kind": "restaurant",
+    "name": "Superiority Burger",
+    "neighborhood": "east-village",
+    "address": "119 Avenue A, New York, NY 10009",
+    "lat": 40.7265,
+    "lng": -73.9835,
+    "take": "Plant-forward diner styled like an old East Village luncheonette: a veggie burger that falls apart on purpose and a vegan cheesesteak regulars order on repeat.",
+    "tags": [
+      "Vegetarian",
+      "Burgers",
+      "Cheap",
+      "Late Night",
+      "Brunch"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.5,
+      "date": 0.3,
+      "groups": 0.5,
+      "scene": 0.5,
+      "upscale": 0.1,
+      "classic": 0.3,
+      "dive": 0.3,
+      "cheap": 0.6,
+      "cocktails": 0.3,
+      "wine": 0.2,
+      "beer": 0.4,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "Vegetarian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/superiority-burger",
+      "https://en.wikipedia.org/wiki/Superiority_Burger",
+      "http://www.superiorityburger.com/contact"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, superiorityburger.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; walk-ins welcome, especially at the back bar\n• Opened in 2015 by chef Brooks Headley\n• Moved in 2023 to a larger space at 119 Avenue A, the former Odessa Diner\n• The New York Times gave it three stars after the move\n• 2024 James Beard Outstanding Restaurant semifinalist\n• Known for its namesake veggie burger and the Philadelphia Yuba sandwich"
+  },
+  {
+    "slug": "veselka",
+    "kind": "restaurant",
+    "name": "Veselka",
+    "neighborhood": "east-village",
+    "address": "144 2nd Ave, New York, NY 10003",
+    "lat": 40.7289,
+    "lng": -73.9871,
+    "take": "Ukrainian diner on Second Avenue since the 1950s: pierogi, borscht, and a counter as full at midnight as it is at brunch.",
+    "tags": [
+      "Ukrainian",
+      "Diner",
+      "Late Night",
+      "Old NYC",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.4,
+      "date": 0.2,
+      "groups": 0.6,
+      "scene": 0.3,
+      "upscale": 0,
+      "classic": 1,
+      "dive": 0.5,
+      "cheap": 0.7,
+      "cocktails": 0.1,
+      "wine": 0.1,
+      "beer": 0.3,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.85,
+    "cuisine": "Ukrainian",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://veselka.com/pages/locations",
+      "https://en.wikipedia.org/wiki/Veselka",
+      "https://www.yelp.com/biz/veselka-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, veselka.com, yelp.com; written in ROUND's words.\nReservations: Walk-in only, first-come first-served; parties of 8+ can email ahead\n• Opened in 1954 by Ukrainian immigrants Wolodymyr and Olha Darmochwal\n• Still family-run, now by the Birchard family\n• Makes thousands of pierogi and large batches of borscht daily\n• Traffic roughly doubled after the 2022 Russian invasion of Ukraine, as it became a community gathering point\n• A second location opened inside Grand Central Terminal in 2023\n• Scaled back from round-the-clock hours; still runs latest on weekends"
+  },
+  {
+    "slug": "bernies",
+    "kind": "restaurant",
+    "name": "Bernie's",
+    "neighborhood": "greenpoint",
+    "address": "332 Driggs Ave, Brooklyn, NY 11222",
+    "lat": 40.7228,
+    "lng": -73.9516,
+    "take": "A retro American tavern playing at a 1980s living room: dirty martinis, mozzarella sticks, crayons on the butcher paper, and a wait that gets long on weekends.",
+    "tags": [
+      "American",
+      "Cocktails",
+      "Groups",
+      "Loud"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.6,
+      "date": 0.3,
+      "groups": 0.7,
+      "scene": 0.6,
+      "upscale": 0.1,
+      "classic": 0.3,
+      "dive": 0.3,
+      "cheap": 0.4,
+      "cocktails": 0.7,
+      "wine": 0.2,
+      "beer": 0.4,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.7,
+      "mid": 0.7,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "American",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "16:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "16:00",
+        "close": "22:00"
+      },
+      {
+        "open": "16:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/bernies",
+      "https://www.berniesnyc.com/about/",
+      "https://www.nyctourism.com/restaurants/bernies-restaurant/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from berniesnyc.com, nyctourism.com, theinfatuation.com; written in ROUND's words.\nReservations: Tock; weekend tables can mean a long wait without one, weekday bar seats are easier.\n• Opened in spring 2018 by Greenpoint residents Zach Frankel and Taylor McEwan.\n• Kitchen run by the team behind nearby Frankel's Delicatessen & Appetizing.\n• About 50 seats, styled like a vintage American luncheonette.\n• Known for dirty martinis, mozzarella sticks, and a cheeseburger deluxe.\n• Gained wide attention on TikTok through servers nicknamed Marty and Missy."
+  },
+  {
+    "slug": "chez-ma-tante",
+    "kind": "restaurant",
+    "name": "Chez Ma Tante",
+    "neighborhood": "greenpoint",
+    "address": "90 Calyer St, Brooklyn, NY 11222",
+    "lat": 40.7276,
+    "lng": -73.9562,
+    "take": "A white-walled neighborhood bistro doing simple European classics — roast chicken, thick fries, pork shoulder — plus a Saturday brunch worth setting an alarm for.",
+    "tags": [
+      "French bistro",
+      "Brunch",
+      "Wine",
+      "Date",
+      "Outdoor"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.6,
+      "talk": 0.6,
+      "date": 0.6,
+      "groups": 0.4,
+      "scene": 0.3,
+      "upscale": 0.3,
+      "classic": 0.3,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.4,
+      "wine": 0.5,
+      "beer": 0.2,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/chez-ma-tante",
+      "https://blog.resy.com/2025/09/chez-ma-tante-nyc/",
+      "https://chezmatantebk.com/",
+      "https://greenpointers.com/2024/01/16/greenpoints-chez-ma-tante-to-temporarily-close-in-february/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from chezmatantebk.com, greenpointers.com, resy.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; bar seating available for walk-ins\n• Opened 2017 in Greenpoint by chefs/co-owners Aidan O'Neal and Jake Leiber\n• Earned two stars from the New York Times\n• Menu of European bistro classics: roast chicken, pork shoulder, thick-cut fries\n• Closed for building repairs in 2023, reopened summer 2024\n• Serves a Saturday brunch, including its pancakes\n• A long wood bar plus a few tables outside"
+  },
+  {
+    "slug": "el-pinguino",
+    "kind": "restaurant",
+    "name": "El Pingüino",
+    "neighborhood": "greenpoint",
+    "address": "25 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7295,
+    "lng": -73.9584,
+    "take": "A Spanish seafood bar the size of a good living room: oysters, tinned fish, and martinis, packed into tiny wooden booths with a penguin watching over the bar.",
+    "tags": [
+      "Spanish",
+      "Seafood",
+      "Cocktails",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.6,
+      "groups": 0.3,
+      "scene": 0.5,
+      "upscale": 0.3,
+      "classic": 0.1,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.6,
+      "wine": 0.3,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.2,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.5,
+      "mid": 0.3,
+      "big": 0.15
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "tiny",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "Spanish seafood",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "16:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/el-pinguino",
+      "https://www.pinguinogreenpoint.com/",
+      "https://www.ilanakohn.com/journal/el-pinguino"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from ilanakohn.com, pinguinogreenpoint.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; bar seats open for walk-ins\n• Opened 2022 in Greenpoint by chef Nick Padilla with Mike Zorman\n• Spanish seafood and cocktail bar: oysters, tinned fish, seafood towers\n• Daily happy hour 4-7pm with half-price oysters and $12 martinis\n• Small room with tiny wooden booths and design-forward decor\n• Open daily 4pm to midnight"
+  },
+  {
+    "slug": "karczma",
+    "kind": "restaurant",
+    "name": "Karczma",
+    "neighborhood": "greenpoint",
+    "address": "136 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7308,
+    "lng": -73.953,
+    "take": "Greenpoint's long-running Polish spot: a barn-style dining room, plates of pierogi and kielbasa, and a hunter's stew regulars order without opening the menu.",
+    "tags": [
+      "Polish",
+      "Comfort Food",
+      "Groups",
+      "Cheap",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.4,
+      "chill": 0.5,
+      "talk": 0.6,
+      "date": 0.2,
+      "groups": 0.7,
+      "scene": 0.1,
+      "upscale": 0,
+      "classic": 0.7,
+      "dive": 0.3,
+      "cheap": 0.6,
+      "cocktails": 0.1,
+      "wine": 0.2,
+      "beer": 0.5,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.4,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.7,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.3,
+      "longterm": 0.5
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Polish",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:30"
+      },
+      {
+        "open": "12:00",
+        "close": "22:30"
+      },
+      {
+        "open": "12:00",
+        "close": "22:30"
+      },
+      {
+        "open": "12:00",
+        "close": "22:30"
+      },
+      {
+        "open": "12:00",
+        "close": "23:30"
+      },
+      {
+        "open": "12:00",
+        "close": "23:30"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/karczma",
+      "https://greenpointers.com/2025/05/20/karczmas-owner-reopens-christinas-as-retro-polish-restaurant-this-weekend/",
+      "https://www.opentable.com/r/karczma-brooklyn",
+      "https://karczmabrooklyn.com/en/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from greenpointers.com, karczmabrooklyn.com, opentable.com, theinfatuation.com; written in ROUND's words.\nReservations: No online booking; phone or walk-in, tables are usually easy to get\n• Family-run Polish restaurant on Greenpoint Ave open for close to two decades\n• Owner Slawek Letowski also opened Retro Polish Restaurant & Wine Bar in the former Christina's space in 2025\n• Known for pierogi, kielbasa, white borscht in a bread bowl, and hunter's stew\n• Rustic, barn-like decor with servers in traditional Polish dress\n• No online reservations; phone or walk-in only\n• Indoor and outdoor seating available"
+  },
+  {
+    "slug": "oxomoco",
+    "kind": "restaurant",
+    "name": "Oxomoco",
+    "neighborhood": "greenpoint",
+    "address": "128 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7304,
+    "lng": -73.9556,
+    "take": "Wood-fired Mexican in a bright, plant-filled Greenpoint room, built around oversized round booths, a chef's counter facing the grill, and tortilla-sized tlayudas.",
+    "tags": [
+      "Mexican",
+      "Wood-Fired",
+      "Date",
+      "Brunch"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.7,
+      "groups": 0.7,
+      "scene": 0.6,
+      "upscale": 0.6,
+      "classic": 0.2,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.5,
+      "wine": 0.3,
+      "beer": 0.2,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Mexican",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/oxomoco",
+      "https://en.wikipedia.org/wiki/Oxomoco_(restaurant)",
+      "https://www.oxomoconyc.com/",
+      "https://greenpointers.com/2025/08/01/oxomoco-reopens-one-month-after-fire-with-seafood-forward-menu/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, greenpointers.com, oxomoconyc.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy; book ahead, especially weekends. Some walk-in seats at the counter and front patio.\n• Opened June 2018 by the team behind Speedy Romeo pizza.\n• Holds one Michelin star for wood-fired Mexican cooking.\n• Known for tlayudas and a wood-grilled half chicken with housemade tortillas.\n• A summer 2025 kitchen fire closed it briefly; it reopened in late July 2025 with a more seafood-leaning menu.\n• Big round booths and a chef's counter facing the wood grill."
+  },
+  {
+    "slug": "wenwen",
+    "kind": "restaurant",
+    "name": "Wenwen",
+    "neighborhood": "greenpoint",
+    "address": "1025 Manhattan Ave, Brooklyn, NY 11222",
+    "lat": 40.7343,
+    "lng": -73.9557,
+    "take": "A loud, bright Taiwanese room in Greenpoint built around a slow-cooked beef noodle soup and hot-honey popcorn chicken, with a cocktail list as loud as the room.",
+    "tags": [
+      "Taiwanese",
+      "Noodles",
+      "Lively",
+      "Date",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.2,
+      "talk": 0.3,
+      "date": 0.4,
+      "groups": 0.6,
+      "scene": 0.6,
+      "upscale": 0.4,
+      "classic": 0,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.6,
+      "wine": 0.3,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.3,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Taiwanese",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://en.wikipedia.org/wiki/Wenwen",
+      "https://www.opentable.com/r/wenwen-brooklyn",
+      "https://guide.michelin.com/us/en/new-york-state/brooklyn/restaurant/wenwen",
+      "https://www.wenwenbrooklyn.com"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, michelin.com, opentable.com, wenwenbrooklyn.com; written in ROUND's words.\nReservations: OpenTable; book ahead, the room fills fast and walk-in waits are common\n• Opened February 2022 by Eric Sze and Andy Chuang, the team behind the East Village's 886\n• Name combines Sze's mother Wenchi and wife Wenhui\n• A New York Times Critic's Pick and listed in the Michelin Guide\n• Known for a 16-hour oxtail beef noodle soup and hot-honey popcorn chicken\n• Two floors: a main dining room and a lower-level space called the Alley\n• 886, the sister restaurant in the East Village, closed in September 2026, but Wenwen is unaffected"
+  },
+  {
+    "slug": "di-an-di",
+    "kind": "restaurant",
+    "name": "Đi Ăn Đi",
+    "neighborhood": "greenpoint",
+    "address": "68 Greenpoint Ave, Brooklyn, NY 11222",
+    "lat": 40.7301,
+    "lng": -73.9558,
+    "take": "A plant-filled, sun-bright Vietnamese room in Greenpoint, loud at dinner, built around a beef pho ha noi and a rice-crust riff the kitchen calls its Vietnamese pizza.",
+    "tags": [
+      "Vietnamese",
+      "Noodles",
+      "Brunch",
+      "Outdoor",
+      "Lively"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.3,
+      "date": 0.5,
+      "groups": 0.6,
+      "scene": 0.5,
+      "upscale": 0.3,
+      "classic": 0,
+      "dive": 0,
+      "cheap": 0.2,
+      "cocktails": 0.5,
+      "wine": 0.3,
+      "beer": 0.3,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Vietnamese",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/di-an-di",
+      "https://greenpointers.com/2019/04/09/chef-dennis-ngo-reflects-on-di-an-dis-first-wildly-successful-year-in-greenpoint/",
+      "https://www.timeout.com/newyork/restaurants/di-an-di-1",
+      "https://www.diandi.nyc/",
+      "https://www.opentable.com/r/di-an-di-brooklyn"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from diandi.nyc, greenpointers.com, opentable.com, theinfatuation.com, timeout.com; written in ROUND's words.\nReservations: OpenTable; recommended for dinner, bar seats open to walk-ins\n• Opened in 2018 by chef Dennis Ngo after roughly 13 years cooking around the city\n• Name translates loosely to 'let's go eat,' a casual phrase among friends and family\n• Known for beef pho ha noi, banh xeo, and a crispy rice-crust dish billed as Vietnamese pizza\n• Plant-filled, pastel dining room with skylights and an open kitchen\n• Recognized in the Michelin Guide\n• Automatic 20% gratuity added for parties of six or more"
+  },
+  {
+    "slug": "bacaro",
+    "kind": "restaurant",
+    "name": "Bacaro",
+    "neighborhood": "lower-east-side",
+    "address": "136 Division St, New York, NY 10002",
+    "lat": 40.714,
+    "lng": -73.9913,
+    "take": "Venetian small plates in a hushed, candlelit basement of brick arches, built for a slow night of cicchetti and a second bottle of wine.",
+    "tags": [
+      "Italian",
+      "Small Plates",
+      "Wine",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.6,
+      "date": 0.8,
+      "groups": 0.7,
+      "scene": 0.4,
+      "upscale": 0.4,
+      "classic": 0.3,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.3,
+      "wine": 0.8,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.8,
+      "mid": 0.7,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "cuisine": "Venetian Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      null,
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "02:00"
+      },
+      {
+        "open": "18:00",
+        "close": "02:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/bacaro",
+      "https://www.opentable.com/r/bacaro-new-york",
+      "https://www.thelodownny.com/leslog/2017/11/bacaro-toasts-first-decade-on-division-street.html",
+      "https://www.yelp.com/biz/bacaro-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from opentable.com, theinfatuation.com, thelodownny.com, yelp.com; written in ROUND's words.\nReservations: Not bookable through Resy or OpenTable; call the restaurant or walk in and expect a wait at peak times.\n• Opened around 2007 on Division Street, at the edge of the Lower East Side and Chinatown.\n• Menu is cicchetti-style, Venetian small plates meant for sharing across several dishes per couple.\n• Main room is a candlelit basement with brick arches and communal farm tables.\n• Not on the OpenTable or Resy booking networks as of this writing.\n• Reviewers describe it as stronger on atmosphere and wine list than on kitchen consistency."
+  },
+  {
+    "slug": "cervos",
+    "kind": "restaurant",
+    "name": "Cervo's",
+    "neighborhood": "lower-east-side",
+    "address": "43 Canal St, New York, NY 10002",
+    "lat": 40.7147,
+    "lng": -73.991,
+    "take": "Iberian seafood off Canal Street: a raw bar, fried shrimp heads, and a piri piri half-chicken in a sceney Dimes Square room that fills with a well-dressed downtown crowd.",
+    "tags": [
+      "Seafood",
+      "Spanish",
+      "Scene",
+      "Cocktails",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.6,
+      "groups": 0.4,
+      "scene": 0.8,
+      "upscale": 0.6,
+      "classic": 0.1,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.6,
+      "wine": 0.5,
+      "beer": 0.2,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0.2,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.7,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Iberian seafood",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:30",
+        "close": "23:00"
+      },
+      {
+        "open": "17:30",
+        "close": "23:00"
+      },
+      {
+        "open": "17:30",
+        "close": "23:00"
+      },
+      {
+        "open": "17:30",
+        "close": "23:00"
+      },
+      {
+        "open": "17:30",
+        "close": "23:00"
+      },
+      {
+        "open": "17:30",
+        "close": "23:00"
+      },
+      {
+        "open": "17:30",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/cervos",
+      "https://guide.michelin.com/us/en/new-york-state/new-york/restaurant/cervo-s",
+      "https://www.cervosnyc.com/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from cervosnyc.com, michelin.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy, typically booked about a week out; walk-ins have a shot early in the evening at the bar.\n• Opened in 2019 from the chefs behind Wildair and Contra, part of the same downtown restaurant group.\n• Known for a raw bar, fried shrimp heads, and a wood-grilled piri piri half chicken.\n• Has a skylit back dining room, a bar counter, and a patio facing the Dimes Square corner.\n• Rated a 'Best of the Best' 9.0 by The Infatuation and included in the Michelin Guide.\n• Open for dinner only, nightly from 5:30 to 11pm."
+  },
+  {
+    "slug": "freemans",
+    "kind": "restaurant",
+    "name": "Freemans",
+    "neighborhood": "lower-east-side",
+    "address": "2 Freeman Alley, New York, NY 10002",
+    "lat": 40.7218,
+    "lng": -73.9931,
+    "take": "American tavern food down a hidden alley off the Bowery, taxidermy on the walls since 2004, mussels and artichoke dip built for a long weekend brunch.",
+    "tags": [
+      "American",
+      "Brunch",
+      "Date",
+      "Old NYC",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.4,
+      "chill": 0.6,
+      "talk": 0.6,
+      "date": 0.6,
+      "groups": 0.6,
+      "scene": 0.4,
+      "upscale": 0.5,
+      "classic": 0.5,
+      "dive": 0.1,
+      "cheap": 0.1,
+      "cocktails": 0.5,
+      "wine": 0.5,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.7,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "American",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/freemans-updated",
+      "https://www.freemansrestaurant.com/",
+      "https://www.yelp.com/biz/freemans-new-york-3"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from freemansrestaurant.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy up to 14 days out; walk-ins seated first-come first-served, larger groups by email\n• Opened in 2004 down Freeman Alley off Rivington Street\n• Hunting-lodge decor, including taxidermy, largely unchanged since opening\n• Known for mussels in paprika butter broth, hot artichoke dip, and duck confit\n• Weekend brunch adds French toast and chilaquiles\n• Easier to get a table now than during its original run of hype"
+  },
+  {
+    "slug": "kikis",
+    "kind": "restaurant",
+    "name": "Kiki's",
+    "neighborhood": "lower-east-side",
+    "address": "130 Division St, New York, NY 10002",
+    "lat": 40.7141,
+    "lng": -73.9924,
+    "take": "An unmarked Chinatown room serving straightforward Greek food, grilled octopus, saganaki, lamb chops, at prices that stay reasonable while a young, dressed-up crowd packs in for long waits.",
+    "tags": [
+      "Greek",
+      "Seafood",
+      "Scene",
+      "Loud",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.1,
+      "talk": 0.2
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.1,
+      "talk": 0.2,
+      "date": 0.4,
+      "groups": 0.6,
+      "scene": 0.8,
+      "upscale": 0.2,
+      "classic": 0.2,
+      "dive": 0.1,
+      "cheap": 0.5,
+      "cocktails": 0.4,
+      "wine": 0.4,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.3,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Greek",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/kikis",
+      "https://kikisnyc.com/",
+      "https://www.yelp.com/biz/kikis-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from kikisnyc.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Walk-ins welcome; reservations recommended for groups of four or more. Waits of an hour or longer are common at peak times.\n• A Greek restaurant on Division Street with no exterior sign, set inside a former print shop.\n• Known for grilled octopus, saganaki, lamb chops, and a horiatiki salad heavy on feta.\n• Considered relatively affordable for the area, with lamb chops listed under thirty dollars.\n• Draws a young, style-conscious downtown crowd, especially in the evenings.\n• Open daily from noon; walk-ins are standard, with reservations suggested for parties of four or more."
+  },
+  {
+    "slug": "scarrs-pizza",
+    "kind": "restaurant",
+    "name": "Scarr's Pizza",
+    "neighborhood": "lower-east-side",
+    "address": "35 Orchard St, New York, NY 10002",
+    "lat": 40.7155,
+    "lng": -73.991,
+    "take": "A slice shop that mills its own flour in the basement: thin, well-charred pizza, a line out front, and an outdoor bar serving frozen drinks past midnight.",
+    "tags": [
+      "Pizza",
+      "Late Night",
+      "Cheap",
+      "Outdoor"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.2,
+      "groups": 0.5,
+      "scene": 0.7,
+      "upscale": 0,
+      "classic": 0.3,
+      "dive": 0.3,
+      "cheap": 0.8,
+      "cocktails": 0.5,
+      "wine": 0.3,
+      "beer": 0.3,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.6,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.3,
+      "longterm": 0.4
+    },
+    "price": 1,
+    "capacity": "small",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "Pizza",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "00:00"
+      },
+      {
+        "open": "11:30",
+        "close": "02:00"
+      },
+      {
+        "open": "11:30",
+        "close": "02:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/scarrs-pizza-closed",
+      "https://en.wikipedia.org/wiki/Scarr%27s_Pizza",
+      "https://www.scarrspizza.com/location/scarrs-pizza/",
+      "https://www.yelp.com/biz/scarrs-pizza-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, scarrspizza.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Walk-in only, counter service; no reservations taken.\n• Opened in 2016 by Scarr Pimentel, who trained at Lombardi's.\n• Mills part of its own flour on site, unusual for a slice shop.\n• Moved across the street into a bigger space at 35 Orchard St in 2023.\n• Repeatedly named among the city's best slices by the New York Times and The New Yorker.\n• Pizza by the slice or whole pie, plus an outdoor bar serving cocktails."
+  },
+  {
+    "slug": "wildair",
+    "kind": "restaurant",
+    "name": "Wildair",
+    "neighborhood": "lower-east-side",
+    "address": "142 Orchard St, New York, NY 10002",
+    "lat": 40.7208,
+    "lng": -73.9888,
+    "take": "A narrow Orchard Street wine bar built around natural wine by the glass and a few small plates, beef tartare above all, in a room that stays loud and close.",
+    "tags": [
+      "New American",
+      "Wine Bar",
+      "Small Plates",
+      "Date",
+      "Scene"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.6,
+      "date": 0.7,
+      "groups": 0.4,
+      "scene": 0.6,
+      "upscale": 0.5,
+      "classic": 0.2,
+      "dive": 0.1,
+      "cheap": 0.2,
+      "cocktails": 0.2,
+      "wine": 1,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.3,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.8,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "New American",
+    "barFood": false,
+    "hours": [
+      null,
+      null,
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/wildair",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d8782209-Reviews-Wildair-New_York_City_New_York.html",
+      "https://www.yelp.com/biz/wildair-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from theinfatuation.com, tripadvisor.com, yelp.com; written in ROUND's words.\nReservations: OpenTable; walk-ins usually available at tables and the bar\n• Opened around 2015 by the team behind Contra\n• One of the early natural wine bars credited with popularizing the format in New York\n• Known for beef tartare, bonito crudo, and stuffed olives with country ham\n• Small storefront room with counter and table seating\n• Closed Sundays and Mondays"
+  },
+  {
+    "slug": "wus-wonton-king",
+    "kind": "restaurant",
+    "name": "Wu's Wonton King",
+    "neighborhood": "lower-east-side",
+    "address": "165 E Broadway, New York, NY 10002",
+    "lat": 40.7138,
+    "lng": -73.9894,
+    "take": "Cantonese banquet room on East Broadway built for big round tables: whole roasted suckling pig by advance order, family-style wonton soup, and bring your own beer.",
+    "tags": [
+      "Cantonese",
+      "Groups",
+      "Cheap",
+      "BYOB",
+      "Family Style"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.5,
+      "date": 0.1,
+      "groups": 0.9,
+      "scene": 0.2,
+      "upscale": 0.1,
+      "classic": 0.5,
+      "dive": 0.4,
+      "cheap": 0.6,
+      "cocktails": 0,
+      "wine": 0,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.5,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.7,
+      "mid": 0.8,
+      "big": 0.9
+    },
+    "dateFit": {
+      "first": 0.1,
+      "early": 0.2,
+      "longterm": 0.3
+    },
+    "price": 2,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Cantonese",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "09:00",
+        "close": "22:00"
+      },
+      {
+        "open": "09:00",
+        "close": "22:00"
+      },
+      {
+        "open": "09:00",
+        "close": "22:00"
+      },
+      {
+        "open": "09:00",
+        "close": "22:00"
+      },
+      {
+        "open": "09:00",
+        "close": "22:00"
+      },
+      {
+        "open": "09:00",
+        "close": "22:00"
+      },
+      {
+        "open": "09:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/wus-wonton-king",
+      "https://wuswontonkingnewyork.com/location/",
+      "https://www.thelodownny.com/leslog/2026/06/derek-wu-moves-uptown-but-ownership-has-not-changed-at-wus-wonton-king.html"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from theinfatuation.com, thelodownny.com, wuswontonkingnewyork.com; written in ROUND's words.\nReservations: Call ahead for parties of 5+; walk-ins fine otherwise, BYOB\n• Family-owned Cantonese restaurant on East Broadway\n• Known for whole roasted suckling pig (advance order), roasted duck, and family-style wonton soup\n• BYOB with no corkage charge\n• Ownership unchanged after a well-known front-of-house manager left in 2026\n• Lease runs through 2027"
+  },
+  {
+    "slug": "2nd-ave-deli",
+    "kind": "restaurant",
+    "name": "2nd Ave Deli",
+    "neighborhood": "murray-hill",
+    "address": "162 E 33rd St, New York, NY 10016",
+    "lat": 40.7459,
+    "lng": -73.9805,
+    "take": "A Kips Bay deli running since the 1950s, pastrami sliced thin and served fast, matzo ball soup, and pickles on the table before anyone orders.",
+    "tags": [
+      "Jewish Deli",
+      "Pastrami",
+      "Cheap",
+      "Classic",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.3,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.3,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.1,
+      "groups": 0.6,
+      "scene": 0.2,
+      "upscale": 0,
+      "classic": 0.8,
+      "dive": 0.3,
+      "cheap": 0.5,
+      "cocktails": 0,
+      "wine": 0,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.6,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.1,
+      "early": 0.2,
+      "longterm": 0.3
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.85,
+    "cuisine": "Jewish deli",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "20:00"
+      },
+      {
+        "open": "11:00",
+        "close": "20:00"
+      },
+      {
+        "open": "11:00",
+        "close": "20:00"
+      },
+      {
+        "open": "11:00",
+        "close": "20:00"
+      },
+      {
+        "open": "11:00",
+        "close": "20:00"
+      },
+      {
+        "open": "11:00",
+        "close": "20:00"
+      },
+      {
+        "open": "11:00",
+        "close": "20:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://en.wikipedia.org/wiki/2nd_Avenue_Deli",
+      "https://www.theinfatuation.com/new-york/reviews/2nd-ave-deli",
+      "https://2ndavedeli.com/",
+      "https://www.yelp.com/biz/2nd-ave-deli-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from 2ndavedeli.com, en.wikipedia.org, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Walk-in only, no reservations; expect a short line at peak lunch\n• Jewish deli founded in 1954 by Abe Lebewohl, originally in the East Village\n• Moved to its current Kips Bay location in December 2007; now run by his nephew Jeremy Lebewohl\n• Kosher, dairy-free kitchen known for pastrami, matzo ball soup, and franks in blankets\n• Complimentary pickles and slaw arrive at the table before ordering\n• James Beard Foundation America's Classic award, 1998"
+  },
+  {
+    "slug": "casa-mono",
+    "kind": "restaurant",
+    "name": "Casa Mono",
+    "neighborhood": "murray-hill",
+    "address": "52 Irving Place, New York, NY 10003",
+    "lat": 40.7345,
+    "lng": -73.9878,
+    "take": "A tight, small Spanish tapas room on Irving Place from chef Andy Nusser, one Michelin star, whole-animal butchery, and a wine list built entirely around Spain.",
+    "tags": [
+      "Spanish",
+      "Tapas",
+      "Date",
+      "Wine",
+      "Upscale"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.8,
+      "groups": 0.3,
+      "scene": 0.5,
+      "upscale": 0.7,
+      "classic": 0.5,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.3,
+      "wine": 0.8,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.2,
+      "late": 0.2,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.5,
+      "mid": 0.2,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.8,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Spanish",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://en.wikipedia.org/wiki/Casa_Mono",
+      "https://guide.michelin.com/us/en/new-york-state/new-york/restaurant/casa-mono",
+      "https://www.opentable.com/r/casa-mono-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, michelin.com, opentable.com; written in ROUND's words.\nReservations: Resy; book ahead for the dining room, walk-in tapas and wine next door at Bar Jamón\n• Spanish tapas restaurant on Irving Place from chef Andy Nusser, open since 2003\n• Holds one Michelin star in the current guide\n• All-Spanish wine list and in-house whole-animal butchery\n• Known for eggs scrambled with sea urchin and razor clams cooked a la plancha\n• Small, tightly packed dining room; sister bar Bar Jamón sits next door for walk-in tapas"
+  },
+  {
+    "slug": "nonna-doras",
+    "kind": "restaurant",
+    "name": "Nonna Dora's",
+    "neighborhood": "murray-hill",
+    "address": "606 2nd Ave, New York, NY 10016",
+    "lat": 40.7452,
+    "lng": -73.9765,
+    "take": "A pasta-only counter in Kips Bay where a nonna in her nineties hand-rolls every noodle that morning: lasagna and casoncelli served course by course to a room built for two.",
+    "tags": [
+      "Italian",
+      "Pasta",
+      "Date",
+      "Tasting Menu",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.6,
+      "groups": 0.3,
+      "scene": 0.4,
+      "upscale": 0.4,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.5,
+      "wine": 0.5,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.2,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.3,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "15:00",
+        "close": "21:00"
+      },
+      {
+        "open": "17:00",
+        "close": "21:30"
+      },
+      {
+        "open": "17:00",
+        "close": "21:30"
+      },
+      {
+        "open": "17:00",
+        "close": "21:30"
+      },
+      {
+        "open": "17:00",
+        "close": "21:30"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/nonna-doras",
+      "https://nonnadoras.com/",
+      "https://www.timeout.com/newyork/news/the-90-year-old-owner-of-nonna-doras-is-opening-a-second-location-in-tribeca-022725",
+      "https://www.opentable.com/r/nonna-doras-2nd-ave-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from nonnadoras.com, opentable.com, theinfatuation.com, timeout.com; written in ROUND's words.\nReservations: Resy; book ahead, the small room fills up\n• Pasta-focused bar run by Addolorata 'Dora' Marzovilla, who hand-rolls the dough herself each morning\n• Kips Bay location serves only handmade pasta courses, no meat or fish mains\n• Menu runs prix fixe and a five-course tasting format\n• Known for a meat-and-bechamel lasagna, beet-filled casoncelli, and a rotating grano arso pasta\n• Drink list built around eight negroni variations\n• Marzovilla, in her nineties, opened a second location in Tribeca in 2025"
+  },
+  {
+    "slug": "pongal",
+    "kind": "restaurant",
+    "name": "Pongal",
+    "neighborhood": "murray-hill",
+    "address": "103 Lexington Ave, New York, NY 10016",
+    "lat": 40.7431,
+    "lng": -73.9833,
+    "take": "South Indian vegetarian on Curry Hill's restaurant row: crackling dosas, a wall of thalis, and a kosher kitchen that has run the room since the 1990s.",
+    "tags": [
+      "South Indian",
+      "Vegetarian",
+      "Cheap",
+      "Groups",
+      "Kosher"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.6,
+      "date": 0.1,
+      "groups": 0.7,
+      "scene": 0.1,
+      "upscale": 0.1,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0.7,
+      "cocktails": 0,
+      "wine": 0,
+      "beer": 0,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.5,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.7,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.2,
+      "longterm": 0.4
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.85,
+    "cuisine": "South Indian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "21:30"
+      },
+      {
+        "open": "12:00",
+        "close": "21:30"
+      },
+      {
+        "open": "12:00",
+        "close": "21:30"
+      },
+      {
+        "open": "12:00",
+        "close": "21:30"
+      },
+      {
+        "open": "12:00",
+        "close": "21:30"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/pongal",
+      "https://pongalnyc.com/",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d425384-Reviews-Pongal-New_York_City_New_York.html",
+      "https://www.yelp.com/biz/pongal-restaraunt-nyc-manhattan"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from pongalnyc.com, theinfatuation.com, tripadvisor.com, yelp.com; written in ROUND's words.\nReservations: Walk-in only; no online booking, easy most nights, call ahead for large groups\n• South Indian vegetarian restaurant on Lexington Ave in Curry Hill, open since 1996\n• Kosher-certified kitchen, fully vegetarian with vegan and Jain-friendly options\n• Known for dosas, uttapams, and thali platters, plus a dozen-plus chaat options\n• Casual, no-frills room with booth seating and a small sidewalk section\n• Sits among a cluster of South Asian grocers and restaurants that give Curry Hill its name"
+  },
+  {
+    "slug": "tara-rose",
+    "kind": "bar",
+    "name": "Tara Rose",
+    "neighborhood": "murray-hill",
+    "address": "384 3rd Ave, New York, NY 10016",
+    "lat": 40.7431,
+    "lng": -73.9814,
+    "take": "A Murray Hill cocktail bar built for weekend bottomless brunch: chicken and waffles, a dining room with a working fireplace, and an outdoor bar that fills with the after-work crowd.",
+    "tags": [
+      "American",
+      "Brunch",
+      "Cocktails",
+      "Groups",
+      "Outdoor"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3,
+      "date": 0.1,
+      "groups": 0.8,
+      "scene": 0.6,
+      "upscale": 0.1,
+      "classic": 0,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.8,
+      "wine": 0.2,
+      "beer": 0.3,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.6,
+      "mid": 0.8,
+      "big": 0.8
+    },
+    "dateFit": {
+      "first": 0.1,
+      "early": 0.2,
+      "longterm": 0.2
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "American",
+    "barFood": true,
+    "hours": null,
+    "verified": false,
+    "retired": false,
+    "sources": [
+      "https://hoodline.com/2019/08/murray-hill-cocktail-bar-tara-rose-opens-its-doors/",
+      "https://www.tararosenyc.com/brunch/",
+      "https://www.yelp.com/biz/tara-rose-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from hoodline.com, tararosenyc.com, yelp.com; written in ROUND's words.\nReservations: Resy for weekend bottomless brunch; walk-in any day for the a la carte menu\n• Cocktail bar and kitchen in Murray Hill, opened August 2019\n• Weekend bottomless brunch runs $29.95 per person over a 90-minute seating and requires the whole table to opt in\n• A la carte brunch, including chicken and waffles and a lox plate, served daily without reservations\n• Multiple rooms: front and back bar areas, a dining room with a working fireplace, an outdoor bar, and a bookable private speakeasy\n• Reservations handled through Resy, mainly needed for the weekend bottomless seating"
+  },
+  {
+    "slug": "balthazar",
+    "kind": "restaurant",
+    "name": "Balthazar",
+    "neighborhood": "soho-nolita",
+    "address": "80 Spring St, New York, NY 10012",
+    "lat": 40.7231,
+    "lng": -73.9985,
+    "take": "A big, loud French brasserie that runs from bacon-and-eggs breakfast through midnight steak frites, filled with SoHo regulars and out-of-towners taking photos.",
+    "tags": [
+      "French",
+      "Brunch",
+      "Scene",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.5,
+      "groups": 0.7,
+      "scene": 0.9,
+      "upscale": 0.6,
+      "classic": 0.8,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.6,
+      "wine": 0.7,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.8,
+      "mid": 0.7,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "French brasserie",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "09:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "09:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/balthazar",
+      "https://balthazarny.com/about-us/",
+      "https://balthazarny.com/contact-us/",
+      "https://www.yelp.com/biz/balthazar-new-york-2"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from balthazarny.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy for tables; walk-in bar seats are usually doable before 7pm or after 9pm.\n• Opened in 1997 by Keith McNally; still one of SoHo's most recognized dining rooms.\n• Serves breakfast through dinner every day, plus weekend brunch, with its own bakery next door.\n• Known for steak frites, French onion soup, a raw bar, and fresh-baked bread.\n• Carries a Michelin Guide Recommended listing.\n• Walk-in bar seating exists outside peak hours; dining room tables need a booking."
+  },
+  {
+    "slug": "emilios-ballato",
+    "kind": "restaurant",
+    "name": "Emilio's Ballato",
+    "neighborhood": "soho-nolita",
+    "address": "55 E Houston St, New York, NY 10012",
+    "lat": 40.7248,
+    "lng": -73.9944,
+    "take": "A tiny, no-reservations Italian kitchen running since 1956: red sauce, off-menu specials whispered at the table, and a line outside most nights.",
+    "tags": [
+      "Italian",
+      "Old NYC",
+      "Classic",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.7,
+      "groups": 0.5,
+      "scene": 0.7,
+      "upscale": 0.5,
+      "classic": 0.9,
+      "dive": 0.2,
+      "cheap": 0.1,
+      "cocktails": 0.3,
+      "wine": 0.5,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.4,
+      "late": 0.5,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.5,
+      "mid": 0.6,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.15,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/emilios-ballato",
+      "https://ballatos.com/pages/contact",
+      "https://www.yelp.com/biz/emilios-ballato-new-york",
+      "https://guide.michelin.com/en/new-york-state/new-york/restaurant/emilio-s-ballato"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from ballatos.com, michelin.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Walk-in only, no reservations; waits of an hour or more are common, especially weekends.\n• Family-run Italian kitchen at 55 E Houston St since 1956.\n• No reservations; waits of an hour or more are routine, especially on weekends.\n• Known for an off-menu vitello dish and old-school red-sauce staples like chicken parm.\n• Long a low-key celebrity haunt without a doorman or velvet rope.\n• Two rooms: a small front room for couples and a windowless back room used mostly for groups."
+  },
+  {
+    "slug": "la-esquina",
+    "kind": "restaurant",
+    "name": "La Esquina",
+    "neighborhood": "soho-nolita",
+    "address": "114 Kenmare St, New York, NY 10012",
+    "lat": 40.7211,
+    "lng": -73.9972,
+    "take": "A taco counter up top, a dim and hard-to-book brasserie underneath: Mexican food running late on tequila, DJs, and a crowd that came to stay.",
+    "tags": [
+      "Mexican",
+      "Late Night",
+      "Cocktails",
+      "Scene"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3,
+      "date": 0.6,
+      "groups": 0.6,
+      "scene": 0.8,
+      "upscale": 0.4,
+      "classic": 0.5,
+      "dive": 0.2,
+      "cheap": 0.4,
+      "cocktails": 0.7,
+      "wine": 0.2,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0.8,
+      "liveMusic": 0.3
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.6,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "cuisine": "Mexican",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      },
+      {
+        "open": "18:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.nyctourism.com/restaurants/la-esquina/",
+      "https://www.esquinanyc.com/our-story/",
+      "https://www.opentable.com/r/la-esquina",
+      "https://www.yelp.com/biz/la-esquina-soho-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from esquinanyc.com, nyctourism.com, opentable.com, yelp.com; written in ROUND's words.\nReservations: Resy for the downstairs brasserie, often booked weeks out; the street-level taqueria is walk-in.\n• Opened in 2005 near Lafayette and Kenmare, an early example of a NYC restaurant hiding a room downstairs.\n• Three parts under one roof: a walk-up taqueria, a diner-style cafe, and a reservation-only basement brasserie.\n• The underground brasserie is the harder table; the street-level taqueria is walk-in.\n• DJs play most nights, and the room runs later than a typical dinner spot.\n• The concept has since opened outposts in Midtown, the Upper East Side, and Moynihan Train Hall."
+  },
+  {
+    "slug": "raouls",
+    "kind": "restaurant",
+    "name": "Raoul's",
+    "neighborhood": "soho-nolita",
+    "address": "180 Prince St, New York, NY 10012",
+    "lat": 40.7264,
+    "lng": -74.0027,
+    "take": "A Prince Street bistro since 1975, dim and cluttered with old art, where steak au poivre and a bar-only burger pull a late, dressed-up crowd.",
+    "tags": [
+      "French",
+      "Date",
+      "Classic",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.8,
+      "groups": 0.4,
+      "scene": 0.7,
+      "upscale": 0.7,
+      "classic": 0.9,
+      "dive": 0.2,
+      "cheap": 0.1,
+      "cocktails": 0.6,
+      "wine": 0.7,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.4,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 4,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/raouls",
+      "https://www.raouls.com/",
+      "https://www.yelp.com/biz/raouls-restaurant-new-york",
+      "https://blog.resy.com/2022/07/raouls-new-york-revelie-luncheonette/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from raouls.com, resy.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy, and genuinely hard to land for the dining room; the walk-in bar (with its limited burger au poivre) is the workaround.\n• Open since 1975, one of SoHo's oldest continuously running restaurants.\n• French bistro menu built around steak au poivre, foie gras, and Dover sole.\n• The bar-only burger au poivre is a running draw, served in limited quantity each night.\n• Décor includes vintage oil paintings and a taxidermied stag; a fish tank separates the front and back rooms.\n• Weekend brunch runs 11am-2:30pm; dinner is served every night, with the bar opening at 5pm."
+  },
+  {
+    "slug": "rubirosa",
+    "kind": "restaurant",
+    "name": "Rubirosa",
+    "neighborhood": "soho-nolita",
+    "address": "235 Mulberry St, New York, NY 10012",
+    "lat": 40.7227,
+    "lng": -73.9958,
+    "take": "Family-run red-sauce Italian since 2009: thin-crust pies, a swirled vodka-and-pesto pizza everyone orders, and a packed, easygoing room that still feels like old Mulberry Street.",
+    "tags": [
+      "Italian",
+      "Pizza",
+      "Pasta",
+      "Groups"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.4,
+      "groups": 0.6,
+      "scene": 0.5,
+      "upscale": 0.2,
+      "classic": 0.6,
+      "dive": 0.1,
+      "cheap": 0.4,
+      "cocktails": 0.3,
+      "wine": 0.5,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.5,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://blog.resy.com/2024/10/rubirosa-nyc/",
+      "https://www.timeout.com/newyork/restaurants/best-little-italy-restaurants",
+      "https://www.rubirosanyc.com/location/rubirosa-ristorante/",
+      "https://www.yelp.com/biz/rubirosa-new-york-2"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from resy.com, rubirosanyc.com, timeout.com, yelp.com; written in ROUND's words.\nReservations: Resy books up, but roughly half the room is held back for walk-ins.\n• Opened in 2009 by the Pappalardo family, who also ran Joe & Pat's Pizzeria on Staten Island.\n• Best known for a thin-crust vodka pizza and a tableside 'tie-dye' pie swirling pesto into the sauce.\n• 87 seats, with roughly half held for walk-ins rather than reservations.\n• Founder Angelo 'AJ' Pappalardo died in 2015; his sister Maria now runs the restaurant.\n• Runs an extensive gluten-free menu, including a gluten-free vodka pie."
+  },
+  {
+    "slug": "thai-diner",
+    "kind": "restaurant",
+    "name": "Thai Diner",
+    "neighborhood": "soho-nolita",
+    "address": "186 Mott St, New York, NY 10012",
+    "lat": 40.7207,
+    "lng": -73.9956,
+    "take": "A Thai-accented diner in Nolita mixing khao soi and wok noodles with disco fries and Thai tea French toast, bamboo-lined booths, and a crowd running from neighbors to weekend tourists.",
+    "tags": [
+      "Thai",
+      "Brunch",
+      "Diner",
+      "Groups",
+      "Casual"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.4,
+      "groups": 0.6,
+      "scene": 0.3,
+      "upscale": 0.2,
+      "classic": 0.2,
+      "dive": 0,
+      "cheap": 0.4,
+      "cocktails": 0.3,
+      "wine": 0.2,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Thai",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "22:30"
+      },
+      {
+        "open": "08:30",
+        "close": "22:30"
+      },
+      {
+        "open": "08:30",
+        "close": "22:30"
+      },
+      {
+        "open": "08:30",
+        "close": "22:30"
+      },
+      {
+        "open": "08:30",
+        "close": "23:30"
+      },
+      {
+        "open": "08:30",
+        "close": "23:30"
+      },
+      {
+        "open": "10:00",
+        "close": "23:30"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/thai-diner",
+      "https://guide.michelin.com/us/en/new-york-state/new-york/restaurant/thai-diner",
+      "https://www.yelp.com/biz/thai-diner-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from michelin.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy for dinner; brunch and weekends usually mean a wait for walk-ins.\n• Opened in 2020 by chefs Ann Redding and Matt Danzer, following their earlier restaurant Uncle Boons.\n• Menu combines Thai dishes like khao soi with diner staples reworked using Thai ingredients.\n• Known for Thai tea French toast, a Thai-spiced take on disco fries, and an egg sandwich on roti.\n• Holds a Michelin Guide Bib Gourmand distinction.\n• Reservations run through Resy; the room stays busy most of the day, especially at brunch."
+  },
+  {
+    "slug": "chambers",
+    "kind": "restaurant",
+    "name": "Chambers",
+    "neighborhood": "tribeca",
+    "address": "94 Chambers St, New York, NY 10007",
+    "lat": 40.7143,
+    "lng": -74.0078,
+    "take": "A Tribeca wine bar built around a serious by-the-glass list, with small plates like roast chicken and semolina bread for the sommeliers drinking at the marble counter.",
+    "tags": [
+      "Wine Bar",
+      "American",
+      "Date",
+      "Small Plates",
+      "Quiet"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "wine": 1,
+      "cocktails": 0.5,
+      "upscale": 0.6,
+      "classic": 0.4,
+      "chill": 0.6,
+      "talk": 0.6,
+      "date": 0.6,
+      "groups": 0.3,
+      "scene": 0.3
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.5,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Wine bar",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:30",
+        "close": "23:30"
+      },
+      {
+        "open": "17:30",
+        "close": "23:30"
+      },
+      {
+        "open": "17:30",
+        "close": "23:30"
+      },
+      {
+        "open": "17:30",
+        "close": "23:30"
+      },
+      {
+        "open": "17:30",
+        "close": "23:30"
+      },
+      {
+        "open": "17:30",
+        "close": "23:30"
+      },
+      {
+        "open": "17:30",
+        "close": "23:30"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://guide.michelin.com/us/en/new-york-state/new-york/restaurant/chambers",
+      "https://tribecacitizen.com/2022/12/19/new-kid-on-the-block-chambers/",
+      "https://www.theinfatuation.com/new-york/reviews/chambers",
+      "https://www.opentable.com/r/chambers-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from michelin.com, opentable.com, theinfatuation.com, tribecacitizen.com; written in ROUND's words.\nReservations: Resy; book ahead - a few communal-table seats are held for walk-ins before 7pm.\n• Opened in 2022 by Master Sommelier Pascaline Lepeltier, David Lillie of Chambers Street Wines, and chef Jonathan Karis\n• Tiny room built around a marble bar and roughly 21 seats\n• By-the-glass list runs to about 20 pours, from $10 drafts to rare $49 bottles\n• Beverage program picked up a 2026 James Beard nomination\n• Named to the New York Times' 100 best NYC restaurants list\n• Known for roast chicken, Rhode Island squid, and fermented semolina bread"
+  },
+  {
+    "slug": "estancia-460",
+    "kind": "restaurant",
+    "name": "Estancia 460",
+    "neighborhood": "tribeca",
+    "address": "460 Greenwich St, New York, NY 10013",
+    "lat": 40.7235,
+    "lng": -74.0088,
+    "take": "A Tribeca clubhouse since the mid-90s: whitewashed brick, a mixed grill for two, and empanadas regulars order without glancing at the menu.",
+    "tags": [
+      "Argentine",
+      "Steak",
+      "Brunch",
+      "Old NYC",
+      "Outdoor"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "classic": 0.6,
+      "groups": 0.6,
+      "wine": 0.4,
+      "chill": 0.5,
+      "talk": 0.5,
+      "daytime": 0.8,
+      "outdoor": 0.8
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.7,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Argentine",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:30",
+        "close": "21:45"
+      },
+      {
+        "open": "10:30",
+        "close": "22:45"
+      },
+      {
+        "open": "10:30",
+        "close": "22:45"
+      },
+      {
+        "open": "10:30",
+        "close": "22:45"
+      },
+      {
+        "open": "10:30",
+        "close": "22:45"
+      },
+      {
+        "open": "10:30",
+        "close": "22:45"
+      },
+      {
+        "open": "10:30",
+        "close": "22:45"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.estancia460.com/",
+      "https://hobnobmag.com/estancia-460-argentinian-delicacies-in-downtown-manhattan/",
+      "https://www.opentable.com/r/estancia-460-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from estancia460.com, hobnobmag.com, opentable.com; written in ROUND's words.\nReservations: Resy or phone; usually easy to get in, private groups up to about 30.\n• Open in Tribeca since 1995, owned by Stacey Sosa\n• Argentine menu with Italian and Spanish influences: empanadas, parrillada mixed grill, milanesa napolitana, thin-crust pizzas\n• Whitewashed brick walls and simple wooden tables built to feel like a ranch house\n• South American-heavy wine list, plus BYO with corkage\n• Weekend brunch runs 10:30am to 4pm; has a small, non-reservable patio\n• Known as a neighborhood regulars' spot for downtown locals"
+  },
+  {
+    "slug": "faux",
+    "kind": "restaurant",
+    "name": "Faux",
+    "neighborhood": "tribeca",
+    "address": "277 Church St, New York, NY 10013",
+    "lat": 40.7196,
+    "lng": -74.0047,
+    "take": "A French bistro from Keith McNally's son, open since September: oysters and steak frites in a dim, packed room that only gets louder, plus a late-night bar downstairs.",
+    "tags": [
+      "French",
+      "Bistro",
+      "Late Night",
+      "Scene",
+      "Loud"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.5,
+      "talk": 0.2
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "scene": 0.9,
+      "late": 0.8,
+      "cocktails": 0.6,
+      "upscale": 0.4,
+      "groups": 0.5,
+      "talk": 0.2,
+      "date": 0.3
+    },
+    "groupFit": {
+      "two": 0.5,
+      "small": 0.6,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.4,
+      "longterm": 0.3
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/faux",
+      "https://tribecacitizen.com/2026/09/10/sneak-peek-faux/",
+      "https://www.opentable.com/r/faux-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from opentable.com, theinfatuation.com, tribecacitizen.com; written in ROUND's words.\nReservations: OpenTable; new and busy, but walk-ins are welcomed, especially at the downstairs bar.\n• Opened September 2026 by George McNally, son of restaurateur Keith McNally\n• Chef is Kristina Ramos, previously at Michelin-starred kitchens\n• Occupies the former B Flat space between Franklin and White, with a ground-floor dining room and a downstairs late-night bar\n• French coastal/bistro menu built around classics like oysters, steak, and burgers\n• Downstairs bar runs Tuesday through Saturday from 7pm\n• Named an OpenTable Icons pick for 2026"
+  },
+  {
+    "slug": "frenchette",
+    "kind": "restaurant",
+    "name": "Frenchette",
+    "neighborhood": "tribeca",
+    "address": "241 W Broadway, New York, NY 10013",
+    "lat": 40.7196,
+    "lng": -74.0059,
+    "take": "Tribeca French with real technique behind it and a menu that rewrites itself daily: duck frites, dressed-up scrambled eggs, and a dining room that gets loud by eight.",
+    "tags": [
+      "French",
+      "Bistro",
+      "Wine",
+      "Date",
+      "Scene"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.6,
+      "groups": 0.3,
+      "scene": 0.6,
+      "upscale": 0.7,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.4,
+      "wine": 0.7,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 4,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "21:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/frenchette",
+      "https://en.wikipedia.org/wiki/Frenchette",
+      "https://www.frenchettenyc.com/location/frenchette-nyc/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, frenchettenyc.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy/SevenRooms; the dining room books out a few weeks for prime times, bar seats are easier to walk into.\n• Opened in 2018 by chefs Riad Nasr and Lee Hanson, longtime collaborators from Keith McNally's Balthazar, Pastis, and Minetta Tavern.\n• Won the James Beard Award for Best New Restaurant in 2019.\n• The full menu, including the wine list, changes daily rather than running fixed dishes.\n• Known for duck frites with bearnaise and a brouillade of soft scrambled eggs.\n• Included on Pete Wells' 2023 list of the 100 best restaurants in New York City."
+  },
+  {
+    "slug": "locanda-verde",
+    "kind": "restaurant",
+    "name": "Locanda Verde",
+    "neighborhood": "tribeca",
+    "address": "377 Greenwich St, New York, NY 10013",
+    "lat": 40.7197,
+    "lng": -74.0097,
+    "take": "Andrew Carmellini's big, easygoing Tribeca Italian: his grandmother's ravioli on the menu, a lively bar up front, and round tables built for large groups.",
+    "tags": [
+      "Italian",
+      "Brunch",
+      "Groups",
+      "Classic"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.5,
+      "groups": 0.8,
+      "scene": 0.6,
+      "upscale": 0.5,
+      "classic": 0.6,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.5,
+      "wine": 0.6,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.5,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.8,
+      "mid": 0.8,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "07:00",
+        "close": "22:00"
+      },
+      {
+        "open": "07:00",
+        "close": "22:00"
+      },
+      {
+        "open": "07:00",
+        "close": "22:00"
+      },
+      {
+        "open": "07:00",
+        "close": "22:00"
+      },
+      {
+        "open": "07:00",
+        "close": "23:00"
+      },
+      {
+        "open": "07:00",
+        "close": "23:00"
+      },
+      {
+        "open": "07:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/locanda-verde",
+      "https://www.locandaverdenyc.com/location/-tribeca/",
+      "https://www.yelp.com/biz/locanda-verde-new-york-6",
+      "https://en.wikipedia.org/wiki/Andrew_Carmellini"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, locandaverdenyc.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy or OpenTable; generally gettable for most occasions.\n• Chef Andrew Carmellini's Tribeca Italian, known for his grandmother's ravioli recipe.\n• Large, adaptable dining room with bar seats, two-tops, and big round tables for groups.\n• Serves breakfast, lunch, weekend brunch, and dinner daily.\n• Artwork in the space includes pieces by Robert De Niro Sr.\n• Reviewers describe it as an easier reservation now than it was at its 2009 opening."
+  },
+  {
+    "slug": "paros",
+    "kind": "restaurant",
+    "name": "Paros",
+    "neighborhood": "tribeca",
+    "address": "211 W Broadway, New York, NY 10013",
+    "lat": 40.7187,
+    "lng": -74.0062,
+    "take": "Greek seafood in a bright white Tribeca room done up like a Cycladic villa, whole fish and grilled octopus over a thumping soundtrack aimed at big groups.",
+    "tags": [
+      "Greek",
+      "Seafood",
+      "Groups",
+      "Loud",
+      "Outdoor"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.5,
+      "talk": 0.2
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "scene": 0.7,
+      "groups": 0.8,
+      "upscale": 0.5,
+      "cocktails": 0.5,
+      "outdoor": 0.8,
+      "talk": 0.2,
+      "date": 0.3
+    },
+    "groupFit": {
+      "two": 0.4,
+      "small": 0.6,
+      "mid": 0.8,
+      "big": 0.9
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.3,
+      "longterm": 0.4
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Greek",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/paros",
+      "https://tribecacitizen.com/2024/03/08/new-kid-on-the-block-paros/",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d26829004-Reviews-Paros_Tribeca-New_York_City_New_York.html"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from theinfatuation.com, tribecacitizen.com, tripadvisor.com; written in ROUND's words.\nReservations: Resy; moderately easy to book, bar seats often open for walk-ins.\n• Opened October 2023 at the corner of West Broadway and Franklin\n• Run by brothers George Pagonis (chef, trained at the CIA, formerly of Le Cirque and Aureole) and Nick Pagonis (front of house)\n• Renovated a previously underused corner space into a bright, high-ceilinged dining room\n• Known for whole fish, chargrilled octopus, and Greek dips and salads\n• Open daily including lunch, 11:30am to 10pm\n• Has both indoor and outdoor seating"
+  },
+  {
+    "slug": "the-odeon",
+    "kind": "restaurant",
+    "name": "The Odeon",
+    "neighborhood": "tribeca",
+    "address": "145 W Broadway, New York, NY 10013",
+    "lat": 40.7169,
+    "lng": -74.0086,
+    "take": "A Tribeca brasserie unchanged since 1980: onion soup, burgers, and steak frites under Deco lighting, still full of downtown regulars and the occasional stray celebrity.",
+    "tags": [
+      "French-American",
+      "Bistro",
+      "Classic",
+      "Old NYC",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.5,
+      "date": 0.5,
+      "groups": 0.5,
+      "scene": 0.5,
+      "upscale": 0.5,
+      "classic": 1,
+      "dive": 0,
+      "cheap": 0.2,
+      "cocktails": 0.6,
+      "wine": 0.4,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.2,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "French-American brasserie",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/the-odeon",
+      "https://en.wikipedia.org/wiki/The_Odeon",
+      "https://www.theodeonrestaurant.com/location/the-odeon/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, theinfatuation.com, theodeonrestaurant.com; written in ROUND's words.\nReservations: OpenTable; usually gettable within the week, and the bar takes walk-ins.\n• Opened in 1980 by Keith McNally, Brian McNally, and Lynn Wagenknecht in a former cafeteria space.\n• Became a fixture of the 1980s downtown art and nightlife scene, name-checked in Bright Lights, Big City and shown in Saturday Night Live's opening credits.\n• Bartenders here are widely credited with inventing the Cosmopolitan cocktail.\n• Still owned and operated by Lynn Wagenknecht.\n• Known for French onion soup, burgers, and moules frites."
+  },
+  {
+    "slug": "tinys",
+    "kind": "restaurant",
+    "name": "Tiny's & the Bar Upstairs",
+    "neighborhood": "tribeca",
+    "address": "135 W Broadway, New York, NY 10013",
+    "lat": 40.7165,
+    "lng": -74.0088,
+    "take": "New American comfort food in a pink 19th-century Tribeca townhouse: a thick burger downstairs, a tight little bar up top, and a low-key date-night hum.",
+    "tags": [
+      "American",
+      "Date",
+      "Brunch",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.4,
+      "chill": 0.6,
+      "talk": 0.6,
+      "date": 0.6,
+      "groups": 0.4,
+      "scene": 0.2,
+      "upscale": 0.3,
+      "classic": 0.4,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.5,
+      "wine": 0.4,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "American",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "21:30"
+      },
+      {
+        "open": "11:00",
+        "close": "22:30"
+      },
+      {
+        "open": "11:00",
+        "close": "22:30"
+      },
+      {
+        "open": "11:00",
+        "close": "22:30"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/tinys-and-the-bar-upstairs",
+      "https://www.tinysnyc.com/about",
+      "https://www.tinysnyc.com/hoursandlocation"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from theinfatuation.com, tinysnyc.com; written in ROUND's words.\nReservations: Resy; downstairs tables are usually gettable, the upstairs bar has only a few walk-in seats.\n• Occupies a pink 1810s townhouse on West Broadway, one of the older buildings in Tribeca.\n• Family run by siblings Ana, Matt, and Jack Abramcyk.\n• Spread over three floors: a ground-floor dining room, a lower level, and an upstairs bar.\n• Known for a thick burger on a brioche bun and a kale salad with apple and pecans.\n• Offers a $150 Sunday supper set for two to four people."
+  },
+  {
+    "slug": "antons",
+    "kind": "restaurant",
+    "name": "Anton's",
+    "neighborhood": "west-village",
+    "address": "570 Hudson St, New York, NY 10014",
+    "lat": 40.7341,
+    "lng": -74.0067,
+    "take": "Comfort-forward American cooking with European touches in a warm, low-lit West Village room loud enough to talk privately, set inside the old Frankies 570 space.",
+    "tags": [
+      "American",
+      "European",
+      "Date",
+      "Classic",
+      "Pasta"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.4,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.4,
+      "chill": 0.4,
+      "talk": 0.6,
+      "date": 0.7,
+      "groups": 0.4,
+      "scene": 0.3,
+      "upscale": 0.5,
+      "classic": 0.7,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.6,
+      "wine": 0.4,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.3,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "American",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://tollbit.gothamist.com/food/classic-new-york-restaurant-antons-opens-west-village",
+      "https://www.theinfatuation.com/new-york/reviews/antons",
+      "https://www.antonsnyc.com"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from antonsnyc.com, theinfatuation.com, tollbit.gothamist.com; written in ROUND's words.\nReservations: Resy; the restaurant says it holds tables for walk-in guests every night.\n• Opened in November 2019 by chef-owner Nick Anderer, named for his great-great-grandfather.\n• Took over the West Village corner space that had housed Frankies 570 Spuntino.\n• Menu leans toward American and European comfort dishes, including housemade pastas and a hanger steak.\n• Dinner runs 5-11pm Sunday through Thursday and to midnight Friday-Saturday, with weekend brunch and Friday lunch.\n• Posted hours vary by source, so full weekly hours were not confirmed with confidence."
+  },
+  {
+    "slug": "boucherie-west-village",
+    "kind": "restaurant",
+    "name": "Boucherie West Village",
+    "neighborhood": "west-village",
+    "address": "99 7th Ave S, New York, NY 10014",
+    "lat": 40.7326,
+    "lng": -74.0035,
+    "take": "A big, mirrored French brasserie on a Seventh Avenue corner: steak frites, escargot, and a room loud enough that no one minds ordering another round.",
+    "tags": [
+      "French",
+      "Brasserie",
+      "Groups",
+      "Outdoor",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.3,
+      "groups": 0.9,
+      "scene": 0.3,
+      "upscale": 0.5,
+      "classic": 0.6,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.5,
+      "wine": 0.6,
+      "beer": 0.3,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.8,
+      "mid": 0.8,
+      "big": 0.8
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.5
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "French brasserie",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "10:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/boucherie",
+      "https://www.boucherieus.com/location/boucherie-west-village/",
+      "https://nycaller.com/boucherie-west-village/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from boucherieus.com, nycaller.com, theinfatuation.com; written in ROUND's words.\nReservations: OpenTable; recommended for dinner given the size and traffic, easier at lunch or the bar.\n• Occupies the former Circle Repertory Theater building on a Seventh Avenue South corner.\n• Roughly 320 seats across a main dining room, butcher counter, second-floor gallery, and outdoor café.\n• Known for steak frites, escargot, and raw seafood towers.\n• Dinner runs about $75-120 a person before tip.\n• Open daily until midnight."
+  },
+  {
+    "slug": "buvette",
+    "kind": "restaurant",
+    "name": "Buvette",
+    "neighborhood": "west-village",
+    "address": "42 Grove St, New York, NY 10014",
+    "lat": 40.7327,
+    "lng": -74.0044,
+    "take": "A snug French café on a Grove Street corner, marble counters and shoulder-to-shoulder tables serving steamed eggs and coffee from morning into wine at night.",
+    "tags": [
+      "French",
+      "Brunch",
+      "Wine",
+      "Date",
+      "Tiny"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.5,
+      "talk": 0.4,
+      "date": 0.6,
+      "groups": 0.1,
+      "scene": 0.3,
+      "upscale": 0.3,
+      "classic": 0.5,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.4,
+      "wine": 0.6,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.4,
+      "mid": 0.1,
+      "big": 0.05
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.7,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      },
+      {
+        "open": "08:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/buvette",
+      "https://www.ilovebuvette.com/",
+      "https://nycaller.com/buvette-nyc/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from ilovebuvette.com, nycaller.com, theinfatuation.com; written in ROUND's words.\nReservations: Mostly walk-in; Resy available for brunch and prime dinner slots, but timing flexibility helps.\n• Opened in 2011 by chef Jody Williams.\n• Known for steamed eggs, croque madame, and all-day wine and coffee service.\n• Very small room with tightly packed marble tables; not built for groups.\n• Open daily from morning straight through to midnight."
+  },
+  {
+    "slug": "cowgirl",
+    "kind": "restaurant",
+    "name": "Cowgirl",
+    "neighborhood": "west-village",
+    "address": "519 Hudson St, New York, NY 10014",
+    "lat": 40.7334,
+    "lng": -74.0056,
+    "take": "A Wild West-themed Texan kitchen on Hudson Street, all antler chandeliers and gingham, built for frito pie, margaritas, and a rowdy table of friends.",
+    "tags": [
+      "Southern",
+      "Tex-Mex",
+      "Groups",
+      "Old NYC",
+      "Loud"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.3,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.3,
+      "talk": 0.3,
+      "date": 0.2,
+      "groups": 0.8,
+      "scene": 0.3,
+      "upscale": 0,
+      "classic": 0.6,
+      "dive": 0.3,
+      "cheap": 0.5,
+      "cocktails": 0.6,
+      "wine": 0.1,
+      "beer": 0.4,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.6,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.8,
+      "mid": 0.8,
+      "big": 0.7
+    },
+    "dateFit": {
+      "first": 0.2,
+      "early": 0.3,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.85,
+    "cuisine": "Southern",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "00:00"
+      },
+      {
+        "open": "10:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/cowgirl",
+      "http://www.cowgirlnyc.com/",
+      "https://en.wikipedia.org/wiki/Cowgirl_(restaurant)"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from cowgirlnyc.com, en.wikipedia.org, theinfatuation.com; written in ROUND's words.\nReservations: Walk-ins generally fine; call ahead for larger parties.\n• Opened in 1989 by Sherry Delamarter as Cowgirl Hall of Fame.\n• Texas- and Southern-inspired comfort food: frito pie, chicken fried steak, margaritas.\n• Decorated wall to wall with longhorn skulls, saddles, and western memorabilia.\n• Menu includes kid-friendly items like corn dogs and mac and cheese alongside the bar scene.\n• One of the longer-running restaurants in the West Village, still trading on nostalgia decades in."
+  },
+  {
+    "slug": "don-angie",
+    "kind": "restaurant",
+    "name": "Don Angie",
+    "neighborhood": "west-village",
+    "address": "103 Greenwich Ave, New York, NY 10014",
+    "lat": 40.7378,
+    "lng": -74.0021,
+    "take": "Italian-American in a dim, leather-lined West Village room built for two, known for garlicky stuffed flatbread and a spiral lasagna made to share.",
+    "tags": [
+      "Italian",
+      "Date",
+      "Pasta",
+      "Scene",
+      "Upscale"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.9,
+      "groups": 0.3,
+      "scene": 0.7,
+      "upscale": 0.7,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.5,
+      "wine": 0.5,
+      "beer": 0.1,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.4,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.2,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.8,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Italian-American",
+    "barFood": false,
+    "hours": null,
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/don-angie",
+      "https://en.wikipedia.org/wiki/Don_Angie",
+      "https://www.donangie.com/location/don-angie/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from donangie.com, en.wikipedia.org, theinfatuation.com; written in ROUND's words.\nReservations: OpenTable, released seven days ahead at 9am; bar seats go to walk-ins, typically about an hour wait.\n• Opened in 2017 by chefs Angie Rito and Scott Tacinelli.\n• Earned a Michelin star in 2021 and lost it in 2023.\n• Known for a pinwheel lasagna made for two and stuffed garlic flatbread.\n• Small leather-and-mirror room best suited to couples and small groups.\n• Weekend lunch service runs Friday through Sunday in addition to nightly dinner."
+  },
+  {
+    "slug": "emmetts-on-grove",
+    "kind": "restaurant",
+    "name": "Emmett's on Grove",
+    "neighborhood": "west-village",
+    "address": "39 Grove St, New York, NY 10014",
+    "lat": 40.7326,
+    "lng": -74.0047,
+    "take": "Chicago-style tavern pizza in a half-sunken, wood-paneled Grove Street room, thin-crust pies built for splitting alongside ribs and a long wine list.",
+    "tags": [
+      "Pizza",
+      "Italian-American",
+      "Groups",
+      "Brunch",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.4,
+      "date": 0.3,
+      "groups": 0.6,
+      "scene": 0.3,
+      "upscale": 0.2,
+      "classic": 0.2,
+      "dive": 0.1,
+      "cheap": 0.3,
+      "cocktails": 0.4,
+      "wine": 0.5,
+      "beer": 0.4,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.5,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.65,
+    "cuisine": "Pizza",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "12:00",
+        "close": "01:00"
+      },
+      {
+        "open": "11:00",
+        "close": "01:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.emmettsongrove.com/",
+      "https://www.emmettsongrove.com/location/emmetts-on-grove/",
+      "https://www.timeout.com/newyork/restaurants/emmetts-on-grove"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from emmettsongrove.com, timeout.com; written in ROUND's words.\nReservations: Online through the restaurant's site or by phone; bar seats workable for walk-ins.\n• Opened by Chicago native Emmett Burke, who also runs Emmett's pizzeria in Soho.\n• Known for Chicago tavern-style thin-crust pizza cut into squares.\n• Menu also covers baby back ribs and chicken parmesan.\n• Half-below-sidewalk-level room styled like a Midwest supper club.\n• Weekend brunch service and a kitchen open past midnight Friday and Saturday."
+  },
+  {
+    "slug": "jeffreys-grocery",
+    "kind": "restaurant",
+    "name": "Jeffrey's Grocery",
+    "neighborhood": "west-village",
+    "address": "172 Waverly Pl, New York, NY 10014",
+    "lat": 40.7343,
+    "lng": -74.0011,
+    "take": "A corner seafood spot in the West Village built around a raw bar and a clam chowder regulars keep reordering, unhurried from weekday lunch straight through late dinner.",
+    "tags": [
+      "Seafood",
+      "Oysters",
+      "Brunch",
+      "Date",
+      "Casual"
+    ],
+    "vibe": {
+      "lively": 0.5,
+      "chill": 0.6,
+      "talk": 0.6
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.5,
+      "chill": 0.6,
+      "talk": 0.6,
+      "date": 0.6,
+      "groups": 0.3,
+      "scene": 0.3,
+      "upscale": 0.3,
+      "classic": 0.4,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.4,
+      "wine": 0.4,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.3,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.7,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Seafood",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "22:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "11:30",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/jeffreys-grocery",
+      "https://www.jeffreysgrocery.com/info/",
+      "https://www.yelp.com/biz/jeffreys-grocery-new-york"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from jeffreysgrocery.com, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: OpenTable; walk-ins are usually fine outside peak weekend brunch hours.\n• A West Village corner restaurant centered on a raw bar and an all-day seafood menu.\n• Started as a small grocery-and-cafe concept before dropping the market side to focus on full dining.\n• Clam chowder and raw-bar oysters are the most consistently mentioned order.\n• Runs lunch, an oyster happy hour, and dinner on weekdays, plus weekend brunch starting at 10am.\n• Reservations are taken through OpenTable, with short waits reported at peak brunch times."
+  },
+  {
+    "slug": "lartusi",
+    "kind": "restaurant",
+    "name": "L'Artusi",
+    "neighborhood": "west-village",
+    "address": "228 W 10th St, New York, NY 10014",
+    "lat": 40.7338,
+    "lng": -74.0055,
+    "take": "A West Village pasta room open since 2008: short-ingredient-list noodles that land more complex than they read, a loud front bar, and a stacked-up crowd most nights by early evening.",
+    "tags": [
+      "Italian",
+      "Pasta",
+      "Date",
+      "Loud",
+      "Wine"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.1,
+      "talk": 0.2
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.1,
+      "talk": 0.2,
+      "date": 0.7,
+      "groups": 0.5,
+      "scene": 0.6,
+      "upscale": 0.6,
+      "classic": 0.5,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.5,
+      "wine": 0.7,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.4,
+      "big": 0.2
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/lartusi",
+      "https://www.lartusi.com",
+      "https://www.tripadvisor.com/Restaurant_Review-g60763-d1368175-Reviews-L_Artusi-New_York_City_New_York.html"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from lartusi.com, theinfatuation.com, tripadvisor.com; written in ROUND's words.\nReservations: Resy, released two weeks out at 9am; bar and counter seats are held for walk-ins.\n• Opened in 2008 by sommelier Joe Campanale and chef Gabe Thompson as a follow-up to dell'anima.\n• Known for pastas built from short ingredient lists, including a widely ordered chili-and-breadcrumb spaghetti.\n• Weekend brunch at the bar draws an especially loud, spritz-heavy crowd.\n• Dinner runs to midnight on Friday and Saturday; the dining room fills early most nights.\n• Rated 8.5 out of 10 by The Infatuation as of its most recent review update."
+  },
+  {
+    "slug": "minetta-tavern",
+    "kind": "restaurant",
+    "name": "Minetta Tavern",
+    "neighborhood": "west-village",
+    "address": "113 MacDougal St, New York, NY 10012",
+    "lat": 40.7298,
+    "lng": -74.0005,
+    "take": "A Village standby built around a dry-aged burger, red leather booths, caricatures of old regulars on the walls, and a bar that's three deep most nights.",
+    "tags": [
+      "French",
+      "Burger",
+      "Old NYC",
+      "Scene",
+      "Late Night"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.2,
+      "talk": 0.3,
+      "date": 0.6,
+      "groups": 0.6,
+      "scene": 0.8,
+      "upscale": 0.8,
+      "classic": 0.9,
+      "dive": 0.1,
+      "cheap": 0,
+      "cocktails": 0.6,
+      "wine": 0.6,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.3
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 4,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "cuisine": "French bistro",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "17:00",
+        "close": "00:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      },
+      {
+        "open": "12:00",
+        "close": "00:00"
+      },
+      {
+        "open": "11:00",
+        "close": "00:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/minetta-tavern",
+      "https://en.wikipedia.org/wiki/Minetta_Tavern",
+      "https://www.minettatavernny.com/hours-and-location"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, minettatavernny.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy or phone; book ahead. Bar seating sometimes open to walk-ins.\n• Building operated as a tavern from 1937; Keith McNally reopened it as a French bistro in 2009.\n• Known for the dry-aged Black Label Burger and a côte de boeuf for two.\n• Held a Michelin star from 2010 to 2018.\n• Red banquettes lined with caricatures of longtime regulars.\n• A second location opened in Washington, D.C. in December 2024."
+  },
+  {
+    "slug": "via-carota",
+    "kind": "restaurant",
+    "name": "Via Carota",
+    "neighborhood": "west-village",
+    "address": "51 Grove St, New York, NY 10014",
+    "lat": 40.7332,
+    "lng": -74.0035,
+    "take": "A tiny, candlelit West Village trattoria built around vegetables and a cacio e pepe half the room orders, usually with a line trailing down Grove Street.",
+    "tags": [
+      "Italian",
+      "Pasta",
+      "Date",
+      "Scene",
+      "Vegetables"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.2,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.2,
+      "talk": 0.4,
+      "date": 0.7,
+      "groups": 0.3,
+      "scene": 0.8,
+      "upscale": 0.6,
+      "classic": 0.4,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.4,
+      "wine": 0.6,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.4,
+      "late": 0,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.5,
+      "mid": 0.2,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.8,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.15,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "11:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      },
+      {
+        "open": "10:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/via-carota",
+      "https://en.wikipedia.org/wiki/Via_Carota",
+      "https://www.viacarota.com"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, theinfatuation.com, viacarota.com; written in ROUND's words.\nReservations: Mostly walk-in only; a handful of Resy tables exist, but most nights mean a wait of one to three hours with no bar shortcut.\n• Opened November 2014 by Jody Williams and Rita Sodi, who also run I Sodi and Buvette.\n• Both chefs received James Beard Foundation 'Best Chef: NYC' honors in 2019.\n• Known for cacio e pepe tonarelli, a chopped-steak svizzerina, and an unusually long list of vegetable dishes.\n• Runs a small dining room where most tables go to walk-ins rather than reservations.\n• Has appeared repeatedly on the New York Times' annual list of the city's best restaurants."
+  },
+  {
+    "slug": "birds-of-a-feather",
+    "kind": "restaurant",
+    "name": "Birds of a Feather",
+    "neighborhood": "williamsburg",
+    "address": "191 Grand St, Brooklyn, NY 11211",
+    "lat": 40.7139,
+    "lng": -73.9609,
+    "take": "Sichuan cooking from the Cafe China team in a bright, minimal room built around one long communal table, heavy on chili oil and mouth-numbing heat.",
+    "tags": [
+      "Sichuan",
+      "Chinese",
+      "Spicy",
+      "Groups",
+      "Cheap"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.5,
+      "date": 0.3,
+      "groups": 0.75,
+      "scene": 0.4,
+      "upscale": 0.3,
+      "classic": 0.2,
+      "dive": 0.1,
+      "cheap": 0.5,
+      "cocktails": 0.4,
+      "wine": 0.2,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.5,
+      "late": 0.2,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.7,
+      "mid": 0.8,
+      "big": 0.6
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.4,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Sichuan",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:00"
+      },
+      {
+        "open": "12:00",
+        "close": "22:30"
+      },
+      {
+        "open": "11:00",
+        "close": "22:30"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/birds-of-a-feather",
+      "https://birdsofafeatherny.com/",
+      "https://tollbit.gothamist.com/food/birds-of-a-feather-brings-the-sichuan-fire-to-williamsburg"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from birdsofafeatherny.com, theinfatuation.com, tollbit.gothamist.com; written in ROUND's words.\nReservations: Resy; usually gettable outside peak weekend dinner\n• Opened 2017 in Williamsburg by the team behind Michelin-starred Cafe China\n• Sichuan menu built on chili oil and numbing spice\n• Known for dishes like poached wontons in chili sauce and dan dan noodles\n• Bright, minimal room centered on a communal table, geared toward groups\n• Most dishes run under $20"
+  },
+  {
+    "slug": "diner",
+    "kind": "restaurant",
+    "name": "Diner",
+    "neighborhood": "williamsburg",
+    "address": "85 Broadway, Brooklyn, NY 11249",
+    "lat": 40.7105,
+    "lng": -73.9654,
+    "take": "A vintage dining car under the Williamsburg Bridge, running since 1998: thick burgers, daily specials scrawled on butcher paper, and barely enough room to pass the ketchup.",
+    "tags": [
+      "American",
+      "Diner",
+      "Old NYC",
+      "Brunch"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.4,
+      "chill": 0.5,
+      "talk": 0.5,
+      "date": 0.5,
+      "groups": 0.2,
+      "scene": 0.3,
+      "upscale": 0.1,
+      "classic": 1,
+      "dive": 0.3,
+      "cheap": 0.5,
+      "cocktails": 0.2,
+      "wine": 0.2,
+      "beer": 0.4,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.4,
+      "mid": 0.2,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.6,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "tiny",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "American",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "10:30",
+        "close": "22:30"
+      },
+      {
+        "open": "17:00",
+        "close": "22:30"
+      },
+      {
+        "open": "17:00",
+        "close": "22:30"
+      },
+      {
+        "open": "17:00",
+        "close": "22:30"
+      },
+      {
+        "open": "17:00",
+        "close": "22:30"
+      },
+      {
+        "open": "17:00",
+        "close": "22:30"
+      },
+      {
+        "open": "10:30",
+        "close": "22:30"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/diner",
+      "https://www.dinernyc.com/about/",
+      "https://www.dinernyc.com/location/diner-brooklyn/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from dinernyc.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy recommended given the small room; walk-ins possible off-peak.\n• Opened New Year's Eve 1998 in a vintage Kullman dining car under the Williamsburg Bridge.\n• Founded by Andrew Tarlow and Mark Firth, early figures in Williamsburg's restaurant scene.\n• Known for a thick burger, brisket and eggs, and daily specials written on butcher paper at the table.\n• Marked 25 years in business in 2023 and remains open.\n• Under the same ownership group as the nearby Marlow & Daughters butcher shop."
+  },
+  {
+    "slug": "fish-cheeks-williamsburg",
+    "kind": "restaurant",
+    "name": "Fish Cheeks",
+    "neighborhood": "williamsburg",
+    "address": "661 Driggs Ave, Brooklyn, NY 11211",
+    "lat": 40.7186,
+    "lng": -73.9553,
+    "take": "Thai seafood built around coconut crab curry and whole fried fish, split between a loud bar up front and a quieter wedge-shaped room in back.",
+    "tags": [
+      "Thai",
+      "Seafood",
+      "Cocktails",
+      "Groups",
+      "Date"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.7,
+      "chill": 0.3,
+      "talk": 0.5,
+      "date": 0.6,
+      "groups": 0.6,
+      "scene": 0.6,
+      "upscale": 0.5,
+      "classic": 0.2,
+      "dive": 0,
+      "cheap": 0.15,
+      "cocktails": 0.6,
+      "wine": 0.3,
+      "beer": 0.2,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.4,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 3,
+    "capacity": "medium",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Thai",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "22:15"
+      },
+      {
+        "open": "12:00",
+        "close": "22:15"
+      },
+      {
+        "open": "12:00",
+        "close": "22:15"
+      },
+      {
+        "open": "12:00",
+        "close": "22:15"
+      },
+      {
+        "open": "12:00",
+        "close": "22:15"
+      },
+      {
+        "open": "12:00",
+        "close": "22:45"
+      },
+      {
+        "open": "12:00",
+        "close": "22:45"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/fish-cheeks-driggs-ave",
+      "https://www.fishcheeksnyc.com/location/fish-cheeks-williamsburg/",
+      "https://www.forbes.com/sites/tonysachs/2025/05/11/a-fish-cheeks-in-brooklyn-the-iconic-thai-eaterys-new-location/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from fishcheeksnyc.com, forbes.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy, recommended — it's new and busy; some seats at the front bar for walk-ins\n• Opened May 2025 as a second location of the NoHo original, which dates to 2016\n• Run by chef Dustin Everett under 55 Hospitality\n• Known for coconut crab curry, whole fried fish, and Zaab wings\n• Deliberately skips Americanized Thai staples like pad thai\n• Two rooms: a busy front bar and a smaller back room\n• Daily happy hour from noon to 6pm"
+  },
+  {
+    "slug": "kelloggs-diner",
+    "kind": "restaurant",
+    "name": "Kellogg's Diner",
+    "neighborhood": "williamsburg",
+    "address": "518 Metropolitan Ave, Brooklyn, NY 11211",
+    "lat": 40.7139,
+    "lng": -73.9521,
+    "take": "A century-old diner rebuilt with a Texas accent: chrome booths, flat nachos and Tex-Mex enchiladas alongside French toast, open around the clock.",
+    "tags": [
+      "Diner",
+      "Tex-Mex",
+      "Late Night",
+      "Brunch",
+      "Old NYC"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.5,
+      "talk": 0.5,
+      "date": 0.3,
+      "groups": 0.6,
+      "scene": 0.4,
+      "upscale": 0.1,
+      "classic": 0.7,
+      "dive": 0.4,
+      "cheap": 0.5,
+      "cocktails": 0.4,
+      "wine": 0.2,
+      "beer": 0.4,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.8,
+      "late": 1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.3,
+      "early": 0.4,
+      "longterm": 0.5
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.85,
+    "cuisine": "Diner",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      {
+        "open": "00:00",
+        "close": "23:59"
+      },
+      {
+        "open": "00:00",
+        "close": "23:59"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/kelloggs-diner",
+      "https://www.kelloggsdinernyc.com/",
+      "https://www.bkmag.com/2024/09/23/kelloggs-diner/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from bkmag.com, kelloggsdinernyc.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy available, but it's a 24-hour diner — walk in anytime\n• Nearly century-old Williamsburg diner that closed in a 2023 bankruptcy\n• Reopened in 2024 under restaurateur Louis Skibar with chef Jackie Carnesi, formerly of Nura\n• Reworked into a Tex-Mex-leaning diner: flat nachos, enchiladas, Texas French toast\n• Now operates 24 hours a day\n• Classic chrome-and-booth diner interior, renovated during the relaunch"
+  },
+  {
+    "slug": "laser-wolf",
+    "kind": "restaurant",
+    "name": "Laser Wolf",
+    "neighborhood": "williamsburg",
+    "address": "97 Wythe Ave, Brooklyn, NY 11249",
+    "lat": 40.7218,
+    "lng": -73.9578,
+    "take": "An Israeli grill house on the Hoxton's rooftop: skewers off the charcoal fire, a dozen little salatim to start, and a Manhattan skyline behind every table.",
+    "tags": [
+      "Israeli",
+      "Rooftop",
+      "Outdoor",
+      "Scene",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.8,
+      "chill": 0.3,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.8,
+      "chill": 0.3,
+      "talk": 0.5,
+      "date": 0.5,
+      "groups": 0.7,
+      "scene": 0.8,
+      "upscale": 0.6,
+      "classic": 0.1,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.7,
+      "wine": 0.4,
+      "beer": 0.3,
+      "outdoor": 1,
+      "rooftop": 1,
+      "daytime": 0.4,
+      "late": 0.8,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.6,
+      "mid": 0.6,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "weekendLate",
+    "easyIn": 0.4,
+    "cuisine": "Israeli grill",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "01:00"
+      },
+      {
+        "open": "17:00",
+        "close": "01:00"
+      },
+      {
+        "open": "11:30",
+        "close": "01:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/laser-wolf-nyc",
+      "https://guide.michelin.com/us/en/new-york-state/brooklyn/restaurant/laser-wolf",
+      "https://thehoxton.com/williamsburg/laser-wolf-restaurant/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from michelin.com, thehoxton.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy, popular and best booked ahead; walk-ins possible at the bar\n• Israeli grill from chef Michael Solomonov's CookNSolo, part of Boka Restaurant Group\n• Sits on the rooftop of the Hoxton hotel in Williamsburg with Manhattan skyline views\n• Known for charcoal-grilled skewers, a spread of salatim mezze, and whole branzino\n• Kitchen runs until 1am Thursday through Saturday\n• A Michelin Guide-listed restaurant"
+  },
+  {
+    "slug": "lilia",
+    "kind": "restaurant",
+    "name": "Lilia",
+    "neighborhood": "williamsburg",
+    "address": "567 Union Ave, Brooklyn, NY 11211",
+    "lat": 40.7175,
+    "lng": -73.952,
+    "take": "Missy Robbins' bright, wood-fired Italian in a former Williamsburg auto-body shop: sheep's milk agnolotti, wood-grilled seafood, and a dressed-up crowd that books weeks out for a table.",
+    "tags": [
+      "Italian",
+      "Pasta",
+      "Date",
+      "Scene",
+      "Wine"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.4,
+      "date": 0.6,
+      "groups": 0.4,
+      "scene": 0.7,
+      "upscale": 0.7,
+      "classic": 0.3,
+      "dive": 0,
+      "cheap": 0,
+      "cocktails": 0.4,
+      "wine": 0.7,
+      "beer": 0.1,
+      "outdoor": 0.8,
+      "rooftop": 0,
+      "daytime": 0,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "large",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Italian",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "16:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "17:00",
+        "close": "22:00"
+      },
+      {
+        "open": "16:00",
+        "close": "22:00"
+      },
+      {
+        "open": "16:00",
+        "close": "22:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/lilia",
+      "https://www.lilianewyork.com/location/lilia/",
+      "https://www.bkmag.com/2016/03/28/lilia-williamsburg-missy-robbins/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from bkmag.com, lilianewyork.com, theinfatuation.com; written in ROUND's words.\nReservations: Resy and phone (phone lines open 30 days out at 10am, online at midnight); bar seats are walk-in but typically mean a wait.\n• Opened in 2016 by chef Missy Robbins in a converted former auto-body shop.\n• Sister restaurant to Misi, also in Williamsburg.\n• Known for sheep's milk agnolotti and wood-grilled seafood.\n• Historically one of the hardest reservations in New York; phone and online booking windows open on staggered schedules.\n• Bar seats are available to walk-ins, usually with a wait of about two hours."
+  },
+  {
+    "slug": "llama-inn",
+    "kind": "restaurant",
+    "name": "Llama Inn",
+    "neighborhood": "williamsburg",
+    "address": "50 Withers St, Brooklyn, NY 11211",
+    "lat": 40.7163,
+    "lng": -73.9509,
+    "take": "Peruvian small plates on a plant-covered Williamsburg patio: ceviche, lomo saltado, and pisco cocktails that traded formal dining for a laid-back backyard mood before closing at the end of 2025.",
+    "tags": [
+      "Peruvian",
+      "Outdoor",
+      "Date",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.4
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.4,
+      "talk": 0.4,
+      "date": 0.5,
+      "groups": 0.5,
+      "scene": 0.6,
+      "upscale": 0.4,
+      "classic": 0.2,
+      "dive": 0,
+      "cheap": 0.1,
+      "cocktails": 0.6,
+      "wine": 0.3,
+      "beer": 0.2,
+      "outdoor": 0.8,
+      "rooftop": 0.2,
+      "daytime": 0.3,
+      "late": 0.1,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.6,
+      "mid": 0.5,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.5
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.65,
+    "cuisine": "Peruvian",
+    "barFood": false,
+    "hours": null,
+    "verified": false,
+    "retired": true,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/llama-inn",
+      "https://en.wikipedia.org/wiki/Llama_Inn",
+      "https://greenpointers.com/2026/04/17/south-american-tavern-cafe-bar-j-f-to-open-this-spring-in-former-home-of-llama-inn/"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from en.wikipedia.org, greenpointers.com, theinfatuation.com; written in ROUND's words.\nReservations: Formerly booked through Resy; the restaurant has closed permanently.\n• Opened in November 2015, among the first contemporary Peruvian restaurants in Williamsburg.\n• Michelin-listed and included in New York Magazine's 'The Thousand Best.'\n• Renovated in 2021 into a more casual space with a heated outdoor cabana patio.\n• Closed permanently at the end of 2025 after a decade in business.\n• The space is set to reopen in spring 2026 as Cafe Bar J.F., a South American tavern from the same ownership group.\nClosed for good at the end of 2025 after ten years; a café is slated for the space. Kept for the record."
+  },
+  {
+    "slug": "st-anselm",
+    "kind": "restaurant",
+    "name": "St. Anselm",
+    "neighborhood": "williamsburg",
+    "address": "355 Metropolitan Ave, Brooklyn, NY 11211",
+    "lat": 40.7141,
+    "lng": -73.9558,
+    "take": "A tight, wood-fired steakhouse that's been a Williamsburg fixture since 2010: an open kitchen, a short bar, and a hanger steak regulars order without looking at the menu.",
+    "tags": [
+      "Steakhouse",
+      "Wine",
+      "Date",
+      "Classic"
+    ],
+    "vibe": {
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.5
+    },
+    "attrs": {
+      "food": 1,
+      "lively": 0.6,
+      "chill": 0.3,
+      "talk": 0.5,
+      "date": 0.7,
+      "groups": 0.3,
+      "scene": 0.6,
+      "upscale": 0.6,
+      "classic": 0.6,
+      "dive": 0.1,
+      "cheap": 0.15,
+      "cocktails": 0.5,
+      "wine": 0.7,
+      "beer": 0.3,
+      "outdoor": 0,
+      "rooftop": 0,
+      "daytime": 0.4,
+      "late": 0.3,
+      "liveMusic": 0
+    },
+    "groupFit": {
+      "two": 0.8,
+      "small": 0.5,
+      "mid": 0.3,
+      "big": 0.1
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.7,
+      "longterm": 0.7
+    },
+    "price": 3,
+    "capacity": "small",
+    "bestWindows": "dinner",
+    "easyIn": 0.4,
+    "cuisine": "Steakhouse",
+    "barFood": false,
+    "hours": [
+      {
+        "open": "12:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "17:00",
+        "close": "23:00"
+      },
+      {
+        "open": "12:00",
+        "close": "23:00"
+      }
+    ],
+    "verified": true,
+    "retired": false,
+    "sources": [
+      "desk",
+      "https://www.theinfatuation.com/new-york/reviews/st-anselm",
+      "https://www.stanselm.net/",
+      "https://greenpointers.com/2025/02/04/williamsburgs-st-anselm-reopening-next-week-after-fire/",
+      "https://www.yelp.com/biz/st-anselm-brooklyn"
+    ],
+    "notes": "— Sep 23, 2026 · ROUND desk\nResearched from greenpointers.com, stanselm.net, theinfatuation.com, yelp.com; written in ROUND's words.\nReservations: Resy; prime-time dinner is hard to land, walk-ins seated first-come as space allows\n• Opened in 2010, one of Williamsburg's earlier modern steakhouses\n• Known for open-fire cooking and its hanger 'butcher's steak'\n• Closed temporarily after a fire, reopened in February 2025\n• Small room: roughly eight tables plus counter seats facing the open kitchen\n• Extensive wine list alongside the steak-focused menu"
+  }
+]
