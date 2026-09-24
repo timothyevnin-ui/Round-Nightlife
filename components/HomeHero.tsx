@@ -35,21 +35,6 @@ export function HomeHero({ hotCount }: { hotCount: number }) {
         <header className="flex items-center gap-3 pt-4 pb-1">
           <Wordmark />
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
-            <Link
-              href="/search"
-              className="pressable flex h-9 min-w-0 items-center gap-2 rounded-full border px-3"
-              style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)" }}
-              aria-label="Search our bars"
-              data-search-pill
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <circle cx="7" cy="7" r="4.5" stroke="#16213A" strokeWidth="1.6" />
-                <path d="M10.5 10.5 14 14" stroke="#16213A" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-              <span className="truncate text-[12.5px] font-medium" style={{ color: "var(--ink-70)" }}>
-                Search our bars
-              </span>
-            </Link>
             <Link href="/hot" className="pressable eyebrow shrink-0" style={{ color: "var(--ink-35)" }}>
               NYC
             </Link>

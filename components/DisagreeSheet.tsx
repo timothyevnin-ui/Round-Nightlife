@@ -4,7 +4,6 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { disagree } from "@/app/spots/actions";
-import { ABOUTS } from "@/lib/disputeAbouts";
 import { useAuth } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
 import { track } from "@/lib/track";
@@ -20,7 +19,6 @@ import type { Venue } from "@/lib/types";
 export function DisagreeSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" | "name" | "take">; open: boolean; onClose: () => void }) {
   const { user, profile } = useAuth();
   const nudge = useSignInNudge("rate");
-  const [about, setAbout] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -29,7 +27,6 @@ export function DisagreeSheet({ venue, open, onClose }: { venue: Pick<Venue, "sl
   const close = () => {
     onClose();
     window.setTimeout(() => {
-      setAbout(null);
       setText("");
       setErr(null);
       setDone(false);
@@ -46,15 +43,14 @@ export function DisagreeSheet({ venue, open, onClose }: { venue: Pick<Venue, "sl
     } catch {
       /* anonymous */
     }
-    const r = await disagree({ slug: venue.slug, text, about: about ?? undefined, token, name: profile?.name ?? undefined });
+    const r = await disagree({ slug: venue.slug, text, token, name: profile?.name ?? undefined });
     setBusy(false);
     if (!r.ok) return setErr(r.error);
-    track("save", { slug: venue.slug, data: { source: "disagree", about } });
+    track("save", { slug: venue.slug, data: { source: "disagree" } });
     setDone(true);
     if (!user) nudge();
   };
 
-  const prompt = ABOUTS.find((a) => a.key === about)?.prompt ?? "What did we get wrong?";
   // Portaled to the body (like Just say it): a transformed ancestor would trap the fixed sheet. Only the sheet is portaled, and only when open, so the server render matches.
   if (typeof document === "undefined") return null;
   return createPortal(
@@ -77,28 +73,18 @@ export function DisagreeSheet({ venue, open, onClose }: { venue: Pick<Venue, "sl
                   Disagree with our take
                 </p>
                 <h2 className="serif mt-1" style={{ fontSize: 26, lineHeight: 1.1 }}>
-                  {venue.name}: {prompt}
+                  {venue.name}: what did we get wrong?
                 </h2>
                 <p className="mt-2 text-[13px] leading-snug" style={{ color: "var(--ink-55)" }}>
                   We said: &ldquo;{venue.take}&rdquo;
                 </p>
-                <div className="no-scrollbar mt-3 flex gap-1.5 overflow-x-auto" data-disagree-abouts>
-                  {ABOUTS.map((a) => {
-                    const on = about === a.key;
-                    return (
-                      <button key={a.key} onClick={() => setAbout(on ? null : a.key)} aria-pressed={on} className="pressable h-9 shrink-0 rounded-full border px-3 text-[13px] font-medium" style={on ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { borderColor: "var(--hairline-strong)", color: "var(--ink-70)" }}>
-                        {a.label}
-                      </button>
-                    );
-                  })}
-                </div>
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value.slice(0, 600))}
                   rows={4}
                   autoFocus
                   placeholder="Say it like you'd text a friend. The food is actually great, get the wings. It's dead on weeknights. Way pricier than $$."
-                  className="mt-3 w-full resize-none rounded-[18px] border px-4 py-3 text-[15px] outline-none"
+                  className="mt-4 w-full resize-none rounded-[18px] border px-4 py-3 text-[15px] outline-none"
                   style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
                   data-disagree-text
                 />

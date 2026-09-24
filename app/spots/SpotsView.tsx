@@ -75,16 +75,19 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
     <main className="screen screen-with-tabs mx-auto w-full max-w-md" data-spots>
       <div className="pt-6">
         <p className="eyebrow">All of ROUND</p>
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <h1 className="serif" style={{ fontSize: 40, lineHeight: 1 }}>
             Spots.
           </h1>
-          <p className="text-[13px]" style={{ color: "var(--ink-55)" }} data-spots-count>
-            {list.length === spots.length ? `${spots.length} places` : `${list.length} of ${spots.length}`}
-          </p>
+          <Link href="/recommend" className="pressable btn-primary flex h-10 shrink-0 items-center gap-1.5 px-4 text-[13.5px]" data-spots-add>
+            <span aria-hidden style={{ fontSize: 17, lineHeight: 1 }}>
+              +
+            </span>
+            Add a spot
+          </Link>
         </div>
         <p className="mt-1.5 text-[14px]" style={{ color: "var(--ink-55)" }}>
-          Every place we stand behind, and your say on each. Disagree with a take and a person at ROUND reads it.
+          <span data-spots-count>{list.length === spots.length ? `${spots.length} places we stand behind` : `${list.length} of ${spots.length} places`}</span>, and your say on each. Disagree with a take and a person at ROUND reads it.
         </p>
       </div>
 
