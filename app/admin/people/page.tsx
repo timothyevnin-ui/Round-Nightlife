@@ -1,14 +1,20 @@
 import { requireAdmin } from "@/lib/adminAuth";
 import { getAllVenues } from "@/lib/db";
-import { countBy, listProfiles, listSaves, maskPhone } from "@/lib/studio";
+import { countBy, listProfiles, listReferrals, listSaves, maskPhone } from "@/lib/studio";
 
 export const dynamic = "force-dynamic";
 
 /** Who has an account, and what they've saved. Phones are masked on purpose. */
 export default async function PeoplePage() {
   await requireAdmin();
-  const [{ rows: profiles, problem }, { rows: saves }, venues] = await Promise.all([listProfiles(500), listSaves(5000), getAllVenues()]);
+  const [{ rows: profiles, problem }, { rows: saves }, { rows: referrals, problem: refProblem }, venues] = await Promise.all([listProfiles(500), listSaves(5000), listReferrals(), getAllVenues()]);
   const byName = new Map(venues.map((v) => [v.slug, v.name]));
+  // Referrals (V28): each person's code, how many joined on it, and who sent them. Ten on a code is $5 owed.
+  const refOf = new Map(referrals.map((r) => [r.id, r]));
+  const referredCount = new Map<string, number>();
+  for (const r of referrals) if (r.referred_by) referredCount.set(r.referred_by, (referredCount.get(r.referred_by) ?? 0) + 1);
+  const nameOf = new Map(profiles.map((p) => [p.id, p.name]));
+  const owed = profiles.filter((p) => (referredCount.get(p.id) ?? 0) >= 10);
   const savesByUser = new Map<string, { want: number; been: number; loved: number }>();
   for (const s of saves) {
     const c = savesByUser.get(s.user_id) ?? { want: 0, been: 0, loved: 0 };
@@ -29,6 +35,30 @@ export default async function PeoplePage() {
       {problem && (
         <p className="mt-3 text-[13.5px]" style={{ color: "var(--tomato-deep)" }}>
           {problem}
+        </p>
+      )}
+
+      {owed.length > 0 && (
+        <section className="card mt-6 p-5" style={{ borderColor: "var(--pine)" }} data-referral-owed>
+          <h2 className="serif" style={{ fontSize: 22 }}>
+            $5 owed for referrals
+          </h2>
+          <ul className="mt-2 flex flex-col gap-1 text-[14px]">
+            {owed.map((p) => (
+              <li key={p.id}>
+                <span className="font-medium">{p.name || "(no name yet)"}</span>
+                <span style={{ color: "var(--ink-55)" }}> · {referredCount.get(p.id)} joined on {refOf.get(p.id)?.ref_code} · ${5 * Math.floor((referredCount.get(p.id) ?? 0) / 10)}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[12.5px]" style={{ color: "var(--ink-35)" }}>
+            Venmo them and keep a note; the count keeps climbing.
+          </p>
+        </section>
+      )}
+      {refProblem && (
+        <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-35)" }}>
+          Referrals: {refProblem}
         </p>
       )}
 
@@ -57,6 +87,9 @@ export default async function PeoplePage() {
               <th>Want</th>
               <th>Been</th>
               <th>Loved</th>
+              <th>Code</th>
+              <th>Referred</th>
+              <th>Sent by</th>
             </tr>
           </thead>
           <tbody>
@@ -70,6 +103,9 @@ export default async function PeoplePage() {
                   <td>{c.want}</td>
                   <td>{c.been}</td>
                   <td>{c.loved}</td>
+                  <td className="tracking-[0.12em]" style={{ color: "var(--ink-55)" }}>{refOf.get(p.id)?.ref_code ?? "—"}</td>
+                  <td style={(referredCount.get(p.id) ?? 0) >= 10 ? { color: "var(--pine)", fontWeight: 600 } : undefined}>{referredCount.get(p.id) ?? 0}</td>
+                  <td style={{ color: "var(--ink-55)" }}>{refOf.get(p.id)?.referred_by ? nameOf.get(refOf.get(p.id)!.referred_by!) || "someone" : ""}</td>
                 </tr>
               );
             })}

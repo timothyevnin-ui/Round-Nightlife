@@ -85,6 +85,49 @@ const GENERIC = new Set(["village", "house", "hotel", "garden", "street", "kitch
 
 const LEAD_IN = /(?:^|\b(?:at|near|around|by|like|to|from|of|in|outside|inside|next to|close to)\s+)$/;
 
+// Neighborhood phrases, blanked out before a place is looked for, so "the west village" can never be a bar with Village in its name.
+const AREA_PHRASES = ["greenwich village", "west village", "east village", "the village", "murray hill", "kips bay", "lower east side", "upper east side", "upper west side", "hells kitchen", "hell s kitchen", "soho", "nolita", "noho", "tribeca", "chelsea", "gramercy", "nomad", "midtown east", "midtown west", "midtown", "chinatown", "little italy", "financial district", "fidi", "williamsburg", "greenpoint", "bushwick", "brooklyn", "queens", "harlem", "flatiron", "union square", "washington square", "alphabet city", "two bridges", "bowery"];
+
+/** The sentence with the neighborhoods swapped for a mark, so "near washington square, somewhere…" doesn't read as "near somewhere". */
+function withoutAreas(t: string): string {
+  let out = t;
+  for (const a of AREA_PHRASES) {
+    const needle = ` ${a} `;
+    let idx = out.indexOf(needle);
+    while (idx >= 0) {
+      out = out.slice(0, idx + 1) + "§" + out.slice(idx + 1 + a.length);
+      idx = out.indexOf(needle);
+    }
+  }
+  return out;
+}
+
+/**
+ * Does the sentence really name this place? The whole name, or its
+ * distinctive part ("spaniard" for The Spaniard), as whole words, with the
+ * neighborhoods blanked out first. A word every third bar uses ("village",
+ * "house", "tavern") never counts on its own: "west village" is not Village
+ * Tavern. Used to check the model's pick as well as our own.
+ */
+export function venueNamedIn(text: string, name: string): boolean {
+  const t = withoutAreas(` ${normalizeName(text)} `);
+  const full = normalizeName(name);
+  if (full.length >= 3 && t.includes(` ${full} `)) return true;
+  const core = coreTokens(name);
+  const distinctive = core.filter((w) => !GENERIC.has(w) && w.length >= 3);
+  if (!distinctive.length) return false;
+  const joined = distinctive.join(" ");
+  if (joined.includes(" ") && t.includes(` ${joined} `)) return true;
+  if (distinctive.length === 1) {
+    const w = distinctive[0];
+    const idx = t.indexOf(` ${w} `);
+    if (idx < 0) return false;
+    if (w.length >= 7 && !ORDINARY.has(w)) return true;
+    return LEAD_IN.test(t.slice(0, idx + 1)) || t.trim() === w;
+  }
+  return false;
+}
+
 /**
  * A place named inside a sentence: "six of us near bar primi around 9".
  * Multi-word names match anywhere; single-word names only after a lead-in
@@ -92,7 +135,8 @@ const LEAD_IN = /(?:^|\b(?:at|near|around|by|like|to|from|of|in|outside|inside|n
  * so "local dive" doesn't become the bar called Local.
  */
 export function findVenueInText<T extends { name: string }>(text: string, venues: T[]): { venue: T; near: boolean } | null {
-  const t = ` ${normalizeName(text)} `;
+  // The neighborhoods come out first: "west village" is where they want to be, not a place with Village in its name.
+  const t = withoutAreas(` ${normalizeName(text)} `);
   let best: { venue: T; len: number; at: number } | null = null;
   for (const venue of venues) {
     const variants = new Set<string>([normalizeName(venue.name), coreTokens(venue.name).join(" ")]);
@@ -102,9 +146,11 @@ export function findVenueInText<T extends { name: string }>(text: string, venues
       if (idx < 0) continue;
       const single = !v.includes(" ");
       if (single) {
+        // A single everyday word ("village", "house", "kitchen") is never a place by itself.
+        if (GENERIC.has(v)) continue;
         const before = t.slice(0, idx + 1);
         const whole = t.trim() === v;
-        if (!whole && !LEAD_IN.test(before) && v.length < 7) continue;
+        if (!whole && !LEAD_IN.test(before) && (v.length < 7 || ORDINARY.has(v))) continue;
       }
       if (!best || v.length > best.len) best = { venue, len: v.length, at: idx };
     }

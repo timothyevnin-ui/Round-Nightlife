@@ -11,7 +11,7 @@ import { LabelChip, FriendsChip } from "./VenueCard";
 import { DisagreeButton } from "./DisagreeSheet";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { keywordLine } from "@/lib/describe";
-import { formatHour } from "@/lib/time";
+import { formatHour, mealWord } from "@/lib/time";
 import type { DatePlan, PickLabel, Venue, VenueLocation } from "@/lib/types";
 
 /**
@@ -176,7 +176,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
       <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
         {restaurant ? (
           <>
-            <Stop eyebrow={`Dinner · ${formatHour(plan.dinnerAt ?? 20, true)}`} venue={restaurant} big door={plan.door} />
+            <Stop eyebrow={`${mealWord(plan.dinnerAt ?? 20, plan.dow)} · ${formatHour(plan.dinnerAt ?? 20, true)}`} venue={restaurant} big door={plan.door} />
             <div className="my-2 flex items-center gap-3">
               <span className="block h-6 w-px" style={{ background: "var(--hairline-strong)", marginLeft: 6 }} />
               <span className="text-[12px]" style={{ color: "var(--ink-35)" }}>
@@ -216,7 +216,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
           <ShareButton
             url={shareUrl}
             title="Tonight — ROUND"
-            text={restaurant ? `Dinner at ${restaurant.name}, drinks after at ${bar.name}${groupWord ? ` for ${groupWord}` : ""}.` : `${bar.name}. ${bar.take}`}
+            text={restaurant ? `${mealWord(plan.dinnerAt ?? 20, plan.dow)} at ${restaurant.name}, drinks after at ${bar.name}${groupWord ? ` for ${groupWord}` : ""}.` : `${bar.name}. ${bar.take}`}
           />
         </div>
         <div className="mt-2.5 flex flex-wrap gap-2">

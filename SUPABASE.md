@@ -141,6 +141,12 @@ Run the current `supabase/schema.sql` again. It redefines the four friend functi
 
 Nothing to run. "Member since" reads `profiles.created_at`, which the table has had since the first schema; the profile link (`/you?follow=<id>`) reads the `people` view the same way the finder does.
 
+## 19. Referrals (V28)
+
+Run the current `supabase/schema.sql` again. It adds `ref_code`, `referred_by` and `referred_at` to `profiles` (everyone who already has an account gets a code on the spot; new accounts get one as they're made) and four functions: `who_referred`, `redeem_referral`, `referral_progress`, plus the trigger that hands out codes. Until it's run, the referral card and the sign-up code box stay hidden and Studio → People says so under the table.
+
+Paying out: Studio → People shows a **$5 owed for referrals** box once anyone has ten. Venmo them and keep your own note of who's been paid; the count keeps climbing.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

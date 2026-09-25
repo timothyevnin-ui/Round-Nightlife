@@ -7,7 +7,7 @@ import { ATTR_KEYS } from "@/lib/attrs";
 import { getVenues } from "@/lib/db";
 import { allowModelCall, ipFrom } from "@/lib/ratelimit";
 import { geocode, looksLikeAddress } from "@/lib/geocode";
-import { matchVenues, nameScore, normalizeName } from "@/lib/match";
+import { matchVenues, nameScore, normalizeName, venueNamedIn } from "@/lib/match";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -123,7 +123,9 @@ export async function POST(req: Request) {
       got = await ask(FALLBACK_MODEL);
     }
     const json = got.json;
-    const named = typeof json.venue === "string" ? forMatch.find((v) => v.slug === json.venue) : undefined;
+    // The model's pick counts only when the sentence really names the place: "west village" is a neighborhood, never Village Tavern.
+    const claimed = typeof json.venue === "string" ? forMatch.find((v) => v.slug === json.venue) : undefined;
+    const named = claimed && venueNamedIn(text, claimed.name) ? claimed : undefined;
     const venue = named ? { slug: named.slug, name: named.name, neighborhood: named.neighborhood, lat: named.lat, lng: named.lng } : keyword.venue;
     const near = named ? !!json.near : keyword.near;
     const wants: Interpretation["wants"] = {};

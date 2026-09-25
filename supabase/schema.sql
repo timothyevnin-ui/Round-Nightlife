@@ -537,4 +537,92 @@ end $$;
 revoke all on function public.remove_follower(uuid) from public;
 grant execute on function public.remove_follower(uuid) to authenticated;
 
+-- ───────────────────────────── V28: referrals ─────────────────────────────
+-- Everyone gets a six-letter code. A new account can enter one (or arrive with
+-- it in the link) once, within two weeks of joining. Ten sign-ups on your code,
+-- $5: the Studio's People page shows who's owed.
+
+create or replace function public.make_ref_code() returns text
+language plpgsql as $$
+declare chars text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; code text := ''; i int;
+begin
+  for i in 1..6 loop code := code || substr(chars, 1 + floor(random() * length(chars))::int, 1); end loop;
+  return code;
+end $$;
+
+alter table public.profiles add column if not exists ref_code    text;
+alter table public.profiles add column if not exists referred_by uuid references public.profiles (id) on delete set null;
+alter table public.profiles add column if not exists referred_at timestamptz;
+create unique index if not exists profiles_ref_code_idx on public.profiles (ref_code);
+create index if not exists profiles_referred_by_idx on public.profiles (referred_by);
+
+-- Every new row gets a code; the rare collision just tries again.
+create or replace function public.ensure_ref_code() returns trigger
+language plpgsql as $$
+begin
+  if new.ref_code is null then
+    loop
+      new.ref_code := public.make_ref_code();
+      exit when not exists (select 1 from public.profiles where ref_code = new.ref_code);
+    end loop;
+  end if;
+  return new;
+end $$;
+drop trigger if exists profiles_ref_code on public.profiles;
+create trigger profiles_ref_code before insert on public.profiles
+  for each row execute function public.ensure_ref_code();
+
+-- The accounts that already exist get theirs now.
+do $$
+declare r record;
+begin
+  for r in select id from public.profiles where ref_code is null loop
+    loop
+      begin
+        update public.profiles set ref_code = public.make_ref_code() where id = r.id;
+        exit;
+      exception when unique_violation then
+        -- try another
+      end;
+    end loop;
+  end loop;
+end $$;
+
+-- Whose code is this? A first name, for the pitch ("Maya sent you."). Anyone may ask; nothing else comes back.
+create or replace function public.who_referred(code text) returns text
+language sql security definer set search_path = public stable as $$
+  select nullif(split_part(name, ' ', 1), '') from public.profiles where ref_code = upper(trim(code)) limit 1;
+$$;
+revoke all on function public.who_referred(text) from public;
+grant execute on function public.who_referred(text) to anon, authenticated;
+
+-- A new account enters a code: once, not your own, within 14 days of joining. Returns the referrer's id and first name.
+create or replace function public.redeem_referral(code text) returns json
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); ref uuid; who text; already uuid; joined timestamptz;
+begin
+  if me is null then raise exception 'not allowed'; end if;
+  select id, nullif(split_part(name, ' ', 1), '') into ref, who from public.profiles where ref_code = upper(trim(code));
+  if ref is null then raise exception 'no such code'; end if;
+  if ref = me then raise exception 'own code'; end if;
+  select referred_by, created_at into already, joined from public.profiles where id = me;
+  if already is not null then raise exception 'already used'; end if;
+  if joined < now() - interval '14 days' then raise exception 'not new'; end if;
+  update public.profiles set referred_by = ref, referred_at = now() where id = me;
+  return json_build_object('id', ref, 'name', coalesce(who, 'A friend'));
+end $$;
+revoke all on function public.redeem_referral(text) from public;
+grant execute on function public.redeem_referral(text) to authenticated;
+
+-- Your progress: how many joined on your code, and their first names, newest first.
+create or replace function public.referral_progress() returns json
+language sql security definer set search_path = public stable as $$
+  select json_build_object(
+    'n', count(*),
+    'names', coalesce(array_agg(nullif(split_part(name, ' ', 1), '') order by referred_at desc nulls last) filter (where name <> ''), '{}'::text[])
+  ) from public.profiles where referred_by = auth.uid();
+$$;
+revoke all on function public.referral_progress() from public;
+grant execute on function public.referral_progress() to authenticated;
+
 -- Later phases (plans, census) add their tables here.

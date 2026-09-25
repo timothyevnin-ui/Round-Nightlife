@@ -12,7 +12,7 @@ import { ipFrom } from "@/lib/ratelimit";
 import { parseFav, parseName, parseTaste } from "@/lib/taste";
 import { FAV_COOKIE, NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
-import { formatHour } from "@/lib/time";
+import { formatHour, mealWord } from "@/lib/time";
 import { isNearby, parseMe } from "@/lib/where";
 import type { DatePlan, DateStage, Mode, NightPick } from "@/lib/types";
 import { ResultsView } from "./ResultsView";
@@ -141,11 +141,11 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const twelve = recommendDinner({ neighborhood: n, group, hour, dow, wants, been, me }, venues, HINTS);
     const ai = await pickWithClaude({ ...base, mode: "dinner", neighborhood: n, group }, venues, twelve.map((p) => ({ slug: p.restaurant?.slug ?? p.bar.slug, then: p.restaurant ? p.bar.slug : undefined })));
     const plans = applyToPlans(ai, twelve, venues, bars);
-    const payload: PlanPayload = { m: "dinner", n, t: hour, g: group, s: planStops(plans) };
+    const payload: PlanPayload = { m: "dinner", n, t: hour, d: dow, g: group, s: planStops(plans) };
     const code = encodePlan(payload);
     const perCard = plans.map((_, i) => encodePlan({ ...payload, s: [payload.s[i]] }));
     shown("dinner", { neighborhood: n, group }, plans.map((p) => p.bar.slug), ai);
-    const summary = [neighborhoodName(n), ...fromMe, groupWord(group), `Dinner ${formatHour(hour, true)}`, ...wantChips];
+    const summary = [neighborhoodName(n), ...fromMe, groupWord(group), `${mealWord(hour, dow)} ${formatHour(hour, true)}`, ...wantChips];
     return <ResultsView mode="dinner" summary={summary} heard={ai.heard} editHref="/plan/dinner" code={code} plans={plans.map((p, i) => ({ ...p, shareCode: perCard[i] }))} groupWord={groupWord(group)} />;
   }
 
@@ -154,7 +154,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const twelve = recommendDate({ neighborhood: n, stage, dinner, hour, dow, wants, been, me }, venues, HINTS);
   const ai = await pickWithClaude({ ...base, mode: "date", neighborhood: n, stage, dinner, group: 2 }, venues, twelve.map((p) => ({ slug: p.restaurant?.slug ?? p.bar.slug, then: p.restaurant ? p.bar.slug : undefined })));
   const plans = dinner ? applyToPlans(ai, twelve, venues, bars) : applyToBarPlans(ai, twelve, venues);
-  const payload: PlanPayload = { m: "date", n, t: hour, s: planStops(plans) };
+  const payload: PlanPayload = { m: "date", n, t: hour, d: dow, s: planStops(plans) };
   const code = encodePlan(payload);
   const perCard = plans.map((_, i) => encodePlan({ ...payload, s: [payload.s[i]] }));
   shown("date", { neighborhood: n, stage, dinner }, plans.map((p) => p.bar.slug), ai);

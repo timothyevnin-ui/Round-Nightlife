@@ -379,7 +379,7 @@ function pairWithBars(
     const from = r.where?.door ?? r.venue;
     const dist = haversineMeters(from, nearestDoor(bar.venue, from));
     const walk = Math.max(2, Math.round(dist / 80));
-    plans.push({ restaurant: r.venue, bar: bar.venue, label, score: r.score, dinnerAt, drinksAt, walkMinutes: walk, why: why(r, bar, walk), far: whereWord(r.where) ?? undefined, door: doorOf(r.where), barDoor: doorOf(bar.where) });
+    plans.push({ restaurant: r.venue, bar: bar.venue, label, score: r.score, dinnerAt, dow, drinksAt, walkMinutes: walk, why: why(r, bar, walk), far: whereWord(r.where) ?? undefined, door: doorOf(r.where), barDoor: doorOf(bar.where) });
   }
   return plans;
 }

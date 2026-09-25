@@ -5,6 +5,9 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { SignInFlow } from "@/components/SignInSheet";
 import { HomeScreenCard } from "@/components/HomeScreenCard";
+import { ReferralCard } from "@/components/ReferralCard";
+import { getSupabase } from "@/lib/supabase";
+import { pendingRef, whoReferred } from "@/lib/referrals";
 import { useRoundStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { AboutYou, Avatar } from "@/components/AboutYou";
@@ -39,9 +42,28 @@ export function YouView({ venues, places }: { venues: Venue[]; regulars?: Regula
 /* ───────────────────────── someone we don't know ───────────────────────── */
 
 function Stranger({ finishing, started, onSignedIn, onDone }: { finishing: boolean; started: boolean; onSignedIn: () => void; onDone: () => void }) {
+  // Came from a friend's link: say who, so the code they never typed makes sense.
+  const [from, setFrom] = useState<string | null>(null);
+  useEffect(() => {
+    const sb = getSupabase();
+    const code = pendingRef();
+    if (!sb || code.length !== 6) return;
+    let live = true;
+    void whoReferred(sb, code).then((name) => {
+      if (live && name && name !== "unavailable") setFrom(name);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
   return (
     <div data-you-stranger>
       <Pitch eyebrow="You">
+        {from && (
+          <p className="mb-2 rounded-full px-3 py-1.5 text-[12.5px] font-medium" style={{ background: "rgba(31,74,60,0.1)", color: "var(--pine)", display: "inline-block" }} data-sent-by>
+            {from} sent you. Sign up and they&apos;re one closer to $5.
+          </p>
+        )}
         <p className="eyebrow" style={{ color: "var(--tomato)" }}>
           {started && !finishing ? "You're in" : finishing || started ? "Almost in" : "Enter your number"}
         </p>
@@ -249,6 +271,10 @@ function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Pla
         </span>
       </Link>
 
+      {/* Right under the $2 door: the Home Screen, then refer ten and get $5. */}
+      <HomeScreenCard />
+      {enabled && user && <ReferralCard />}
+
       {/* The lists, each its own page. */}
       <section className="card mt-4 overflow-hidden" data-you-lists>
         <Row href="/you/been" icon={<CheckIcon />} label="Been" count={been.length} sub={been.length ? topLine(been) : "Every place you've been, with your number on it."} testId="been" />
@@ -268,8 +294,6 @@ function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Pla
         </span>
         <Chevron color={state.quizDone ? "var(--ink-35)" : "var(--on-photo-60)"} />
       </Link>
-
-      <HomeScreenCard />
 
       {enabled && user && <PrivacyCard />}
 

@@ -196,10 +196,11 @@ input, textarea { user-select: text; -webkit-user-select: text; }
 }
 
 /* Tab bar ground: paper by default, night when a dark screen (data-pitch) is up. */
-.tabbar-ground { background: linear-gradient(180deg, rgba(243,237,224,0) 0%, rgba(243,237,224,0.94) 30%, #f3ede0 100%); }
+/* V28: solid ground, a hairline on top; nothing shows through under the tabs. */
+.tabbar-ground { background: var(--paper); border-top: 1px solid var(--hairline); }
 .tabbar-item { color: var(--ink-35); }
 .tabbar-item[aria-current="page"] { color: var(--ink); }
-body:has([data-pitch]) .tabbar-ground { background: linear-gradient(180deg, rgba(22,33,58,0) 0%, rgba(22,33,58,0.94) 30%, #16213a 100%); }
+body:has([data-pitch]) .tabbar-ground { background: var(--ink); border-top-color: rgba(246,241,231,0.14); }
 body:has([data-pitch]) .tabbar-item { color: rgba(246,241,231,0.45); }
 body:has([data-pitch]) .tabbar-item[aria-current="page"] { color: var(--paper); }
 

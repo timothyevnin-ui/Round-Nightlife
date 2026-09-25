@@ -7,7 +7,7 @@ import { VerifiedMark } from "./VerifiedMark";
 import { GoButton, SaveButton, ShareButton } from "./Actions";
 import { LabelChip } from "./VenueCard";
 import { neighborhoodName } from "@/lib/neighborhoods";
-import { formatHour } from "@/lib/time";
+import { formatHour, mealWord } from "@/lib/time";
 import type { DatePlan } from "@/lib/types";
 
 /** A two-stop evening: dinner, a short walk, drinks. */
@@ -31,7 +31,7 @@ export function PlanCard({ plan, shareUrl, index = 0 }: { plan: DatePlan; shareU
       <div className="px-5 pt-4">
         {restaurant && (
           <Stop
-            eyebrow={`Dinner · ${formatHour(plan.dinnerAt ?? 20, true)}`}
+            eyebrow={`${mealWord(plan.dinnerAt ?? 20, plan.dow)} · ${formatHour(plan.dinnerAt ?? 20, true)}`}
             venue={restaurant}
           />
         )}
@@ -56,7 +56,7 @@ export function PlanCard({ plan, shareUrl, index = 0 }: { plan: DatePlan; shareU
           <ShareButton
             url={shareUrl}
             title="Tonight — ROUND"
-            text={restaurant ? `Dinner at ${restaurant.name}, drinks after at ${bar.name}.` : `${bar.name}. ${bar.take}`}
+            text={restaurant ? `${mealWord(plan.dinnerAt ?? 20, plan.dow)} at ${restaurant.name}, drinks after at ${bar.name}.` : `${bar.name}. ${bar.take}`}
           />
         </div>
       </div>

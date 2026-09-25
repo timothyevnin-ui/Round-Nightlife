@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { accountsEnabled, getSupabase } from "./supabase";
 import { clearPersonal, mergeState, readState, setRemote } from "./store";
 import { setFavCookie, setNameCookie } from "./tasteCookie";
@@ -29,10 +29,20 @@ export type Profile = {
   avatar_url?: string | null;
   /** When the account was made (V27: "Member since"). */
   created_at?: string | null;
+  /** Referrals (V28): your code, and who sent you. */
+  ref_code?: string | null;
+  referred_by?: string | null;
 };
 
 /** The about-you fields a person can edit. */
 export type About = Pick<Profile, "hometown" | "fav_bar" | "fav_bar_slug" | "fav_restaurant" | "fun" | "avatar_url">;
+/** The referral columns (V28), read on their own so a database that's behind still gives the rest of the profile. */
+async function withReferral(sb: SupabaseClient, p: Profile): Promise<Profile> {
+  const { data, error } = await sb.from("profiles").select("ref_code,referred_by").eq("id", p.id).maybeSingle();
+  if (error || !data) return p;
+  return { ...p, ...(data as Pick<Profile, "ref_code" | "referred_by">) };
+}
+
 const ABOUT_COLUMNS = "hometown,fav_bar,fav_bar_slug,fav_restaurant,fun,avatar_url,created_at";
 
 export type SignInReason = "keep" | "you" | "rate" | "menu" | "friends" | "recommend" | "spot";
@@ -102,12 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data = (basic.data as Profile | null) ?? null;
         }
       }
-      if (data) return data;
+      if (data) return withReferral(sb, data);
       // First sign-in: start the row now (phone only) so the person exists in
       // the Studio even if they never finish the name step.
       const phone = u.phone ? `+${u.phone.replace(/^\+/, "")}` : null;
       const { data: made } = await sb.from("profiles").upsert({ id: u.id, name: "", phone }, { onConflict: "id" }).select("id,name,birthday,phone,created_at").maybeSingle();
-      return (made as Profile | null) ?? { id: u.id, name: "", birthday: null, phone };
+      return withReferral(sb, (made as Profile | null) ?? { id: u.id, name: "", birthday: null, phone });
     },
     [sb],
   );

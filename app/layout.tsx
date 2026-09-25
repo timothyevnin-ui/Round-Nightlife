@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
+import { RefCatcher } from "@/components/RefCatcher";
 import { SignInSheet } from "@/components/SignInSheet";
 
 const geist = localFont({
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${geist.variable} ${instrument.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
+          <RefCatcher />
           {children}
           <SignInSheet />
         </AuthProvider>

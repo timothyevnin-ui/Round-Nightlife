@@ -12,12 +12,8 @@ const TABS = [
 export function TabBar() {
   const pathname = usePathname();
   return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-40"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-      aria-label="Primary"
-    >
-      <div className="tabbar-ground mx-auto max-w-md" style={{ paddingTop: 18 }}>
+    <nav className="tabbar-ground fixed inset-x-0 bottom-0 z-40" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }} aria-label="Primary" data-tabbar>
+      <div className="mx-auto max-w-md" style={{ paddingTop: 6 }}>
         <div className="flex items-stretch justify-around px-6" style={{ height: "var(--tab-height)" }}>
           {TABS.map((t) => {
             const href: string = t.href;

@@ -12,6 +12,8 @@ export type PlanPayload = {
   m: "night" | "date" | "dinner";
   n: NeighborhoodId;
   t: number; // hour
+  /** Day of week, 0..6 (V28: so a shared 1pm plan says Brunch). */
+  d?: number;
   g?: number; // group size
   s: PlanStop[];
   /** Index of the stop the user picked (after tapping GO), if any. */
@@ -52,7 +54,7 @@ export function decodePlan(code: string, venues: Record<string, Venue>): Plan | 
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
     if (stops.length === 0) return null;
-    return { m: raw.m, n: raw.n, t: Number(raw.t) || 21, g: raw.g, p: raw.p, stops };
+    return { m: raw.m, n: raw.n, t: Number(raw.t) || 21, d: typeof raw.d === "number" ? raw.d : undefined, g: raw.g, p: raw.p, stops };
   } catch {
     return null;
   }

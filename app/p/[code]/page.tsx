@@ -10,7 +10,7 @@ import { neighborhoodName } from "@/lib/neighborhoods";
 import { decodePlan } from "@/lib/plan";
 import { getVenues } from "@/lib/db";
 import { venueMap } from "@/lib/venues";
-import { formatHour } from "@/lib/time";
+import { formatHour, mealWord } from "@/lib/time";
 
 const LABELS = ["The pick", "Also great", "Easy in"] as const;
 
@@ -78,7 +78,7 @@ export default async function PlanPage({ params }: PageProps<"/p/[code]">) {
             {s.restaurant ? (
               <div className="p-5">
                 {multi && <LabelChip label={LABELS[i] ?? "Also great"} />}
-                <Stop eyebrow={`Dinner · ${formatHour(s.dinnerAt ?? plan.t, true)}`} venue={s.restaurant} />
+                <Stop eyebrow={`${mealWord(s.dinnerAt ?? plan.t, plan.d)} · ${formatHour(s.dinnerAt ?? plan.t, true)}`} venue={s.restaurant} />
                 <div className="ml-[35px] flex items-center gap-3 py-1.5">
                   <span className="block h-7 w-px" style={{ background: "var(--hairline-strong)" }} />
                   <span className="text-[12px]" style={{ color: "var(--chalk-35)" }}>

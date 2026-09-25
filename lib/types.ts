@@ -169,6 +169,8 @@ export type DatePlan = {
   label: PickLabel;
   score: number;
   dinnerAt?: number; // hour, decimal
+  /** The day, so the first stop can be called brunch or lunch when it is. */
+  dow?: number;
   drinksAt: number;
   walkMinutes?: number;
   why: string;

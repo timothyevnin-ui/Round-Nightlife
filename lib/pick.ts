@@ -7,7 +7,7 @@ import { isNearby, whereRead } from "./where";
 import { BAR_FROM_DEFAULT, doorsOf } from "./places";
 import { allowModelCall } from "./ratelimit";
 import { CARDS, type Wants } from "./questions";
-import { formatHour } from "./time";
+import { formatHour, mealWord } from "./time";
 import { weekSummary } from "./hours";
 import type { DatePlan, DateStage, NeighborhoodId, NightPick, PickLabel, Venue } from "./types";
 
@@ -152,7 +152,7 @@ function requestWords(r: PickRequest, hints: string[]): string {
   }
   else if (r.mode === "around" && r.anchor) lines.push(`They named ${r.anchor.name} (${r.anchor.slug}). Lead with it, then build the night around it: places that fit the same DNA plus what they asked for. ${when}.`);
   else if (r.mode === "date") lines.push(`A date, ${{ first: "first date", early: "a few dates in", longterm: "long-term couple" }[r.stage ?? "early"]}, ${r.dinner ? "dinner then drinks" : "drinks only"}, ${r.neighborhood ? `in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
-  else if (r.mode === "dinner") lines.push(`Dinner and drinks for a group of ${r.group ?? 4}${r.neighborhood ? ` in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
+  else if (r.mode === "dinner") lines.push(`${mealWord(r.hour, r.dow)} and drinks for a group of ${r.group ?? 4}${r.neighborhood ? ` in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
   else lines.push(`A night out for ${r.group ?? 4} people${r.neighborhood ? ` in ${neighborhoodName(r.neighborhood)}` : ""}, ${when}.`);
   if (r.place && r.mode !== "near") lines.push(`They mentioned being near ${r.place.label}.`);
   if (r.me && r.mode !== "near" && r.neighborhood) {
@@ -370,7 +370,7 @@ export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues:
     const walk = Math.max(2, Math.round(dist / 80));
     const dinnerAt = prior?.dinnerAt ?? template?.dinnerAt;
     const drinksAt = prior?.drinksAt ?? template?.drinksAt ?? (dinnerAt ?? 20) + 1.75;
-    out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door, barDoor: prior?.bar.slug === bar.slug ? prior?.barDoor : undefined });
+    out.push({ restaurant, bar, label, score: prior?.score ?? 0.5, dinnerAt, dow: prior?.dow ?? template?.dow, drinksAt, walkMinutes: walk, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door, barDoor: prior?.bar.slug === bar.slug ? prior?.barDoor : undefined });
   }
   return (out.length ? out : rulesPlans).slice(0, count);
 }

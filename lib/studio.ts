@@ -28,6 +28,9 @@ async function rows<T>(path: string): Promise<{ rows: T[]; problem?: string }> {
 }
 
 export const listProfiles = (limit = 500) => rows<Profile>(`profiles?select=id,name,phone,birthday,created_at&order=created_at.desc&limit=${limit}`);
+export type ReferralRow = { id: string; ref_code: string | null; referred_by: string | null; referred_at: string | null };
+/** Referrals (V28): everyone's code and who sent them. Empty (with a note) until the V28 schema is in. */
+export const listReferrals = (limit = 2000) => rows<ReferralRow>(`profiles?select=id,ref_code,referred_by,referred_at&limit=${limit}`);
 export const listGoTaps = (sinceDays = 30, limit = 2000) => rows<GoTap>(`go_taps?select=*&at=gte.${encodeURIComponent(new Date(Date.now() - sinceDays * 864e5).toISOString())}&order=at.desc&limit=${limit}`);
 export const listSaves = (limit = 2000) => rows<SaveRow>(`saves?select=user_id,slug,state,rating,at&order=at.desc&limit=${limit}`);
 

@@ -3,6 +3,8 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useAuth, type SignInReason } from "@/lib/auth";
+import { cleanCode, pendingRef, redeemReferral, redeemWords, whoReferred, type RedeemResult } from "@/lib/referrals";
+import { getSupabase } from "@/lib/supabase";
 import { AboutYou } from "./AboutYou";
 import { ageOn, formatUS, prettyPhone, toE164 } from "@/lib/phone";
 
@@ -74,7 +76,7 @@ export function SignInFlow({ reason, onSignedIn, onDone, bare = false }: { reaso
 }
 
 function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = false }: { reason: SignInReason; startAt: Step; name?: string; onSignedIn?: () => void; onDone?: () => void; bare?: boolean }) {
-  const { sendCode, verifyCode, saveProfile, signOut, closeSignIn, user, needsProfile, profile } = useAuth();
+  const { sendCode, verifyCode, saveProfile, signOut, closeSignIn, user, needsProfile, profile, updateProfile } = useAuth();
   const [step, setStep] = useState<Step>(startAt);
   const [phoneInput, setPhoneInput] = useState("");
   const [phone, setPhone] = useState<string>(user?.phone ? `+${user.phone.replace(/^\+/, "")}` : "");
@@ -85,6 +87,9 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
   const [error, setError] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
   const [underage, setUnderage] = useState(false);
+  // A friend's code (V28): from their link, kept on this phone, or typed here. Checked once the profile is saved.
+  const [ref, setRef] = useState(() => (typeof window === "undefined" ? "" : pendingRef()));
+  const [refResult, setRefResult] = useState<RedeemResult | null>(null);
   const codeRef = useRef<HTMLInputElement>(null);
   const dRef = useRef<HTMLInputElement>(null);
   const yRef = useRef<HTMLInputElement>(null);
@@ -156,9 +161,27 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
     }
     setBusy(true);
     setError(null);
+    // The friend's code, if there is one, is checked first: a code nobody has stops here so they can fix or clear it.
+    const sb = getSupabase();
+    if (ref && sb) {
+      const who = await whoReferred(sb, ref);
+      if (who === null) {
+        setRefResult({ ok: false, reason: "no-such-code" });
+        setBusy(false);
+        return;
+      }
+    }
     const err = await saveProfile({ name, birthday });
+    if (err) {
+      setBusy(false);
+      return setError(err);
+    }
+    if (ref && sb) {
+      const r = await redeemReferral(sb, ref);
+      setRefResult(r);
+      if (r.ok && r.id) updateProfile({ referred_by: r.id });
+    }
     setBusy(false);
-    if (err) return setError(err);
     // First time in: a few quick ones (photo, where you're from, favorites). Every one skippable.
     // Mid-recommendation, they have a Venmo to type; the quick ones can wait for YOU.
     setStep(reason === "recommend" || reason === "spot" ? "done" : "about");
@@ -337,6 +360,33 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
             <DateBox ref={yRef} label="YYYY" value={bd.y} max={4} onChange={(v) => setBd((b) => ({ ...b, y: v }))} autoComplete="bday-year" onEnter={finish} />
           </div>
         </div>
+        <label className="mt-4 block" data-ref-field>
+          <span className="eyebrow">Referral code {ref ? "" : "(optional)"}</span>
+          <input
+            type="text"
+            inputMode="text"
+            autoCapitalize="characters"
+            autoComplete="off"
+            name="ref"
+            value={ref}
+            onChange={(e) => { setRef(cleanCode(e.target.value)); setRefResult(null); }}
+            placeholder="From a friend's link"
+            maxLength={6}
+            className="mt-2 w-full rounded-[18px] border px-4 text-[18px] uppercase tracking-[0.18em] outline-none"
+            style={{ height: 52, background: "rgba(22,33,58,0.05)", borderColor: refResult && !refResult.ok ? "var(--tomato)" : "var(--hairline-strong)", color: "var(--chalk)" }}
+            data-ref-input
+          />
+          {refResult && !refResult.ok && (
+            <span className="mt-1.5 block text-[12.5px]" style={{ color: "var(--tomato-deep)" }} data-ref-note>
+              {redeemWords(refResult)}
+            </span>
+          )}
+          {!refResult && ref.length === 6 && (
+            <span className="mt-1.5 block text-[12.5px]" style={{ color: "var(--chalk-55)" }}>
+              Came with the link. Your friend gets one closer to $5 when you finish.
+            </span>
+          )}
+        </label>
         {error && <Err>{error}</Err>}
         <button onClick={finish} disabled={!name.trim() || !bdOk || busy} className="pressable btn-primary mt-5 flex h-14 w-full items-center justify-center text-[16px]" style={{ opacity: !name.trim() || !bdOk || busy ? 0.55 : 1 }}>
           {busy ? "Saving…" : "Done"}

@@ -70,3 +70,15 @@ export function formatHour(h: number, withSuffix = false) {
   const m = mins === 0 ? "" : `:${String(mins).padStart(2, "0")}`;
   return withSuffix ? `${h12}${m}${suffix}` : `${h12}${m}`;
 }
+
+/**
+ * The meal a plan's first stop is, by the clock: before 10 it's breakfast;
+ * 10 to 4 is brunch on a Friday, Saturday or Sunday and lunch the other days;
+ * from 4 it's dinner. So a 1pm plan never says "Dinner".
+ */
+export function mealWord(hour: number, dow?: number): "Breakfast" | "Brunch" | "Lunch" | "Dinner" {
+  const h = ((hour % 24) + 24) % 24;
+  if (h < 10 && h >= 5) return "Breakfast";
+  if (h >= 10 && h < 16) return dow === undefined || dow === 0 || dow === 5 || dow === 6 ? "Brunch" : "Lunch";
+  return "Dinner";
+}
