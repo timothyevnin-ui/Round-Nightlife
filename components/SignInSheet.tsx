@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useEffect, useRef, useState } from "react";
+import { BOUNTY_AMOUNT, money } from "@/lib/bounty";
 import { AnimatePresence, motion } from "motion/react";
 import { useAuth, type SignInReason } from "@/lib/auth";
 import { cleanCode, pendingRef, redeemReferral, redeemWords, whoReferred, type RedeemResult } from "@/lib/referrals";
@@ -20,7 +21,7 @@ const COPY: Record<SignInReason, { title: string; sub: string }> = {
   rate: { title: "Keep your ladder.", sub: "Your ratings are the start of your ranked NYC. Don't lose them to a new phone." },
   menu: { title: "Sign in.", sub: "Your number, a code, done." },
   friends: { title: "Find your friends.", sub: "Your number is how they find you, and how you find them. One text, a code, done." },
-  recommend: { title: "Add your number so we can pay you.", sub: "One text, a code. Then your Venmo, and the $2 is yours when we add the place." },
+  recommend: { title: "Add your number so we can pay you.", sub: `One text, a code. Then your Venmo, and the ${money(BOUNTY_AMOUNT)} is yours when we add the place.` },
   spot: { title: "Adding a spot takes an account.", sub: "One text, a code, done. It's how we know who's telling us what, and who to thank." },
 };
 
@@ -346,7 +347,7 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
             name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Tim"
+            placeholder="Alex"
             maxLength={40}
             className="mt-2 w-full rounded-[18px] border px-4 text-[20px] outline-none"
             style={{ height: 58, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}

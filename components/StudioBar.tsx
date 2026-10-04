@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { isStudio, setFlags } from "@/app/admin/actions";
 
 /**
- * For Tim only: when this browser is signed into Studio, every venue page
+ * For the founder only: when this browser is signed into Studio, every venue page
  * gets a small bar with one-tap Verify and a link to the editor. Nobody else
  * ever sees it (the server checks the Studio cookie before it renders).
  */

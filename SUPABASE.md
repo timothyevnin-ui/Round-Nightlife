@@ -147,6 +147,12 @@ Run the current `supabase/schema.sql` again. It adds `ref_code`, `referred_by` a
 
 Paying out: Studio → People shows a **$5 owed for referrals** box once anyone has ten. Venmo them and keep your own note of who's been paid; the count keeps climbing.
 
+## 20. The offer is $4 (V31)
+
+Run the current `supabase/schema.sql` again. The `bounty` row in `settings` moves from `$2` to `$4` (only if it still says 2; a number you set yourself stays), and the private notes on any venue that named the founder now say ROUND instead. Until it's run, the recommend flow keeps quoting whatever the row says, so run it before you post anything that says $4.
+
+If you ever want a different amount without a deploy: Supabase → Table Editor → `settings` → the `bounty` row → change `amount`. The app picks it up within a minute.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

@@ -38,9 +38,9 @@ export type Suggestion = {
   fromName?: string;
   fromContact?: string;
   userId?: string;
-  /** Their Venmo handle, for the $2 (V20). Only the Studio ever sees it. */
+  /** Their Venmo handle, for the offer (V20). Only the Studio ever sees it. */
   venmo?: string;
-  /** When the $2 went out (V20). */
+  /** When the money went out (V20). */
   paidAt?: string;
   status: SuggestionStatus;
   venueSlug?: string;
@@ -134,7 +134,7 @@ export async function insertSuggestion(s: SuggestionInput): Promise<string> {
   throw new Error("Couldn't save the recommendation: the database is several versions behind.");
 }
 
-/** How many recommendations ROUND has approved (added to the list): the $2 counter. */
+/** How many recommendations ROUND has approved (added to the list): the offer's counter. */
 export async function countApproved(): Promise<number> {
   const { url, headers } = serviceHeaders();
   const res = await fetch(`${url}/rest/v1/suggestions?select=id&status=eq.added`, { headers: { ...headers, Prefer: "count=exact", Range: "0-0" }, cache: "no-store" });
@@ -200,7 +200,7 @@ export function suggestionToDraft(s: Suggestion): Partial<Venue> & { notes: stri
   }
   const words = asksToText(s.answers.words);
   const lines = [
-    `— Recommended by ${s.fromName?.trim() || "someone"}${s.fromContact ? ` (${s.fromContact.trim()})` : ""} on ${new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}${s.venmo ? " · $2 offer" : ""}.`,
+    `— Recommended by ${s.fromName?.trim() || "someone"}${s.fromContact ? ` (${s.fromContact.trim()})` : ""} on ${new Date(s.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}${s.venmo ? " · wants the offer" : ""}.`,
     words ? `In their words:\n${words}` : s.why?.trim() ? `They said: "${s.why.trim()}"` : "",
     s.answers.said?.length ? `Their answers: ${s.answers.said.join(" · ")}.` : "",
   ].filter(Boolean);

@@ -5,7 +5,7 @@ import type { SuggestionAnswers } from "./suggestions";
  * The quick ones someone answers about a place they're recommending. Same
  * feel as the app's own questions (typed out, two or three buttons), but
  * these describe the place instead of the night. Each answer nudges the
- * draft that lands in the back office; Tim still decides.
+ * draft that lands in the back office; the founder still decides.
  */
 
 export type RecOption = {

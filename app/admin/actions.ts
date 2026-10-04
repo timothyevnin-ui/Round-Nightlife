@@ -247,7 +247,7 @@ export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: 
         continue;
       }
       if (db.verified || db.retired) {
-        // A verified place is Tim's word and stays as it is, with one exception:
+        // A verified place is the founder's word and stays as it is, with one exception:
         // posted hours the desk found for a place that has none (V24).
         if (!db.hours && seed.hours && !db.retired) {
           writes.push({ ...db, hours: seed.hours });
@@ -344,7 +344,7 @@ export async function lookupAddress(address: string): Promise<{ lat: number; lng
 /* ───────────────────────── the gate ───────────────────────── */
 
 /** Only verified places show in the app. Off means everything researched shows too. */
-/** The $2 offer: open or closed (the cap and the amount stay as they are). */
+/** The offer: open or closed (the cap and the amount stay as they are). */
 export async function setBountyOpen(on: boolean): Promise<{ ok: true } | { error: string }> {
   try {
     await guard();
@@ -356,7 +356,7 @@ export async function setBountyOpen(on: boolean): Promise<{ ok: true } | { error
   }
 }
 
-/** The $2 went out (or didn't, after all). */
+/** The money went out (or didn't, after all). */
 export async function markPaid(id: string, paid: boolean): Promise<SaveResult> {
   try {
     await guard();

@@ -457,7 +457,7 @@ alter table public.disputes enable row level security;
 -- only) and when they were paid; the offer itself is a Studio setting.
 alter table public.suggestions add column if not exists venmo   text;
 alter table public.suggestions add column if not exists paid_at timestamptz;
-insert into public.settings (key, value) values ('bounty', '{"open": true, "cap": 1000, "amount": 2}'::jsonb) on conflict (key) do nothing;
+insert into public.settings (key, value) values ('bounty', '{"open": true, "cap": 1000, "amount": 4}'::jsonb) on conflict (key) do nothing;
 
 -- ─────────────────────────────────────────────────────────────────────────
 -- V21. Friends see each other's spots (want to go, been, the ladder), and the
@@ -624,5 +624,15 @@ language sql security definer set search_path = public stable as $$
 $$;
 revoke all on function public.referral_progress() from public;
 grant execute on function public.referral_progress() to authenticated;
+
+-- ───────────────────────────── V31: the offer is $4 ─────────────────────────────
+-- The recommend flow, the You card and the Studio all read the amount from this row.
+-- A row still at the old $2 becomes $4; an amount the Studio set to something else is left alone.
+update public.settings set value = jsonb_set(value, '{amount}', '4'::jsonb), updated_at = now()
+  where key = 'bounty' and (value->>'amount')::numeric = 2;
+
+-- The founder's name out of the private notes (they feed the picker's prompt).
+update public.venues set notes = replace(replace(notes, 'Tim''s pick', 'ROUND''s pick'), 'Tim, September', 'ROUND, September')
+  where notes like '%Tim%';
 
 -- Later phases (plans, census) add their tables here.

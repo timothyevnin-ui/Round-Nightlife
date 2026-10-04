@@ -21,7 +21,7 @@ const ORDER: Step[] = ["name", "where", ...ASKS.map((a) => a.key), "pay"];
 /**
  * Recommend a place, and get paid for it. The deal up front in plain words,
  * then the place, then five typed questions (words are what the AI learns
- * from), then a number and a Venmo so the $2 has somewhere to go. Ends up in
+ * from), then a number and a Venmo so the money has somewhere to go. Ends up in
  * the Studio inbox with everything they said.
  */
 export function RecommendView({ offer }: { offer: Offer }) {
@@ -214,7 +214,7 @@ export function RecommendView({ offer }: { offer: Offer }) {
             <Screen key="pay">
               {enabled && !signedIn ? (
                 <>
-                  <Prompt text={paying ? "Almost. Where does the $2 go?" : "Almost. Who's this from?"} />
+                  <Prompt text={paying ? `Almost. Where does the $${offer.amount} go?` : "Almost. Who's this from?"} />
                   <p className="mt-2 text-[14px]" style={{ color: "var(--ink-55)" }}>
                     {paying ? "Adding a spot takes an account: one text, a code. It's how we know who to pay. Then your Venmo." : "Adding a spot takes an account: one text, a code. It's how we know who's telling us what, and who to thank."}
                   </p>

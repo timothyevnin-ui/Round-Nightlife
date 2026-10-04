@@ -48,14 +48,14 @@ const RAW: SeedVenue[] = [
   // ───────────────────────── WEST VILLAGE ─────────────────────────
   bar({
     slug: "the-spaniard",
-    attrs: { food: 0.7, sports: 0.3, social: 0.7, late: 0.8 },
+    attrs: { food: 0.7, sports: 0.3, social: 0.9, late: 0.8, dressy: 0.6, scene: 0.6, upscale: 0.5 },
     name: "The Spaniard",
     neighborhood: "west-village",
     address: "190 W 4th St, New York, NY 10014",
     lat: 40.7315, lng: -74.0016,
-    take: "Crowded, social, and good if your group wants somewhere lively without going full club.",
+    take: "The douchiest bar in the world, but it works: you'll meet a lot of people. All indoors, tries to be super upscale. Nothing special, but it's a good corner, W 4th and Barrow.",
     theCatch: "Gets packed on weekends; go early or expect to stand.",
-    tags: ["Lively", "Groups", "Burgers"],
+    tags: ["Lively", "Meet People", "Groups"],
     vibe: { lively: 0.9, chill: 0.3, talk: 0.25 },
     groupFit: { two: 0.6, small: 0.85, mid: 0.95, big: 0.75 },
     dateFit: { first: 0.35, early: 0.5, longterm: 0.55 },

@@ -1,6 +1,7 @@
 import "server-only";
 import { updateTag } from "next/cache";
 import { dbConfig, keyHeaders, serviceHeaders } from "./db";
+import { BOUNTY_AMOUNT, BOUNTY_CAP } from "./bounty";
 
 /**
  * Studio switches. Today there's one: verified-only. When it's on (the
@@ -12,8 +13,8 @@ import { dbConfig, keyHeaders, serviceHeaders } from "./db";
 
 export type Bounty = { open: boolean; cap: number; amount: number };
 export type Settings = { verifiedOnly: boolean; bounty: Bounty };
-/** The $2 offer: on, for the first 1,000 approved recommendations, until the Studio says otherwise. */
-export const DEFAULT_BOUNTY: Bounty = { open: true, cap: 1000, amount: 2 };
+/** The offer ($4 since V31): on, for the first 1,000 approved recommendations, until the Studio says otherwise. */
+export const DEFAULT_BOUNTY: Bounty = { open: true, cap: BOUNTY_CAP, amount: BOUNTY_AMOUNT };
 /**
  * Until the settings table exists (schema.sql V15), everything shows, as it
  * always has. The SQL creates the row with the gate ON, so running it is

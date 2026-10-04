@@ -1197,5 +1197,223 @@
       "https://www.theinfatuation.com/new-york/guides/the-best-restaurants-in-the-east-village"
     ],
     "notes": "Brooks Headley's vegetarian spot, opened 2015 on E 9th St and relocated April 2023 to the former Odessa diner on Ave A with a full bar. Bib Gourmand 2025; James Beard Outstanding Restaurant semifinalist 2024. Mon noon-9:30pm, Tue-Wed 5-10:30pm, Thu noon-10:30pm, Fri noon-11:30pm, Sat 11am-11:30pm, Sun 11am-9:30pm. Sources disagree on whether it takes reservations (Michelin says first come, Resy lists it)."
+  },
+  {
+    "slug": "lovers-of-today",
+    "kind": "bar",
+    "name": "Lovers of Today",
+    "neighborhood": "east-village",
+    "address": "132½ E 7th St, New York, NY 10009",
+    "lat": 40.7261,
+    "lng": -73.9845,
+    "take": "You walk in under the big heart and head down: a front room, a back room, all underground. A cocktail spot. Good for a date, maybe a second date, or a group grabbing a couple before a night out. Lots of seating, some booths. A 7, 8, 9 o'clock bar, or a nightcap during the week.",
+    "theCatch": "Not super lively at night, and that's the point. It's cocktails at 8, not the last stop.",
+    "tags": [
+      "Cocktails",
+      "Date Night",
+      "Underground",
+      "Booths"
+    ],
+    "vibe": {
+      "lively": 0.4,
+      "chill": 0.65,
+      "talk": 0.7
+    },
+    "attrs": {
+      "cocktails": 0.9,
+      "date": 0.8,
+      "talk": 0.65,
+      "seating": 0.7,
+      "speakeasy": 0.6,
+      "chill": 0.6,
+      "groups": 0.5,
+      "happyHour": 0.5,
+      "lively": 0.35,
+      "late": 0.3,
+      "dance": 0.05,
+      "dive": 0.05
+    },
+    "groupFit": {
+      "two": 0.9,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.4
+    },
+    "dateFit": {
+      "first": 0.7,
+      "early": 0.9,
+      "longterm": 0.7
+    },
+    "price": 2,
+    "capacity": "medium",
+    "bestWindows": "cocktailHours",
+    "easyIn": 0.6,
+    "hours": {
+      "every": {
+        "open": "17:00",
+        "close": "04:00"
+      }
+    },
+    "sources": [
+      "https://loversoftodaynyc.com/",
+      "https://www.yelp.com/biz/lovers-of-today-new-york"
+    ],
+    "notes": "ROUND's pick, September 2026. 132½ E 7th St between Ave A and 1st Ave, steps from Tompkins Square Park; the heart is the sign. Posted hours 5pm-4am every day; happy hour 5-7pm daily and 2-4am Sun-Wed; takes reservations and rents the rooms for parties."
+  },
+  {
+    "slug": "doc-hollidays",
+    "kind": "bar",
+    "name": "Doc Holliday's",
+    "neighborhood": "east-village",
+    "address": "141 Avenue A, New York, NY 10009",
+    "lat": 40.7273,
+    "lng": -73.983,
+    "take": "A good older bar. A ton of benches and booth things, a pool table, good old music, and it's beer heavy. Kind of always packed, but if you want to sit down and have some drinks with friends, it's a great spot.",
+    "theCatch": "Beer, not cocktails. And it's usually packed, so grab a booth when you see one.",
+    "tags": [
+      "Dive",
+      "Beer",
+      "Pool Table",
+      "Old New York"
+    ],
+    "vibe": {
+      "lively": 0.7,
+      "chill": 0.5,
+      "talk": 0.35
+    },
+    "attrs": {
+      "dive": 0.9,
+      "beer": 0.9,
+      "classic": 0.7,
+      "activity": 0.7,
+      "lively": 0.7,
+      "cheap": 0.7,
+      "late": 0.8,
+      "happyHour": 0.6,
+      "social": 0.6,
+      "groups": 0.6,
+      "seating": 0.55,
+      "chill": 0.5,
+      "talk": 0.35,
+      "cocktails": 0.05,
+      "upscale": 0.0
+    },
+    "groupFit": {
+      "two": 0.6,
+      "small": 0.9,
+      "mid": 0.75,
+      "big": 0.5
+    },
+    "dateFit": {
+      "first": 0.4,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 1,
+    "capacity": "medium",
+    "bestWindows": "everyNight",
+    "easyIn": 0.75,
+    "hours": {
+      "every": {
+        "open": "12:00",
+        "close": "04:00"
+      }
+    },
+    "sources": [
+      "https://happy-hour.nyc/bars-restaurants/doc-hollidays",
+      "https://pooltables.nyc/doc-hollidays"
+    ],
+    "notes": "ROUND's pick, September 2026. 141 Ave A at E 9th St, since 1994: calls itself the only honky-tonk in New York, country on a jukebox, cowboy boots on the ceiling, one pool table. Posted hours noon-4am daily; happy hour Mon-Fri about 4:30-7pm with cheap wells, domestic drafts and pitchers."
+  },
+  {
+    "slug": "the-copper-still",
+    "kind": "bar",
+    "name": "The Copper Still",
+    "neighborhood": "east-village",
+    "address": "151 2nd Ave, New York, NY 10003",
+    "lat": 40.7291,
+    "lng": -73.9869,
+    "take": "A fine spot. A little small inside, but a ton of outdoor seating, good food, and it's a bar first. Cocktails or a couple of beers before you really go out in the East Village.",
+    "theCatch": "Small inside: once the sidewalk fills, it's full. Not sure how many people are here late, but it'd be fine.",
+    "tags": [
+      "Outdoor Seating",
+      "Bar Food",
+      "Beer",
+      "Cocktails"
+    ],
+    "vibe": {
+      "lively": 0.45,
+      "chill": 0.65,
+      "talk": 0.6
+    },
+    "attrs": {
+      "outdoor": 0.85,
+      "food": 0.75,
+      "beer": 0.7,
+      "cocktails": 0.55,
+      "seating": 0.6,
+      "chill": 0.6,
+      "talk": 0.6,
+      "daytime": 0.7,
+      "happyHour": 0.5,
+      "groups": 0.5,
+      "late": 0.5,
+      "lively": 0.45,
+      "sports": 0.3,
+      "dance": 0.0
+    },
+    "groupFit": {
+      "two": 0.7,
+      "small": 0.85,
+      "mid": 0.6,
+      "big": 0.35
+    },
+    "dateFit": {
+      "first": 0.5,
+      "early": 0.6,
+      "longterm": 0.6
+    },
+    "price": 2,
+    "capacity": "small",
+    "bestWindows": "earlyEvening",
+    "easyIn": 0.7,
+    "barFood": true,
+    "cuisine": "Pub food",
+    "hours": [
+      {
+        "open": "11:00",
+        "close": "00:00"
+      },
+      {
+        "open": "16:00",
+        "close": "01:00"
+      },
+      {
+        "open": "16:00",
+        "close": "01:00"
+      },
+      {
+        "open": "16:00",
+        "close": "01:00"
+      },
+      {
+        "open": "16:00",
+        "close": "02:00"
+      },
+      {
+        "open": "12:00",
+        "close": "04:00"
+      },
+      {
+        "open": "11:00",
+        "close": "04:00"
+      }
+    ],
+    "sources": [
+      "https://www.thecopperstillnyc.com/",
+      "https://www.restaurantji.com/ny/new-york/the-copper-still-/",
+      "https://wanderlog.com/place/details/2494896/the-copper-still"
+    ],
+    "notes": "ROUND's pick, September 2026. 151 2nd Ave between E 9th and E 10th: an Irish pub with an upscale take on pub food (burgers, shepherd's pie, fish and chips), weekend bottomless brunch, a sister spot in Chelsea at 206 7th Ave. Posted hours Sun 11am-12am, Mon-Wed 4pm-1am, Thu 4pm-2am, Fri 12pm-4am, Sat 11am-4am (listings differ by an hour on weeknights)."
   }
 ]

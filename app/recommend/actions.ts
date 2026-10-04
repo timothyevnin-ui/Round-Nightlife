@@ -20,7 +20,7 @@ export type RecommendPayload = {
   fromContact?: string;
   /** The typed answers (V20). */
   words?: Partial<Record<Ask["key"], string>>;
-  /** Their Venmo, for the $2 (V20). */
+  /** Their Venmo, for the offer (V20). */
   venmo?: string;
   /** The session's access token, so the recommendation is tied to the account that gets paid. */
   token?: string;

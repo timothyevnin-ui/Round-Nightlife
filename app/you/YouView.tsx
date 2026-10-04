@@ -18,17 +18,18 @@ import { personById, type Person } from "@/lib/friends";
 import { Pitch, PrivacyCard, type Place, type Regular } from "@/app/friends/FriendsView";
 import { Faces, FinderSheet, PeopleSheet, PersonSheet, RequestsCard, Sheet, useCircle, type CircleApi } from "./Circle";
 import type { Venue } from "@/lib/types";
+import { BOUNTY_AMOUNT, money } from "@/lib/bounty";
 
 /**
  * YOU (V27). Someone we don't know gets the pitch, typed out, with the number
  * box right on it. Someone we do gets a profile: their face in the middle,
  * their name, when they joined; Followers · Following · Rank; Edit and Share;
- * then the $2 door, right up top, because it's how ROUND spreads; then the
+ * then the $4 door, right up top, because it's how ROUND spreads; then the
  * lists, each its own page: Been (with the numbers), Want to try, your ladder,
  * your favorites; the quiz; Add ROUND to your Home Screen; who sees you; the
  * account.
  */
-export function YouView({ venues, places }: { venues: Venue[]; regulars?: Regular[]; places: Record<string, Place> }) {
+export function YouView({ venues, places, reward = BOUNTY_AMOUNT }: { venues: Venue[]; regulars?: Regular[]; places: Record<string, Place>; /** The offer, from the settings table ($4). */ reward?: number }) {
   const { enabled, ready, user, needsProfile } = useAuth();
   // Signing in right here: the flow stays on screen through the about-you questions, then the page becomes theirs.
   const [flow, setFlow] = useState<"idle" | "started" | "done">("idle");
@@ -36,7 +37,7 @@ export function YouView({ venues, places }: { venues: Venue[]; regulars?: Regula
   const onDone = useCallback(() => setFlow("done"), []);
   if (enabled && !ready) return <main className="screen screen-with-tabs mx-auto w-full max-w-md" />;
   if (enabled && (!user || needsProfile || flow === "started")) return <Stranger finishing={!!user && needsProfile} started={flow === "started"} onSignedIn={onSignedIn} onDone={onDone} />;
-  return <Yours venues={venues} places={places} />;
+  return <Yours venues={venues} places={places} reward={reward} />;
 }
 
 /* ───────────────────────── someone we don't know ───────────────────────── */
@@ -86,7 +87,7 @@ export function profileLink(id: string): string {
   return `${base}/you?follow=${id}`;
 }
 
-function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Place> }) {
+function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<string, Place>; reward: number }) {
   const { state } = useRoundStore();
   const { enabled, user, profile, signOut } = useAuth();
   const byslug = useMemo(() => venueMap(venues), [venues]);
@@ -248,10 +249,10 @@ function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Pla
         </p>
       )}
 
-      {/* The $2 door, right up top: it's how ROUND spreads. */}
+      {/* The $4 door, right up top: it's how ROUND spreads. */}
       <Link href="/recommend" className="pressable grain relative mt-5 flex items-center gap-4 overflow-hidden rounded-[26px] p-4" style={{ background: "linear-gradient(160deg, #8f2a15 0%, #d9482b 60%, #e8694a 100%)", color: "var(--on-photo)", boxShadow: "0 16px 36px -22px rgba(217,72,43,0.7)" }} data-recommend-card>
-        <span className="serif flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px]" style={{ background: "rgba(246,241,231,0.16)", fontSize: 26, backdropFilter: "blur(6px)" }} aria-hidden>
-          $2
+        <span className="serif flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px]" style={{ background: "rgba(246,241,231,0.16)", fontSize: 26, backdropFilter: "blur(6px)" }} aria-hidden data-reward>
+          {money(reward)}
         </span>
         <span className="relative min-w-0 flex-1">
           <span className="block text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--on-photo-80)" }}>
@@ -261,7 +262,7 @@ function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Pla
             Recommend a bar we don&apos;t have.
           </span>
           <span className="mt-1 block text-[12.5px] leading-snug" style={{ color: "var(--on-photo-80)" }}>
-            Two minutes. We check it; you get $2. Every time.
+            Two minutes. We check it; you get {money(reward)}. Every time.
           </span>
         </span>
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(246,241,231,0.16)" }} aria-hidden>
@@ -271,7 +272,7 @@ function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Pla
         </span>
       </Link>
 
-      {/* Right under the $2 door: the Home Screen, then refer ten and get $5. */}
+      {/* Right under the $4 door: the Home Screen, then refer ten and get $5. */}
       <HomeScreenCard />
       {enabled && user && <ReferralCard />}
 
@@ -334,7 +335,7 @@ function Yours({ venues, places }: { venues: Venue[]; places: Record<string, Pla
             </button>
           )}
           <Link href="/recommend" onClick={() => setMenu(false)} className="pressable py-3.5 text-[15px] font-medium">
-            Recommend a spot ($2)
+            Recommend a spot ({money(reward)})
           </Link>
           {enabled && user && (
             <button onClick={() => { setMenu(false); void signOut(); }} className="pressable py-3.5 text-left text-[15px] font-medium" style={{ color: "var(--tomato-deep)" }}>

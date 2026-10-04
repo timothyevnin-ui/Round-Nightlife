@@ -1,7 +1,7 @@
 /** The cookie that carries a compact read of the person's taste to the results page. */
 export const TASTE_COOKIE = "round_taste";
 
-/** The person's first name, so the picker can say "Tim, we heard…". Set at sign-in, cleared at sign-out. */
+/** The person's first name, so the picker can say "Alex, we heard…". Set at sign-in, cleared at sign-out. */
 export const NAME_COOKIE = "round_name";
 
 export function setNameCookie(name: string | null | undefined) {
