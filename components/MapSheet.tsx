@@ -38,25 +38,25 @@ export function MapSheet({ open, onClose, venues, saved, been, title = "Your NYC
         <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.16 } }} transition={{ duration: 0.22 }} className="fixed inset-0 z-[60]" style={{ background: "var(--paper)" }} role="dialog" aria-modal aria-label={title} data-map-sheet>
           <NightMap venues={venues} saved={saved} been={been} onSelect={onSelect} height="100%" interactive rounded={false} focus={{ lat: 40.7275, lng: -73.985, zoom: 12.4 }} />
           <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-3" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" }}>
-            <button onClick={onClose} className="pressable pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border" style={{ background: "rgba(243,237,224,0.92)", borderColor: "var(--hairline-strong)", backdropFilter: "blur(10px)" }} aria-label="Close the map" data-map-close>
+            <button onClick={onClose} className="pressable pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border" style={{ background: "rgba(14,23,48,0.9)", borderColor: "var(--hairline-strong)", backdropFilter: "blur(10px)" }} aria-label="Close the map" data-map-close>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
                 <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
               </svg>
             </button>
-            <span className="eyebrow rounded-full px-3 py-1.5" style={{ background: "rgba(243,237,224,0.92)", backdropFilter: "blur(10px)" }}>
+            <span className="eyebrow rounded-full px-3 py-1.5" style={{ background: "rgba(14,23,48,0.9)", backdropFilter: "blur(10px)" }}>
               {title}
             </span>
             <span className="w-11" aria-hidden />
           </div>
           <div className="pointer-events-none absolute left-3 flex gap-2 text-[11px]" style={{ top: "calc(env(safe-area-inset-top, 0px) + 62px)", color: "var(--chalk-70)" }}>
             <Legend color="#d9482b" label="Want to go" ring />
-            <Legend color="#16213a" label="Been" />
-            <Legend color="rgba(22,33,58,0.35)" label="On ROUND" small />
+            <Legend color="#f6f1e7" label="Been" />
+            <Legend color="rgba(246,241,231,0.55)" label="On ROUND" small />
           </div>
           <AnimatePresence>
             {selected && (
               <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }} transition={{ duration: 0.2 }} className="absolute inset-x-3" style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 14px)" }}>
-                <Link href={`/v/${selected.slug}`} className="pressable card flex items-center gap-3 p-3" style={{ background: "rgba(251,248,241,0.96)", backdropFilter: "blur(12px)" }} data-map-card>
+                <Link href={`/v/${selected.slug}`} className="pressable card theme-paper flex items-center gap-3 p-3" style={{ background: "rgba(251,248,241,0.96)", backdropFilter: "blur(12px)" }} data-map-card>
                   <Photo venue={selected} rounded="rounded-[14px]" className="h-14 w-14 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="serif truncate" style={{ fontSize: 21, lineHeight: 1.1 }}>
@@ -86,7 +86,7 @@ export function MapSheet({ open, onClose, venues, saved, been, title = "Your NYC
 
 export function Legend({ color, label, ring, small }: { color: string; label: string; ring?: boolean; small?: boolean }) {
   return (
-    <span className="flex items-center gap-1.5 rounded-full px-2 py-1" style={{ background: "rgba(243,237,224,0.86)", backdropFilter: "blur(8px)" }}>
+    <span className="flex items-center gap-1.5 rounded-full px-2 py-1" style={{ background: "rgba(14,23,48,0.86)", color: "var(--ink-70)", backdropFilter: "blur(8px)" }}>
       <span className="block rounded-full" style={{ width: small ? 8 : 10, height: small ? 8 : 10, background: color, boxShadow: ring ? "0 0 0 2px rgba(217,72,43,0.35)" : undefined }} />
       {label}
     </span>

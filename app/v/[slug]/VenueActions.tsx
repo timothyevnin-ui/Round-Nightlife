@@ -33,7 +33,7 @@ export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUr
           }}
           aria-pressed={!!been}
           className="pressable btn-ghost flex h-12 items-center gap-2 px-5 text-[14px]"
-          style={been ? { background: "rgba(22,33,58,0.14)", borderColor: "rgba(22,33,58,0.3)" } : undefined}
+          style={been ? { background: "var(--ink-20)", borderColor: "var(--ink-35)" } : undefined}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
             <path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -41,7 +41,7 @@ export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUr
           {been ? "Been" : "I've been"}
         </button>
       </div>
-      <button onClick={() => setRating(true)} className="pressable mt-2.5 flex h-12 w-full items-center justify-between gap-3 rounded-full border px-5 text-[14px] font-medium" style={{ borderColor: verdict ? "var(--ink)" : "var(--hairline-strong)", background: verdict ? "rgba(22,33,58,0.06)" : "transparent" }} data-rate-button>
+      <button onClick={() => setRating(true)} className="pressable mt-2.5 flex h-12 w-full items-center justify-between gap-3 rounded-full border px-5 text-[14px] font-medium" style={{ borderColor: verdict ? "var(--ink)" : "var(--hairline-strong)", background: verdict ? "var(--ink-6)" : "transparent" }} data-rate-button>
         <span className="flex min-w-0 items-center gap-2">
           <Ring />
           <span className="truncate">{verdict ? verdict.label : `Rate this ${venue.kind === "restaurant" ? "spot" : "bar"}`}</span>

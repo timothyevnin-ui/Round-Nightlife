@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "What's hot right now",
-  description: "ROUND's picks for New York right now: the bars and restaurants worth a night this week, and why.",
+  description: "Where ROUND went this week: the bars worth a night, and why.",
 };
 
 export default async function HotPage() {

@@ -119,6 +119,7 @@ function blank(): Draft {
     friendsBeen: 0,
     hot: false,
     hotRank: null,
+    visitedAt: null,
     story: "",
     hours: null,
     barFood: false,
@@ -160,6 +161,7 @@ function fromVenue(v: Venue): Draft {
     perk: v.perk,
     hot: !!v.hot,
     hotRank: v.hotRank ?? null,
+    visitedAt: v.visitedAt ?? null,
     story: v.story ?? "",
     hours: v.hours ?? null,
     barFood: !!v.barFood,
@@ -850,6 +852,16 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
             className="h-10 w-20 rounded-full border px-3 text-center text-[14px] outline-none"
             style={inputStyle}
             placeholder="—"
+          />
+        </Row>
+        <Row label="When ROUND went (stamped on the card)">
+          <input
+            type="date"
+            value={d.visitedAt ?? ""}
+            onChange={(e) => set("visitedAt", e.target.value || null)}
+            className="h-10 rounded-full border px-3 text-[14px] outline-none"
+            style={inputStyle}
+            data-visited-at
           />
         </Row>
         <Field label="The story" hint="The long read: why this place, right now. Your voice, a few paragraphs, blank line between them. This is the blog.">

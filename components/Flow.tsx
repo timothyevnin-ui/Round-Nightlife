@@ -209,7 +209,7 @@ function glowToRgba(i: number) {
     "rgba(31, 74, 60, 0.30)",
     "rgba(31, 74, 60, 0.24)",
     "rgba(46, 107, 82, 0.22)",
-    "rgba(22, 33, 58, 0.20)",
+    "var(--ink-20)",
     "rgba(46, 68, 112, 0.20)",
   ];
   return glows[Math.min(i, glows.length - 1)];

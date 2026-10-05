@@ -15,7 +15,7 @@ export default async function Image() {
   const [serif, sans] = await Promise.all([font("InstrumentSerif-Regular.woff"), font("Geist-Medium.ttf")]);
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "linear-gradient(160deg, #f3ede0 0%, #e6dcc6 140%)", color: "#16213a", fontFamily: "Geist" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 72, background: "linear-gradient(160deg, #0e1730 0%, #0a1126 140%)", color: "#f6f1e7", fontFamily: "Geist" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div style={{ width: 40, height: 40, borderRadius: 999, border: "6px solid #d9482b" }} />
           <div style={{ fontFamily: "Instrument Serif", fontSize: 46, letterSpacing: 9 }}>ROUND</div>
@@ -25,8 +25,8 @@ export default async function Image() {
           <div>we go tonight?</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ fontSize: 28, color: "rgba(22,33,58,0.7)" }}>Bars and restaurants in New York, one person&apos;s word on each.</div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 64, padding: "0 34px", borderRadius: 999, background: "#16213a", color: "#f3ede0", fontSize: 24, letterSpacing: 3 }}>JUST SAY IT</div>
+          <div style={{ fontSize: 28, color: "rgba(246,241,231,0.7)" }}>The bars of New York, ranked by the people who go. Ask it where to go tonight.</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 64, padding: "0 34px", borderRadius: 999, background: "#d9482b", color: "#f6f1e7", fontSize: 24, letterSpacing: 3 }}>JUST SAY IT</div>
         </div>
       </div>
     ),

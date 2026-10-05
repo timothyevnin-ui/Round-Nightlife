@@ -1,9 +1,6 @@
-import type { Metadata } from "next";
-import { NightFlow } from "../night/NightFlow";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Brunch, day drinking, happy hour" };
-
-/** The daylight door. Same flow as a night out, starting from this afternoon. */
+/** Bars only (V33): this door is gone; the ask on the home page handles it. */
 export default function Page() {
-  return <NightFlow day />;
+  redirect("/");
 }

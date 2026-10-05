@@ -6,32 +6,46 @@
  * deep and saturated so they read as pictures against the paper.
  */
 :root {
-  /* Paper */
-  --paper: #f3ede0;
-  --paper-2: #eae2d1;
-  --paper-3: #dfd4be;
-  --surface: #fbf8f1;
-  --surface-2: #f7f2e7;
-  --surface-3: #efe8d9;
-  --hairline: rgba(22, 33, 58, 0.1);
-  --hairline-strong: rgba(22, 33, 58, 0.18);
+  /*
+   * ROUND at night (V33). The app is used standing on a corner at 10pm, so
+   * the page is night-navy and the type is cream; ROUND SAYS, result cards and
+   * the sheets are cream islands (.theme-paper) on it, like a printed card on
+   * a bar top. The Studio keeps the paper look (.theme-paper on its shell).
+   * "paper" and "ink" keep their names: paper is the ground, ink is the type.
+   */
+  --night: #0e1730;
+  --night-2: #0a1126;
 
-  /* Ink */
-  --ink: #16213a;
-  --ink-70: rgba(22, 33, 58, 0.72);
-  --ink-55: rgba(22, 33, 58, 0.56);
-  --ink-35: rgba(22, 33, 58, 0.38);
-  --ink-20: rgba(22, 33, 58, 0.22);
-  --ink-10: rgba(22, 33, 58, 0.1);
-  --ink-6: rgba(22, 33, 58, 0.06);
+  /* Ground */
+  --paper: #0e1730;
+  --paper-2: #121d3a;
+  --paper-3: #182548;
+  --surface: #152040;
+  --surface-2: #19264a;
+  --surface-3: #1e2d55;
+  --hairline: rgba(246, 241, 231, 0.1);
+  --hairline-strong: rgba(246, 241, 231, 0.2);
+
+  /* Type */
+  --ink: #f6f1e7;
+  --ink-85: rgba(246, 241, 231, 0.86);
+  --ink-70: rgba(246, 241, 231, 0.72);
+  --ink-55: rgba(246, 241, 231, 0.56);
+  --ink-45: rgba(246, 241, 231, 0.45);
+  --ink-35: rgba(246, 241, 231, 0.38);
+  --ink-20: rgba(246, 241, 231, 0.22);
+  --ink-10: rgba(246, 241, 231, 0.1);
+  --ink-6: rgba(246, 241, 231, 0.07);
+  /* A dark scrim behind sheets, the same on both grounds. */
+  --scrim: rgba(10, 17, 38, 0.62);
 
   /* Brand colors */
-  --pine: #1f4a3c;
-  --pine-bright: #2e6b52;
+  --pine: #2f7a5c;
+  --pine-bright: #5fb48f;
   --pine-deep: #143327;
   --tomato: #d9482b;
   --tomato-bright: #e8694a;
-  --tomato-deep: #b0361d;
+  --tomato-deep: #f07a5a;
   --butter: #f2c14e;
   --navy: #16213a;
   --navy-bright: #2e4470;
@@ -54,16 +68,51 @@
   --cobalt-ink: var(--pine-deep);
 
   /* The tints the question flow walks through (green → navy). */
-  --walk-1: rgba(31, 74, 60, 0.28);
-  --walk-2: rgba(31, 74, 60, 0.22);
-  --walk-3: rgba(46, 107, 82, 0.2);
-  --walk-4: rgba(22, 33, 58, 0.18);
-  --walk-5: rgba(46, 68, 112, 0.18);
+  --walk-1: rgba(95, 180, 143, 0.16);
+  --walk-2: rgba(95, 180, 143, 0.12);
+  --walk-3: rgba(95, 180, 143, 0.1);
+  --walk-4: rgba(246, 241, 231, 0.06);
+  --walk-5: rgba(46, 68, 112, 0.3);
 
   --radius-card: 28px;
   --radius-pill: 999px;
 
   --tab-height: 72px;
+}
+
+/*
+ * The paper look, scoped: a cream card on the night page, the sheets, the
+ * share images and the whole Studio. Everything inside reads ink-on-paper
+ * the way the app did before V33.
+ */
+.theme-paper {
+  --paper: #f3ede0;
+  --paper-2: #eae2d1;
+  --paper-3: #dfd4be;
+  --surface: #fbf8f1;
+  --surface-2: #f7f2e7;
+  --surface-3: #efe8d9;
+  --hairline: rgba(22, 33, 58, 0.1);
+  --hairline-strong: rgba(22, 33, 58, 0.18);
+  --ink: #16213a;
+  --ink-85: rgba(22, 33, 58, 0.86);
+  --ink-70: rgba(22, 33, 58, 0.72);
+  --ink-55: rgba(22, 33, 58, 0.56);
+  --ink-45: rgba(22, 33, 58, 0.45);
+  --ink-35: rgba(22, 33, 58, 0.38);
+  --ink-20: rgba(22, 33, 58, 0.22);
+  --ink-10: rgba(22, 33, 58, 0.1);
+  --ink-6: rgba(22, 33, 58, 0.06);
+  --pine: #1f4a3c;
+  --pine-bright: #2e6b52;
+  --tomato-deep: #b0361d;
+  --walk-1: rgba(31, 74, 60, 0.28);
+  --walk-2: rgba(31, 74, 60, 0.22);
+  --walk-3: rgba(46, 107, 82, 0.2);
+  --walk-4: rgba(22, 33, 58, 0.18);
+  --walk-5: rgba(46, 68, 112, 0.18);
+  color: var(--ink);
+  color-scheme: light;
 }
 
 @theme inline {
@@ -83,7 +132,7 @@
 }
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
   background: var(--paper);
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
@@ -131,8 +180,10 @@ input, textarea { user-select: text; -webkit-user-select: text; }
   background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-card);
-  box-shadow: 0 1px 0 rgba(22, 33, 58, 0.04), 0 12px 32px -20px rgba(22, 33, 58, 0.25);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 16px 40px -24px rgba(0, 0, 0, 0.55);
 }
+/* A cream card on the night page. */
+.card.theme-paper { background: var(--surface); box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.7); }
 
 /* Pressable — everything tappable gets an immediate press state. */
 .pressable {
@@ -195,14 +246,14 @@ input, textarea { user-select: text; -webkit-user-select: text; }
   box-shadow: inset 0 0 0 2px var(--paper);
 }
 
-/* Tab bar ground: paper by default, night when a dark screen (data-pitch) is up. */
-/* V28: solid ground, a hairline on top; nothing shows through under the tabs. */
-.tabbar-ground { background: var(--paper); border-top: 1px solid var(--hairline); }
-.tabbar-item { color: var(--ink-35); }
+/* Tab bar ground (V33): the deepest night, a hairline on top; nothing shows through under the tabs. */
+.tabbar-ground { background: var(--night-2); border-top: 1px solid var(--hairline); }
+.tabbar-item { color: var(--ink-45); }
 .tabbar-item[aria-current="page"] { color: var(--ink); }
-body:has([data-pitch]) .tabbar-ground { background: var(--ink); border-top-color: rgba(246,241,231,0.14); }
-body:has([data-pitch]) .tabbar-item { color: rgba(246,241,231,0.45); }
-body:has([data-pitch]) .tabbar-item[aria-current="page"] { color: var(--paper); }
+
+/* The score ring draws itself on arrival (V33). */
+@keyframes ring-draw { from { stroke-dasharray: 0 289; } }
+.ring-draw { animation: ring-draw 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms backwards; }
 
 /* Story / blog prose */
 .story p { margin: 0 0 1em; }
@@ -212,37 +263,44 @@ body:has([data-pitch]) .tabbar-item[aria-current="page"] { color: var(--paper); 
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 
-/* The map — a light, slightly warm basemap; markers in brand colors on top. */
+/* The map (V33): the light basemap turned to night in the canvas; markers in cream and tomato on top. A dark style URL in NEXT_PUBLIC_MAP_STYLE turns the filter off. */
 .maplibregl-canvas {
-  filter: sepia(0.28) saturate(0.7) brightness(1.02) contrast(0.98);
+  filter: invert(0.93) hue-rotate(195deg) saturate(0.55) brightness(0.78) contrast(1.05);
 }
+[data-map-style="dark"] .maplibregl-canvas { filter: none; }
 .maplibregl-ctrl-attrib {
-  background: rgba(243, 237, 224, 0.75) !important;
-  color: rgba(22, 33, 58, 0.55) !important;
+  background: rgba(14, 23, 48, 0.75) !important;
+  color: rgba(246, 241, 231, 0.5) !important;
   font-size: 10px !important;
 }
-.maplibregl-ctrl-attrib a { color: rgba(22, 33, 58, 0.75) !important; }
+.maplibregl-ctrl-attrib a { color: rgba(246, 241, 231, 0.7) !important; }
 .round-marker {
   width: 12px; height: 12px; border-radius: 999px; padding: 0;
-  background: rgba(22, 33, 58, 0.32);
-  border: 1.5px solid rgba(243, 237, 224, 0.95);
-  cursor: pointer; transition: transform 120ms ease;
+  background: rgba(246, 241, 231, 0.55);
+  border: 1.5px solid rgba(14, 23, 48, 0.9);
+  cursor: pointer; transition: transform 120ms ease, opacity 160ms ease;
 }
 .round-marker:active { transform: scale(0.9); }
 .round-marker[data-kind="saved"] {
-  width: 18px; height: 18px; background: #d9482b; border: 2px solid #f3ede0;
-  box-shadow: 0 0 0 4px rgba(217, 72, 43, 0.22);
+  width: 18px; height: 18px; background: #d9482b; border: 2px solid #f6f1e7;
+  box-shadow: 0 0 0 4px rgba(217, 72, 43, 0.25);
 }
 .round-marker[data-kind="been"] {
-  width: 16px; height: 16px; background: #16213a; border: 2px solid #f3ede0;
+  width: 16px; height: 16px; background: #f6f1e7; border: 2px solid #0e1730;
 }
-/* The Spots map: every pin big enough for a thumb, restaurants a shade warmer, the open one on top. */
-.round-marker[data-size="big"] { width: 18px; height: 18px; background: rgba(22, 33, 58, 0.62); border-width: 2px; box-shadow: 0 1px 4px rgba(22, 33, 58, 0.25); }
+/* A friend's been-to place: a green dot. */
+.round-marker[data-kind="friend"] {
+  width: 14px; height: 14px; background: #5fb48f; border: 2px solid #0e1730;
+}
+/* The Spots map: every pin big enough for a thumb, the open one on top; a closed place fades. */
+.round-marker[data-size="big"] { width: 18px; height: 18px; background: rgba(246, 241, 231, 0.82); border-width: 2px; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.45); }
 [data-zoom="far"] .round-marker[data-size="big"] { width: 13px; height: 13px; border-width: 1.5px; }
-.round-marker[data-size="big"][data-what="restaurant"] { background: rgba(138, 106, 42, 0.78); }
+.round-marker[data-size="big"][data-what="restaurant"] { background: rgba(242, 193, 78, 0.85); }
 .round-marker[data-size="big"][data-kind="saved"] { width: 22px; height: 22px; background: #d9482b; }
-.round-marker[data-size="big"][data-kind="been"] { width: 20px; height: 20px; background: #16213a; }
-.round-marker[data-selected="1"] { transform: scale(1.45); z-index: 5; background: #d9482b; box-shadow: 0 0 0 5px rgba(217, 72, 43, 0.25); }
+.round-marker[data-size="big"][data-kind="been"] { width: 20px; height: 20px; background: #f6f1e7; border-color: #d9482b; }
+.round-marker[data-size="big"][data-kind="friend"] { width: 18px; height: 18px; background: #5fb48f; }
+.round-marker[data-open="0"] { opacity: 0.35; }
+.round-marker[data-selected="1"] { transform: scale(1.45); z-index: 5; background: #d9482b; opacity: 1; box-shadow: 0 0 0 5px rgba(217, 72, 43, 0.3); }
 .round-marker[data-selected="1"]:active { transform: scale(1.35); }
 .maplibregl-marker:has(.round-marker[data-selected="1"]) { z-index: 5; }
 
@@ -295,12 +353,12 @@ body:has([data-pitch]) .tabbar-item[aria-current="page"] { color: var(--paper); 
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--ink);
-  background: rgba(251, 248, 241, 0.92);
-  border: 1px solid rgba(22, 33, 58, 0.18);
+  background: rgba(14, 23, 48, 0.88);
+  border: 1px solid rgba(246, 241, 231, 0.22);
   border-radius: 999px;
   padding: 3px 8px;
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(22, 33, 58, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 .hood-label[data-selected="1"] {

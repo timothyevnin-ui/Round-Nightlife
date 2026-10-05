@@ -33,8 +33,16 @@ export function GoButton({
       href={href}
       target="_blank"
       rel="noopener"
-      onClick={() => recordGo(venue.slug)}
-      className={`pressable btn-primary flex items-center justify-center gap-2 px-6 ${h} ${className}`}
+      onClick={() => {
+        recordGo(venue.slug);
+        // A thump in the hand on GO (V33); phones without it ignore it.
+        try {
+          navigator.vibrate?.(12);
+        } catch {
+          /* ignore */
+        }
+      }}
+      className={`pressable btn-accent flex items-center justify-center gap-2 px-6 ${h} ${className}`}
       style={{ letterSpacing: "0.08em" }}
     >
       {label}
@@ -65,7 +73,7 @@ export function SaveButton({ slug, source = "flow", compact = true }: { slug: st
         aria-label={saved ? "Saved to Want to Go" : "Want to Go"}
         className="pressable flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
         style={{
-          background: saved ? "var(--cobalt)" : "rgba(22,33,58,0.06)",
+          background: saved ? "var(--cobalt)" : "var(--ink-6)",
           borderColor: saved ? "var(--cobalt)" : "var(--hairline)",
         }}
       >
@@ -125,7 +133,7 @@ export function ShareButton({
         onClick={share}
         aria-label="Share"
         className="pressable flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
-        style={{ background: "rgba(22,33,58,0.06)", borderColor: "var(--hairline)" }}
+        style={{ background: "var(--ink-6)", borderColor: "var(--hairline)" }}
       >
         {copied ? <CheckIcon /> : <ShareIcon />}
       </button>

@@ -135,7 +135,7 @@ export function ReferralCard() {
               autoCapitalize="characters"
               autoComplete="off"
               className="h-11 min-w-0 flex-1 rounded-full border px-4 text-[15px] uppercase tracking-[0.18em] outline-none"
-              style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)" }}
+              style={{ background: "var(--ink-6)", borderColor: "var(--hairline-strong)" }}
               data-ref-add-input
             />
             <button onClick={() => void add()} disabled={busy || code.length < 6} className="pressable btn-primary h-11 shrink-0 px-4 text-[14px]" style={{ opacity: code.length < 6 ? 0.5 : 1 }} data-ref-add-btn>

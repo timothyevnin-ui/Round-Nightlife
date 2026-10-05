@@ -120,14 +120,14 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
   return (
     <AnimatePresence>
       {open && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={close} data-rate-sheet>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "var(--scrim)", backdropFilter: "blur(6px)" }} onClick={close} data-rate-sheet>
           <motion.div
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 340, damping: 32 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-t-[28px] border p-5"
+            className="theme-paper w-full max-w-md rounded-t-[28px] border p-5"
             style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))", minHeight: 380 }}
           >
             <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--ink-20)" }} />
@@ -136,7 +136,7 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
                 <Panel key="verdict" eyebrow={`Rate this ${venue.kind === "restaurant" ? "spot" : "bar"}`} title={`How was ${venue.name}?`}>
                   <div className="mt-4 flex flex-col gap-2">
                     {VERDICTS.map((v) => (
-                      <button key={v.key} onClick={() => pickVerdict(v.key)} className="pressable flex items-center justify-between rounded-[18px] border px-4 py-3 text-left" style={{ borderColor: verdict === v.key ? "var(--ink)" : "var(--hairline-strong)", background: verdict === v.key ? "rgba(22,33,58,0.06)" : "transparent" }} data-verdict={v.key}>
+                      <button key={v.key} onClick={() => pickVerdict(v.key)} className="pressable flex items-center justify-between rounded-[18px] border px-4 py-3 text-left" style={{ borderColor: verdict === v.key ? "var(--ink)" : "var(--hairline-strong)", background: verdict === v.key ? "var(--ink-6)" : "transparent" }} data-verdict={v.key}>
                         <span>
                           <span className="serif block" style={{ fontSize: 21, lineHeight: 1.1 }}>
                             {v.label}
@@ -248,7 +248,7 @@ function Meter({ known, name }: { known: number; name: string }) {
         </span>
         <span>{known >= 80 ? "Nearly a regular" : known >= 40 ? "Getting there" : "Still learning"}</span>
       </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(22,33,58,0.1)" }}>
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--ink-10)" }}>
         <div className="h-full rounded-full" style={{ width: `${Math.max(4, known)}%`, background: known >= 80 ? "var(--tomato)" : "var(--pine)", transition: "width 300ms ease" }} />
       </div>
     </div>

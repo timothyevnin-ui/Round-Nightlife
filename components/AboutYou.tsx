@@ -89,7 +89,7 @@ function Prompt({ text }: { text: string }) {
   );
 }
 
-const inputStyle = { height: 56, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" } as const;
+const inputStyle = { height: 56, background: "var(--ink-6)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" } as const;
 
 function NextButton({ onClick, label, disabled }: { onClick: () => void; label: string; disabled?: boolean }) {
   return (
@@ -213,7 +213,7 @@ function PhotoQ({ current, onSave, onNext, busy }: { current: string | null; onS
     <>
       <Prompt text="Add a photo?" />
       <div className="mt-4 flex items-center gap-4">
-        <button onClick={() => ref.current?.click()} className="pressable relative h-24 w-24 shrink-0 overflow-hidden rounded-full border" style={{ borderColor: "var(--hairline-strong)", background: "rgba(22,33,58,0.05)" }} aria-label="Choose a photo" data-photo-button>
+        <button onClick={() => ref.current?.click()} className="pressable relative h-24 w-24 shrink-0 overflow-hidden rounded-full border" style={{ borderColor: "var(--hairline-strong)", background: "var(--ink-6)" }} aria-label="Choose a photo" data-photo-button>
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={preview} alt="" className="h-full w-full object-cover" />

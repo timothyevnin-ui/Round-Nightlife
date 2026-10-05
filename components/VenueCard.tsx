@@ -65,7 +65,7 @@ export function VenueCard({
       initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.05 + index * 0.08 }}
-      className="card overflow-hidden"
+      className="card theme-paper overflow-hidden"
     >
       <Link href={`/v/${venue.slug}`} className="block">
         <Photo venue={venue} rounded="rounded-none" className="aspect-[4/3] w-full">

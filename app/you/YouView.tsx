@@ -284,17 +284,7 @@ function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<str
         <Row onClick={() => setEditing(true)} icon={<StarIcon />} label="Favorites" sub={favBar || profile?.fav_bar || favRestaurant || profile?.fav_restaurant ? [profile?.fav_bar, profile?.fav_restaurant].filter(Boolean).join(" · ") : "Your favorite bar and restaurant."} testId="favorites" last />
       </section>
 
-      {/* The quiz */}
-      <Link href="/quiz" className="pressable mt-4 flex items-center gap-4 rounded-[26px] p-4" style={{ background: state.quizDone ? "var(--surface)" : "linear-gradient(160deg, #143327, #2e6b52)", color: state.quizDone ? "var(--ink)" : "var(--on-photo)", border: "1px solid var(--hairline)" }} data-quiz-card>
-        <QuizIcon dark={!!state.quizDone} />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[15px] font-medium">{state.quizDone ? "Retake the taste quiz" : "30-second taste quiz"}</span>
-          <span className="mt-0.5 block text-[12.5px] leading-snug" style={{ color: state.quizDone ? "var(--ink-55)" : "var(--on-photo-80)" }}>
-            Ten bars. Swipe. ROUND learns you.
-          </span>
-        </span>
-        <Chevron color={state.quizDone ? "var(--ink-35)" : "var(--on-photo-60)"} />
-      </Link>
+      {/* The taste quiz came off this page in V33: rating a bar does its job now. /quiz still works. */}
 
       {enabled && user && <PrivacyCard />}
 
@@ -350,8 +340,8 @@ function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<str
 
       <AnimatePresence>
         {editing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={() => setEditing(false)} role="dialog" aria-modal>
-            <motion.div initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 48, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 32 }} onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-t-[28px] border p-5" style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "var(--scrim)", backdropFilter: "blur(6px)" }} onClick={() => setEditing(false)} role="dialog" aria-modal>
+            <motion.div initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 48, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 32 }} onClick={(e) => e.stopPropagation()} className="theme-paper w-full max-w-md rounded-t-[28px] border p-5" style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}>
               <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--chalk-20)" }} />
               <AboutYou onDone={() => setEditing(false)} />
             </motion.div>
@@ -525,16 +515,6 @@ function StarIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
       <path d="m9 2.5 2 4.1 4.5.6-3.3 3.2.8 4.5L9 12.8l-4 2.1.8-4.5L2.5 7.2 7 6.6 9 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function QuizIcon({ dark }: { dark: boolean }) {
-  const c = dark ? "#16213A" : "#F6F1E7";
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden className="shrink-0">
-      <rect x="6" y="4" width="14" height="18" rx="3.5" stroke={c} strokeWidth="1.6" transform="rotate(-8 13 13)" />
-      <rect x="9" y="6" width="14" height="18" rx="3.5" stroke={c} strokeWidth="1.6" opacity="0.5" transform="rotate(6 16 15)" />
     </svg>
   );
 }

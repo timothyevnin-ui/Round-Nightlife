@@ -49,7 +49,7 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-end justify-center"
-      style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }}
+      style={{ background: "var(--scrim)", backdropFilter: "blur(6px)" }}
       onClick={onClose}
       role="dialog"
       aria-modal
@@ -60,7 +60,7 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
         exit={{ y: 48, opacity: 0 }}
         transition={{ type: "spring", stiffness: 340, damping: 32 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-t-[28px] border p-5"
+        className="theme-paper w-full max-w-md rounded-t-[28px] border p-5"
         style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--chalk-20)" }} />
@@ -220,7 +220,7 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
             </p>
           </>
         )}
-        <div className={`${bare ? "mt-1" : "mt-5"} flex items-center gap-2 rounded-[18px] border px-4`} style={{ background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", height: 60 }}>
+        <div className={`${bare ? "mt-1" : "mt-5"} flex items-center gap-2 rounded-[18px] border px-4`} style={{ background: "var(--ink-6)", borderColor: "var(--hairline-strong)", height: 60 }}>
           {!phoneInput.trim().startsWith("+") && (
             <span className="text-[20px]" style={{ color: "var(--chalk-35)" }}>
               +1
@@ -296,7 +296,7 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
           }}
           placeholder="••••••"
           className="mt-5 w-full rounded-[18px] border bg-transparent text-center outline-none"
-          style={{ height: 64, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", fontSize: 30, letterSpacing: "0.35em" }}
+          style={{ height: 64, background: "var(--ink-6)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", fontSize: 30, letterSpacing: "0.35em" }}
         />
         {error && <Err>{error}</Err>}
         <button onClick={() => verify(code)} disabled={code.length !== 6 || busy} className="pressable btn-primary mt-4 flex h-14 w-full items-center justify-center text-[16px]" style={{ opacity: code.length !== 6 || busy ? 0.55 : 1 }}>
@@ -350,7 +350,7 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
             placeholder="Alex"
             maxLength={40}
             className="mt-2 w-full rounded-[18px] border px-4 text-[20px] outline-none"
-            style={{ height: 58, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
+            style={{ height: 58, background: "var(--ink-6)", borderColor: "var(--hairline-strong)", color: "var(--chalk)" }}
           />
         </label>
         <div className="mt-4">
@@ -374,7 +374,7 @@ function Flow({ reason, startAt, name: existingName, onSignedIn, onDone, bare = 
             placeholder="From a friend's link"
             maxLength={6}
             className="mt-2 w-full rounded-[18px] border px-4 text-[18px] uppercase tracking-[0.18em] outline-none"
-            style={{ height: 52, background: "rgba(22,33,58,0.05)", borderColor: refResult && !refResult.ok ? "var(--tomato)" : "var(--hairline-strong)", color: "var(--chalk)" }}
+            style={{ height: 52, background: "var(--ink-6)", borderColor: refResult && !refResult.ok ? "var(--tomato)" : "var(--hairline-strong)", color: "var(--chalk)" }}
             data-ref-input
           />
           {refResult && !refResult.ok && (
@@ -429,7 +429,7 @@ const DateBox = forwardRef<HTMLInputElement, { label: string; value: string; max
         onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, max))}
         onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
         className="w-full rounded-[18px] border text-center text-[20px] outline-none"
-        style={{ height: 58, background: "rgba(22,33,58,0.05)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", letterSpacing: "0.04em" }}
+        style={{ height: 58, background: "var(--ink-6)", borderColor: "var(--hairline-strong)", color: "var(--chalk)", letterSpacing: "0.04em" }}
       />
     );
   },

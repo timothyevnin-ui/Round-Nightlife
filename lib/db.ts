@@ -78,6 +78,7 @@ export type VenueRow = {
   sources: string[] | null;
   hot: boolean | null;
   hot_rank: number | null;
+  visited_at?: string | null;
   story: string | null;
   hours?: Hours | null;
   bar_food?: boolean | null;
@@ -176,6 +177,7 @@ export function rowToVenue(r: VenueRow): Venue | null {
     sources: r.sources ?? undefined,
     hot: !!r.hot,
     hotRank: typeof r.hot_rank === "number" ? r.hot_rank : undefined,
+    visitedAt: typeof r.visited_at === "string" && /^\d{4}-\d{2}-\d{2}/.test(r.visited_at) ? r.visited_at.slice(0, 10) : undefined,
     story: r.story ?? undefined,
     score: typeof r.score === "number" && r.score >= 0 && r.score <= 100 ? Math.round(r.score) : undefined,
     dayDeal: typeof r.day_deal === "string" && r.day_deal.trim() ? r.day_deal.trim().slice(0, 120) : undefined,
@@ -219,6 +221,7 @@ export function venueToRow(v: Venue): VenueRow {
     sources: v.sources ?? null,
     hot: !!v.hot,
     hot_rank: v.hotRank ?? null,
+    visited_at: v.visitedAt ?? null,
     story: v.story ?? null,
     score: typeof v.score === "number" ? v.score : null,
     day_deal: v.dayDeal ?? null,
@@ -281,8 +284,8 @@ function withNewSeed(fromDb: Venue[]): Venue[] {
  */
 export async function getVenues(): Promise<Venue[]> {
   const { venues } = await getVenuesWithSource();
-  const { verifiedOnly } = await getSettings();
-  return withCrowd(venues.filter((v) => !v.retired && (!verifiedOnly || v.verified)));
+  const { verifiedOnly, barsOnly } = await getSettings();
+  return withCrowd(venues.filter((v) => !v.retired && (!verifiedOnly || v.verified) && (!barsOnly || v.kind === "bar")));
 }
 
 /** Every place, verified or not (never the passed-on ones): for a venue page reached by its link, and for the Studio's lists. */

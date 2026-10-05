@@ -3,6 +3,7 @@ import { after } from "next/server";
 import { getVenue } from "@/lib/db";
 import { bestQuestion, chooseQuestions, knownPercent } from "@/lib/crowdQuestions";
 import { coverageFor, getPoolAll, writeQuestionFor } from "@/lib/pool";
+import { getSettings } from "@/lib/settings";
 
 /**
  * What to ask about one place (V32): the Best-for question for its kind and
@@ -22,8 +23,8 @@ export async function GET(req: Request) {
   if (!v) return NextResponse.json({ error: "no such place" }, { status: 404 });
   const done = (url.searchParams.get("done") ?? "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 40);
   // The pool is read fresh here (it's a few dozen rows): a question written a second ago is asked now, not in a minute.
-  const [{ pool: whole }, coverage] = await Promise.all([getPoolAll(true), coverageFor(slug)]);
-  const pool = whole.filter((q) => q.active);
+  const [{ pool: whole }, coverage, { barsOnly }] = await Promise.all([getPoolAll(true), coverageFor(slug), getSettings()]);
+  const pool = whole.filter((q) => q.active && (!barsOnly || q.kind !== "restaurant"));
   const best = bestQuestion(pool, v.kind);
   const asks = chooseQuestions(pool, v.kind, slug, coverage, done);
   const known = knownPercent(pool, v.kind, slug, coverage);

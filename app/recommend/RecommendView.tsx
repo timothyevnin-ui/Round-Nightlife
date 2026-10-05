@@ -129,7 +129,7 @@ export function RecommendView({ offer }: { offer: Offer }) {
               )}
               <NextButton onClick={() => setStep("name")} label={offer.open ? "Recommend a bar" : "Recommend a place"} />
               <p className="mt-3 text-center text-[12px]" style={{ color: "var(--ink-35)" }}>
-                Bars and restaurants both count. One place per recommendation; send as many as you like.
+                Any bar in Manhattan. One place per recommendation; send as many as you like.
               </p>
             </Screen>
           )}

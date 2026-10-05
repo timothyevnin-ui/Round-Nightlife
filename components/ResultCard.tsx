@@ -115,7 +115,7 @@ export function ResultCard({ venue, label, why, far, door, shareUrl, index = 0 }
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.05 + Math.min(index, 2) * 0.08 }}
-      className="card flex w-[86vw] max-w-[360px] shrink-0 flex-col overflow-hidden"
+      className="card theme-paper flex w-[86vw] max-w-[360px] shrink-0 flex-col overflow-hidden"
     >
       <Link href={`/v/${venue.slug}`} className="block">
         <Photo venue={venue} rounded="rounded-none" className="aspect-[16/10] w-full" credit>
@@ -173,7 +173,7 @@ export function PlanResultCard({ plan, shareUrl, index = 0, groupWord }: { plan:
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.05 + Math.min(index, 2) * 0.08 }}
-      className="card flex w-[86vw] max-w-[360px] shrink-0 flex-col overflow-hidden"
+      className="card theme-paper flex w-[86vw] max-w-[360px] shrink-0 flex-col overflow-hidden"
     >
       <Link href={`/v/${first.slug}`} className="block">
         <Photo venue={first} rounded="rounded-none" className="aspect-[16/10] w-full" credit>

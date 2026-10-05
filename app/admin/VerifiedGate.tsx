@@ -3,7 +3,39 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { setVerifiedOnly } from "./actions";
+import { setBarsOnly, setVerifiedOnly } from "./actions";
+
+/** Bars only (V33): the switch that keeps restaurants in the Studio and off the app. */
+export function BarsGate({ on, restaurants, writable }: { on: boolean; restaurants: number; writable: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [err, setErr] = useState<string | null>(null);
+  const flip = () =>
+    start(async () => {
+      setErr(null);
+      const r = await setBarsOnly(!on);
+      if ("error" in r) setErr(r.error);
+      router.refresh();
+    });
+  return (
+    <div className="card mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 text-[13.5px]" style={{ color: "var(--ink-70)" }} data-bars-gate={on ? "on" : "off"}>
+      <span>
+        <strong>{on ? "Bars only." : "Bars and restaurants."}</strong> {on ? `${restaurants} restaurant${restaurants === 1 ? "" : "s"} stay here in the Studio, off the map, the lists, the picker and the ranking.` : "Restaurants show everywhere too."}
+        {err && (
+          <span className="block" style={{ color: "var(--tomato)" }}>
+            {err}
+          </span>
+        )}
+      </span>
+      <button onClick={flip} disabled={pending || !writable} role="switch" aria-checked={on} className="pressable flex h-9 items-center gap-2 rounded-full border px-3 text-[13px] font-medium" style={{ borderColor: "var(--hairline-strong)", opacity: pending || !writable ? 0.5 : 1 }} aria-label="Bars only">
+        <span className="relative inline-block h-5 w-9 rounded-full transition-colors" style={{ background: on ? "var(--pine-bright)" : "var(--ink-20)" }}>
+          <span className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" style={{ left: on ? 18 : 2 }} />
+        </span>
+        {on ? "Bars only" : "Show restaurants"}
+      </button>
+    </div>
+  );
+}
 
 /**
  * The gate. On: only verified places show in the app, and the moment you

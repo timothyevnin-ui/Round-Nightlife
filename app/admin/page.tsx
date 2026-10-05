@@ -7,7 +7,7 @@ import { countBy, listGoTaps, listProfiles } from "@/lib/studio";
 import { countApproved, listOwed, listSuggestions } from "@/lib/suggestions";
 import { listDisputes } from "@/lib/disputes";
 import { DashboardActions } from "./DashboardActions";
-import { VerifiedGate } from "./VerifiedGate";
+import { BarsGate, VerifiedGate } from "./VerifiedGate";
 import { BountyCard } from "./BountyCard";
 import { getSettings } from "@/lib/settings";
 import { DbHealth } from "./DbHealth";
@@ -142,6 +142,7 @@ export default async function Dashboard() {
       </div>
 
       <VerifiedGate on={settings.verifiedOnly} verified={verified} total={live.length} writable={writable} />
+      <BarsGate on={settings.barsOnly} restaurants={live.filter((v) => v.kind === "restaurant").length} writable={writable} />
       <BountyCard open={settings.bounty.open} cap={settings.bounty.cap} amount={settings.bounty.amount} approved={approved} owed={owed} writable={writable} />
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} disagreeing={disagreeing} />

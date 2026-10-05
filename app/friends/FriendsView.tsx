@@ -90,7 +90,7 @@ export function Pitch({ onAdd, onLater, eyebrow = "Friends", children }: { onAdd
   return (
     <main
       className="screen screen-with-tabs relative mx-auto flex w-full max-w-md flex-col overflow-hidden"
-      style={{ minHeight: "100dvh", background: "var(--ink)", color: "var(--on-photo)", marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)", maxWidth: "100vw" }}
+      style={{ minHeight: "100dvh", background: "var(--night)", color: "var(--on-photo)", marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)", maxWidth: "100vw" }}
       data-pitch
     >
       <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(70% 45% at 50% -8%, rgba(217,72,43,0.55), transparent 70%), radial-gradient(60% 40% at 100% 110%, rgba(31,74,60,0.6), transparent 70%)" }} />
@@ -102,7 +102,7 @@ export function Pitch({ onAdd, onLater, eyebrow = "Friends", children }: { onAdd
           </p>
         </header>
         <section className="flex flex-1 flex-col pt-5">
-          <h1 className="serif" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em", minHeight: "1.1em", color: "var(--paper)" }} aria-label={first}>
+          <h1 className="serif" style={{ fontSize: 40, lineHeight: 1.02, letterSpacing: "-0.02em", minHeight: "1.1em", color: "var(--on-photo)" }} aria-label={first}>
             {t1}
             <span aria-hidden className="inline-block align-baseline" style={{ width: 3, height: "0.85em", marginLeft: 3, background: done1 ? "transparent" : "var(--tomato)", transform: "translateY(0.1em)" }} />
           </h1>
@@ -120,7 +120,7 @@ export function Pitch({ onAdd, onLater, eyebrow = "Friends", children }: { onAdd
                   {b.icon}
                 </span>
                 <span className="min-w-0">
-                  <span className="serif block" style={{ fontSize: 19, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--paper)" }}>
+                  <span className="serif block" style={{ fontSize: 19, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--on-photo)" }}>
                     {b.t}
                   </span>
                   <span className="mt-0.5 block text-[12.5px] leading-snug" style={{ color: "var(--on-photo-60)" }}>
@@ -137,7 +137,7 @@ export function Pitch({ onAdd, onLater, eyebrow = "Friends", children }: { onAdd
             className="mt-auto pt-5"
           >
             {children ? (
-              <div className="card p-5" style={{ background: "var(--surface)", color: "var(--ink)" }} data-you-signin>
+              <div className="card theme-paper p-5" style={{ background: "var(--surface)", color: "var(--ink)" }} data-you-signin>
                 {children}
               </div>
             ) : (
@@ -188,8 +188,8 @@ export function FriendSheet({ person, spots, places, onClose, relation, onFollow
   return createPortal(
     <AnimatePresence>
       {person && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "rgba(22,33,58,0.42)", backdropFilter: "blur(6px)" }} onClick={onClose} role="dialog" aria-modal data-friend-sheet>
-          <motion.div initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 48, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 32 }} onClick={(e) => e.stopPropagation()} className="max-h-[86dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border p-5" style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center" style={{ background: "var(--scrim)", backdropFilter: "blur(6px)" }} onClick={onClose} role="dialog" aria-modal data-friend-sheet>
+          <motion.div initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 48, opacity: 0 }} transition={{ type: "spring", stiffness: 340, damping: 32 }} onClick={(e) => e.stopPropagation()} className="theme-paper max-h-[86dvh] w-full max-w-md overflow-y-auto rounded-t-[28px] border p-5" style={{ background: "var(--surface)", borderColor: "var(--hairline)", paddingBottom: "calc(20px + env(safe-area-inset-bottom, 0px))" }}>
             <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--chalk-20)" }} />
             <div className="flex items-center gap-3">
               <Avatar url={person.avatar_url} name={person.name} size={56} />
@@ -374,7 +374,7 @@ function Row({ label, on, onChange }: { label: string; on: boolean; onChange: (v
   return (
     <div className="mt-3 flex items-center justify-between gap-3">
       <p className="text-[14.5px]">{label}</p>
-      <button type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)} className="pressable relative h-7 w-12 shrink-0 rounded-full transition-colors" style={{ background: on ? "var(--pine)" : "rgba(22,33,58,0.14)" }}>
+      <button type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)} className="pressable relative h-7 w-12 shrink-0 rounded-full transition-colors" style={{ background: on ? "var(--pine)" : "var(--ink-20)" }}>
         <span className="absolute top-1 h-5 w-5 rounded-full transition-all" style={{ left: on ? 24 : 4, background: "var(--paper)" }} />
       </button>
     </div>

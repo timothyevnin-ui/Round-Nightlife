@@ -18,8 +18,8 @@ const EXAMPLES = [
   "Cheap dive in the East Village where we can watch the game",
   "Rooftop in Chelsea for four, a little bougie, cocktails",
   "Somewhere near Bleecker I can actually hear my friends",
-  "Dinner then drinks on the Lower East Side, Thursday, eight of us",
-  "Brunch in Nolita, then somewhere to keep it going",
+  "Pregame on the Lower East Side, Thursday, eight of us, then out",
+  "Day drinking in Nolita, then somewhere to keep it going",
   "Bars near Rubirosa, we're getting out of dinner at 10",
 ];
 
@@ -109,15 +109,16 @@ export function SayIt() {
 
   return (
     <>
-      {/* The box on the home screen: dark, big, the examples drifting through it. */}
-      <button
+      {/* The box on the home screen (V33): a cream card on the night page, breathing while it waits, the examples drifting through it. */}
+      <motion.button
         onClick={openIt}
-        className="pressable grain relative w-full overflow-hidden rounded-[26px] p-4 text-left"
-        style={{ background: "var(--ink)", color: "var(--on-photo)", boxShadow: "0 18px 40px -22px rgba(22,33,58,0.65)" }}
+        animate={{ boxShadow: ["0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 0 rgba(217,72,43,0)", "0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 6px rgba(217,72,43,0.16)", "0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 0 rgba(217,72,43,0)"] }}
+        transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut" }}
+        className="theme-paper pressable relative w-full overflow-hidden rounded-[26px] p-4 text-left"
+        style={{ background: "var(--surface)", color: "var(--ink)" }}
         aria-label="Just say it"
         data-sayit-open
       >
-        <span className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(80% 60% at 90% 0%, rgba(232,105,74,0.32), transparent 60%)" }} aria-hidden />
         <span className="relative flex items-center gap-2.5">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
             <span className="block h-2.5 w-2.5 rounded-full" style={{ background: "var(--on-photo)" }} />
@@ -125,7 +126,7 @@ export function SayIt() {
           <span className="serif" style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.015em" }} data-sayit-title>
             Just say it.
           </span>
-          <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato-bright)" }}>
+          <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato)" }}>
             ROUND listens
           </span>
         </span>
@@ -138,15 +139,15 @@ export function SayIt() {
               exit={{ opacity: 0, y: -8, transition: { duration: 0.3 } }}
               transition={{ duration: 0.45 }}
               className="serif block"
-              style={{ fontSize: 20, lineHeight: 1.2, color: "var(--on-photo-80)" }}
+              style={{ fontSize: 20, lineHeight: 1.2, color: "var(--ink-55)" }}
               data-sayit-example-home
             >
               &ldquo;{EXAMPLES[exampleAt]}&rdquo;
             </motion.span>
           </AnimatePresence>
         </span>
-        <span className="relative mt-3.5 flex h-12 items-center rounded-full pl-4 pr-1.5" style={{ background: "rgba(246,241,231,0.1)", border: "1px solid rgba(246,241,231,0.18)" }}>
-          <span className="min-w-0 flex-1 truncate text-[14px]" style={{ color: "var(--on-photo-60)" }}>
+        <span className="relative mt-3.5 flex h-12 items-center rounded-full pl-4 pr-1.5" style={{ background: "var(--ink-6)", border: "1px solid var(--hairline)" }}>
+          <span className="min-w-0 flex-1 truncate text-[14px]" style={{ color: "var(--ink-55)" }}>
             Type it like a text, or talk.
           </span>
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
@@ -155,7 +156,7 @@ export function SayIt() {
             </svg>
           </span>
         </span>
-      </button>
+      </motion.button>
 
       {/* Portaled to the body: the hero above is transformed while it scrolls, which would trap a fixed screen. */}
       {typeof document !== "undefined" &&
@@ -168,7 +169,7 @@ export function SayIt() {
                 exit={{ opacity: 0, transition: { duration: 0.18 } }}
                 transition={{ duration: 0.22 }}
                 className="fixed inset-0 z-[60] flex justify-center overflow-y-auto"
-                style={{ background: "var(--ink)", color: "var(--on-photo)" }}
+                style={{ background: "var(--night)", color: "var(--on-photo)" }}
                 data-sayit-sheet
                 role="dialog"
                 aria-modal

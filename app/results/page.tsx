@@ -10,6 +10,7 @@ import { applyToBarPlans, applyToNight, applyToPlans, pickWithClaude, type PickR
 import { encodePlan, type PlanPayload } from "@/lib/plan";
 import { ipFrom } from "@/lib/ratelimit";
 import { parseFav, parseName, parseTaste } from "@/lib/taste";
+import { getSettings } from "@/lib/settings";
 import { FAV_COOKIE, NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
 import { formatHour, mealWord } from "@/lib/time";
@@ -132,7 +133,14 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     return <ResultsView mode="night" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/plan/night" code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
-  const mode: Mode = m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
+  // Bars only (V33): a date or a dinner ask becomes a night of bars that fit it (a date bar; drinks instead of a table).
+  const { barsOnly } = await getSettings();
+  const folded = barsOnly && (m === "date" || m === "dinner");
+  const mode: Mode = folded ? "night" : m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
+  if (folded && m === "date") {
+    wants.date = Math.max(wants.date ?? 0, 1);
+    wants.talk = Math.max(wants.talk ?? 0, 0.6);
+  }
   const dayDoor = m === "day";
   const n = str(sp.n);
   if (!isNeighborhoodId(n)) redirect(dayDoor ? "/plan/day" : `/plan/${mode}`);
@@ -140,7 +148,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const fromMe = me && isNearby(me, n) ? ["From where you are"] : [];
 
   if (mode === "night") {
-    const group = Math.min(11, Math.max(2, num(sp.g, 4)));
+    const group = Math.min(11, Math.max(2, num(sp.g, folded && m === "date" ? 2 : 4)));
     const twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, been, me }, venues, HINTS);
     const ai = await pickWithClaude({ ...base, mode: "night", neighborhood: n, group }, venues, twelve.map((p) => ({ slug: p.venue.slug })));
     const picks = applyToNight(ai, twelve, venues);

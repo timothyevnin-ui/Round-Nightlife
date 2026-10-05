@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Recommend a place",
-  description: "Know a bar or restaurant ROUND should know about? Two minutes. We check every one.",
+  description: "Know a bar ROUND should know about? Two minutes. We check every one.",
 };
 
 /** The offer as it stands right now: on or off, the cap, and how many of the cap are already spoken for. */

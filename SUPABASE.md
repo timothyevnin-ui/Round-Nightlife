@@ -161,6 +161,10 @@ The pool: Studio → Questions → **Refresh from the asks** has the AI read the
 
 Hiding a line: Studio → People say → Hide. The rating stays, the words come off the page.
 
+## 22. At night, bars only (V33)
+
+Run the current `supabase/schema.sql` again: it adds `visited_at` to `venues` (the date on the What's hot card). Nothing else changes in the database. The **Bars only** switch on the Studio dashboard writes a `bars_only` row in `settings`; until you flip it, bars only is simply the default.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

@@ -105,6 +105,8 @@ export type Venue = {
   hot?: boolean;
   /** Lower comes first on the shelf. */
   hotRank?: number;
+  /** When ROUND went (YYYY-MM-DD), stamped on the What's hot card (V33). */
+  visitedAt?: string;
   /** The long read: ROUND's write-up, paragraphs separated by blank lines. */
   story?: string;
   /** What New York says (V32): read from the crowd views, never written. */

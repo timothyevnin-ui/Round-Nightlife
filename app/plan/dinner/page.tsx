@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { DinnerFlow } from "./DinnerFlow";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Dinner & drinks" };
-
+/** Bars only (V33): this door is gone; the ask on the home page handles it. */
 export default function Page() {
-  return <DinnerFlow />;
+  redirect("/");
 }

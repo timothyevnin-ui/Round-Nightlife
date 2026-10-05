@@ -635,6 +635,10 @@ update public.settings set value = jsonb_set(value, '{amount}', '4'::jsonb), upd
 update public.venues set notes = replace(replace(notes, 'Tim''s pick', 'ROUND''s pick'), 'Tim, September', 'ROUND, September')
   where notes like '%Tim%';
 
+-- ───────────────────────────── V33: bars only, at night ─────────────────────────────
+-- When ROUND went, stamped on the What's hot card ("Thursday").
+alter table public.venues add column if not exists visited_at date;
+
 -- ───────────────────────────── V32: what New York says ─────────────────────────────
 -- A rating now carries Best for and the answers to ROUND's questions (the
 -- question pool below), and the Studio can hide a line without deleting it.

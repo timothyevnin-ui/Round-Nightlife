@@ -40,8 +40,8 @@ export default async function Image({ params }: { params: Promise<{ code: string
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 64,
-          background: "linear-gradient(160deg, #f3ede0 0%, #e6dcc6 140%)",
-          color: "#16213a",
+          background: "linear-gradient(160deg, #0e1730 0%, #0a1126 140%)",
+          color: "#f6f1e7",
           fontFamily: "Geist",
         }}
       >
@@ -50,7 +50,7 @@ export default async function Image({ params }: { params: Promise<{ code: string
             <div style={{ width: 34, height: 34, borderRadius: 999, border: "5px solid #d9482b" }} />
             <div style={{ fontFamily: "Instrument Serif", fontSize: 40, letterSpacing: 8 }}>ROUND</div>
           </div>
-          <div style={{ fontSize: 22, letterSpacing: 4, color: "rgba(22,33,58,0.55)" }}>{eyebrow}</div>
+          <div style={{ fontSize: 22, letterSpacing: 4, color: "rgba(246,241,231,0.55)" }}>{eyebrow}</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: names.length > 2 ? 4 : 10 }}>
@@ -62,7 +62,7 @@ export default async function Image({ params }: { params: Promise<{ code: string
                 fontSize: nameSize,
                 lineHeight: 1.05,
                 letterSpacing: -1,
-                color: i === 0 ? "#16213a" : "rgba(22,33,58,0.7)",
+                color: i === 0 ? "#f6f1e7" : "rgba(246,241,231,0.7)",
                 display: "flex",
               }}
             >
@@ -72,7 +72,7 @@ export default async function Image({ params }: { params: Promise<{ code: string
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ fontSize: 28, color: "rgba(22,33,58,0.7)" }}>{meta}</div>
+          <div style={{ fontSize: 28, color: "rgba(246,241,231,0.7)" }}>{meta}</div>
           <div
             style={{
               display: "flex",
@@ -81,8 +81,8 @@ export default async function Image({ params }: { params: Promise<{ code: string
               height: 64,
               padding: "0 34px",
               borderRadius: 999,
-              background: "#16213a",
-              color: "#f3ede0",
+              background: "#d9482b",
+              color: "#f6f1e7",
               fontSize: 26,
               letterSpacing: 3,
             }}

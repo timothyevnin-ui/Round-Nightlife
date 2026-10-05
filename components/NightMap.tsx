@@ -7,13 +7,15 @@ import { prepareMapLibre } from "@/lib/maplibre";
 import type { Venue } from "@/lib/types";
 
 /**
- * The nightlife map. Free OpenFreeMap tiles (no key, no limits), darkened to
- * chalk black with a CSS filter on the canvas only, so ROUND's markers stay
- * cobalt and chalk on top. Set NEXT_PUBLIC_MAP_STYLE to swap styles.
+ * The nightlife map. Free OpenFreeMap tiles (no key, no limits), turned to
+ * night with a CSS filter on the canvas only, so ROUND's markers stay cream
+ * and tomato on top. Set NEXT_PUBLIC_MAP_STYLE to a dark style to skip the
+ * filter (the wrapper gets data-map-style="dark").
  */
 const STYLE = process.env.NEXT_PUBLIC_MAP_STYLE ?? "https://tiles.openfreemap.org/styles/positron";
+const DARK_STYLE = /dark|night|black/i.test(process.env.NEXT_PUBLIC_MAP_STYLE ?? "");
 
-export type MarkerKind = "saved" | "been" | "all";
+export type MarkerKind = "saved" | "been" | "friend" | "all";
 
 /** What a pin needs. Venues and the lighter Spots rows both qualify. */
 export type MapVenue = Pick<Venue, "slug" | "name" | "lat" | "lng"> & { kind?: Venue["kind"]; /** When one place has several pins (one per door). */ pinId?: string };
@@ -37,6 +39,10 @@ export type NightMapProps<V extends MapVenue> = {
   /** Bigger pins, for a map that's the whole screen and a thumb that's had a drink. */
   big?: boolean;
   controls?: "bottom-right" | "top-right";
+  /** Places people you follow have been (V33): green dots. */
+  friends?: Set<string>;
+  /** Slugs that are closed right now (V33): their pins fade. */
+  closed?: Set<string>;
 };
 
 export function NightMap<V extends MapVenue>({
@@ -53,6 +59,8 @@ export function NightMap<V extends MapVenue>({
   selected,
   big = false,
   controls = "bottom-right",
+  friends,
+  closed,
 }: NightMapProps<V>) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -107,7 +115,7 @@ export function NightMap<V extends MapVenue>({
     markersRef.current.forEach((m) => m.remove());
     markersRef.current.clear();
     for (const v of venues) {
-      const kind: MarkerKind = saved.has(v.slug) ? "saved" : been.has(v.slug) ? "been" : "all";
+      const kind: MarkerKind = saved.has(v.slug) ? "saved" : been.has(v.slug) ? "been" : friends?.has(v.slug) ? "friend" : "all";
       const el = document.createElement("button");
       el.type = "button";
       el.setAttribute("aria-label", v.name);
@@ -116,6 +124,7 @@ export function NightMap<V extends MapVenue>({
       el.dataset.slug = v.slug;
       if (v.kind) el.dataset.what = v.kind;
       if (big) el.dataset.size = "big";
+      if (closed?.has(v.slug)) el.dataset.open = "0";
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         onSelect?.(v);
@@ -134,7 +143,7 @@ export function NightMap<V extends MapVenue>({
     return () => {
       map.off("click", clear);
     };
-  }, [venues, saved, been, onSelect, big]);
+  }, [venues, saved, been, friends, closed, onSelect, big]);
 
   // The open pin sits on top and grows a little.
   useEffect(() => {
@@ -169,13 +178,13 @@ export function NightMap<V extends MapVenue>({
   }, [flyTo]);
 
   return (
-    <div className={`relative overflow-hidden ${rounded ? "rounded-[24px] border" : ""}`} style={{ height, borderColor: "var(--hairline)", background: "var(--paper-2)" }}>
+    <div className={`relative overflow-hidden ${rounded ? "rounded-[24px] border" : ""}`} style={{ height, borderColor: "var(--hairline)", background: "var(--paper-2)" }} data-map-style={DARK_STYLE ? "dark" : "night"}>
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(22,33,58,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(22,33,58,0.06) 1px, transparent 1px)",
+            "linear-gradient(rgba(246,241,231,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(246,241,231,0.05) 1px, transparent 1px)",
           backgroundSize: "28px 28px",
         }}
       />

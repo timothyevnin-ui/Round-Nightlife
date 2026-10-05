@@ -5,6 +5,7 @@ import { ATTR_LIST } from "./attrs";
 import { cleanQuestion, SEED_QUESTIONS, type CrowdQuestion, type Coverage } from "./crowdQuestions";
 import { dbConfig, keyHeaders, serviceHeaders } from "./db";
 import { listEvents } from "./events";
+import { getSettings } from "./settings";
 import type { Venue } from "./types";
 
 /**
@@ -55,7 +56,8 @@ export async function getPoolAll(fresh = false): Promise<{ pool: CrowdQuestion[]
 
 /** The live pool: what the rating sheet asks from. */
 export async function getPool(): Promise<CrowdQuestion[]> {
-  return (await getPoolAll()).pool.filter((q) => q.active);
+  const [{ pool }, { barsOnly }] = await Promise.all([getPoolAll(), getSettings()]);
+  return pool.filter((q) => q.active && (!barsOnly || q.kind !== "restaurant"));
 }
 
 /** Save questions (new or changed). Service role. */

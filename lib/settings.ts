@@ -12,7 +12,7 @@ import { BOUNTY_AMOUNT, BOUNTY_CAP } from "./bounty";
  */
 
 export type Bounty = { open: boolean; cap: number; amount: number };
-export type Settings = { verifiedOnly: boolean; bounty: Bounty };
+export type Settings = { verifiedOnly: boolean; bounty: Bounty; /** Bars only (V33): restaurants stay in the Studio, off every public screen. */ barsOnly: boolean };
 /** The offer ($4 since V31): on, for the first 1,000 approved recommendations, until the Studio says otherwise. */
 export const DEFAULT_BOUNTY: Bounty = { open: true, cap: BOUNTY_CAP, amount: BOUNTY_AMOUNT };
 /**
@@ -21,7 +21,7 @@ export const DEFAULT_BOUNTY: Bounty = { open: true, cap: BOUNTY_CAP, amount: BOU
  * what flips the app to verified-only. `ROUND_VERIFIED_ONLY=1` does the same
  * without a database (the built-in list).
  */
-export const DEFAULT_SETTINGS: Settings = { verifiedOnly: false, bounty: DEFAULT_BOUNTY };
+export const DEFAULT_SETTINGS: Settings = { verifiedOnly: false, bounty: DEFAULT_BOUNTY, barsOnly: true };
 export const SETTINGS_TAG = "settings";
 
 export async function getSettings(): Promise<Settings> {
@@ -34,6 +34,7 @@ export async function getSettings(): Promise<Settings> {
     const out = { ...DEFAULT_SETTINGS };
     for (const r of rows) {
       if (r.key === "verified_only" && typeof r.value === "boolean") out.verifiedOnly = r.value;
+      if (r.key === "bars_only" && typeof r.value === "boolean") out.barsOnly = r.value;
       if (r.key === "bounty" && r.value && typeof r.value === "object") {
         const b = r.value as Partial<Bounty>;
         out.bounty = { open: typeof b.open === "boolean" ? b.open : DEFAULT_BOUNTY.open, cap: Number.isFinite(Number(b.cap)) ? Number(b.cap) : DEFAULT_BOUNTY.cap, amount: Number.isFinite(Number(b.amount)) ? Number(b.amount) : DEFAULT_BOUNTY.amount };
@@ -45,7 +46,7 @@ export async function getSettings(): Promise<Settings> {
   }
 }
 
-export async function setSetting(key: "verified_only" | "bounty", value: boolean | Bounty): Promise<void> {
+export async function setSetting(key: "verified_only" | "bounty" | "bars_only", value: boolean | Bounty): Promise<void> {
   const { url, headers } = serviceHeaders();
   const res = await fetch(`${url}/rest/v1/settings?on_conflict=key`, {
     method: "POST",

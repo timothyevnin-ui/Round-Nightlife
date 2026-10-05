@@ -77,6 +77,8 @@ export type SavePayload = {
   perk?: string;
   hot?: boolean;
   hotRank?: number | null;
+  /** When ROUND went, YYYY-MM-DD (V33). */
+  visitedAt?: string | null;
   story?: string;
   photoCredit?: string;
   /** Set when the place is being added from a recommendation; marks it "added" on save. */
@@ -176,6 +178,7 @@ export async function saveVenue(formData: FormData): Promise<SaveResult> {
       sources: existing?.sources,
       hot: !!p.hot,
       hotRank: Number.isFinite(Number(p.hotRank)) && p.hotRank !== null && p.hotRank !== undefined ? Number(p.hotRank) : undefined,
+      visitedAt: p.visitedAt === undefined ? existing?.visitedAt : typeof p.visitedAt === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p.visitedAt) ? p.visitedAt : undefined,
       story: p.story?.trim() || undefined,
       hours: p.hours === undefined ? existing?.hours : cleanHours(p.hours),
       barFood: p.barFood === undefined ? existing?.barFood : !!p.barFood,
@@ -263,6 +266,7 @@ export async function syncSeed(): Promise<{ ok: true; added: number; refreshed: 
         photoCredit: db.photoCredit,
         hot: db.hot,
         hotRank: db.hotRank,
+        visitedAt: db.visitedAt,
         story: db.story ?? seed.story,
         friendsBeen: db.friendsBeen ?? seed.friendsBeen,
         perk: db.perk,
@@ -393,6 +397,18 @@ export async function setVerifiedOnly(on: boolean): Promise<{ ok: true } | { err
   try {
     await guard();
     await setSetting("verified_only", on);
+    updateTag(VENUES_TAG);
+    return { ok: true };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't save that." };
+  }
+}
+
+/** Bars only (V33): restaurants stay in the Studio, off every public screen. */
+export async function setBarsOnly(on: boolean): Promise<{ ok: true } | { error: string }> {
+  try {
+    await guard();
+    await setSetting("bars_only", on);
     updateTag(VENUES_TAG);
     return { ok: true };
   } catch (e) {

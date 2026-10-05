@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { DateFlow } from "./DateFlow";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Date" };
-
+/** Bars only (V33): this door is gone; the ask on the home page handles it. */
 export default function Page() {
-  return <DateFlow />;
+  redirect("/");
 }

@@ -54,50 +54,53 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
   return (
     <main className="mx-auto w-full max-w-md pb-14">
       <TrackView slug={v.slug} />
-      <div className="relative">
-        <Gallery venue={v}>
+      {/* The poster (V33): the photo full-bleed, the name set over its foot, the night page starting under it. */}
+      <div className="relative" data-poster>
+        <Gallery venue={v} className="aspect-[4/5] w-full">
           <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3" style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" }}>
             <BackButton />
+            {v.hot && (
+              <span className="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ background: "var(--tomato)", color: "var(--on-photo)", marginTop: "env(safe-area-inset-top, 0px)" }}>
+                What&apos;s hot
+              </span>
+            )}
           </div>
-          <div className="absolute bottom-5 left-5">
-            <FriendsChip count={v.friendsBeen} />
+          <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(14,23,48,0.35) 0%, rgba(14,23,48,0) 22%, rgba(14,23,48,0) 48%, rgba(14,23,48,0.88) 82%, var(--night) 100%)" }} aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 px-5 pb-4">
+            <div className="mb-2.5">
+              <FriendsChip count={v.friendsBeen} />
+            </div>
+            <p className="eyebrow" style={{ color: "var(--on-photo-80)" }}>
+              {neighborhoodName(v.neighborhood)} · {kindWord(v)}
+            </p>
+            <h1 className="serif mt-1.5" style={{ fontSize: 44, lineHeight: 0.96, letterSpacing: "-0.025em", color: "var(--on-photo)" }}>
+              {v.name}
+              {v.verified && <VerifiedMark size={26} className="ml-2.5" />}
+            </h1>
+            <p className="mt-2 text-[12.5px] font-medium tracking-wide" style={{ color: "var(--on-photo-60)" }}>
+              {keywords(v).join(" · ")}
+            </p>
           </div>
         </Gallery>
       </div>
 
-      <div className="screen" style={{ minHeight: 0, paddingTop: 20 }}>
-        {/* ROUND says, first: the reason this place is on the list. */}
-        <section className="flex items-start gap-4">
+      <div className="screen" style={{ minHeight: 0, paddingTop: 4 }}>
+        {/* ROUND says: the cream card on the night page, ROUND's number and the people's beside it. */}
+        <section className="card theme-paper flex items-start gap-4 p-[18px]" data-round-says>
           <div className="min-w-0 flex-1">
             <p className="eyebrow" style={{ color: "var(--tomato)" }}>
               ROUND says
             </p>
-            <p className="serif mt-1.5" style={{ fontSize: 24, lineHeight: 1.25 }}>
+            <p className="serif mt-1.5" style={{ fontSize: 22, lineHeight: 1.24, color: "var(--ink)" }}>
               {v.take}
             </p>
+            <VerifiedLine verified={!!v.verified} desk={!!v.sources?.includes("desk")} />
           </div>
           <div className="flex shrink-0 flex-col items-center gap-2.5">
-            <ScoreBadge score={v.score} size={64} className="mt-1" />
+            <ScoreBadge score={v.score} size={60} className="mt-0.5" draw />
             <PeopleBadge people={v.crowd?.people} n={v.crowd?.n} />
           </div>
         </section>
-
-        <p className="eyebrow mt-7">
-          {neighborhoodName(v.neighborhood)} · {kindWord(v)}
-          {v.hot && (
-            <span className="ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em]" style={{ background: "var(--tomato)", color: "var(--on-photo)" }}>
-              HOT RIGHT NOW
-            </span>
-          )}
-        </p>
-        <h1 className="serif mt-1.5" style={{ fontSize: 38, lineHeight: 1.02, letterSpacing: "-0.02em" }}>
-          {v.name}
-          {v.verified && <VerifiedMark size={26} className="ml-2.5" />}
-        </h1>
-        <p className="mt-2.5 text-[13px] font-medium tracking-wide" style={{ color: "var(--chalk-55)" }}>
-          {keywords(v).join(" · ")}
-        </p>
-        <VerifiedLine verified={!!v.verified} desk={!!v.sources?.includes("desk")} />
 
         <VenueActions venue={v} shareUrl={`/p/${shareCode}`} names={names} />
         <StudioBar slug={v.slug} verified={!!v.verified} />

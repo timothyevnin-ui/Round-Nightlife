@@ -1,115 +1,98 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Photo } from "./Photo";
-import { VerifiedMark } from "./VerifiedMark";
+import { OpenNow } from "./OpenNow";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import type { Venue } from "@/lib/types";
 
 /**
- * "What's hot right now" — the shelf under the front door. Each entry is a
- * place with a story behind it, written in the back office. Cards rise in as
- * you scroll; the first line of the story is the hook.
+ * What's hot (V33): the blog, under the ask. Big photo cards you swipe
+ * through, each a place ROUND went, the day stamped on the photo, the score,
+ * the first line of the story, Read the story. Written in the back office.
  */
 export function HotShelf({ venues, compact = false }: { venues: Venue[]; compact?: boolean }) {
-  const empty = venues.length === 0;
+  // The phone's clock, read once: the day stamp is relative to now.
+  const [now] = useState(() => Date.now());
+  if (!venues.length) return null;
   return (
-    <section id="hot" className="scroll-mt-4 pt-10 pb-6">
-      <motion.header
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ type: "spring", stiffness: 240, damping: 28 }}
-        className="flex items-end justify-between"
-      >
-        <div>
-          <p className="eyebrow" style={{ color: "var(--tomato)" }}>
-            ROUND&apos;s picks · right now
-          </p>
-          <h2 className="serif mt-1.5" style={{ fontSize: 36, lineHeight: 1, letterSpacing: "-0.02em" }}>
-            What&apos;s hot
-            <br />
-            right now.
-          </h2>
-        </div>
-        {!compact && (
-          <Link href="/hot" className="pressable pb-1 text-[12.5px] font-medium" style={{ color: "var(--ink-55)" }}>
-            All of them
-          </Link>
-        )}
+    <section id="hot" className="scroll-mt-4 pt-9" data-hot-shelf={venues.length}>
+      <motion.header initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.6 }} transition={{ type: "spring", stiffness: 240, damping: 28 }} className="flex items-baseline justify-between">
+        <p className="eyebrow" style={{ color: "var(--tomato-bright)" }}>
+          What&apos;s hot
+        </p>
+        <Link href="/hot" className="pressable text-[12.5px]" style={{ color: "var(--ink-55)" }}>
+          {compact ? "All of them" : "ROUND went this week"}
+        </Link>
       </motion.header>
 
-      {empty && (
-        <ol className="mt-6 flex flex-col gap-3" aria-label="Open slots">
-          {[1, 2, 3].map((n) => (
-            <li key={n} className="flex items-center gap-4 rounded-[24px] border border-dashed p-4" style={{ borderColor: "var(--hairline-strong)" }}>
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] serif text-[18px]" style={{ background: "var(--ink-6)", color: "var(--ink-35)" }}>
-                {n}
-              </span>
-              <div className="min-w-0">
-                <p className="text-[14.5px] font-medium" style={{ color: "var(--ink-55)" }}>
-                  {n === 1 ? "The first spot goes here." : n === 2 ? "Something lowkey." : "Something loud."}
-                </p>
-                <p className="text-[12.5px]" style={{ color: "var(--ink-35)" }}>
-                  Flip a place on in the back office and write its story.
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      )}
-
-      <ol className="mt-6 flex flex-col gap-4">
+      <div className="no-scrollbar snap-x -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pb-2" style={{ scrollPaddingLeft: 20, scrollPaddingRight: 20 }}>
         {venues.map((v, i) => (
-          <motion.li
+          <motion.article
             key={v.slug}
-            initial={{ opacity: 0, y: 36, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ type: "spring", stiffness: 240, damping: 28, delay: Math.min(i, 2) * 0.05 }}
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ type: "spring", stiffness: 240, damping: 28, delay: Math.min(i, 2) * 0.06 }}
+            className="w-[78vw] max-w-[320px] shrink-0 overflow-hidden rounded-[22px]"
+            style={{ background: "var(--surface)", border: "1px solid var(--hairline)" }}
+            data-hot-card={v.slug}
           >
-            <Link href={`/v/${v.slug}#story`} className="pressable card flex overflow-hidden">
-              <Photo venue={v} rounded="rounded-none" className="w-[38%] shrink-0" style={{ minHeight: 168 }}>
-                <span className="absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full serif text-[15px]" style={{ background: "var(--paper)", color: "var(--ink)" }}>
-                  {i + 1}
-                </span>
+            <Link href={`/v/${v.slug}#story`} className="pressable block">
+              <Photo venue={v} rounded="rounded-none" className="aspect-[3/2] w-full">
+                <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(14,23,48,0) 55%, rgba(14,23,48,0.8) 100%)" }} />
+                {v.visitedAt && (
+                  <span className="absolute left-3.5 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ background: "var(--tomato)", color: "var(--on-photo)" }} data-visited>
+                    {dayWord(v.visitedAt, now)}
+                  </span>
+                )}
               </Photo>
-              <div className="flex min-w-0 flex-1 flex-col justify-between p-4">
-                <div>
-                  <p className="eyebrow">
-                    {neighborhoodName(v.neighborhood)} · {v.kind === "restaurant" ? "Restaurant" : "Bar"}
-                  </p>
-                  <h3 className="serif mt-1.5" style={{ fontSize: 24, lineHeight: 1.05, letterSpacing: "-0.015em" }}>
-                    {v.name}
-                    {v.verified && <VerifiedMark size={17} className="ml-1.5" />}
-                  </h3>
-                  <p className="mt-2 line-clamp-3 text-[13.5px] leading-snug" style={{ color: "var(--ink-70)" }}>
-                    {hook(v)}
-                  </p>
+              <div className="px-4 pb-4 pt-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="serif truncate" style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.015em" }}>
+                      {v.name}
+                    </h3>
+                    <p className="mt-1 truncate text-[11.5px]" style={{ color: "var(--ink-55)" }}>
+                      {neighborhoodName(v.neighborhood)}
+                      {v.tags[0] ? ` · ${v.tags[0]}` : ""}
+                    </p>
+                  </div>
+                  {typeof v.score === "number" && (
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-semibold" style={{ borderColor: "var(--tomato)", color: "var(--tomato-bright)" }}>
+                      <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "var(--tomato)" }} aria-hidden />
+                      {v.score}
+                    </span>
+                  )}
                 </div>
-                <p className="mt-3 text-[12.5px] font-semibold" style={{ color: "var(--tomato)" }}>
-                  Read the story →
+                <p className="serif mt-2.5 line-clamp-2" style={{ fontSize: 16, lineHeight: 1.25, color: "var(--ink-85)" }}>
+                  {hook(v)}
                 </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-[12.5px] font-semibold" style={{ color: "var(--tomato-bright)" }}>
+                    Read the story →
+                  </span>
+                  <OpenNow hours={v.hours} />
+                </div>
               </div>
             </Link>
-          </motion.li>
+          </motion.article>
         ))}
-      </ol>
-
-      <Link href="/recommend" className="pressable mt-6 flex items-center justify-between rounded-[22px] border px-5 py-4" style={{ borderColor: "var(--hairline-strong)", background: "var(--surface)" }}>
-        <div>
-          <p className="text-[15px] font-medium">Know a spot we don&apos;t?</p>
-          <p className="mt-0.5 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
-            Recommend a bar or restaurant. Two minutes. We check every one.
-          </p>
-        </div>
-        <span className="serif text-[22px]" style={{ color: "var(--tomato)" }}>
-          →
-        </span>
-      </Link>
+      </div>
     </section>
   );
+}
+
+/** "Thursday" inside two weeks, "Sep 29" after, nothing without a date. */
+export function dayWord(iso: string, now: number): string {
+  const d = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return "";
+  const days = (now - d.getTime()) / 864e5;
+  if (days < 1 && days > -1) return "Today";
+  if (days < 14) return d.toLocaleDateString("en-US", { weekday: "long" });
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 /** The first sentence of the story, or the Take if there's no story yet. */

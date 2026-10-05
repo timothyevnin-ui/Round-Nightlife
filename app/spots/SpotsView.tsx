@@ -13,6 +13,9 @@ import { BookmarkIcon, useSignInNudge } from "@/components/Actions";
 import { Legend } from "@/components/MapSheet";
 import type { NightMapProps } from "@/components/NightMap";
 import { useRoundStore } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import { getSupabase } from "@/lib/supabase";
+import { friendsSpots } from "@/lib/friends";
 import { track } from "@/lib/track";
 import { locate } from "@/lib/locate";
 import { nowInNewYork, openWord, type OpenWord } from "@/lib/hours";
@@ -87,7 +90,22 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
   const [asking, setAsking] = useState(false);
   const [denied, setDenied] = useState(false);
   const [fly, setFly] = useState<{ lat: number; lng: number; zoom?: number; key: number } | undefined>();
+  const [openOnly, setOpenOnly] = useState(false);
   const { state } = useRoundStore();
+  const { enabled, user } = useAuth();
+  // Places people you follow have been (V33): green dots on the map.
+  const [friendSlugs, setFriendSlugs] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!enabled || !user || !sb) return;
+    let live = true;
+    friendsSpots(sb, user.id, 400)
+      .then((rows) => live && setFriendSlugs(new Set(rows.filter((r) => r.state === "been").map((r) => r.slug))))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [enabled, user]);
 
   // The phone's clock, on the client only (the server can't know it), for "Open till 2am"; re-read each minute.
   const nowKey = useSyncExternalStore(subscribeMinute, readNow, () => "");
@@ -135,6 +153,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
     return spots
       .filter((s) => hood === "all" || s.neighborhood === hood)
       .filter((s) => kind === "all" || (kind === "bar" ? hasBar(s) : s.kind === "restaurant"))
+      .filter((s) => !openOnly || !now || !s.hours || openWord(s.hours, now.dow, now.hour)?.state === "open")
       .filter((s) => !needle || s.name.toLowerCase().includes(needle) || s.tags.some((t) => t.toLowerCase().includes(needle)) || (s.cuisine ?? "").toLowerCase().includes(needle) || neighborhoodName(s.neighborhood).toLowerCase().includes(needle))
       .sort((a, b) =>
         by === "near" && me
@@ -143,9 +162,12 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
             ? (b.score ?? -1) - (a.score ?? -1) || a.name.localeCompare(b.name)
             : a.name.localeCompare(b.name),
       );
-  }, [spots, q, hood, kind, sort, me]);
+  }, [spots, q, hood, kind, sort, me, openOnly, now]);
 
   const visible = list.slice(0, shown);
+  // Closed right now: the pin fades (the place stays; it's a fact, not a filter).
+  const closedNow = useMemo(() => new Set(now ? spots.filter((s) => s.hours && openWord(s.hours, now.dow, now.hour)?.state === "closed").map((s) => s.slug) : []), [spots, now]);
+  const anyRestaurants = useMemo(() => spots.some((s) => s.kind === "restaurant"), [spots]);
   const pins = useMemo<Pin[]>(() => list.flatMap((s) => doorsOf(s).map((door, i) => ({ ...s, lat: door.lat, lng: door.lng, pinId: `${s.slug}#${i}`, door }))), [list]);
   const onPin = useCallback((p: Pin | null) => setSelected(p), []);
   const filtered = list.length !== spots.length;
@@ -220,18 +242,29 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
             ))}
           </div>
           <div className="flex gap-1.5" role="radiogroup" aria-label="Kind" data-spots-kind>
-            {(["all", "bar", "restaurant"] as const).map((k) => (
-              <Chip
-                key={k}
-                on={kind === k}
-                onClick={() => {
-                  setKind(k);
-                  setShown(PAGE);
-                }}
-                label={k === "all" ? "All" : k === "bar" ? "Bars" : "Restaurants"}
-                small
-              />
-            ))}
+            {anyRestaurants &&
+              (["all", "bar", "restaurant"] as const).map((k) => (
+                <Chip
+                  key={k}
+                  on={kind === k}
+                  onClick={() => {
+                    setKind(k);
+                    setShown(PAGE);
+                  }}
+                  label={k === "all" ? "All" : k === "bar" ? "Bars" : "Restaurants"}
+                  small
+                />
+              ))}
+            <Chip
+              on={openOnly}
+              onClick={() => {
+                setOpenOnly((o) => !o);
+                setShown(PAGE);
+              }}
+              label="Open now"
+              small
+              dot
+            />
           </div>
         </div>
         {view === "list" && (
@@ -284,20 +317,21 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
 
       {view === "map" && spots.length > 0 && (
         <div className="relative -mx-5 mt-1 overflow-hidden" style={{ height: mapHeight, borderTop: "1px solid var(--hairline)", borderBottom: "1px solid var(--hairline)" }} data-spots-map>
-          <NightMap venues={pins} saved={saved} been={been} onSelect={onPin} height="100%" interactive rounded={false} focus={HOME} you={me} flyTo={fly} selected={selected?.slug ?? null} big controls="top-right" />
-          <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5 text-[11px]" style={{ color: "var(--chalk-70)" }}>
-            <span className="rounded-full px-2.5 py-1 font-medium" style={{ background: "rgba(243,237,224,0.92)", color: "var(--ink)", backdropFilter: "blur(8px)" }} data-spots-count>
-              {!filtered ? `${spots.length} spots · Manhattan` : `${list.length} of ${spots.length} spots`}
+          <NightMap venues={pins} saved={saved} been={been} friends={friendSlugs} closed={closedNow} onSelect={onPin} height="100%" interactive rounded={false} focus={HOME} you={me} flyTo={fly} selected={selected?.slug ?? null} big controls="top-right" />
+          <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5 text-[11px]" style={{ color: "var(--ink-70)" }}>
+            <span className="rounded-full px-2.5 py-1 font-medium" style={{ background: "rgba(14,23,48,0.86)", color: "var(--ink)", backdropFilter: "blur(8px)", border: "1px solid var(--hairline)" }} data-spots-count>
+              {!filtered ? `${spots.length} bars · Manhattan` : `${list.length} of ${spots.length} bars`}
             </span>
             <Legend color="#d9482b" label="Want to go" ring />
-            <Legend color="#16213a" label="Been" />
+            <Legend color="#f6f1e7" label="Been" />
+            {friendSlugs.size > 0 && <Legend color="#5fb48f" label="Friends" />}
           </div>
           {!selected && (
             <button
               type="button"
               onClick={locateMe}
               className="pressable absolute left-3 flex h-10 items-center gap-2 rounded-full border pl-3 pr-3.5 text-[13px] font-medium"
-              style={{ bottom: 34, background: "rgba(251,248,241,0.96)", borderColor: "var(--hairline-strong)", color: "var(--ink)", backdropFilter: "blur(10px)", boxShadow: "0 2px 10px rgba(22,33,58,0.12)" }}
+              style={{ bottom: 34, background: "rgba(14,23,48,0.9)", borderColor: "var(--hairline-strong)", color: "var(--ink)", backdropFilter: "blur(10px)", boxShadow: "0 2px 10px rgba(0,0,0,0.35)" }}
               aria-label={me ? "Center the map on you" : "See where you are on the map"}
               data-spots-locate
               data-located={me ? "1" : "0"}
@@ -307,7 +341,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
             </button>
           )}
           {!me && denied && !selected && (
-            <p className="pointer-events-none absolute left-3 rounded-full px-2.5 py-1 text-[11px]" style={{ bottom: 78, background: "rgba(243,237,224,0.92)", color: "var(--ink-55)" }}>
+            <p className="pointer-events-none absolute left-3 rounded-full px-2.5 py-1 text-[11px]" style={{ bottom: 78, background: "rgba(14,23,48,0.9)", color: "var(--ink-55)" }}>
               Turn location on for this site in Settings, then tap again.
             </p>
           )}
@@ -319,7 +353,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
           <AnimatePresence>
             {selected && (
               <motion.div key={selected.slug} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} transition={{ duration: 0.18 }} className="absolute inset-x-3 bottom-3" data-spot-card={selected.slug}>
-                <div className="card p-3" style={{ background: "rgba(251,248,241,0.97)", backdropFilter: "blur(12px)" }}>
+                <div className="card theme-paper p-3" style={{ background: "rgba(251,248,241,0.97)", backdropFilter: "blur(12px)" }}>
                   <div className="flex gap-3">
                     <Link href={`/v/${selected.slug}`} className="pressable shrink-0">
                       <Photo venue={selected} className="h-[68px] w-[68px]" rounded="rounded-[16px]" />
@@ -532,9 +566,10 @@ function Pill({ on, onClick, label, icon, tone, data }: { on: boolean; onClick: 
   );
 }
 
-function Chip({ on, onClick, label, small = false }: { on: boolean; onClick: () => void; label: string; small?: boolean }) {
+function Chip({ on, onClick, label, small = false, dot = false }: { on: boolean; onClick: () => void; label: string; small?: boolean; /** A green dot before the label (the Open now switch). */ dot?: boolean }) {
   return (
-    <button type="button" role="radio" aria-checked={on} onClick={onClick} className={`pressable shrink-0 rounded-full border font-medium ${small ? "h-8 px-2.5 text-[12px]" : "h-9 px-3 text-[13px]"}`} style={on ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { borderColor: "var(--hairline-strong)", color: "var(--ink-70)", background: "var(--surface)" }}>
+    <button type="button" role="radio" aria-checked={on} onClick={onClick} className={`pressable flex shrink-0 items-center gap-1.5 rounded-full border font-medium ${small ? "h-8 px-2.5 text-[12px]" : "h-9 px-3 text-[13px]"}`} style={on ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { borderColor: "var(--hairline-strong)", color: "var(--ink-70)", background: "var(--surface)" }} data-open-only={dot ? (on ? "1" : "0") : undefined}>
+      {dot && <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: on ? "var(--pine)" : "var(--pine-bright)" }} aria-hidden />}
       {label}
     </button>
   );

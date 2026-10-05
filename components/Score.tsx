@@ -4,7 +4,7 @@
  * only once a score is set in Studio. The crowd's number sits beside it once
  * enough people have rated.
  */
-export function ScoreBadge({ score, size = 44, className = "" }: { score?: number; size?: number; className?: string }) {
+export function ScoreBadge({ score, size = 44, className = "", draw = false }: { score?: number; size?: number; className?: string; /** Draw the ring on arrival (V33): the arc grows from nothing to the score. */ draw?: boolean }) {
   if (typeof score !== "number") return null;
   const tone = score >= 85 ? "var(--tomato)" : score >= 70 ? "var(--pine)" : "var(--ink-55)";
   const r = 46;
@@ -13,8 +13,8 @@ export function ScoreBadge({ score, size = 44, className = "" }: { score?: numbe
     <span className={`inline-flex shrink-0 items-center gap-2 ${className}`} role="img" aria-label={`ROUND score ${score} out of 100`} title={`ROUND score ${score}`} data-score={score}>
       <span className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden className="absolute inset-0">
-          <circle cx="50" cy="50" r={r} stroke="rgba(22,33,58,0.12)" strokeWidth="9" fill="none" />
-          <circle cx="50" cy="50" r={r} stroke={tone} strokeWidth="9" fill="none" strokeLinecap="round" strokeDasharray={`${(score / 100) * c} ${c}`} transform="rotate(-90 50 50)" />
+          <circle cx="50" cy="50" r={r} stroke="var(--ink-10)" strokeWidth="9" fill="none" />
+          <circle cx="50" cy="50" r={r} stroke={tone} strokeWidth="9" fill="none" strokeLinecap="round" strokeDasharray={`${(score / 100) * c} ${c}`} transform="rotate(-90 50 50)" className={draw ? "ring-draw" : undefined} style={draw ? { strokeDashoffset: 0 } : undefined} />
         </svg>
         <span className="serif relative" style={{ fontSize: size * 0.42, lineHeight: 1, color: "var(--ink)", letterSpacing: "-0.02em" }}>
           {score}
@@ -37,7 +37,7 @@ export function PeopleBadge({ people, n, size = 44, className = "" }: { people?:
     <span className={`inline-flex shrink-0 flex-col items-center gap-1 ${className}`} role="img" aria-label={`${n} people say ${people} out of 100`} title={`The people's score: ${people}`} data-people={people} data-people-n={n}>
       <span className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden className="absolute inset-0">
-          <circle cx="50" cy="50" r={r} stroke="rgba(22,33,58,0.12)" strokeWidth="9" fill="none" />
+          <circle cx="50" cy="50" r={r} stroke="var(--ink-10)" strokeWidth="9" fill="none" />
           <circle cx="50" cy="50" r={r} stroke={tone} strokeWidth="9" fill="none" strokeLinecap="round" strokeDasharray={`${(people / 100) * c} ${c}`} transform="rotate(-90 50 50)" />
         </svg>
         <span className="serif relative" style={{ fontSize: size * 0.42, lineHeight: 1, color: "var(--ink)", letterSpacing: "-0.02em" }}>

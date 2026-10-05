@@ -19,7 +19,7 @@ export function PlanCard({ plan, shareUrl, index = 0 }: { plan: DatePlan; shareU
       initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.05 + index * 0.08 }}
-      className="card overflow-hidden"
+      className="card theme-paper overflow-hidden"
     >
       <div className="flex items-center justify-between px-5 pt-4">
         <LabelChip label={plan.label} />
