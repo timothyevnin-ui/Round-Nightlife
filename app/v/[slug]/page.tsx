@@ -11,8 +11,9 @@ import { BackButton } from "@/components/BackButton";
 import { priceLabel } from "@/lib/describe";
 import { HoursLine, HoursWeek } from "@/components/Hours";
 import { DayDeal } from "@/components/ResultCard";
-import { CrowdLine, ScoreBadge } from "@/components/Score";
-import { crowdScores } from "@/lib/crowd";
+import { PeopleBadge, ScoreBadge } from "@/components/Score";
+import { City } from "@/components/City";
+import { linesFor } from "@/lib/crowd";
 import { neighborhoodName } from "@/lib/neighborhoods";
 import { encodePlan } from "@/lib/plan";
 import { SEED_VENUES } from "@/lib/venues";
@@ -47,7 +48,7 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
   const v = await getVenue(slug);
   if (!v || v.retired) notFound(); // passed on ("not for ROUND"): gone from the app, kept in Studio
   const shareCode = encodePlan({ m: "night", n: v.neighborhood, t: 21, s: [{ bar: v.slug }] });
-  const [all, crowd] = await Promise.all([getVenues(), crowdScores([v.slug])]);
+  const [all, lines] = await Promise.all([getVenues(), linesFor(v.slug)]);
   const names: Record<string, string> = Object.fromEntries(all.map((x) => [x.slug, x.name]));
 
   return (
@@ -74,9 +75,11 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
             <p className="serif mt-1.5" style={{ fontSize: 24, lineHeight: 1.25 }}>
               {v.take}
             </p>
-            <CrowdLine crowd={crowd[v.slug]} className="mt-2" />
           </div>
-          <ScoreBadge score={v.score} size={64} className="mt-1" />
+          <div className="flex shrink-0 flex-col items-center gap-2.5">
+            <ScoreBadge score={v.score} size={64} className="mt-1" />
+            <PeopleBadge people={v.crowd?.people} n={v.crowd?.n} />
+          </div>
         </section>
 
         <p className="eyebrow mt-7">
@@ -118,6 +121,8 @@ export default async function VenuePage({ params }: PageProps<"/v/[slug]">) {
             {v.theCatch}
           </p>
         )}
+
+        <City venue={v} lines={lines} />
 
         {storyParagraphs(v.story).length > 0 && (
           <section id="story" className="story mt-8 scroll-mt-6 rounded-[24px] p-5" style={{ background: "var(--surface)", border: "1px solid var(--hairline)" }}>

@@ -1,18 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useSignInNudge } from "./Actions";
-import { useRoundStore, type Verdict } from "@/lib/store";
+import { ladderSpot, useRoundStore, type Verdict } from "@/lib/store";
+import { bestQuestion, chooseQuestions, knownPercent, SEED_QUESTIONS, tagsFromAnswers, type CrowdQuestion } from "@/lib/crowdQuestions";
 import { track } from "@/lib/track";
 import type { Venue } from "@/lib/types";
 
 /**
- * "Rate this bar." Not stars. A verdict in words, what the room actually was
- * (that's the part the algorithm learns from), where it lands on your own
- * ladder against the places you've already rated, and one line for the
- * group chat. Four taps on a good night.
+ * "Rate this spot" (V32). A verdict in words; what it's best for, in taps;
+ * then ROUND's own questions for this place, the ones the city asks for and
+ * this place knows least, as many as you feel like (Done is always one tap
+ * away); and one line for the group chat. The questions come from
+ * /api/rate-questions (the pool the AI writes from the asks); until that
+ * answers, the seed pool asks.
  */
 
 export const VERDICTS: { key: Verdict; label: string; sub: string }[] = [
@@ -22,51 +25,53 @@ export const VERDICTS: { key: Verdict; label: string; sub: string }[] = [
   { key: "never", label: "Never again.", sub: "ROUND will remember." },
 ];
 
-export const ROOM_TAGS: { key: string; label: string }[] = [
-  { key: "lively", label: "Loud" },
-  { key: "chill", label: "Chill" },
-  { key: "talk", label: "Could talk" },
-  { key: "dance", label: "Dancing" },
-  { key: "liveMusic", label: "Live music" },
-  { key: "cocktails", label: "Real cocktails" },
-  { key: "beer", label: "Beer place" },
-  { key: "cheap", label: "Cheap" },
-  { key: "upscale", label: "Pricey" },
-  { key: "date", label: "Date-y" },
-  { key: "groups", label: "Big group" },
-  { key: "social", label: "Met people" },
-  { key: "dive", label: "Dive" },
-  { key: "scene", label: "Sceney" },
-  { key: "late", label: "Went late" },
-  { key: "food", label: "Good food" },
-  { key: "noLine", label: "Walked right in" },
-  { key: "line", label: "Long line" },
-];
+type Step = "verdict" | "best" | "ask" | "note" | "done";
+type Served = { best: CrowdQuestion | null; asks: CrowdQuestion[]; known: number };
 
-type Step = "verdict" | "tags" | "ladder" | "note" | "done";
+function seedServed(kind: "bar" | "restaurant", slug: string, done: string[]): Served {
+  return { best: bestQuestion(SEED_QUESTIONS, kind) ?? null, asks: chooseQuestions(SEED_QUESTIONS, kind, slug, {}, done), known: knownPercent(SEED_QUESTIONS, kind, slug, {}) };
+}
 
-export function RateSheet({ venue, names, open, onClose }: { venue: Pick<Venue, "slug" | "name">; names: Record<string, string>; open: boolean; onClose: () => void }) {
+export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" | "name" | "kind">; names?: Record<string, string>; open: boolean; onClose: () => void }) {
   const { state, rate } = useRoundStore();
   const nudge = useSignInNudge("rate");
   const prev = state.been[venue.slug];
   const [step, setStep] = useState<Step>("verdict");
   const [verdict, setVerdict] = useState<Verdict | null>(prev?.verdict ?? null);
-  const [tags, setTags] = useState<string[]>(prev?.tags ?? []);
+  const [bestFor, setBestFor] = useState<string[]>(prev?.bestFor ?? []);
+  const [answers, setAnswers] = useState<Record<string, string[]>>(prev?.answers ?? {});
   const [note, setNote] = useState(prev?.note ?? "");
-  // Binary insertion against the ladder, at most three questions.
-  const others = (state.ladder ?? []).filter((s) => s !== venue.slug);
-  const [lo, setLo] = useState(0);
-  const [hi, setHi] = useState(others.length);
-  const [asked, setAsked] = useState(0);
+  const [served, setServed] = useState<Served | null>(null);
+  const [i, setI] = useState(0);
+  const [picked, setPicked] = useState<string[]>([]);
   const [place, setPlace] = useState<number | null>(null);
+  const [rated, setRated] = useState(false);
+  const [answered, setAnswered] = useState(0);
+  const doneBefore = useMemo(() => Object.keys(prev?.answers ?? {}), [prev?.answers]);
+
+  // Ask ROUND what it wants to know about this place, once the sheet opens.
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    const fallback = seedServed(venue.kind, venue.slug, doneBefore);
+    fetch(`/api/rate-questions?slug=${encodeURIComponent(venue.slug)}${doneBefore.length ? `&done=${encodeURIComponent(doneBefore.join(","))}` : ""}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j: Served | null) => {
+        if (!live) return;
+        setServed(j && Array.isArray(j.asks) ? { best: j.best ?? fallback.best, asks: j.asks, known: typeof j.known === "number" ? j.known : fallback.known } : fallback);
+      })
+      .catch(() => live && setServed(fallback));
+    return () => {
+      live = false;
+    };
+  }, [open, venue.slug, venue.kind, doneBefore]);
 
   const reset = () => {
     setStep("verdict");
-    setLo(0);
-    setHi(others.length);
-    setAsked(0);
+    setI(0);
+    setPicked([]);
+    setAnswered(0);
   };
-  const [rated, setRated] = useState(false);
   const close = () => {
     onClose();
     window.setTimeout(reset, 300);
@@ -77,38 +82,40 @@ export function RateSheet({ venue, names, open, onClose }: { venue: Pick<Venue, 
     }
   };
 
+  const pool = served ?? seedServed(venue.kind, venue.slug, doneBefore);
+  const asks = pool.asks;
+  const current = asks[i];
+  // The meter: what ROUND knew, plus what this person just taught it (one answer is a fifth of a question).
+  const known = Math.min(100, Math.round(pool.known + (answered * 100) / Math.max(1, 5 * Math.max(asks.length, 6))));
+
   const pickVerdict = (v: Verdict) => {
     setVerdict(v);
-    setStep("tags");
+    setStep(pool.best ? "best" : asks.length ? "ask" : "note");
   };
-  const afterTags = () => {
-    const onLadder = verdict === "again" || verdict === "back";
-    if (onLadder && others.length > 0) setStep("ladder");
+  const afterBest = () => setStep(asks.length ? "ask" : "note");
+  const toggle = (list: string[], key: string, multi: boolean) => (multi ? (list.includes(key) ? list.filter((k) => k !== key) : [...list, key]) : [key]);
+  const commit = (keys: string[]) => {
+    if (!current) return;
+    if (keys.length) {
+      setAnswers((a) => ({ ...a, [current.id]: keys }));
+      setAnswered((n) => n + 1);
+    }
+    setPicked([]);
+    if (i + 1 < asks.length) setI(i + 1);
     else setStep("note");
-  };
-  const answer = (better: boolean) => {
-    const mid = Math.floor((lo + hi) / 2);
-    const nlo = better ? lo : mid + 1;
-    const nhi = better ? mid : hi;
-    const n = asked + 1;
-    setLo(nlo);
-    setHi(nhi);
-    setAsked(n);
-    if (nlo >= nhi || n >= 3) setStep("note");
   };
   const finish = () => {
     if (!verdict) return;
-    const position = Math.floor((lo + hi) / 2);
     const clean = note.trim().slice(0, 140);
-    const at = rate(venue.slug, { verdict, tags, note: clean || undefined }, position);
+    const source = served ? [...(served.best ? [served.best] : []), ...served.asks, ...SEED_QUESTIONS] : SEED_QUESTIONS;
+    const tags = tagsFromAnswers(source, bestFor, answers, venue.kind);
+    const position = ladderSpot(state, venue.slug, verdict);
+    const at = rate(venue.slug, { verdict, tags, note: clean || undefined, bestFor: bestFor.length ? bestFor : undefined, answers: Object.keys(answers).length ? answers : undefined }, position);
     setPlace(at);
-    track("save", { slug: venue.slug, data: { source: "rate", verdict, tags, note: !!clean } });
+    track("save", { slug: venue.slug, data: { source: "rate", verdict, bestFor, answered: Object.keys(answers).length, note: !!clean } });
     setStep("done");
     setRated(true);
   };
-
-  const mid = Math.floor((lo + hi) / 2);
-  const rival = others[mid];
 
   return (
     <AnimatePresence>
@@ -126,10 +133,10 @@ export function RateSheet({ venue, names, open, onClose }: { venue: Pick<Venue, 
             <div className="mx-auto mb-4 h-1 w-10 rounded-full" style={{ background: "var(--ink-20)" }} />
             <AnimatePresence mode="wait">
               {step === "verdict" && (
-                <Panel key="verdict" eyebrow="Rate this bar" title={`How was ${venue.name}?`}>
+                <Panel key="verdict" eyebrow={`Rate this ${venue.kind === "restaurant" ? "spot" : "bar"}`} title={`How was ${venue.name}?`}>
                   <div className="mt-4 flex flex-col gap-2">
                     {VERDICTS.map((v) => (
-                      <button key={v.key} onClick={() => pickVerdict(v.key)} className="pressable flex items-center justify-between rounded-[18px] border px-4 py-3 text-left" style={{ borderColor: verdict === v.key ? "var(--ink)" : "var(--hairline-strong)", background: verdict === v.key ? "rgba(22,33,58,0.06)" : "transparent" }}>
+                      <button key={v.key} onClick={() => pickVerdict(v.key)} className="pressable flex items-center justify-between rounded-[18px] border px-4 py-3 text-left" style={{ borderColor: verdict === v.key ? "var(--ink)" : "var(--hairline-strong)", background: verdict === v.key ? "rgba(22,33,58,0.06)" : "transparent" }} data-verdict={v.key}>
                         <span>
                           <span className="serif block" style={{ fontSize: 21, lineHeight: 1.1 }}>
                             {v.label}
@@ -144,63 +151,65 @@ export function RateSheet({ venue, names, open, onClose }: { venue: Pick<Venue, 
                   </div>
                 </Panel>
               )}
-              {step === "tags" && (
-                <Panel key="tags" eyebrow="What was it?" title="Pick up to three." sub="This is how ROUND learns what a room really is.">
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {ROOM_TAGS.map((t) => {
-                      const on = tags.includes(t.key);
-                      return (
-                        <button
-                          key={t.key}
-                          onClick={() => setTags((cur) => (on ? cur.filter((k) => k !== t.key) : cur.length >= 3 ? cur : [...cur, t.key]))}
-                          aria-pressed={on}
-                          className="pressable h-10 rounded-full border px-3.5 text-[13.5px] font-medium"
-                          style={on ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { borderColor: "var(--hairline-strong)", color: "var(--ink-70)", opacity: tags.length >= 3 ? 0.55 : 1 }}
-                        >
-                          {t.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+              {step === "best" && pool.best && (
+                <Panel key="best" eyebrow="Best for" title={pool.best.prompt} sub={pool.best.sub ?? "Pick as many as are true."}>
+                  <Chips options={pool.best.options} picked={bestFor} onPick={(k) => setBestFor((cur) => toggle(cur, k, true))} testId="best" />
                   <div className="mt-5 flex gap-2">
-                    <button onClick={afterTags} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]">
-                      {tags.length ? "Next" : "Skip"}
+                    <button onClick={afterBest} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-best-next>
+                      {bestFor.length ? "Next" : "Skip"}
                     </button>
                   </div>
                 </Panel>
               )}
-              {step === "ladder" && rival && (
-                <Panel key={`ladder-${asked}`} eyebrow="Your ladder" title={`Better than ${names[rival] ?? rival}?`} sub={others.length === 1 ? "That's the only other place on your ladder so far." : `Question ${asked + 1} of ${Math.min(3, Math.ceil(Math.log2(others.length + 1)))}.`}>
-                  <div className="mt-5 grid grid-cols-2 gap-2">
-                    <button onClick={() => answer(true)} className="pressable btn-primary flex h-14 items-center justify-center text-[16px]">
-                      Better
-                    </button>
-                    <button onClick={() => answer(false)} className="pressable btn-ghost flex h-14 items-center justify-center text-[16px]">
-                      Not better
+              {step === "ask" && current && (
+                <Panel key={`ask-${current.id}`} eyebrow={`ROUND wants to know · ${i + 1}`} title={current.prompt} sub={current.sub ?? (current.multi ? "Pick as many as are true." : undefined)}>
+                  <Meter known={known} name={venue.name} />
+                  <Chips options={current.options} picked={picked} onPick={(k) => (current.multi ? setPicked((cur) => toggle(cur, k, true)) : commit([k]))} testId={`ask-${current.id}`} />
+                  <div className="mt-5 flex gap-2">
+                    {current.multi && (
+                      <button onClick={() => commit(picked)} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-ask-next>
+                        {picked.length ? "Next" : "Skip"}
+                      </button>
+                    )}
+                    <button onClick={() => setStep("note")} className={`pressable btn-ghost flex h-12 items-center justify-center text-[15px] ${current.multi ? "px-5" : "flex-1"}`} data-ask-done>
+                      {answered ? "That's enough" : "Skip these"}
                     </button>
                   </div>
                 </Panel>
               )}
               {step === "note" && (
-                <Panel key="note" eyebrow="Last one" title="One line for the group chat?" sub="Optional. The kind of thing you'd text someone who asked.">
-                  <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 140))} rows={2} placeholder={`"${venue.name}: …"`} className="mt-4 w-full resize-none rounded-[18px] border px-4 py-3 text-[15px] outline-none" style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} />
+                <Panel key="note" eyebrow="Last one" title="One line for the group chat?" sub="Optional. It shows under the place with your first name.">
+                  <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 140))} rows={2} placeholder={`"${venue.name}: …"`} className="mt-4 w-full resize-none rounded-[18px] border px-4 py-3 text-[15px] outline-none" style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-rate-note />
                   <div className="mt-1 text-right text-[11px]" style={{ color: "var(--ink-35)" }}>
                     {140 - note.length}
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={finish} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]">
+                    <button onClick={finish} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-rate-finish>
                       {note.trim() ? "Done" : "Skip and finish"}
                     </button>
                   </div>
                 </Panel>
               )}
               {step === "done" && (
-                <Panel key="done" eyebrow="Noted" title={place !== null && place >= 0 ? `#${place + 1} on your ladder.` : verdict === "never" ? "Never again. Understood." : "It was fine. Noted."} sub={place !== null && place >= 0 ? "ROUND just got a little smarter about you. Your favorites push their way up its picks." : verdict === "never" ? "ROUND won't send you back, and it learned something about what you don't want." : "Noted, and remembered. Every rating makes the next pick sharper."}>
+                <Panel
+                  key="done"
+                  eyebrow="Noted"
+                  title={place !== null && place >= 0 ? `#${place + 1} on your ladder.` : verdict === "never" ? "Never again. Understood." : "It was fine. Noted."}
+                  sub={
+                    answered
+                      ? `ROUND knows ${venue.name} ${known}% now. Every answer makes the next pick sharper, for you and for everyone.`
+                      : place !== null && place >= 0
+                        ? "ROUND just got a little smarter about you. Your favorites push their way up its picks."
+                        : verdict === "never"
+                          ? "ROUND won't send you back, and it learned something about what you don't want."
+                          : "Noted, and remembered. Every rating makes the next pick sharper."
+                  }
+                >
                   <div className="mt-5 flex gap-2">
-                    <Link href="/you#ladder" className="pressable btn-ghost flex h-12 flex-1 items-center justify-center text-[15px]" onClick={close}>
+                    <Link href="/you/ladder" className="pressable btn-ghost flex h-12 flex-1 items-center justify-center text-[15px]" onClick={close}>
                       See your ladder
                     </Link>
-                    <button onClick={close} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]">
+                    <button onClick={close} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-rate-close>
                       Done
                     </button>
                   </div>
@@ -211,6 +220,38 @@ export function RateSheet({ venue, names, open, onClose }: { venue: Pick<Venue, 
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+function Chips({ options, picked, onPick, testId }: { options: CrowdQuestion["options"]; picked: string[]; onPick: (key: string) => void; testId: string }) {
+  return (
+    <div className="mt-4 flex flex-wrap gap-2" data-chips={testId}>
+      {options.map((o) => {
+        const on = picked.includes(o.key);
+        return (
+          <button key={o.key} onClick={() => onPick(o.key)} aria-pressed={on} className="pressable h-11 rounded-full border px-4 text-[14px] font-medium" style={on ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { borderColor: "var(--hairline-strong)", color: "var(--ink-70)" }} data-chip={o.key}>
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** "ROUND knows Lucinda's 40%": fills as the answers come in. */
+function Meter({ known, name }: { known: number; name: string }) {
+  return (
+    <div className="mt-3" data-known={known}>
+      <div className="flex items-center justify-between text-[11.5px]" style={{ color: "var(--ink-55)" }}>
+        <span>
+          ROUND knows {name} <b style={{ color: "var(--ink)" }}>{known}%</b>
+        </span>
+        <span>{known >= 80 ? "Nearly a regular" : known >= 40 ? "Getting there" : "Still learning"}</span>
+      </div>
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(22,33,58,0.1)" }}>
+        <div className="h-full rounded-full" style={{ width: `${Math.max(4, known)}%`, background: known >= 80 ? "var(--tomato)" : "var(--pine)", transition: "width 300ms ease" }} />
+      </div>
+    </div>
   );
 }
 

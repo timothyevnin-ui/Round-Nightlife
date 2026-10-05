@@ -35,6 +35,8 @@ const PROBES: { key: string; label: string; what: string; path: string }[] = [
   { key: "saves.verdict", label: "Rate this bar", what: "the verdict, tags, rank and note columns on saves (V11)", path: "saves?select=verdict,tags,rank,note&limit=1" },
   { key: "venue_tags", label: "What people say a place is", what: "the venue_tags view (V11)", path: "venue_tags?select=slug&limit=1" },
   { key: "venue_scores", label: "The crowd's score", what: "the venue_scores view (V11)", path: "venue_scores?select=slug&limit=1" },
+  { key: "venue_crowd", label: "What New York says", what: "the venue_crowd, venue_best_for, venue_answers and venue_lines views (V32)", path: "venue_crowd?select=slug&limit=1" },
+  { key: "crowd_questions", label: "The question pool", what: "the crowd_questions table (V32)", path: "crowd_questions?select=id&limit=1" },
   { key: "profiles.referrals", label: "Referrals", what: "the ref_code and referred_by columns on profiles (V28): refer ten, get $5", path: "profiles?select=ref_code,referred_by&limit=1" },
 ];
 

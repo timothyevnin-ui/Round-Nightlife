@@ -92,6 +92,23 @@ export function DoorLine({ door, className = "mt-1" }: { door?: VenueLocation; c
   );
 }
 
+/** "New York says · late night · dancing" (V32): the crowd's Best for, once three have said. */
+export function CityLine({ venue, className = "mt-2" }: { venue: Pick<Venue, "crowd">; className?: string }) {
+  const c = venue.crowd;
+  if (!c || c.bestN < 3) return null;
+  const best = c.bestFor.filter((b) => b.n >= 2).slice(0, 3);
+  if (!best.length) return null;
+  return (
+    <p className={`text-[12.5px] ${className}`} style={{ color: "var(--ink-55)" }} data-city-line>
+      <span className="font-semibold" style={{ color: "var(--pine)" }}>
+        New York says
+      </span>{" "}
+      {best.map((b) => b.label.toLowerCase()).join(" · ")}
+      {typeof c.people === "number" ? ` · ${c.people} from ${c.n} people` : ""}
+    </p>
+  );
+}
+
 export function ResultCard({ venue, label, why, far, door, shareUrl, index = 0 }: { venue: Venue; label: PickLabel; why?: string; far?: string; door?: VenueLocation; shareUrl: string; index?: number }) {
   return (
     <motion.article
@@ -133,6 +150,7 @@ export function ResultCard({ venue, label, why, far, door, shareUrl, index = 0 }
         <HoursLine hours={venue.hours} className="mt-3" />
         <FarLine text={far} />
         <DayDeal text={venue.dayDeal} />
+        <CityLine venue={venue} />
         <Catch text={venue.theCatch} />
 
         <div className="mt-auto flex items-center gap-2.5 pt-5">

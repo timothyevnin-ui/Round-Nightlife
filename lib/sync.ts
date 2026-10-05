@@ -20,6 +20,8 @@ type SaveRow = {
   tags?: string[] | null;
   note?: string | null;
   rank?: number | null;
+  best_for?: string[] | null;
+  answers?: Record<string, string[]> | null;
 };
 
 const warn = (what: string) => (e: unknown) => console.warn(`[sync] ${what}`, e);
@@ -27,7 +29,7 @@ const warn = (what: string) => (e: unknown) => console.warn(`[sync] ${what}`, e)
 /** Is this a "column doesn't exist yet" error (the database is a version behind)? */
 const schemaBehind = (e: unknown) => /column|schema cache|Could not find/i.test(String((e as { message?: string })?.message ?? e));
 
-/** Upsert with the V11 columns; if the database doesn't have them yet, again without. */
+/** Upsert with every column; a database a version behind gets the columns it has (V32's, then V11's, then the basics). */
 function upsertSaves(sb: SupabaseClient, rows: SaveRow[], what: string) {
   return sb
     .from("saves")
@@ -35,13 +37,21 @@ function upsertSaves(sb: SupabaseClient, rows: SaveRow[], what: string) {
     .then(({ error }) => {
       if (!error) return;
       if (!schemaBehind(error)) return warn(what)(error);
-      const basic = rows.map(({ user_id, slug, state, rating, source, at }) => ({ user_id, slug, state, rating, source, at }));
-      return sb.from("saves").upsert(basic, { onConflict: "user_id,slug" }).then(({ error: e2 }) => e2 && warn(what)(e2));
+      const v11 = rows.map((r) => ({ ...r, best_for: undefined, answers: undefined }));
+      return sb
+        .from("saves")
+        .upsert(v11, { onConflict: "user_id,slug" })
+        .then(({ error: e1 }) => {
+          if (!e1) return;
+          if (!schemaBehind(e1)) return warn(what)(e1);
+          const basic = rows.map(({ user_id, slug, state, rating, source, at }) => ({ user_id, slug, state, rating, source, at }));
+          return sb.from("saves").upsert(basic, { onConflict: "user_id,slug" }).then(({ error: e2 }) => e2 && warn(what)(e2));
+        });
     });
 }
 
 function beenRow(userId: string, slug: string, entry: BeenEntry, rank: number | null = null): SaveRow {
-  return { user_id: userId, slug, state: "been", rating: entry.rating ?? null, source: null, at: entry.at, verdict: entry.verdict ?? null, tags: entry.tags ?? null, note: entry.note ?? null, rank };
+  return { user_id: userId, slug, state: "been", rating: entry.rating ?? null, source: null, at: entry.at, verdict: entry.verdict ?? null, tags: entry.tags ?? null, note: entry.note ?? null, rank, best_for: entry.bestFor ?? null, answers: entry.answers ?? null };
 }
 
 export function makeRemote(sb: SupabaseClient, userId: string | null): Remote {
@@ -88,20 +98,25 @@ export async function pushAll(sb: SupabaseClient, userId: string, state: Pick<Ro
 
 /** Pull the account's history, in the store's shape. */
 export async function pullAll(sb: SupabaseClient, userId: string): Promise<Pick<RoundState, "saved" | "been"> & { ladder: string[] }> {
-  const full = await sb.from("saves").select("slug,state,rating,source,at,verdict,tags,note,rank").eq("user_id", userId);
+  const full = await sb.from("saves").select("slug,state,rating,source,at,verdict,tags,note,rank,best_for,answers").eq("user_id", userId);
   let rows: Omit<SaveRow, "user_id">[] = (full.data ?? []) as Omit<SaveRow, "user_id">[];
   if (full.error) {
     if (!schemaBehind(full.error)) throw full.error;
-    const basic = await sb.from("saves").select("slug,state,rating,source,at").eq("user_id", userId);
-    if (basic.error) throw basic.error;
-    rows = (basic.data ?? []) as Omit<SaveRow, "user_id">[];
+    const v11 = await sb.from("saves").select("slug,state,rating,source,at,verdict,tags,note,rank").eq("user_id", userId);
+    if (!v11.error) rows = (v11.data ?? []) as Omit<SaveRow, "user_id">[];
+    else {
+      if (!schemaBehind(v11.error)) throw v11.error;
+      const basic = await sb.from("saves").select("slug,state,rating,source,at").eq("user_id", userId);
+      if (basic.error) throw basic.error;
+      rows = (basic.data ?? []) as Omit<SaveRow, "user_id">[];
+    }
   }
   const saved: RoundState["saved"] = {};
   const been: RoundState["been"] = {};
   const ranked: { slug: string; rank: number }[] = [];
   for (const r of rows) {
     if (r.state === "been") {
-      been[r.slug] = { at: r.at, rating: r.rating ?? undefined, verdict: r.verdict ?? undefined, tags: r.tags ?? undefined, note: r.note ?? undefined };
+      been[r.slug] = { at: r.at, rating: r.rating ?? undefined, verdict: r.verdict ?? undefined, tags: r.tags ?? undefined, note: r.note ?? undefined, bestFor: r.best_for ?? undefined, answers: r.answers ?? undefined };
       if (typeof r.rank === "number") ranked.push({ slug: r.slug, rank: r.rank });
     } else saved[r.slug] = { at: r.at, source: r.source ?? undefined };
   }

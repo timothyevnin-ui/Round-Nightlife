@@ -24,6 +24,33 @@ export function ScoreBadge({ score, size = 44, className = "" }: { score?: numbe
   );
 }
 
+/**
+ * The people's number (V32): what the city's ladders say, 0–100, in a
+ * smaller ring under ROUND's, with how many. Nothing until three have rated.
+ */
+export function PeopleBadge({ people, n, size = 44, className = "" }: { people?: number; n?: number; size?: number; className?: string }) {
+  if (typeof people !== "number" || !n || n < 3) return null;
+  const tone = "var(--pine)";
+  const r = 46;
+  const c = 2 * Math.PI * r;
+  return (
+    <span className={`inline-flex shrink-0 flex-col items-center gap-1 ${className}`} role="img" aria-label={`${n} people say ${people} out of 100`} title={`The people's score: ${people}`} data-people={people} data-people-n={n}>
+      <span className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden className="absolute inset-0">
+          <circle cx="50" cy="50" r={r} stroke="rgba(22,33,58,0.12)" strokeWidth="9" fill="none" />
+          <circle cx="50" cy="50" r={r} stroke={tone} strokeWidth="9" fill="none" strokeLinecap="round" strokeDasharray={`${(people / 100) * c} ${c}`} transform="rotate(-90 50 50)" />
+        </svg>
+        <span className="serif relative" style={{ fontSize: size * 0.42, lineHeight: 1, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+          {people}
+        </span>
+      </span>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--ink-55)" }}>
+        {n} people
+      </span>
+    </span>
+  );
+}
+
 /** "ROUND 92" inline, for tight spots (search rows, shelf entries). */
 export function ScoreChip({ score }: { score?: number }) {
   if (typeof score !== "number") return null;

@@ -107,6 +107,33 @@ export type Venue = {
   hotRank?: number;
   /** The long read: ROUND's write-up, paragraphs separated by blank lines. */
   story?: string;
+  /** What New York says (V32): read from the crowd views, never written. */
+  crowd?: VenueCrowd;
+};
+
+/** One line someone left under a place, with who and where it sits on their ladder. */
+export type CrowdLineRow = { userId: string; name: string; hometown?: string | null; avatar?: string | null; verdict?: "again" | "back" | "fine" | "never" | null; rank?: number | null; count?: number | null; note: string; at: string };
+
+/**
+ * The city's read on a place (V32), computed from everyone's ratings: how
+ * many, the people's number (from their ladders, 0–100), what it's best for,
+ * the badges, the traits the crowd blends into ROUND's, and a few lines.
+ */
+export type VenueCrowd = {
+  n: number;
+  back: number;
+  again: number;
+  /** The people's score, 0–100, once three have rated. */
+  people?: number;
+  /** How many answered Best for. */
+  bestN: number;
+  bestFor: { key: string; label: string; n: number; pct: number }[];
+  badges: string[];
+  /** ROUND's traits with the crowd blended in, for the traits the crowd spoke to. */
+  attrs: Partial<Attrs>;
+  /** "A round for four is $40–70" when enough people said. */
+  round?: string;
+  lines: CrowdLineRow[];
 };
 
 /** The three energy numbers, read off attrs. */

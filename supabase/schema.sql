@@ -635,4 +635,96 @@ update public.settings set value = jsonb_set(value, '{amount}', '4'::jsonb), upd
 update public.venues set notes = replace(replace(notes, 'Tim''s pick', 'ROUND''s pick'), 'Tim, September', 'ROUND, September')
   where notes like '%Tim%';
 
+-- ───────────────────────────── V32: what New York says ─────────────────────────────
+-- A rating now carries Best for and the answers to ROUND's questions (the
+-- question pool below), and the Studio can hide a line without deleting it.
+alter table public.saves add column if not exists best_for text[];
+alter table public.saves add column if not exists answers  jsonb;
+alter table public.saves add column if not exists hidden   boolean not null default false;
+
+-- The question pool: what ROUND asks when someone rates a place. The AI
+-- writes these from the asks (Studio → Questions → Refresh), one row per
+-- question; a row with a slug is a question written for that one place.
+create table if not exists public.crowd_questions (
+  id          text primary key,
+  kind        text not null default 'both' check (kind in ('bar', 'restaurant', 'both')),
+  role        text not null default 'ask' check (role in ('best', 'ask')),
+  prompt      text not null,
+  sub         text,
+  multi       boolean not null default true,
+  options     jsonb not null default '[]'::jsonb,
+  demand      numeric not null default 1,
+  source      text,
+  slug        text,
+  active      boolean not null default true,
+  ai          boolean not null default false,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+alter table public.crowd_questions enable row level security;
+drop policy if exists "questions are public" on public.crowd_questions;
+create policy "questions are public" on public.crowd_questions for select using (true);
+drop trigger if exists crowd_questions_touch on public.crowd_questions;
+create trigger crowd_questions_touch before update on public.crowd_questions
+  for each row execute function public.touch_updated_at();
+
+-- The crowd, per place: how many rated, how many would go back, and the
+-- people's number: each rating becomes a 0–10 from where the place sits on
+-- that person's ladder (the same math as lib/ladder.ts), averaged, ×10.
+create or replace view public.venue_crowd with (security_invoker = false) as
+  with ladders as (
+    select user_id, count(*) filter (where rank is not null) as cnt
+    from public.saves where state = 'been' group by user_id
+  )
+  select s.slug,
+         count(*)::int as n,
+         sum(case when s.verdict in ('again', 'back') then 1 else 0 end)::int as back,
+         sum(case when s.verdict = 'again' then 1 else 0 end)::int as again,
+         count(*) filter (where s.best_for is not null and array_length(s.best_for, 1) > 0)::int as best_n,
+         round(avg(
+           case
+             when s.verdict = 'never' then 2
+             when s.verdict = 'fine' then 5
+             when s.rank is null or coalesce(l.cnt, 0) <= 1 then (case when s.verdict = 'again' then 9.5 else 8 end)
+             else 10 - least(4, 0.4 * (l.cnt - 1)) * (s.rank - 1)::numeric / (l.cnt - 1)
+           end
+         ) * 10)::int as people
+  from public.saves s
+  left join ladders l on l.user_id = s.user_id
+  where s.state = 'been' and s.verdict is not null and not s.hidden
+  group by s.slug;
+grant select on public.venue_crowd to anon, authenticated;
+
+-- Best for, counted.
+create or replace view public.venue_best_for with (security_invoker = false) as
+  select slug, unnest(best_for) as key, count(*)::int as n
+  from public.saves
+  where state = 'been' and best_for is not null and not hidden
+  group by slug, key;
+grant select on public.venue_best_for to anon, authenticated;
+
+-- Every answer to every question, counted: {"talk": ["yell"], ...} becomes one row per option.
+create or replace view public.venue_answers with (security_invoker = false) as
+  select s.slug, a.key as q, o.value as opt, count(*)::int as n
+  from public.saves s,
+       jsonb_each(s.answers) a,
+       jsonb_array_elements_text(case when jsonb_typeof(a.value) = 'array' then a.value else '[]'::jsonb end) o
+  where s.state = 'been' and s.answers is not null and not s.hidden
+  group by s.slug, a.key, o.value;
+grant select on public.venue_answers to anon, authenticated;
+
+-- People say: the one-liners, with a first name, where they live, and where
+-- the place sits on their ladder. Public profiles only; never a phone.
+create or replace view public.venue_lines with (security_invoker = false) as
+  with ladders as (
+    select user_id, count(*) filter (where rank is not null) as cnt
+    from public.saves where state = 'been' group by user_id
+  )
+  select s.slug, s.user_id, nullif(split_part(p.name, ' ', 1), '') as name, p.hometown, p.avatar_url, s.verdict, s.rank, l.cnt as count, s.note, s.at
+  from public.saves s
+  join public.profiles p on p.id = s.user_id
+  left join ladders l on l.user_id = s.user_id
+  where s.state = 'been' and s.note is not null and s.note <> '' and not s.hidden and coalesce(p.is_public, true);
+grant select on public.venue_lines to anon, authenticated;
+
 -- Later phases (plans, census) add their tables here.

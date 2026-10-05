@@ -16,7 +16,7 @@ export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUr
   const verdict = been?.verdict ? VERDICTS.find((v) => v.key === been.verdict) : undefined;
   const ladderAt = (state.ladder ?? []).indexOf(venue.slug);
   return (
-    <div className="mt-5">
+    <div className="mt-5" id="rate">
       <div className="flex items-center gap-2.5">
         <GoButton venue={venue} className="flex-1" />
         <ShareButton url={shareUrl} title={`${venue.name} — ROUND`} text={`${venue.name}, ${neighborhoodName(venue.neighborhood)}. ${venue.take}`} />
@@ -47,7 +47,7 @@ export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUr
           <span className="truncate">{verdict ? verdict.label : `Rate this ${venue.kind === "restaurant" ? "spot" : "bar"}`}</span>
         </span>
         <span className="shrink-0 text-[12.5px]" style={{ color: "var(--ink-55)" }}>
-          {verdict ? (ladderAt >= 0 ? `#${ladderAt + 1} on your ladder` : "Change") : "Four taps"}
+          {verdict ? (ladderAt >= 0 ? `#${ladderAt + 1} on your ladder` : "Change") : "Best for, then a few"}
         </span>
       </button>
       <DisagreeButton venue={venue} full className="mt-2.5" />

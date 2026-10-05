@@ -38,7 +38,25 @@ function planStops(plans: DatePlan[]) {
   return plans.map((p) => ({ restaurant: p.restaurant?.slug, bar: p.bar.slug, dinnerAt: p.dinnerAt, drinksAt: p.drinksAt, walk: p.walkMinutes }));
 }
 
-/** The engine's picks beyond the six are the hint list for Claude; the first six are the answer without it. */
+/** The three behind "Three more" (V32): the engine's next best that the cards don't already show. */
+function moreNight(shown: NightPick[], ranked: NightPick[], n = RESULT_COUNT): NightPick[] {
+  const have = new Set(shown.map((p) => p.venue.slug));
+  return ranked
+    .filter((p) => !have.has(p.venue.slug))
+    .slice(0, n)
+    .map((p) => ({ ...p, label: p.label === "The pick" ? "Also great" : p.label }));
+}
+function morePlans(shown: DatePlan[], ranked: DatePlan[], n = RESULT_COUNT): DatePlan[] {
+  const key = (p: DatePlan) => `${p.restaurant?.slug ?? ""}|${p.bar.slug}`;
+  const have = new Set(shown.map(key));
+  const bars = new Set(shown.map((p) => p.bar.slug));
+  return ranked
+    .filter((p) => !have.has(key(p)) && !bars.has(p.bar.slug))
+    .slice(0, n)
+    .map((p) => ({ ...p, label: p.label === "The pick" ? "Also great" : p.label }));
+}
+
+/** The engine's picks beyond the three are the hint list for Claude (and "Three more"); the first three are the answer without it. */
 const HINTS = 12;
 
 export default async function ResultsPage(props: PageProps<"/results">) {
@@ -92,10 +110,10 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     });
     const payload: PlanPayload = { m: "night", n: picks[0]?.venue.neighborhood ?? "west-village", t: hour, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
-    const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
+    const card = (p: NightPick) => ({ ...p, shareCode: encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }) });
     shown("near", { at: at ?? null }, picks.map((p) => p.venue.slug), ai);
     const summary = [at ? `Near ${at}` : "Near you", formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="near" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/near" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="near" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/near" code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
   const anchor = venues.find((v) => v.slug === str(sp.a));
@@ -108,10 +126,10 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const picks: NightPick[] = applyToNight(ai, rest, venues, lead, RESULT_COUNT);
     const payload: PlanPayload = { m: "night", n: anchor.neighborhood, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
-    const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
+    const card = (p: NightPick) => ({ ...p, shareCode: encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }) });
     shown("around", { anchor: anchor.slug, neighborhood: anchor.neighborhood, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [anchor.name, neighborhoodName(anchor.neighborhood), groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/plan/night" code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="night" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/plan/night" code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
   const mode: Mode = m === "date" ? "date" : m === "dinner" ? "dinner" : "night";
@@ -128,10 +146,10 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const picks = applyToNight(ai, twelve, venues);
     const payload: PlanPayload = { m: "night", n, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
-    const perCard = picks.map((p) => encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }));
+    const card = (p: NightPick) => ({ ...p, shareCode: encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }) });
     shown(dayDoor ? "day" : "night", { neighborhood: n, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [neighborhoodName(n), ...fromMe, groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
   const bars = venues.filter((v) => v.kind === "bar");
@@ -143,10 +161,10 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const plans = applyToPlans(ai, twelve, venues, bars);
     const payload: PlanPayload = { m: "dinner", n, t: hour, d: dow, g: group, s: planStops(plans) };
     const code = encodePlan(payload);
-    const perCard = plans.map((_, i) => encodePlan({ ...payload, s: [payload.s[i]] }));
+    const card = (p: DatePlan) => ({ ...p, shareCode: encodePlan({ ...payload, s: planStops([p]) }) });
     shown("dinner", { neighborhood: n, group }, plans.map((p) => p.bar.slug), ai);
     const summary = [neighborhoodName(n), ...fromMe, groupWord(group), `${mealWord(hour, dow)} ${formatHour(hour, true)}`, ...wantChips];
-    return <ResultsView mode="dinner" summary={summary} heard={ai.heard} editHref="/plan/dinner" code={code} plans={plans.map((p, i) => ({ ...p, shareCode: perCard[i] }))} groupWord={groupWord(group)} />;
+    return <ResultsView mode="dinner" summary={summary} heard={ai.heard} editHref="/plan/dinner" code={code} plans={plans.map(card)} morePlans={morePlans(plans, twelve).map(card)} groupWord={groupWord(group)} />;
   }
 
   const stage = (STAGES.includes(str(sp.s) as DateStage) ? str(sp.s) : "early") as DateStage;
@@ -156,8 +174,8 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const plans = dinner ? applyToPlans(ai, twelve, venues, bars) : applyToBarPlans(ai, twelve, venues);
   const payload: PlanPayload = { m: "date", n, t: hour, d: dow, s: planStops(plans) };
   const code = encodePlan(payload);
-  const perCard = plans.map((_, i) => encodePlan({ ...payload, s: [payload.s[i]] }));
+  const card = (p: DatePlan) => ({ ...p, shareCode: encodePlan({ ...payload, s: planStops([p]) }) });
   shown("date", { neighborhood: n, stage, dinner }, plans.map((p) => p.bar.slug), ai);
   const summary = [neighborhoodName(n), ...fromMe, { first: "First date", early: "A few dates in", longterm: "Long-term" }[stage], dinner ? "Dinner + drinks" : "Drinks", formatHour(hour, true), ...wantChips];
-  return <ResultsView mode="date" summary={summary} heard={ai.heard} editHref="/plan/date" code={code} plans={plans.map((p, i) => ({ ...p, shareCode: perCard[i] }))} />;
+  return <ResultsView mode="date" summary={summary} heard={ai.heard} editHref="/plan/date" code={code} plans={plans.map(card)} morePlans={morePlans(plans, twelve).map(card)} />;
 }

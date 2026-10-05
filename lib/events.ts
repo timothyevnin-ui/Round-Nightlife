@@ -43,10 +43,28 @@ export async function logEvent(e: { kind: EventKind; slug?: string | null; q?: s
       if (!/relation .* does not exist|Could not find the table/i.test(text)) console.warn("[events] insert failed", res.status, text.slice(0, 160));
       return false;
     }
+    if (e.kind === "sayit") void maybeRefreshPool();
     return true;
   } catch (err) {
     console.warn("[events] insert error", err);
     return false;
+  }
+}
+
+/** Every fifty asks, the AI rereads them and rewrites the question pool (V32). Counted here, cheaply; never blocks the ask. */
+export const POOL_EVERY = 50;
+async function maybeRefreshPool(): Promise<void> {
+  try {
+    const { url, headers } = serviceHeaders();
+    const res = await fetch(`${url}/rest/v1/events?select=id&kind=eq.sayit&limit=1`, { method: "HEAD", headers: { ...headers, Prefer: "count=exact" }, cache: "no-store" });
+    const range = res.headers.get("content-range") ?? "";
+    const total = Number(range.split("/")[1]);
+    if (!Number.isFinite(total) || total === 0 || total % POOL_EVERY !== 0) return;
+    const { refreshQuestions } = await import("./pool");
+    const r = await refreshQuestions();
+    console.log("[pool] refreshed from the asks", r);
+  } catch (err) {
+    console.warn("[pool] refresh skipped", err instanceof Error ? err.message : err);
   }
 }
 

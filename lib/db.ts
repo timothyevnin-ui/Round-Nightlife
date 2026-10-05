@@ -6,6 +6,7 @@ import { isNeighborhoodId } from "./neighborhoods";
 import type { Attrs, Capacity, Hours, NeighborhoodId, Venue, VenueLocation, VenuePhoto, Window } from "./types";
 import { cleanHours } from "./hours";
 import { getSettings } from "./settings";
+import { withCrowd } from "./crowd";
 
 /**
  * Venue data. Reads come from Supabase's REST endpoint when it's configured
@@ -281,7 +282,7 @@ function withNewSeed(fromDb: Venue[]): Venue[] {
 export async function getVenues(): Promise<Venue[]> {
   const { venues } = await getVenuesWithSource();
   const { verifiedOnly } = await getSettings();
-  return venues.filter((v) => !v.retired && (!verifiedOnly || v.verified));
+  return withCrowd(venues.filter((v) => !v.retired && (!verifiedOnly || v.verified)));
 }
 
 /** Every place, verified or not (never the passed-on ones): for a venue page reached by its link, and for the Studio's lists. */
@@ -302,7 +303,8 @@ export async function getVenuesFresh(): Promise<{ venues: Venue[]; source: Venue
 
 /** One place by its slug, passed-on ones included (the editor needs them; the public page 404s those itself). */
 export async function getVenue(slug: string): Promise<Venue | undefined> {
-  return (await getVenuesWithSource()).venues.find((v) => v.slug === slug);
+  const v = (await getVenuesWithSource()).venues.find((v) => v.slug === slug);
+  return v ? (await withCrowd([v]))[0] : undefined;
 }
 
 /* ───────────────────────── writes (service role, server only) ───────────────────────── */

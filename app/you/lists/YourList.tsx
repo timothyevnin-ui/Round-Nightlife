@@ -17,7 +17,7 @@ export type ListKind = "been" | "want" | "ladder";
 const TITLES: Record<ListKind, { title: string; sub: string; empty: string }> = {
   been: { title: "Been", sub: "Every place you've been. The number is where it sits on your ladder.", empty: "Tap I've been on any place. Rate it the morning after and it climbs your ladder." },
   want: { title: "Want to try", sub: "Saved for a night that hasn't happened yet.", empty: "Save a place from the map or a results page and it lands here." },
-  ladder: { title: "Your ladder", sub: "Best first. Every rating slots a place above or below the rest, and ROUND picks from the top.", empty: "Rate a place you've been and it takes its rung. ROUND picks from your ladder." },
+  ladder: { title: "Your ladder", sub: "Best first. A rating puts a place on its rung; nudge it up or down from here. ROUND picks from the top.", empty: "Rate a place you've been and it takes its rung. ROUND picks from your ladder." },
 };
 
 /**
@@ -27,7 +27,7 @@ const TITLES: Record<ListKind, { title: string; sub: string; empty: string }> = 
  */
 export function YourList({ kind, venues }: { kind: ListKind; venues: Venue[] }) {
   const router = useRouter();
-  const { state } = useRoundStore();
+  const { state, moveOnLadder } = useRoundStore();
   const byslug = useMemo(() => venueMap(venues), [venues]);
   const t = TITLES[kind];
 
@@ -103,6 +103,16 @@ export function YourList({ kind, venues }: { kind: ListKind; venues: Venue[] }) 
                 </span>
                 <ScoreChip score={r.score} />
               </Link>
+              {kind === "ladder" && rows.length > 1 && (
+                <div className="flex items-center gap-1 px-3.5 pb-2.5 -mt-1" data-nudge={r.venue.slug}>
+                  <button onClick={() => moveOnLadder(r.venue.slug, -1)} disabled={i === 0} className="pressable flex h-8 items-center gap-1 rounded-full border px-3 text-[12px] font-medium disabled:opacity-30" style={{ borderColor: "var(--hairline-strong)", color: "var(--ink-70)" }} aria-label={`Move ${r.venue.name} up`} data-nudge-up>
+                    ↑ Up
+                  </button>
+                  <button onClick={() => moveOnLadder(r.venue.slug, 1)} disabled={i === rows.length - 1} className="pressable flex h-8 items-center gap-1 rounded-full border px-3 text-[12px] font-medium disabled:opacity-30" style={{ borderColor: "var(--hairline-strong)", color: "var(--ink-70)" }} aria-label={`Move ${r.venue.name} down`} data-nudge-down>
+                    ↓ Down
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ol>

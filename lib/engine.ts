@@ -22,6 +22,15 @@ const W = { nb: 0.22, group: 0.16, time: 0.12, prefs: 0.34, score: 0.16 };
 const W_DAY = { nb: 0.2, group: 0.14, time: 0.26, prefs: 0.27, score: 0.13 };
 
 /** ROUND's score as 0..1. An unscored place sits under the pack, so a scored one edges it. */
+/**
+ * A trait as the engine reads it (V32): ROUND's number with the crowd
+ * blended in once people have answered about this place; ROUND's alone
+ * until then.
+ */
+export function attrOf(venue: Venue, k: AttrKey): number {
+  return venue.crowd?.attrs?.[k] ?? venue.attrs[k];
+}
+
 export function ratingOf(venue: Venue): number {
   return typeof venue.score === "number" ? venue.score / 100 : 0.7;
 }
@@ -70,10 +79,10 @@ export const DAY_ENDS = 17;
 export const isDaytime = (hour: number) => hour >= 5 && hour < DAY_ENDS;
 
 function timeScore(venue: Venue, hour: number, dow: number): number {
-  if (isDaytime(hour)) return 0.15 + 0.85 * venue.attrs.daytime;
+  if (isDaytime(hour)) return 0.15 + 0.85 * attrOf(venue, "daytime");
   if (inWindow(venue.bestWindows, hour, dow)) return 1;
   // After midnight: late-night attribute carries the venue.
-  if (hour >= 24) return 0.35 + 0.5 * venue.attrs.late;
+  if (hour >= 24) return 0.35 + 0.5 * attrOf(venue, "late");
   return 0.55;
 }
 
@@ -96,7 +105,7 @@ export function prefsScore(venue: Venue, wants: Wants): { score: number; hits: A
   const hits: AttrKey[] = [];
   for (const [k, w] of Object.entries(wants) as [keyof Wants, number][]) {
     if (!w || k === "noLine" || k === "new") continue;
-    const attr = venue.attrs[k as AttrKey];
+    const attr = attrOf(venue, k as AttrKey);
     if (typeof attr !== "number") continue;
     const match = (attr - 0.5) * 2; // −1..1
     sum += w * match;
@@ -179,7 +188,8 @@ const HIT_WORD: Partial<Record<AttrKey, string>> = {
 /* ───────────────────────── NIGHT OUT ───────────────────────── */
 
 /** How many cards a results carousel shows. */
-export const RESULT_COUNT = 6;
+/** Three cards (V32): the pick and two others. The rest wait behind "Three more". */
+export const RESULT_COUNT = 3;
 
 type Scored = { venue: Venue; score: number; hits: AttrKey[]; group: number; where?: WhereRead & { door: Door } };
 
@@ -208,7 +218,7 @@ function flavorLabel(venue: Venue, taken: Set<PickLabel>): PickLabel {
   return taken.has("Sleeper") ? "Wildcard" : "Sleeper";
 }
 
-const dominant = (v: Venue) => (["lively", "chill", "talk"] as AttrKey[]).sort((a, b) => v.attrs[b] - v.attrs[a])[0];
+const dominant = (v: Venue) => (["lively", "chill", "talk"] as AttrKey[]).sort((a, b) => attrOf(v, b) - attrOf(v, a))[0];
 
 /**
  * Turn a ranked list into a carousel: the best, a genuinely different second,

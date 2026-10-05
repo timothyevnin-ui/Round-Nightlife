@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
@@ -23,21 +23,28 @@ type Props = {
   code: string;
   night?: (NightPick & { shareCode: string })[];
   plans?: (DatePlan & { shareCode: string })[];
+  /** Behind "Three more" (V32). */
+  moreNight?: (NightPick & { shareCode: string })[];
+  morePlans?: (DatePlan & { shareCode: string })[];
   groupWord?: string;
 };
 
 const TITLE: Record<Mode | "near", string> = { night: "Night out", date: "Date", dinner: "Dinner & drinks", near: "Near me" };
 
-export function ResultsView({ mode, title, summary, heard, editHref, code, night, plans, groupWord }: Props) {
+export function ResultsView({ mode, title, summary, heard, editHref, code, night, plans, moreNight, morePlans, groupWord }: Props) {
   const router = useRouter();
   const { rememberResults } = useRoundStore();
+  const [more, setMore] = useState(false);
 
   useEffect(() => {
     rememberResults(window.location.pathname + window.location.search);
   }, [rememberResults]);
 
   const bars = mode === "night" || mode === "near";
-  const items = bars ? night ?? [] : plans ?? [];
+  const extra = bars ? moreNight ?? [] : morePlans ?? [];
+  const nightAll = more ? [...(night ?? []), ...(moreNight ?? [])] : night ?? [];
+  const plansAll = more ? [...(plans ?? []), ...(morePlans ?? [])] : plans ?? [];
+  const items = bars ? nightAll : plansAll;
   const count = items.length;
   const labels = items.map((i) => i.label);
   const headline = count === 0 ? (mode === "near" ? "Nothing close enough." : "Nothing yet.") : bars ? `${WORD[count] ?? count} ${mode === "near" ? "nearby" : "places"}.` : `${WORD[count] ?? count} plans.`;
@@ -82,8 +89,8 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
       {count > 0 ? (
         <Carousel count={count} labels={labels}>
           {bars
-            ? night!.map((p, i) => <ResultCard key={p.venue.slug} venue={p.venue} label={p.label} why={p.why} far={p.far} door={p.door} shareUrl={`/p/${p.shareCode}`} index={i} />)
-            : plans!.map((p, i) => <PlanResultCard key={`${p.restaurant?.slug ?? ""}-${p.bar.slug}`} plan={p} shareUrl={`/p/${p.shareCode}`} index={i} groupWord={groupWord} />)}
+            ? nightAll.map((p, i) => <ResultCard key={p.venue.slug} venue={p.venue} label={p.label} why={p.why} far={p.far} door={p.door} shareUrl={`/p/${p.shareCode}`} index={i} />)
+            : plansAll.map((p, i) => <PlanResultCard key={`${p.restaurant?.slug ?? ""}-${p.bar.slug}`} plan={p} shareUrl={`/p/${p.shareCode}`} index={i} groupWord={groupWord} />)}
         </Carousel>
       ) : (
         <div className="card p-6 text-[15px] leading-snug" style={{ color: "var(--ink-70)" }} data-empty>
@@ -95,6 +102,14 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
               ? "ROUND only shows places someone from ROUND has actually been. None within a fifteen-minute walk of there so far. Try an address in the West Village, East Village, LES, SoHo, Tribeca, Chelsea, Murray Hill, Williamsburg or Greenpoint."
               : "ROUND only shows places someone from ROUND has actually been, and we haven't verified one for that yet. Try a neighborhood next door, or a different night."}
           </p>
+        </div>
+      )}
+
+      {count > 0 && !more && extra.length > 0 && (
+        <div className="mt-4 flex justify-center">
+          <button onClick={() => setMore(true)} className="pressable btn-ghost flex h-11 items-center px-5 text-[14px]" data-more-picks>
+            {extra.length === 1 ? "One more" : extra.length === 2 ? "Two more" : "Three more"}
+          </button>
         </div>
       )}
 

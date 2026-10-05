@@ -153,6 +153,14 @@ Run the current `supabase/schema.sql` again. The `bounty` row in `settings` move
 
 If you ever want a different amount without a deploy: Supabase → Table Editor → `settings` → the `bounty` row → change `amount`. The app picks it up within a minute.
 
+## 21. What New York says (V32)
+
+Run the current `supabase/schema.sql` again. It adds `best_for`, `answers` and `hidden` to `saves`, the `crowd_questions` table (the question pool), and four views: `venue_crowd` (how many rated, would go back, the people's number from their ladders), `venue_best_for`, `venue_answers` and `venue_lines` (People say: first names and hometowns from public profiles, never a phone). Until it's run, the rate sheet still works (it asks the built-in questions and keeps the answers on the phone and in `saves` as far as the columns exist), the page just shows nothing under New York says, and Studio → Questions says so.
+
+The pool: Studio → Questions → **Refresh from the asks** has the AI read the last few hundred Just-say-it asks and rewrite the questions (needs `ANTHROPIC_API_KEY`); it also runs on its own every fifty asks. Retire or reword any question there. The first time someone opens the rate sheet on a place, the AI writes one question for that place in the background.
+
+Hiding a line: Studio → People say → Hide. The rating stays, the words come off the page.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

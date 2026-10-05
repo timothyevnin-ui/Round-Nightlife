@@ -1,7 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ATTRS, type AttrKey } from "./attrs";
-import { haversineMeters, isDaytime } from "./engine";
+import { haversineMeters, isDaytime, RESULT_COUNT } from "./engine";
 import { NEIGHBORHOODS, NEIGHBORHOOD_MAP, neighborhoodName } from "./neighborhoods";
 import { isNearby, whereRead } from "./where";
 import { BAR_FROM_DEFAULT, doorsOf } from "./places";
@@ -12,11 +12,11 @@ import { weekSummary } from "./hours";
 import type { DatePlan, DateStage, NeighborhoodId, NightPick, PickLabel, Venue } from "./types";
 
 /**
- * Claude picks the six. The rules engine (engine.ts) still runs first: it
+ * Claude picks the three (V32; it was six). The rules engine (engine.ts) still runs first: it
  * narrows the field and ranks it, and it is the answer when there's no key,
  * the model is slow, or anything goes wrong. When Claude is on, it reads the
  * whole ROUND catalog (cached, so each call is cheap), the request in plain
- * words, and the engine's order as a hint, then returns the six that really
+ * words, and the engine's order as a hint, then returns the three that really
  * fit, in order, with one honest line on each.
  */
 
@@ -73,6 +73,25 @@ function windowWord(v: Venue): string {
   return `${weekendOnly ? "best Thu–Sat" : "any night"} ${formatHour(w.from)}–${formatHour(late)}${late >= 26 ? " (late)" : ""}`;
 }
 
+/**
+ * What New York says about a place (V32), for the catalog: the people's
+ * number, what they say it's best for, the badges, a line or two. Only once
+ * enough people have spoken; the model is told whose words these are.
+ */
+function crowdLine(v: Venue): string {
+  const c = v.crowd;
+  if (!c || c.n < 3) return "";
+  const parts: string[] = [];
+  if (typeof c.people === "number") parts.push(`people's score ${c.people}/100 from ${c.n} ratings (${Math.round((100 * c.back) / Math.max(1, c.n))}% would go back)`);
+  const best = c.bestFor.filter((b) => b.n >= 2).slice(0, 4).map((b) => `${b.label.toLowerCase()} ${b.pct}%`);
+  if (best.length) parts.push(`best for: ${best.join(", ")}`);
+  if (c.badges.length) parts.push(`they say: ${c.badges.join(", ")}`);
+  if (c.round) parts.push(`a round for four: ${c.round}`);
+  const lines = c.lines.slice(0, 2).map((l) => `"${l.note.replace(/\s+/g, " ").slice(0, 120)}" (${l.name})`);
+  if (lines.length) parts.push(`people say: ${lines.join("; ")}`);
+  return parts.length ? `New York says (the crowd, not ROUND): ${parts.join(" · ")}` : "";
+}
+
 function venueLine(v: Venue): string {
   const strong = (Object.entries(v.attrs) as [AttrKey, number][])
     .filter(([, n]) => n >= 0.7)
@@ -91,6 +110,7 @@ function venueLine(v: Venue): string {
     `  ${"$".repeat(v.price)} · ${v.capacity} room · ${groups} · walk-in ${v.easyIn >= 0.7 ? "easy" : v.easyIn >= 0.45 ? "possible" : "hard"} · ${windowWord(v)}${dateWord ? ` · ${dateWord}` : ""}`,
     `  is: ${strong.join(", ") || "—"}${weak.length ? ` · isn't: ${weak.join(", ")}` : ""}${v.tags.length ? ` · tags: ${v.tags.join(", ")}` : ""}${v.cuisine || v.barFood ? ` · food: ${v.cuisine ?? "yes"}${v.barFood ? " (bar with a kitchen)" : ""}` : ""}${v.hours ? ` · hours: ${weekSummary(v.hours)}` : ""} · in daylight: ${v.attrs.daytime >= 0.7 ? "good" : v.attrs.daytime >= 0.4 ? "fine" : "no"}${v.dayDeal ? ` · day deal: ${v.dayDeal}` : ""}`,
     `  ${v.take}${v.theCatch ? ` Catch: ${v.theCatch}` : ""}`,
+    ...(crowdLine(v) ? [`  ${crowdLine(v)}`] : []),
     ...(v.notes?.trim() ? [`  ROUND's private notes (for you, never shown to users): ${v.notes.replace(/\s+/g, " ").trim().slice(0, 320)}`] : []),
     ...(v.story?.trim() ? [`  From the write-up: ${v.story.replace(/\s+/g, " ").trim().slice(0, 240)}`] : []),
   ].join("\n");
@@ -101,7 +121,7 @@ export function buildCatalog(venues: Venue[]): string {
   // A cheap fingerprint of everything that goes into the text.
   let h = 5381;
   for (const v of [...venues].sort((a, b) => a.slug.localeCompare(b.slug))) {
-    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${JSON.stringify(v.locations ?? null)}|${v.barLater ? v.barFrom ?? BAR_FROM_DEFAULT : ""}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}|${v.notes ?? ""}|${v.story ?? ""}`;
+    const str = `${v.slug}|${v.name}|${v.neighborhood}|${v.address}|${JSON.stringify(v.locations ?? null)}|${v.barLater ? v.barFrom ?? BAR_FROM_DEFAULT : ""}|${v.take}|${v.theCatch ?? ""}|${v.tags.join(",")}|${v.price}|${v.capacity}|${v.easyIn}|${v.verified ? 1 : 0}|${v.score ?? ""}|${v.cuisine ?? ""}|${v.dayDeal ?? ""}|${v.barFood ? 1 : 0}|${JSON.stringify(v.hours ?? null)}|${JSON.stringify(v.attrs)}|${JSON.stringify(v.groupFit)}|${JSON.stringify(v.dateFit)}|${v.notes ?? ""}|${v.story ?? ""}|${crowdLine(v)}`;
     for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
   }
   const key = `${venues.length}:${h}`;
@@ -188,7 +208,7 @@ function instructions(r: PickRequest, count: number): string {
     `Pick the ${count} best${pairs ? " restaurants, each with the one bar to go to after (a short walk, ideally under 10 minutes)" : " bars"}, best first. ` +
     `Match what they actually asked for over what merely scores well; a place that nails their one stated need beats a generally great place that doesn't. ` +
     `The neighborhood they chose is a general area, not a wall: a place a few minutes' walk past its edge (the hints say how far) is fair game when it's the better answer; twenty minutes away is not. Between two places that fit, prefer the shorter walk; between two that fit and are equally close, prefer the higher ROUND score. ` +
-    `Never pick a place that's closed at that hour (the hints are already open then; if you reach past them, check the posted hours). Keep the list varied: not six of the same room. ` +
+    `Never pick a place that's closed at that hour (the hints are already open then; if you reach past them, check the posted hours). Keep the list varied: not three of the same room. ` +
     `If they named a specific place that's in the catalog, it goes first. ` +
     `Verified places (✓) are ROUND's own word: when a verified and an unverified place fit about equally, the verified one goes first, and a verified place that fits well should not lose to an unverified one that fits about as well. Never pick a verified place that doesn't fit what they asked; the check is trust, not a thumb on the scale. ` +
     `For each, "why" is one line, ≤ 14 words, in ROUND's voice: specific and honest about why it fits this request tonight (never generic praise, never a warning dressed as praise). ` +
@@ -211,7 +231,7 @@ function memoKey(r: PickRequest, slugs: string[]): string {
  * the fallback and the hint. Never throws: on any trouble it returns the
  * rules order with engine: "rules".
  */
-export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { slug: string; then?: string }[], count = 6): Promise<PickResult> {
+export async function pickWithClaude(r: PickRequest, venues: Venue[], ranked: { slug: string; then?: string }[], count = RESULT_COUNT): Promise<PickResult> {
   const t0 = Date.now();
   const rules: PickResult = { picks: ranked.filter((p) => !r.taste?.nevers.includes(p.slug)).slice(0, count).map((p) => ({ slug: p.slug, why: "", then: p.then })), engine: "rules", ms: 0 };
   const key = process.env.ANTHROPIC_API_KEY;
@@ -319,7 +339,7 @@ function clean(s: string): string {
 /* ───────────────────────── applying the answer ───────────────────────── */
 
 /** Reorder the rules engine's bar picks to Claude's answer; keep engine labels/why where Claude gave none. */
-export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = 6): NightPick[] {
+export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = RESULT_COUNT): NightPick[] {
   const fromRules = new Map(rulesPicks.map((p) => [p.venue.slug, p]));
   if (result.engine !== "claude") {
     // The engine's own order, minus anything the person said never again to.
@@ -347,7 +367,7 @@ export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues
 }
 
 /** Same for plans (restaurant + bar). Claude's "then" bar wins if it's a real bar within a walk; else the engine's pairing. */
-export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], bars: Venue[], count = 6): DatePlan[] {
+export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], bars: Venue[], count = RESULT_COUNT): DatePlan[] {
   const fromRules = new Map(rulesPlans.map((p) => [p.restaurant?.slug ?? p.bar.slug, p]));
   if (result.engine !== "claude") return result.picks.map((p) => fromRules.get(p.slug)).filter((p): p is DatePlan => !!p).slice(0, count);
   const bySlug = new Map(venues.map((v) => [v.slug, v]));
@@ -376,7 +396,7 @@ export function applyToPlans(result: PickResult, rulesPlans: DatePlan[], venues:
 }
 
 /** Bars-only plans (a date without dinner): reorder like night picks but keep the DatePlan shape. */
-export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], count = 6): DatePlan[] {
+export function applyToBarPlans(result: PickResult, rulesPlans: DatePlan[], venues: Venue[], count = RESULT_COUNT): DatePlan[] {
   const fromRules = new Map(rulesPlans.map((p) => [p.bar.slug, p]));
   if (result.engine !== "claude") return result.picks.map((p) => fromRules.get(p.slug)).filter((p): p is DatePlan => !!p).slice(0, count);
   const bySlug = new Map(venues.map((v) => [v.slug, v]));

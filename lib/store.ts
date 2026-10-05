@@ -23,6 +23,10 @@ export type BeenEntry = {
   tags?: string[];
   /** One line for the group chat. */
   note?: string;
+  /** What it's best for, in the person's taps (V32; keys from the question pool). */
+  bestFor?: string[];
+  /** Their answers to ROUND's questions: question id → option keys (V32). */
+  answers?: Record<string, string[]>;
 };
 
 /** The rating that the old parts of the app (taste profile, sync) understand. */
@@ -42,6 +46,22 @@ export type RoundState = {
   /** How you've answered the quick ones, by card id → answer label → times. ROUND learns your usual. */
   usual?: Record<string, Record<string, number>>;
 };
+
+/**
+ * Where a new rating lands on the ladder without a this-or-that (V32): a
+ * "take me back tonight" joins the top group, under the ones already there;
+ * an "I'd go back" goes to the bottom. The arrows on the ladder page move it
+ * from there.
+ */
+export function ladderSpot(state: Pick<RoundState, "been" | "ladder">, slug: string, verdict: Verdict): number {
+  const ladder = (state.ladder ?? []).filter((x) => x !== slug);
+  if (verdict !== "again") return ladder.length;
+  let last = -1;
+  ladder.forEach((x, i) => {
+    if (state.been[x]?.verdict === "again") last = i;
+  });
+  return last + 1;
+}
 
 export type Remote = {
   save(slug: string, entry: SavedEntry | null): void;
@@ -211,7 +231,7 @@ export function useRoundStore() {
    * place on your ladder at `position` (0 = the top) when it's one you'd go
    * back to; a "fine" or "never" comes off the ladder.
    */
-  const rate = useCallback((slug: string, entry: { verdict: Verdict; tags?: string[]; note?: string }, position?: number) => {
+  const rate = useCallback((slug: string, entry: { verdict: Verdict; tags?: string[]; note?: string; bestFor?: string[]; answers?: Record<string, string[]> }, position?: number) => {
     const s = read();
     const prev = s.been[slug];
     const saved = { ...s.saved };
@@ -226,6 +246,19 @@ export function useRoundStore() {
     remote?.been(slug, next);
     remote?.ladder(ladder);
     return ladder.indexOf(slug);
+  }, []);
+
+  /** Nudge a place up or down your ladder by one rung (V32). Returns its new index. */
+  const moveOnLadder = useCallback((slug: string, dir: -1 | 1) => {
+    const s = read();
+    const ladder = [...(s.ladder ?? [])];
+    const i = ladder.indexOf(slug);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ladder.length) return i;
+    [ladder[i], ladder[j]] = [ladder[j], ladder[i]];
+    write({ ...s, ladder });
+    remote?.ladder(ladder);
+    return j;
   }, []);
 
   /** A quick one answered: ROUND remembers, and next time marks your usual. */
@@ -246,5 +279,5 @@ export function useRoundStore() {
     remote?.go(slug);
   }, []);
 
-  return { state, toggleSaved, markBeen, clearBeen, rate, remember, setQuizDone, rememberResults, recordGo };
+  return { state, toggleSaved, markBeen, clearBeen, rate, moveOnLadder, remember, setQuizDone, rememberResults, recordGo };
 }
