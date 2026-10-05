@@ -11,6 +11,7 @@ import { matchVenues, normalizeName } from "@/lib/match";
 import { NEIGHBORHOODS, neighborhoodName } from "@/lib/neighborhoods";
 import type { SearchEntry } from "@/lib/searchIndex";
 import { track } from "@/lib/track";
+import { BOUNTY_AMOUNT, money } from "@/lib/bounty";
 
 /**
  * Search a bar. Names first (typos, missing apostrophes and dropped "The"s
@@ -21,6 +22,8 @@ export function SearchView({ index }: { index: SearchEntry[] }) {
   const router = useRouter();
   const params = useSearchParams();
   const [q, setQ] = useState(params.get("q") ?? "");
+  // "Been somewhere? Rate it." (V34): the same search, and a row opens the place with the rating sheet up.
+  const rating = params.get("rate") === "1";
   const inputRef = useRef<HTMLInputElement | null>(null);
   const logged = useRef<string>("");
 
@@ -43,8 +46,8 @@ export function SearchView({ index }: { index: SearchEntry[] }) {
   }, [q, results]);
 
   const open = (e: SearchEntry) => {
-    track("search", { q: q.trim(), slug: e.slug, data: { picked: true } });
-    router.push(`/v/${e.slug}`);
+    track("search", { q: q.trim(), slug: e.slug, data: { picked: true, rate: rating } });
+    router.push(rating ? `/v/${e.slug}?rate=1` : `/v/${e.slug}`);
   };
 
   const suggestions = useMemo(() => {
@@ -61,14 +64,19 @@ export function SearchView({ index }: { index: SearchEntry[] }) {
             <path d="M13.5 5 8 11l5.5 6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <span className="eyebrow">Search</span>
+        <span className="eyebrow">{rating ? "Rate a bar" : "Search"}</span>
         <span className="w-11" />
       </header>
+      {rating && (
+        <h1 className="serif mt-3" style={{ fontSize: 30, lineHeight: 1.04, letterSpacing: "-0.02em" }} data-rate-heading>
+          Been somewhere? Find it.
+        </h1>
+      )}
 
       <div className="relative mt-3">
         <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2">
-          <circle cx="7" cy="7" r="4.5" stroke="#16213A" strokeWidth="1.6" />
-          <path d="M10.5 10.5 14 14" stroke="#16213A" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="7" cy="7" r="4.5" stroke="var(--ink-55)" strokeWidth="1.6" />
+          <path d="M10.5 10.5 14 14" stroke="var(--ink-55)" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
         <input
           ref={inputRef}
@@ -77,7 +85,7 @@ export function SearchView({ index }: { index: SearchEntry[] }) {
           onKeyDown={(e) => {
             if (e.key === "Enter" && results[0]) open(results[0]);
           }}
-          placeholder="A bar you've heard about"
+          placeholder={rating ? "The bar you went to" : "A bar you've heard about"}
           autoCapitalize="words"
           className="w-full rounded-[18px] border pl-11 pr-11 text-[17px] outline-none"
           style={{ height: 58, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
@@ -85,7 +93,7 @@ export function SearchView({ index }: { index: SearchEntry[] }) {
         {q && (
           <button onClick={() => setQ("")} className="pressable absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full" style={{ background: "var(--ink-6)" }} aria-label="Clear">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 2l8 8M10 2 2 10" stroke="#16213A" strokeWidth="1.6" strokeLinecap="round" />
+              <path d="M2 2l8 8M10 2 2 10" stroke="var(--ink)" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </button>
         )}
@@ -110,15 +118,15 @@ export function SearchView({ index }: { index: SearchEntry[] }) {
           ))}
         </motion.ul>
       ) : (
-        <section className="mt-10 text-center">
+        <section className="mt-10 text-center" data-search-none>
           <h2 className="serif" style={{ fontSize: 30, lineHeight: 1.05 }}>
             Not on ROUND yet.
           </h2>
           <p className="mx-auto mt-3 max-w-[30ch] text-[14.5px]" style={{ color: "var(--ink-55)" }}>
-            We only list places someone from ROUND has looked into. Know this one?
+            ROUND is built by the people who go. Add it, we check it, and {money(BOUNTY_AMOUNT)} lands in your Venmo if it makes the list.
           </p>
-          <Link href="/recommend" className="pressable btn-accent mx-auto mt-6 flex h-12 w-fit items-center px-6 text-[15px]">
-            Recommend it
+          <Link href={`/recommend?name=${encodeURIComponent(q.trim())}`} className="pressable btn-accent mx-auto mt-6 flex h-12 w-fit items-center px-6 text-[15px]" data-search-add>
+            Add it, {money(BOUNTY_AMOUNT)}
           </Link>
         </section>
       )}

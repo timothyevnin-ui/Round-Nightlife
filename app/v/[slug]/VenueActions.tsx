@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { GoButton, SaveButton, ShareButton, useSignInNudge } from "@/components/Actions";
 import { RateSheet, VERDICTS } from "@/components/RateSheet";
 import { DisagreeButton } from "@/components/DisagreeSheet";
@@ -11,7 +11,18 @@ import type { Venue } from "@/lib/types";
 export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUrl: string; names: Record<string, string> }) {
   const { state, markBeen, clearBeen } = useRoundStore();
   const nudge = useSignInNudge("rate");
-  const [rating, setRating] = useState(false);
+  // Arrived to rate it (V34: the + sheet, "How was it?"): the sheet is up as the page opens. The URL is read on the phone only, never the server.
+  const wantsRate = useSyncExternalStore(noop, readRateParam, () => false);
+  const [rating, setRating] = useState<boolean | null>(null); // null: follow the URL
+  const open = rating ?? wantsRate;
+  const closeRating = () => {
+    setRating(false);
+    try {
+      window.history.replaceState(null, "", window.location.pathname);
+    } catch {
+      /* ignore */
+    }
+  };
   const been = state.been[venue.slug];
   const verdict = been?.verdict ? VERDICTS.find((v) => v.key === been.verdict) : undefined;
   const ladderAt = (state.ladder ?? []).indexOf(venue.slug);
@@ -56,9 +67,18 @@ export function VenueActions({ venue, shareUrl, names }: { venue: Venue; shareUr
           &ldquo;{been.note}&rdquo;
         </p>
       )}
-      <RateSheet venue={venue} names={names} open={rating} onClose={() => setRating(false)} />
+      <RateSheet venue={venue} names={names} open={open} onClose={closeRating} />
     </div>
   );
+}
+
+const noop = () => () => {};
+function readRateParam() {
+  try {
+    return new URLSearchParams(window.location.search).get("rate") === "1";
+  } catch {
+    return false;
+  }
 }
 
 function Ring() {

@@ -45,6 +45,8 @@ export type RoundState = {
   ladder: string[];
   /** How you've answered the quick ones, by card id → answer label → times. ROUND learns your usual. */
   usual?: Record<string, Record<string, number>>;
+  /** The last place you tapped GO on (V34): the next day, ROUND asks how it was. `asked` once you've answered or waved it off. */
+  lastGo?: { slug: string; at: string; asked?: boolean };
 };
 
 /**
@@ -242,7 +244,8 @@ export function useRoundStore() {
       const at = Math.max(0, Math.min(ladder.length, position ?? ladder.length));
       ladder = [...ladder.slice(0, at), slug, ...ladder.slice(at)];
     }
-    write({ ...s, saved, been: { ...s.been, [slug]: next }, ladder });
+    const lastGo = s.lastGo?.slug === slug ? { ...s.lastGo, asked: true } : s.lastGo;
+    write({ ...s, saved, been: { ...s.been, [slug]: next }, ladder, lastGo });
     remote?.been(slug, next);
     remote?.ladder(ladder);
     return ladder.indexOf(slug);
@@ -275,9 +278,16 @@ export function useRoundStore() {
 
   const recordGo = useCallback((slug: string) => {
     const s = read();
-    write({ ...s, goCount: { ...s.goCount, [slug]: (s.goCount[slug] ?? 0) + 1 } });
+    write({ ...s, goCount: { ...s.goCount, [slug]: (s.goCount[slug] ?? 0) + 1 }, lastGo: { slug, at: new Date().toISOString() } });
     remote?.go(slug);
   }, []);
 
-  return { state, toggleSaved, markBeen, clearBeen, rate, moveOnLadder, remember, setQuizDone, rememberResults, recordGo };
+  /** "How was it?" answered or waved off: don't ask about that night again. */
+  const settleGo = useCallback(() => {
+    const s = read();
+    if (!s.lastGo) return;
+    write({ ...s, lastGo: { ...s.lastGo, asked: true } });
+  }, []);
+
+  return { state, toggleSaved, markBeen, clearBeen, rate, moveOnLadder, remember, setQuizDone, rememberResults, recordGo, settleGo };
 }

@@ -165,6 +165,10 @@ Hiding a line: Studio → People say → Hide. The rating stays, the words come 
 
 Run the current `supabase/schema.sql` again: it adds `visited_at` to `venues` (the date on the What's hot card). Nothing else changes in the database. The **Bars only** switch on the Studio dashboard writes a `bars_only` row in `settings`; until you flip it, bars only is simply the default.
 
+## 23. Your help, everywhere; $7 for the first 300 (V34)
+
+Run the current `supabase/schema.sql` again. It does two small things: moves the `bounty` row in `settings` from $4 (or $2) for 1,000 up to **$7 for the first 300** (an amount you changed yourself in the Studio is left alone; the Studio dashboard shows what's live), and adds `my_contributions()`, the function the You card calls for *You've sent 3 · 2 on ROUND · 1 paid*. Until it's run, the app still says $7 (that's the built-in default) but the Studio and the recommend flow's counter show whatever the row holds, and the You card simply skips the sent/paid line.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.

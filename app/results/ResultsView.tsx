@@ -9,6 +9,7 @@ import { PlanResultCard, ResultCard } from "@/components/ResultCard";
 import { ShareButton } from "@/components/Actions";
 import { useRoundStore } from "@/lib/store";
 import type { DatePlan, Mode, NightPick } from "@/lib/types";
+import { BOUNTY_AMOUNT, money } from "@/lib/bounty";
 
 type Props = {
   mode: Mode | "near";
@@ -125,6 +126,9 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
           <p className="text-[12px]" style={{ color: "var(--ink-35)" }}>
             {bars ? "They tap one. You go." : "One link. The whole evening."}
           </p>
+          <Link href="/recommend" className="pressable mt-5 text-[13px] font-medium" style={{ color: "var(--tomato-bright)" }} data-results-add>
+            Know a better one we don&apos;t have? Add it, {money(BOUNTY_AMOUNT)} →
+          </Link>
         </motion.div>
       )}
     </main>

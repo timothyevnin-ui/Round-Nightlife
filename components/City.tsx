@@ -22,12 +22,14 @@ export function City({ venue, lines }: { venue: Pick<Venue, "slug" | "name" | "k
         New York says
       </p>
       {n === 0 && !lines.length ? (
-        <p className="mt-2 text-[14px] leading-snug" style={{ color: "var(--ink-55)" }} data-city-empty>
-          Nobody&apos;s rated {venue.name} yet.{" "}
-          <Link href="#rate" className="font-medium" style={{ color: "var(--tomato)" }}>
-            Been? Be the first.
+        <div className="mt-2.5 flex items-center justify-between gap-3 rounded-[20px] border p-3.5" style={{ borderColor: "var(--hairline-strong)" }} data-city-empty>
+          <p className="text-[14px] leading-snug" style={{ color: "var(--ink-70)" }}>
+            Nobody&apos;s rated {venue.name} yet. Your word would be the first New York hears.
+          </p>
+          <Link href="#rate" className="pressable flex h-10 shrink-0 items-center rounded-full px-4 text-[13.5px] font-semibold" style={{ background: "var(--tomato)", color: "var(--on-photo)" }} data-city-first>
+            Been? Rate it
           </Link>
-        </p>
+        </div>
       ) : (
         <>
           {best.length > 0 && (

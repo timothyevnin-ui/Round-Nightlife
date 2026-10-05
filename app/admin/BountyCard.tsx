@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { setBountyOpen } from "./actions";
 
 /**
- * The offer, at a glance: on or off, how many of the first thousand are
+ * The offer, at a glance: on or off, how many of the first three hundred are
  * approved, and who's owed. The switch closes the offer for new
  * recommendations; the ones already sent keep their promise.
  */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { RealMap } from "@/components/RealMap";
@@ -24,10 +24,23 @@ const ORDER: Step[] = ["name", "where", ...ASKS.map((a) => a.key), "pay"];
  * from), then a number and a Venmo so the money has somewhere to go. Ends up in
  * the Studio inbox with everything they said.
  */
+const noop = () => () => {};
+function readNameParam() {
+  try {
+    return new URLSearchParams(window.location.search).get("name")?.trim().slice(0, 80) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export function RecommendView({ offer }: { offer: Offer }) {
   const { enabled, user, needsProfile, profile, openSignIn } = useAuth();
   const [step, setStep] = useState<Step>("offer");
-  const [name, setName] = useState("");
+  // Came from a search that found nothing (V34): the name they typed is already in (read on the phone, never the server).
+  const urlName = useSyncExternalStore(noop, readNameParam, () => "");
+  const [typed, setTyped] = useState<string | null>(null);
+  const name = typed ?? urlName;
+  const setName = (v: string) => setTyped(v);
   const [kind, setKind] = useState<"bar" | "restaurant">("bar");
   const [hood, setHood] = useState<NeighborhoodId | undefined>();
   const [address, setAddress] = useState("");

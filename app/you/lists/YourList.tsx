@@ -62,8 +62,8 @@ export function YourList({ kind, venues }: { kind: ListKind; venues: Venue[] }) 
           <p className="text-[14px] leading-snug" style={{ color: "var(--ink-70)" }}>
             {t.empty}
           </p>
-          <Link href="/map" className="pressable btn-primary mt-4 inline-flex h-11 items-center px-5 text-[14px]">
-            Open the map
+          <Link href={kind === "want" ? "/map" : "/search?rate=1"} className="pressable btn-accent mt-4 inline-flex h-11 items-center px-5 text-[14px]" data-list-empty-cta>
+            {kind === "want" ? "Open the map" : "Rate a bar you've been to"}
           </Link>
         </div>
       ) : kind === "want" ? (

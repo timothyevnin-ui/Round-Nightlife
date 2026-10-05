@@ -53,11 +53,16 @@ export function CityRank({ rows, raters, title = "Ranked by New York", href, com
           </motion.li>
         ))}
       </ol>
-      {compact && href && (
-        <Link href={href} className="pressable mt-3 inline-flex h-10 items-center rounded-full border px-4 text-[13px] font-medium" style={{ borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-rank-all>
-          All of New York →
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+        {compact && href && (
+          <Link href={href} className="pressable inline-flex h-10 items-center rounded-full border px-4 text-[13px] font-medium" style={{ borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-rank-all>
+            All of New York →
+          </Link>
+        )}
+        <Link href="/search?rate=1" className="pressable text-[13px] font-medium" style={{ color: "var(--tomato-bright)" }} data-rank-rate>
+          Your ladder moves this list. Rate a bar →
         </Link>
-      )}
+      </div>
     </section>
   );
 }

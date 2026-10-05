@@ -18,13 +18,14 @@ import { personById, type Person } from "@/lib/friends";
 import { Pitch, PrivacyCard, type Place, type Regular } from "@/app/friends/FriendsView";
 import { Faces, FinderSheet, PeopleSheet, PersonSheet, RequestsCard, Sheet, useCircle, type CircleApi } from "./Circle";
 import type { Venue } from "@/lib/types";
-import { BOUNTY_AMOUNT, money } from "@/lib/bounty";
+import { BOUNTY_AMOUNT, money, BOUNTY_CAP } from "@/lib/bounty";
+import { myContributions, type Contributions } from "@/lib/contributions";
 
 /**
  * YOU (V27). Someone we don't know gets the pitch, typed out, with the number
  * box right on it. Someone we do gets a profile: their face in the middle,
  * their name, when they joined; Followers · Following · Rank; Edit and Share;
- * then the $4 door, right up top, because it's how ROUND spreads; then the
+ * then the $7 door, right up top, because it's how ROUND spreads; then the
  * lists, each its own page: Been (with the numbers), Want to try, your ladder,
  * your favorites; the quiz; Add ROUND to your Home Screen; who sees you; the
  * account.
@@ -89,7 +90,18 @@ export function profileLink(id: string): string {
 
 function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<string, Place>; reward: number }) {
   const { state } = useRoundStore();
+  // What you've sent in (V34), on the offer card.
+  const [mine, setMine] = useState<Contributions | null>(null);
   const { enabled, user, profile, signOut } = useAuth();
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!enabled || !user || !sb) return;
+    let live = true;
+    void myContributions(sb).then((c) => live && c && setMine(c));
+    return () => {
+      live = false;
+    };
+  }, [enabled, user]);
   const byslug = useMemo(() => venueMap(venues), [venues]);
   const [editing, setEditing] = useState(false);
   const [people, setPeople] = useState<"following" | "followers" | null>(null);
@@ -249,7 +261,7 @@ function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<str
         </p>
       )}
 
-      {/* The $4 door, right up top: it's how ROUND spreads. */}
+      {/* The offer, right up top: it's how ROUND spreads. */}
       <Link href="/recommend" className="pressable grain relative mt-5 flex items-center gap-4 overflow-hidden rounded-[26px] p-4" style={{ background: "linear-gradient(160deg, #8f2a15 0%, #d9482b 60%, #e8694a 100%)", color: "var(--on-photo)", boxShadow: "0 16px 36px -22px rgba(217,72,43,0.7)" }} data-recommend-card>
         <span className="serif flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px]" style={{ background: "rgba(246,241,231,0.16)", fontSize: 26, backdropFilter: "blur(6px)" }} aria-hidden data-reward>
           {money(reward)}
@@ -262,7 +274,7 @@ function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<str
             Recommend a bar we don&apos;t have.
           </span>
           <span className="mt-1 block text-[12.5px] leading-snug" style={{ color: "var(--on-photo-80)" }}>
-            Two minutes. We check it; you get {money(reward)}. Every time.
+            {mine && mine.sent > 0 ? `You've sent ${mine.sent} · ${mine.added} on ROUND · ${mine.paid} paid` : `Two minutes. We check it; you get ${money(reward)}, for the first ${BOUNTY_CAP} that make the list.`}
           </span>
         </span>
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(246,241,231,0.16)" }} aria-hidden>
@@ -272,7 +284,7 @@ function Yours({ venues, places, reward }: { venues: Venue[]; places: Record<str
         </span>
       </Link>
 
-      {/* Right under the $4 door: the Home Screen, then refer ten and get $5. */}
+      {/* Right under the offer: the Home Screen, then refer ten and get $5. */}
       <HomeScreenCard />
       {enabled && user && <ReferralCard />}
 

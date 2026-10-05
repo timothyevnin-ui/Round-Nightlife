@@ -13,7 +13,7 @@ import { BOUNTY_AMOUNT, BOUNTY_CAP } from "./bounty";
 
 export type Bounty = { open: boolean; cap: number; amount: number };
 export type Settings = { verifiedOnly: boolean; bounty: Bounty; /** Bars only (V33): restaurants stay in the Studio, off every public screen. */ barsOnly: boolean };
-/** The offer ($4 since V31): on, for the first 1,000 approved recommendations, until the Studio says otherwise. */
+/** The offer ($7 for the first 300 approved spots since V34; $4 for 1,000 before): on until the Studio says otherwise. */
 export const DEFAULT_BOUNTY: Bounty = { open: true, cap: BOUNTY_CAP, amount: BOUNTY_AMOUNT };
 /**
  * Until the settings table exists (schema.sql V15), everything shows, as it

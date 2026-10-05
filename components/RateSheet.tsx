@@ -5,17 +5,18 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useSignInNudge } from "./Actions";
 import { ladderSpot, useRoundStore, type Verdict } from "@/lib/store";
-import { bestQuestion, chooseQuestions, knownPercent, SEED_QUESTIONS, tagsFromAnswers, type CrowdQuestion } from "@/lib/crowdQuestions";
+import { bestQuestion, chooseQuestions, SEED_QUESTIONS, tagsFromAnswers, type CrowdQuestion } from "@/lib/crowdQuestions";
 import { track } from "@/lib/track";
 import type { Venue } from "@/lib/types";
 
 /**
- * "Rate this spot" (V32). A verdict in words; what it's best for, in taps;
- * then ROUND's own questions for this place, the ones the city asks for and
- * this place knows least, as many as you feel like (Done is always one tap
- * away); and one line for the group chat. The questions come from
- * /api/rate-questions (the pool the AI writes from the asks); until that
- * answers, the seed pool asks.
+ * "Rate this spot" (V32, loosened in V34). A verdict in words; what it's
+ * best for, in taps; then ROUND's own questions for this place, the ones the
+ * city asks for and this place knows least, one after another, for as long
+ * as you feel like: the big Done button saves on the spot, whenever. No
+ * meter, no "3 of 12". The line for the group chat is an extra on the last
+ * screen, not a gate. The questions come from /api/rate-questions (the pool
+ * the AI writes from the asks); until that answers, the seed pool asks.
  */
 
 export const VERDICTS: { key: Verdict; label: string; sub: string }[] = [
@@ -25,11 +26,11 @@ export const VERDICTS: { key: Verdict; label: string; sub: string }[] = [
   { key: "never", label: "Never again.", sub: "ROUND will remember." },
 ];
 
-type Step = "verdict" | "best" | "ask" | "note" | "done";
-type Served = { best: CrowdQuestion | null; asks: CrowdQuestion[]; known: number };
+type Step = "verdict" | "best" | "ask" | "done";
+type Served = { best: CrowdQuestion | null; asks: CrowdQuestion[] };
 
 function seedServed(kind: "bar" | "restaurant", slug: string, done: string[]): Served {
-  return { best: bestQuestion(SEED_QUESTIONS, kind) ?? null, asks: chooseQuestions(SEED_QUESTIONS, kind, slug, {}, done), known: knownPercent(SEED_QUESTIONS, kind, slug, {}) };
+  return { best: bestQuestion(SEED_QUESTIONS, kind) ?? null, asks: chooseQuestions(SEED_QUESTIONS, kind, slug, {}, done) };
 }
 
 export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" | "name" | "kind">; names?: Record<string, string>; open: boolean; onClose: () => void }) {
@@ -47,6 +48,7 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
   const [place, setPlace] = useState<number | null>(null);
   const [rated, setRated] = useState(false);
   const [answered, setAnswered] = useState(0);
+  const [savedNote, setSavedNote] = useState(prev?.note ?? "");
   const doneBefore = useMemo(() => Object.keys(prev?.answers ?? {}), [prev?.answers]);
 
   // Ask ROUND what it wants to know about this place, once the sheet opens.
@@ -58,7 +60,7 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
       .then((r) => (r.ok ? r.json() : null))
       .then((j: Served | null) => {
         if (!live) return;
-        setServed(j && Array.isArray(j.asks) ? { best: j.best ?? fallback.best, asks: j.asks, known: typeof j.known === "number" ? j.known : fallback.known } : fallback);
+        setServed(j && Array.isArray(j.asks) ? { best: j.best ?? fallback.best, asks: j.asks } : fallback);
       })
       .catch(() => live && setServed(fallback));
     return () => {
@@ -73,6 +75,7 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
     setAnswered(0);
   };
   const close = () => {
+    if (step === "done") addLine();
     onClose();
     window.setTimeout(reset, 300);
     // The one moment ROUND asks for a number: after something worth keeping, once the sheet is away.
@@ -85,36 +88,47 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
   const pool = served ?? seedServed(venue.kind, venue.slug, doneBefore);
   const asks = pool.asks;
   const current = asks[i];
-  // The meter: what ROUND knew, plus what this person just taught it (one answer is a fifth of a question).
-  const known = Math.min(100, Math.round(pool.known + (answered * 100) / Math.max(1, 5 * Math.max(asks.length, 6))));
 
+  const toggle = (list: string[], key: string, multi: boolean) => (multi ? (list.includes(key) ? list.filter((k) => k !== key) : [...list, key]) : [key]);
+  const entry = (v: Verdict, a: Record<string, string[]>, line: string) => {
+    const source = served ? [...(served.best ? [served.best] : []), ...served.asks, ...SEED_QUESTIONS] : SEED_QUESTIONS;
+    const clean = line.trim().slice(0, 140);
+    return { verdict: v, tags: tagsFromAnswers(source, bestFor, a, venue.kind), note: clean || undefined, bestFor: bestFor.length ? bestFor : undefined, answers: Object.keys(a).length ? a : undefined };
+  };
+  /** Save it, right now, with whatever's been answered so far: the big button, and the end of the questions. */
+  const finish = (a: Record<string, string[]> = answers, v: Verdict | null = verdict) => {
+    if (!v) return;
+    const at = rate(venue.slug, entry(v, a, note), ladderSpot(state, venue.slug, v));
+    setPlace(at);
+    setSavedNote(note.trim());
+    track("save", { slug: venue.slug, data: { source: "rate", verdict: v, bestFor, answered: Object.keys(a).length, note: !!note.trim() } });
+    setStep("done");
+    setRated(true);
+  };
   const pickVerdict = (v: Verdict) => {
     setVerdict(v);
-    setStep(pool.best ? "best" : asks.length ? "ask" : "note");
+    if (pool.best) setStep("best");
+    else if (asks.length) setStep("ask");
+    else finish(answers, v);
   };
-  const afterBest = () => setStep(asks.length ? "ask" : "note");
-  const toggle = (list: string[], key: string, multi: boolean) => (multi ? (list.includes(key) ? list.filter((k) => k !== key) : [...list, key]) : [key]);
+  const afterBest = () => (asks.length ? setStep("ask") : finish());
   const commit = (keys: string[]) => {
     if (!current) return;
+    const next = keys.length ? { ...answers, [current.id]: keys } : answers;
     if (keys.length) {
-      setAnswers((a) => ({ ...a, [current.id]: keys }));
+      setAnswers(next);
       setAnswered((n) => n + 1);
     }
     setPicked([]);
     if (i + 1 < asks.length) setI(i + 1);
-    else setStep("note");
+    else finish(next);
   };
-  const finish = () => {
-    if (!verdict) return;
-    const clean = note.trim().slice(0, 140);
-    const source = served ? [...(served.best ? [served.best] : []), ...served.asks, ...SEED_QUESTIONS] : SEED_QUESTIONS;
-    const tags = tagsFromAnswers(source, bestFor, answers, venue.kind);
-    const position = ladderSpot(state, venue.slug, verdict);
-    const at = rate(venue.slug, { verdict, tags, note: clean || undefined, bestFor: bestFor.length ? bestFor : undefined, answers: Object.keys(answers).length ? answers : undefined }, position);
-    setPlace(at);
-    track("save", { slug: venue.slug, data: { source: "rate", verdict, bestFor, answered: Object.keys(answers).length, note: !!clean } });
-    setStep("done");
-    setRated(true);
+  /** The line for the group chat, added after the fact: the same rating, same rung, plus the line. */
+  const addLine = () => {
+    const clean = note.trim();
+    if (!verdict || clean === savedNote) return;
+    rate(venue.slug, entry(verdict, answers, clean), place !== null && place >= 0 ? place : undefined);
+    setSavedNote(clean);
   };
 
   return (
@@ -162,32 +176,21 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
                 </Panel>
               )}
               {step === "ask" && current && (
-                <Panel key={`ask-${current.id}`} eyebrow={`ROUND wants to know · ${i + 1}`} title={current.prompt} sub={current.sub ?? (current.multi ? "Pick as many as are true." : undefined)}>
-                  <Meter known={known} name={venue.name} />
+                <Panel key={`ask-${current.id}`} eyebrow={answered ? `ROUND wants to know · ${answered} answered` : "ROUND wants to know"} title={current.prompt} sub={current.sub ?? (current.multi ? "Pick as many as are true." : undefined)}>
                   <Chips options={current.options} picked={picked} onPick={(k) => (current.multi ? setPicked((cur) => toggle(cur, k, true)) : commit([k]))} testId={`ask-${current.id}`} />
-                  <div className="mt-5 flex gap-2">
-                    {current.multi && (
-                      <button onClick={() => commit(picked)} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-ask-next>
-                        {picked.length ? "Next" : "Skip"}
-                      </button>
-                    )}
-                    <button onClick={() => setStep("note")} className={`pressable btn-ghost flex h-12 items-center justify-center text-[15px] ${current.multi ? "px-5" : "flex-1"}`} data-ask-done>
-                      {answered ? "That's enough" : "Skip these"}
+                  {current.multi && picked.length > 0 ? (
+                    <button onClick={() => commit(picked)} className="pressable btn-ghost mt-5 flex h-12 w-full items-center justify-center text-[15px]" data-ask-next>
+                      Next question
                     </button>
-                  </div>
-                </Panel>
-              )}
-              {step === "note" && (
-                <Panel key="note" eyebrow="Last one" title="One line for the group chat?" sub="Optional. It shows under the place with your first name.">
-                  <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 140))} rows={2} placeholder={`"${venue.name}: …"`} className="mt-4 w-full resize-none rounded-[18px] border px-4 py-3 text-[15px] outline-none" style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-rate-note />
-                  <div className="mt-1 text-right text-[11px]" style={{ color: "var(--ink-35)" }}>
-                    {140 - note.length}
-                  </div>
-                  <div className="mt-3 flex gap-2">
-                    <button onClick={finish} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-rate-finish>
-                      {note.trim() ? "Done" : "Skip and finish"}
+                  ) : (
+                    <button onClick={() => commit([])} className="pressable mt-5 flex h-10 w-full items-center justify-center text-[14px] font-medium" style={{ color: "var(--ink-55)" }} data-ask-next>
+                      Skip this one
                     </button>
-                  </div>
+                  )}
+                  <button onClick={() => finish()} className="pressable btn-primary mt-2 flex h-14 w-full flex-col items-center justify-center rounded-[20px] text-[17px] font-semibold" data-ask-done>
+                    <span>{answered ? "Done, save it" : "Done"}</span>
+                    <span className="text-[11px] font-normal opacity-70">Leave whenever. Your rating&apos;s kept either way.</span>
+                  </button>
                 </Panel>
               )}
               {step === "done" && (
@@ -197,7 +200,7 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
                   title={place !== null && place >= 0 ? `#${place + 1} on your ladder.` : verdict === "never" ? "Never again. Understood." : "It was fine. Noted."}
                   sub={
                     answered
-                      ? `ROUND knows ${venue.name} ${known}% now. Every answer makes the next pick sharper, for you and for everyone.`
+                      ? `${answered} ${answered === 1 ? "answer" : "answers"} about ${venue.name}, kept. Every one makes the next pick sharper, for you and for everyone.`
                       : place !== null && place >= 0
                         ? "ROUND just got a little smarter about you. Your favorites push their way up its picks."
                         : verdict === "never"
@@ -205,12 +208,13 @@ export function RateSheet({ venue, open, onClose }: { venue: Pick<Venue, "slug" 
                           : "Noted, and remembered. Every rating makes the next pick sharper."
                   }
                 >
-                  <div className="mt-5 flex gap-2">
+                  <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 140))} onBlur={addLine} rows={2} placeholder="One line for the group chat? Optional. It shows under the place with your first name." className="mt-4 w-full resize-none rounded-[18px] border px-4 py-3 text-[15px] outline-none" style={{ background: "var(--paper)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }} data-rate-note />
+                  <div className="mt-3 flex gap-2">
                     <Link href="/you/ladder" className="pressable btn-ghost flex h-12 flex-1 items-center justify-center text-[15px]" onClick={close}>
                       See your ladder
                     </Link>
                     <button onClick={close} className="pressable btn-primary flex h-12 flex-1 items-center justify-center text-[15px]" data-rate-close>
-                      Done
+                      {note.trim() && note.trim() !== savedNote ? "Add it and close" : "Done"}
                     </button>
                   </div>
                 </Panel>
@@ -234,23 +238,6 @@ function Chips({ options, picked, onPick, testId }: { options: CrowdQuestion["op
           </button>
         );
       })}
-    </div>
-  );
-}
-
-/** "ROUND knows Lucinda's 40%": fills as the answers come in. */
-function Meter({ known, name }: { known: number; name: string }) {
-  return (
-    <div className="mt-3" data-known={known}>
-      <div className="flex items-center justify-between text-[11.5px]" style={{ color: "var(--ink-55)" }}>
-        <span>
-          ROUND knows {name} <b style={{ color: "var(--ink)" }}>{known}%</b>
-        </span>
-        <span>{known >= 80 ? "Nearly a regular" : known >= 40 ? "Getting there" : "Still learning"}</span>
-      </div>
-      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--ink-10)" }}>
-        <div className="h-full rounded-full" style={{ width: `${Math.max(4, known)}%`, background: known >= 80 ? "var(--tomato)" : "var(--pine)", transition: "width 300ms ease" }} />
-      </div>
     </div>
   );
 }

@@ -457,7 +457,7 @@ alter table public.disputes enable row level security;
 -- only) and when they were paid; the offer itself is a Studio setting.
 alter table public.suggestions add column if not exists venmo   text;
 alter table public.suggestions add column if not exists paid_at timestamptz;
-insert into public.settings (key, value) values ('bounty', '{"open": true, "cap": 1000, "amount": 4}'::jsonb) on conflict (key) do nothing;
+insert into public.settings (key, value) values ('bounty', '{"open": true, "cap": 300, "amount": 7}'::jsonb) on conflict (key) do nothing;
 
 -- ─────────────────────────────────────────────────────────────────────────
 -- V21. Friends see each other's spots (want to go, been, the ladder), and the
@@ -730,5 +730,25 @@ create or replace view public.venue_lines with (security_invoker = false) as
   left join ladders l on l.user_id = s.user_id
   where s.state = 'been' and s.note is not null and s.note <> '' and not s.hidden and coalesce(p.is_public, true);
 grant select on public.venue_lines to anon, authenticated;
+
+-- ───────────────────────────── V34: $7 for the first 300 ─────────────────────────────
+-- The offer becomes $7 for the first 300 approved spots. A row still at the old
+-- $2 or $4 moves; an amount the Studio set to something else is left alone.
+update public.settings
+  set value = jsonb_set(jsonb_set(value, '{amount}', '7'::jsonb), '{cap}', '300'::jsonb), updated_at = now()
+  where key = 'bounty' and (value->>'amount')::numeric in (2, 4);
+
+-- ───────────────────────────── V34: your contributions ─────────────────────────────
+-- What you've sent in, what made the list, what's been paid: the line on the You page.
+create or replace function public.my_contributions() returns json
+language sql security definer set search_path = public stable as $$
+  select json_build_object(
+    'sent', count(*),
+    'added', count(*) filter (where status = 'added'),
+    'paid', count(*) filter (where paid_at is not null)
+  ) from public.suggestions where user_id = auth.uid();
+$$;
+revoke all on function public.my_contributions() from public;
+grant execute on function public.my_contributions() to authenticated;
 
 -- Later phases (plans, census) add their tables here.

@@ -179,7 +179,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
     if (view !== "map") return;
     const fit = () => {
       const top = headRef.current?.getBoundingClientRect().bottom ?? 160;
-      const tab = 72 + 8;
+      const tab = 72 + 8; // the bar; the + floats over the map's bottom edge, where the card leaves room
       setMapHeight(Math.max(360, window.innerHeight - top - tab));
     };
     fit();
@@ -331,7 +331,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
               type="button"
               onClick={locateMe}
               className="pressable absolute left-3 flex h-10 items-center gap-2 rounded-full border pl-3 pr-3.5 text-[13px] font-medium"
-              style={{ bottom: 34, background: "rgba(14,23,48,0.9)", borderColor: "var(--hairline-strong)", color: "var(--ink)", backdropFilter: "blur(10px)", boxShadow: "0 2px 10px rgba(0,0,0,0.35)" }}
+              style={{ bottom: 44, background: "rgba(14,23,48,0.9)", borderColor: "var(--hairline-strong)", color: "var(--ink)", backdropFilter: "blur(10px)", boxShadow: "0 2px 10px rgba(0,0,0,0.35)" }}
               aria-label={me ? "Center the map on you" : "See where you are on the map"}
               data-spots-locate
               data-located={me ? "1" : "0"}
@@ -341,7 +341,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
             </button>
           )}
           {!me && denied && !selected && (
-            <p className="pointer-events-none absolute left-3 rounded-full px-2.5 py-1 text-[11px]" style={{ bottom: 78, background: "rgba(14,23,48,0.9)", color: "var(--ink-55)" }}>
+            <p className="pointer-events-none absolute left-3 rounded-full px-2.5 py-1 text-[11px]" style={{ bottom: 88, background: "rgba(14,23,48,0.9)", color: "var(--ink-55)" }}>
               Turn location on for this site in Settings, then tap again.
             </p>
           )}
@@ -352,7 +352,7 @@ export function SpotsView({ spots }: { spots: Spot[] }) {
           )}
           <AnimatePresence>
             {selected && (
-              <motion.div key={selected.slug} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} transition={{ duration: 0.18 }} className="absolute inset-x-3 bottom-3" data-spot-card={selected.slug}>
+              <motion.div key={selected.slug} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} transition={{ duration: 0.18 }} className="absolute inset-x-3" style={{ bottom: 44 }} data-spot-card={selected.slug}>
                 <div className="card theme-paper p-3" style={{ background: "rgba(251,248,241,0.97)", backdropFilter: "blur(12px)" }}>
                   <div className="flex gap-3">
                     <Link href={`/v/${selected.slug}`} className="pressable shrink-0">
