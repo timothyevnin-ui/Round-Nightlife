@@ -751,4 +751,15 @@ $$;
 revoke all on function public.my_contributions() from public;
 grant execute on function public.my_contributions() to authenticated;
 
+-- ───────────────────────────── V35: the pin that came with the name ─────────────────────────────
+-- A recommendation picked off the type-ahead carries its exact pin, so the Studio
+-- never has to geocode it (and never gets it wrong).
+alter table public.suggestions add column if not exists lat double precision;
+alter table public.suggestions add column if not exists lng double precision;
+
+-- ───────────────────────────── V35: "Not what I asked" ─────────────────────────────
+-- One more kind of event: a results page the person waved off, with what they asked and what came back.
+alter table public.events drop constraint if exists events_kind_check;
+alter table public.events add constraint events_kind_check check (kind in ('sayit', 'search', 'results', 'view', 'save', 'near', 'go', 'miss'));
+
 -- Later phases (plans, census) add their tables here.

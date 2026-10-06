@@ -33,6 +33,9 @@ export type Suggestion = {
   kind: "bar" | "restaurant";
   neighborhood?: string;
   address?: string;
+  /** The pin, when the name was picked off the type-ahead (V35). */
+  lat?: number;
+  lng?: number;
   why?: string;
   answers: SuggestionAnswers;
   fromName?: string;
@@ -62,6 +65,8 @@ type Row = {
   user_id: string | null;
   venmo?: string | null;
   paid_at?: string | null;
+  lat?: number | null;
+  lng?: number | null;
   status: string;
   venue_slug: string | null;
   created_at: string;
@@ -74,6 +79,8 @@ function rowToSuggestion(r: Row): Suggestion {
     kind: r.kind === "restaurant" ? "restaurant" : "bar",
     neighborhood: r.neighborhood ?? undefined,
     address: r.address ?? undefined,
+    lat: typeof r.lat === "number" ? r.lat : undefined,
+    lng: typeof r.lng === "number" ? r.lng : undefined,
     why: r.why ?? undefined,
     answers: r.answers && typeof r.answers === "object" ? r.answers : {},
     fromName: r.from_name ?? undefined,
@@ -109,6 +116,7 @@ export async function insertSuggestion(s: SuggestionInput): Promise<string> {
     from_contact: s.fromContact ?? null,
     user_id: s.userId ?? null,
     venmo: s.venmo ?? null,
+    ...(typeof s.lat === "number" && typeof s.lng === "number" ? { lat: s.lat, lng: s.lng } : {}),
   };
   // A database a version behind (no venmo column yet) still takes the row; the column is named in the log.
   for (let attempt = 0; attempt < 3; attempt++) {

@@ -9,6 +9,8 @@ import { listDisputes } from "@/lib/disputes";
 import { DashboardActions } from "./DashboardActions";
 import { BarsGate, VerifiedGate } from "./VerifiedGate";
 import { BountyCard } from "./BountyCard";
+import { PinsCard } from "./PinsCard";
+import { pinProblems } from "@/lib/pins";
 import { getSettings } from "@/lib/settings";
 import { DbHealth } from "./DbHealth";
 import { checkDatabase, sqlEditorUrl } from "@/lib/health";
@@ -79,6 +81,7 @@ export default async function Dashboard() {
   );
   const resultEvents = ev.filter((e) => e.kind === "results");
   const results = resultEvents.length;
+  const notAsked = ev.filter((e) => e.kind === "miss").length;
   const byClaude = resultEvents.filter((e) => (e.data as { engine?: string }).engine === "claude");
   const claudeMs = byClaude.length ? Math.round(byClaude.reduce((a, e) => a + Number((e.data as { ms?: number }).ms ?? 0), 0) / byClaude.length) : 0;
   const claudeOn = !!process.env.ANTHROPIC_API_KEY;
@@ -132,6 +135,14 @@ export default async function Dashboard() {
           {claudeOn ? (
             <>
               Every results page goes through <code>{PICK_MODEL}</code> with the whole catalog. {byClaude.length}/{results} results in the last {DAYS} days{byClaude.length ? `, ${(claudeMs / 1000).toFixed(1)}s average` : ""}.
+              {notAsked > 0 && (
+                <>
+                  {" "}
+                  <Link href="/admin/activity?kind=miss" className="font-medium underline-offset-2 hover:underline" style={{ color: "var(--tomato)" }} data-misses={notAsked}>
+                    {notAsked} said &ldquo;Not what I asked&rdquo; →
+                  </Link>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -144,6 +155,7 @@ export default async function Dashboard() {
       <VerifiedGate on={settings.verifiedOnly} verified={verified} total={live.length} writable={writable} />
       <BarsGate on={settings.barsOnly} restaurants={live.filter((v) => v.kind === "restaurant").length} writable={writable} />
       <BountyCard open={settings.bounty.open} cap={settings.bounty.cap} amount={settings.bounty.amount} approved={approved} owed={owed} writable={writable} />
+      <PinsCard problems={pinProblems(live)} />
 
       <DashboardActions writable={writable} source={source} dbCount={dbCount} shelfEmpty={hot === 0} waiting={waiting} disagreeing={disagreeing} />
 

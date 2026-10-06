@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Wordmark } from "./Wordmark";
 import { SayIt } from "./SayIt";
+import { AskChips } from "./AskChips";
 import { useAuth } from "@/lib/auth";
 import { DAY_NAMES } from "@/lib/time";
 import { nowWhen } from "@/lib/when";
@@ -160,6 +161,9 @@ export function HomeHero() {
             Bars near me
           </Link>
         </div>
+
+        {/* Or tap it (V35): a neighborhood and what the night is for, no typing. */}
+        <AskChips />
       </motion.div>
     </div>
   );

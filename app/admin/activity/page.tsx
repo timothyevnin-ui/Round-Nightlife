@@ -16,6 +16,7 @@ const KINDS: { id: EventKind | "all"; label: string }[] = [
   { id: "save", label: "Saves" },
   { id: "near", label: "Near me" },
   { id: "go", label: "GO taps" },
+  { id: "miss", label: "Not what I asked" },
 ];
 
 /** Everything people did, newest first. */
@@ -154,6 +155,20 @@ function detail(e: EventRow, name: (s: string | null) => string): React.ReactNod
           <span style={{ color: "var(--ink-55)" }}>{e.slug ? ` → at ${name(e.slug)}` : " · address"}</span>
         </>
       );
+    case "miss": {
+      const shown = (d.shown as string[] | undefined)?.map(name).slice(0, 3).join(", ");
+      const sum = (d.summary as string[] | undefined)?.join(" · ");
+      return (
+        <>
+          <span style={{ color: "var(--tomato)" }}>Not what I asked</span>
+          {e.q ? ` · "${e.q}"` : ""}
+          <span style={{ color: "var(--ink-55)" }}>
+            {sum ? ` · ${sum}` : ""}
+            {shown ? ` → ${shown}` : ""}
+          </span>
+        </>
+      );
+    }
     case "go":
       return (
         <>

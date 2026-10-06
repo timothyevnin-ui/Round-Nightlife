@@ -11,6 +11,7 @@ import { formatHour } from "@/lib/time";
 import { photosOf } from "@/lib/places";
 import { adoptPhoto, draftFromNotes, draftTake, fillFromWeb, findPhotos, lookupAddress, readMyWords, removeVenue, saveVenue, type SavePayload } from "@/app/admin/actions";
 import { HoursEditor } from "./HoursEditor";
+import { PlaceSearch } from "@/components/PlaceSearch";
 import { ScoreBadge } from "@/components/Score";
 import { weekSummary } from "@/lib/hours";
 import { shrinkPhoto } from "@/lib/photo";
@@ -65,6 +66,8 @@ export type Prefill = {
   kind?: "bar" | "restaurant";
   neighborhood?: string;
   address?: string;
+  lat?: number;
+  lng?: number;
   notes?: string;
   attrs?: Partial<Attrs>;
   price?: number;
@@ -82,6 +85,8 @@ function fromPrefill(p: Prefill): Draft {
     kind: p.kind ?? b.kind,
     neighborhood: p.neighborhood ?? b.neighborhood,
     address: p.address ?? b.address,
+    lat: typeof p.lat === "number" ? p.lat : b.lat,
+    lng: typeof p.lng === "number" ? p.lng : b.lng,
     notes: p.notes ?? b.notes,
     attrs: { ...b.attrs, ...(p.attrs ?? {}) },
     price: p.price ?? b.price,
@@ -424,7 +429,19 @@ export function VenueForm({ venue, writable, prefill }: { venue: Venue | null; w
       {/* ── Basics ── */}
       <Section title="Basics">
         <Field label="Name">
-          <TextInput value={d.name} onChange={(v) => set("name", v)} placeholder="The Red Lion" big />
+          {/* Type it, pick it (V35): the name, the address, the pin and the neighborhood arrive together. */}
+          <PlaceSearch
+            value={d.name}
+            onChange={(v) => set("name", v)}
+            onPick={(place) => {
+              setD((x) => ({ ...x, name: place.name || x.name, address: place.address || x.address, lat: place.lat, lng: place.lng, neighborhood: (place.neighborhood ?? x.neighborhood) as NeighborhoodId }));
+              setGeo(`${place.address}${place.neighborhood ? ` → ${NEIGHBORHOODS.find((n) => n.id === place.neighborhood)?.name ?? place.neighborhood}` : " (outside ROUND's neighborhoods)"}`);
+            }}
+            placeholder="Start typing: The Red Lion"
+            inputClassName="w-full rounded-[14px] border px-4 outline-none h-14 text-[20px]"
+            inputStyle={{ ...inputStyle, fontFamily: "var(--font-serif)" }}
+            testId="studio-name"
+          />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Neighborhood">

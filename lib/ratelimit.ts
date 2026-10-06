@@ -30,6 +30,11 @@ function take(key: string, limit: number): boolean {
   return true;
 }
 
+/** A named bucket, `limit` a minute: the places type-ahead uses one per phone (V35). */
+export function takeToken(key: string, limit: number): boolean {
+  return take(key, limit);
+}
+
 /** True if this caller may spend a model call right now. */
 export function allowModelCall(ip: string | null | undefined): boolean {
   if (!take("*", GLOBAL_PER_MINUTE)) return false;

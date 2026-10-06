@@ -22,6 +22,8 @@ export default async function NewVenue(props: PageProps<"/admin/new">) {
         kind: d.kind,
         neighborhood: d.neighborhood,
         address: d.address,
+        lat: s.lat,
+        lng: s.lng,
         notes: d.notes,
         attrs: d.attrs,
         price: d.price,

@@ -153,6 +153,8 @@ export type NightQuery = {
   wants: Wants;
   /** Slugs the person has already been to — used by the "somewhere new" want. */
   been?: string[];
+  /** What they tapped (V35): every pick has these, enforced in code; the picker only orders within them. */
+  must?: AttrKey[];
 };
 
 export type DateQuery = {
@@ -190,6 +192,8 @@ export type NightPick = {
   far?: string;
   /** Which door, when the pick is about one of the place's other locations. */
   door?: VenueLocation;
+  /** The pick lacks something they tapped: there weren't three that had it, and this is the closest fit (V35). */
+  mustMiss?: boolean;
 };
 
 export type DatePlan = {

@@ -10,11 +10,14 @@ import { ShareButton } from "@/components/Actions";
 import { useRoundStore } from "@/lib/store";
 import type { DatePlan, Mode, NightPick } from "@/lib/types";
 import { BOUNTY_AMOUNT, money } from "@/lib/bounty";
+import { track } from "@/lib/track";
 
 type Props = {
   mode: Mode | "near";
   /** The door's name when it isn't the mode's ("Day out" for the daylight door). */
   title?: string;
+  /** When what they tapped couldn't be fully honored (V35): says so instead of pretending. */
+  note?: string;
   summary: string[];
   /** What ROUND understood, in plain words (from the model). */
   heard?: string;
@@ -32,10 +35,18 @@ type Props = {
 
 const TITLE: Record<Mode | "near", string> = { night: "Night out", date: "Date", dinner: "Dinner & drinks", near: "Near me" };
 
-export function ResultsView({ mode, title, summary, heard, editHref, code, night, plans, moreNight, morePlans, groupWord }: Props) {
+export function ResultsView({ mode, title, note, summary, heard, editHref, code, night, plans, moreNight, morePlans, groupWord }: Props) {
   const router = useRouter();
   const { rememberResults } = useRoundStore();
   const [more, setMore] = useState(false);
+  // Not what I asked (V35): one tap logs the ask and what came back, so every miss is one we can see.
+  const [missed, setMissed] = useState(false);
+  const miss = () => {
+    if (missed) return;
+    setMissed(true);
+    const shown = (night ?? []).map((p) => p.venue.slug).concat((plans ?? []).map((p) => p.restaurant?.slug ?? p.bar.slug));
+    track("miss", { q: heard ?? summary.join(", "), data: { mode, summary, heard: heard ?? null, shown: shown.slice(0, 6), code } });
+  };
 
   useEffect(() => {
     rememberResults(window.location.pathname + window.location.search);
@@ -73,6 +84,11 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
         {heard && count > 0 && (
           <p className="mt-2 text-[14px] leading-snug" style={{ color: "var(--ink-55)" }} data-heard>
             We heard: <span style={{ color: "var(--ink)" }}>{heard.replace(/\.$/, "")}</span>.
+          </p>
+        )}
+        {note && count > 0 && (
+          <p className="mt-2 text-[13.5px] leading-snug" style={{ color: "var(--tomato-bright)" }} data-must-note>
+            {note}
           </p>
         )}
         <Link href={editHref} className="pressable no-scrollbar -mx-5 mt-3 flex items-center gap-1.5 overflow-x-auto px-5" aria-label="Change your answers">
@@ -129,6 +145,9 @@ export function ResultsView({ mode, title, summary, heard, editHref, code, night
           <Link href="/recommend" className="pressable mt-5 text-[13px] font-medium" style={{ color: "var(--tomato-bright)" }} data-results-add>
             Know a better one we don&apos;t have? Add it, {money(BOUNTY_AMOUNT)} →
           </Link>
+          <button onClick={miss} disabled={missed} className="pressable text-[12.5px]" style={{ color: missed ? "var(--pine-bright)" : "var(--ink-45)" }} data-results-miss={missed ? "sent" : "ask"}>
+            {missed ? "Noted. Someone from ROUND reads every one." : "Not what I asked?"}
+          </button>
         </motion.div>
       )}
     </main>

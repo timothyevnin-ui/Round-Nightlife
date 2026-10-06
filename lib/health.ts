@@ -38,6 +38,7 @@ const PROBES: { key: string; label: string; what: string; path: string }[] = [
   { key: "venue_crowd", label: "What New York says", what: "the venue_crowd, venue_best_for, venue_answers and venue_lines views (V32)", path: "venue_crowd?select=slug&limit=1" },
   { key: "crowd_questions", label: "The question pool", what: "the crowd_questions table (V32)", path: "crowd_questions?select=id&limit=1" },
   { key: "profiles.referrals", label: "Referrals", what: "the ref_code and referred_by columns on profiles (V28): refer ten, get $5", path: "profiles?select=ref_code,referred_by&limit=1" },
+  { key: "suggestions.pin", label: "The pin that came with the name", what: "the lat and lng columns on suggestions (V35)", path: "suggestions?select=lat,lng&limit=1" },
 ];
 
 function explain(status: number, text: string): string {

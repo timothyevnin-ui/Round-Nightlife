@@ -155,6 +155,27 @@ body {
 
 input, textarea { user-select: text; -webkit-user-select: text; }
 
+@layer base {
+  /*
+   * Every box you type in reads in both themes (V35): the ink of its scope on
+   * the surface of its scope, whatever the browser would have picked, and
+   * iOS autofill (which paints a field white and would hide cream type) is
+   * overruled with an inset shadow the size of the field.
+   */
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select {
+    color: var(--ink);
+    caret-color: var(--tomato);
+    background-color: var(--surface);
+  }
+  input::placeholder, textarea::placeholder { color: var(--ink-45); opacity: 1; }
+  input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, textarea:-webkit-autofill {
+    -webkit-text-fill-color: var(--ink);
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    box-shadow: 0 0 0 1000px var(--surface) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+}
+
 /* Layout helpers */
 .screen {
   min-height: 100dvh;

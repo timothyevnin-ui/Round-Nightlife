@@ -1,7 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { ATTRS, type AttrKey } from "./attrs";
-import { haversineMeters, isDaytime, RESULT_COUNT } from "./engine";
+import { hasMust, haversineMeters, isDaytime, RESULT_COUNT } from "./engine";
 import { NEIGHBORHOODS, NEIGHBORHOOD_MAP, neighborhoodName } from "./neighborhoods";
 import { isNearby, whereRead } from "./where";
 import { BAR_FROM_DEFAULT, doorsOf } from "./places";
@@ -46,6 +46,8 @@ export type PickRequest = {
   stage?: DateStage;
   dinner?: boolean;
   wants: Wants;
+  /** What they tapped (V35): every pick has these; the code checks, the model only orders within them. */
+  must?: AttrKey[];
   been?: string[];
   /** The person's own taste, when they've rated things (from the taste cookie). */
   taste?: { loves: string[]; nevers: string[]; tags: string[]; usual?: [string, string][]; went?: string[] };
@@ -185,6 +187,7 @@ function requestWords(r: PickRequest, hints: string[]): string {
   const { want, avoid } = wantsWords(r.wants);
   if (want.length) lines.push(`They want: ${want.join(", ")}.`);
   if (avoid.length) lines.push(`They want to avoid: ${avoid.join(", ")}.`);
+  if (r.must?.length) lines.push(`They tapped these, so they are not negotiable: ${r.must.map((k) => (ATTRS[k]?.label ?? k).toLowerCase()).join(", ")}. Every pick has them (the hints below already do; a pick without them is thrown out).`);
   if (r.said) lines.push(`In their own words: "${r.said.replace(/"/g, "'").slice(0, 300)}". The words win over the tags above if they disagree.`);
   if (r.been?.length) lines.push(`They've already been to: ${r.been.slice(0, 20).join(", ")}${(r.wants.new ?? 0) > 0 ? " (they asked for somewhere new)" : ""}.`);
   if (r.taste) {
@@ -340,7 +343,7 @@ function clean(s: string): string {
 /* ───────────────────────── applying the answer ───────────────────────── */
 
 /** Reorder the rules engine's bar picks to Claude's answer; keep engine labels/why where Claude gave none. */
-export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = RESULT_COUNT): NightPick[] {
+export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = RESULT_COUNT, must?: AttrKey[]): NightPick[] {
   const fromRules = new Map(rulesPicks.map((p) => [p.venue.slug, p]));
   if (result.engine !== "claude") {
     // The engine's own order, minus anything the person said never again to.
@@ -354,15 +357,28 @@ export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues
     out.push(lead);
     taken.add(lead.label);
   }
+  // What they tapped is checked here, not trusted (V35): a pick without it is dropped, unless the engine itself couldn't find three with it.
+  const strict = !!must?.length && rulesPicks.filter((p) => !p.mustMiss).length >= count;
   for (const p of result.picks) {
     if (lead && p.slug === lead.venue.slug) continue;
     const venue = bySlug.get(p.slug);
     if (!venue) continue;
+    if (strict && !hasMust(venue, must)) continue;
     const prior = fromRules.get(p.slug);
     let label: PickLabel = out.length === 0 ? "The pick" : p.label && !taken.has(p.label) ? p.label : prior?.label && !taken.has(prior.label) ? prior.label : nextLabel(taken);
     if (out.length > 0 && label === "The pick") label = nextLabel(taken);
     taken.add(label);
-    out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door });
+    out.push({ venue, label, score: prior?.score ?? 0.5, why: p.why || prior?.why || "", far: prior?.far, door: prior?.door, ...(prior?.mustMiss ? { mustMiss: true } : {}) });
+  }
+  // Short after the check: the engine's own order fills in, the ones that have it first.
+  for (const p of rulesPicks) {
+    if (out.length >= count) break;
+    if (out.some((o) => o.venue.slug === p.venue.slug)) continue;
+    if (strict && p.mustMiss) continue;
+    let label: PickLabel = out.length === 0 ? "The pick" : !taken.has(p.label) && p.label !== "The pick" ? p.label : nextLabel(taken);
+    if (out.length > 0 && label === "The pick") label = nextLabel(taken);
+    taken.add(label);
+    out.push({ ...p, label });
   }
   return out.slice(0, count);
 }

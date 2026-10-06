@@ -13,6 +13,7 @@ import { parseFav, parseName, parseTaste } from "@/lib/taste";
 import { getSettings } from "@/lib/settings";
 import { FAV_COOKIE, NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
+import { ATTR_KEYS, ATTRS, type AttrKey } from "@/lib/attrs";
 import { formatHour, mealWord } from "@/lib/time";
 import { isNearby, parseMe } from "@/lib/where";
 import type { DatePlan, DateStage, Mode, NightPick } from "@/lib/types";
@@ -66,6 +67,16 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const hour = num(sp.t, 21);
   const dow = num(sp.d, new Date().getDay());
   const wants = decodeWants(str(sp.w));
+  // What they tapped (V35): every card has it, or the page says it couldn't find three.
+  const must = (str(sp.must) ?? "").split(",").filter((k): k is AttrKey => (ATTR_KEYS as readonly string[]).includes(k)).slice(0, 4);
+  for (const k of must) wants[k] = Math.max(wants[k] ?? 0, 1);
+  const mustNote = (picks: { mustMiss?: boolean }[]) => {
+    const short = picks.filter((p) => p.mustMiss).length;
+    if (!must.length || !short) return undefined;
+    const thing = must.map((k) => ATTRS[k].label.toLowerCase()).join(" and ");
+    const had = picks.length - short;
+    return had === 0 ? `Nothing here has ${thing} tonight; these are the closest fits.` : `Only ${had === 1 ? "one" : "two"} ${had === 1 ? "has" : "have"} ${thing} here tonight; the rest ${short === 1 ? "is" : "are"} the closest fit.`;
+  };
   const been = (str(sp.b) ?? "").split(",").filter(Boolean);
   const said = (str(sp.q) ?? "").replace(/\s+/g, " ").trim().slice(0, 300) || undefined;
   // Where they're standing, when they allowed it (me=lat,lng). Never logged.
@@ -85,7 +96,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const taste = parseTaste(jar.get(TASTE_COOKIE)?.value);
   const name = parseName(jar.get(NAME_COOKIE)?.value);
   const favorite = parseFav(jar.get(FAV_COOKIE)?.value);
-  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "been" | "said" | "ip" | "taste" | "name" | "favorite" | "me"> = { hour, dow, wants, been, said, ip, taste, name, favorite, me };
+  const base: Pick<PickRequest, "hour" | "dow" | "wants" | "must" | "been" | "said" | "ip" | "taste" | "name" | "favorite" | "me"> = { hour, dow, wants, must, been, said, ip, taste, name, favorite, me };
 
   if (m === "near") {
     const lat = num(sp.lat, NaN);
@@ -95,14 +106,14 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const n = str(sp.n);
     // "Near Bayard's": Bayard's itself is where they are, not a pick.
     const standingAt = at ? venues.find((v) => v.name.toLowerCase() === at.toLowerCase() && haversineMeters({ lat, lng }, v) < 60)?.slug : undefined;
-    const twelve = recommendNear({ lat, lng, hour, dow, wants, exclude: standingAt }, venues, HINTS);
+    const twelve = recommendNear({ lat, lng, hour, dow, wants, must, exclude: standingAt }, venues, HINTS);
     const ai = await pickWithClaude(
       { ...base, mode: "near", place: { label: at ?? "here", lat, lng, slug: standingAt }, neighborhood: isNeighborhoodId(n) ? n : twelve[0]?.venue.neighborhood, group: num(sp.g, 0) || undefined },
       venues,
       twelve.map((p) => ({ slug: p.venue.slug })),
     );
     const bySlug = new Map(twelve.map((p) => [p.venue.slug, p]));
-    const picks = applyToNight(ai, twelve, venues).map((p) => {
+    const picks = applyToNight(ai, twelve, venues, undefined, RESULT_COUNT, must).map((p) => {
       const near = bySlug.get(p.venue.slug);
       const meters = near?.meters ?? Math.round(haversineMeters({ lat, lng }, p.venue));
       const walk = near?.walkMinutes ?? Math.max(1, Math.round(meters / 80));
@@ -114,7 +125,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
     const card = (p: NightPick) => ({ ...p, shareCode: encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }) });
     shown("near", { at: at ?? null }, picks.map((p) => p.venue.slug), ai);
     const summary = [at ? `Near ${at}` : "Near you", formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="near" summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref="/near" code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
+    return <ResultsView mode="near" summary={summary} heard={ai.heard} note={mustNote(picks)} day={isDaytime(hour)} editHref="/near" code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
   const anchor = venues.find((v) => v.slug === str(sp.a));
@@ -149,15 +160,15 @@ export default async function ResultsPage(props: PageProps<"/results">) {
 
   if (mode === "night") {
     const group = Math.min(11, Math.max(2, num(sp.g, folded && m === "date" ? 2 : 4)));
-    const twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, been, me }, venues, HINTS);
+    const twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, must, been, me }, venues, HINTS);
     const ai = await pickWithClaude({ ...base, mode: "night", neighborhood: n, group }, venues, twelve.map((p) => ({ slug: p.venue.slug })));
-    const picks = applyToNight(ai, twelve, venues);
+    const picks = applyToNight(ai, twelve, venues, undefined, RESULT_COUNT, must);
     const payload: PlanPayload = { m: "night", n, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
     const card = (p: NightPick) => ({ ...p, shareCode: encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }) });
     shown(dayDoor ? "day" : "night", { neighborhood: n, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [neighborhoodName(n), ...fromMe, groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
+    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} note={mustNote(picks)} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
   const bars = venues.filter((v) => v.kind === "bar");

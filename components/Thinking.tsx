@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTypewriter } from "./QuickOnes";
 
-const LINES = ["Reading the room.", "Thinking about who you are tonight.", "Picking your six."];
+const LINES = ["Reading the room.", "Thinking about who you are tonight.", "Picking your three."];
 
 /** Types a line at a time while the picks are being made. */
 export function Thinking() {

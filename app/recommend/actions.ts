@@ -14,6 +14,9 @@ export type RecommendPayload = {
   kind: "bar" | "restaurant";
   neighborhood?: string;
   address?: string;
+  /** The pin, when the name was picked off the type-ahead (V35). */
+  lat?: number;
+  lng?: number;
   why?: string;
   answers: SuggestionAnswers;
   fromName?: string;
@@ -70,6 +73,8 @@ export async function submitRecommendation(p: RecommendPayload): Promise<Recomme
       kind: p.kind === "restaurant" ? "restaurant" : "bar",
       neighborhood: isNeighborhoodId(p.neighborhood) ? p.neighborhood : undefined,
       address: cut(p.address, 160) || undefined,
+      lat: typeof p.lat === "number" && Number.isFinite(p.lat) && Math.abs(p.lat) <= 90 ? p.lat : undefined,
+      lng: typeof p.lng === "number" && Number.isFinite(p.lng) && Math.abs(p.lng) <= 180 ? p.lng : undefined,
       why: cut(p.why, 600) || undefined,
       answers,
       fromName: cut(p.fromName, 60) || undefined,

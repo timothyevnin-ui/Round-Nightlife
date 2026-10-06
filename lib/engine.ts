@@ -31,6 +31,25 @@ export function attrOf(venue: Venue, k: AttrKey): number {
   return venue.crowd?.attrs?.[k] ?? venue.attrs[k];
 }
 
+/** What they tapped is a wall, not a weight (V35): the place has the thing, by its entry and the people's answers blended, or it's out. */
+export const MUST_AT = 0.6;
+export function hasMust(venue: Venue, must: AttrKey[] | undefined): boolean {
+  if (!must?.length) return true;
+  return must.every((k) => attrOf(venue, k) >= MUST_AT);
+}
+
+/**
+ * Keep the ones that have everything they tapped; when fewer than `floor` do,
+ * the rest follow, flagged, so the page can say so instead of pretending.
+ */
+export function applyMust<T extends { venue: Venue }>(scored: T[], must: AttrKey[] | undefined, floor = RESULT_COUNT): { kept: T[]; missing: Set<string> } {
+  if (!must?.length) return { kept: scored, missing: new Set() };
+  const pass = scored.filter((x) => hasMust(x.venue, must));
+  if (pass.length >= floor) return { kept: pass, missing: new Set() };
+  const rest = scored.filter((x) => !hasMust(x.venue, must));
+  return { kept: [...pass, ...rest], missing: new Set(rest.map((x) => x.venue.slug)) };
+}
+
 export function ratingOf(venue: Venue): number {
   return typeof venue.score === "number" ? venue.score / 100 : 0.7;
 }
@@ -284,6 +303,7 @@ export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_CO
     })
     .filter((x): x is Scored => x !== null)
     .sort((a, b) => b.score - a.score);
+  const { kept, missing } = applyMust(scored, q.must);
 
   const why = (s: Scored, label: PickLabel) => {
     const parts = s.hits.slice(0, 2).map((h) => HIT_WORD[h]).filter(Boolean) as string[];
@@ -292,7 +312,7 @@ export function recommendNight(q: NightQuery, venues: Venue[], count = RESULT_CO
     return parts.slice(0, 3).join(" · ");
   };
 
-  return diversify(scored, bucket, count).map(({ s, label }) => ({ venue: s.venue, label, score: s.score, why: why(s, label), far: whereWord(s.where) ?? undefined, door: doorOf(s.where) }));
+  return diversify(kept, bucket, count).map(({ s, label }) => ({ venue: s.venue, label, score: s.score, why: why(s, label), far: whereWord(s.where) ?? undefined, door: doorOf(s.where), ...(missing.has(s.venue.slug) ? { mustMiss: true } : {}) }));
 }
 
 /**
@@ -445,7 +465,7 @@ export function strongAttrLabels(venue: Venue, max = 4): string[] {
 
 /* ───────────────────────── NEAR ME ───────────────────────── */
 
-export type NearQuery = { lat: number; lng: number; hour: number; dow: number; wants?: Wants; radius?: number; /** The place they're standing at, if it's one of ours: never recommended to itself. */ exclude?: string };
+export type NearQuery = { lat: number; lng: number; hour: number; dow: number; wants?: Wants; must?: AttrKey[]; radius?: number; /** The place they're standing at, if it's one of ours: never recommended to itself. */ exclude?: string };
 
 export type NearPick = NightPick & { meters: number; walkMinutes: number };
 
@@ -482,14 +502,15 @@ export function recommendNear(q: NearQuery, venues: Venue[], count = RESULT_COUN
       return { venue, meters, score, hits, time, door };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, count);
+    .sort((a, b) => b.score - a.score);
+  const { kept, missing } = applyMust(scored, q.must);
+  const top = kept.slice(0, count);
 
   const labels: PickLabel[] = ["The pick", "Also great", "Easy in", "Sleeper", "Wildcard", "Classic", "Late one", "Big room"];
-  return scored.map((s, i) => {
+  return top.map((s, i) => {
     const walk = Math.max(1, Math.round(s.meters / 80));
     const label: PickLabel = i === 0 ? "The pick" : i === 1 ? "Also great" : s.venue.easyIn >= 0.7 && i === 2 ? "Easy in" : labels[Math.min(i, labels.length - 1)];
     const parts = [`${walk} min walk`, ...s.hits.slice(0, 1).map((h) => HIT_WORD[h]).filter(Boolean), s.time >= 1 ? "Good right now" : null].filter(Boolean) as string[];
-    return { venue: s.venue, label, score: s.score, why: parts.slice(0, 3).join(" · "), meters: s.meters, walkMinutes: walk, door: s.door.main ? undefined : s.door };
+    return { venue: s.venue, label, score: s.score, why: parts.slice(0, 3).join(" · "), meters: s.meters, walkMinutes: walk, door: s.door.main ? undefined : s.door, ...(missing.has(s.venue.slug) ? { mustMiss: true } : {}) };
   });
 }

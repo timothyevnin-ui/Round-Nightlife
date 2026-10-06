@@ -6,7 +6,7 @@ import { dbConfig, serviceHeaders, missingColumn } from "./db";
  * logging is best-effort and the app works the same without a database.
  */
 
-export type EventKind = "sayit" | "search" | "results" | "view" | "save" | "near" | "go";
+export type EventKind = "sayit" | "search" | "results" | "view" | "save" | "near" | "go" | "miss";
 
 export type EventRow = {
   id: number;
@@ -18,7 +18,7 @@ export type EventRow = {
   at: string;
 };
 
-const KINDS: EventKind[] = ["sayit", "search", "results", "view", "save", "near", "go"];
+const KINDS: EventKind[] = ["sayit", "search", "results", "view", "save", "near", "go", "miss"];
 
 export function isEventKind(k: unknown): k is EventKind {
   return typeof k === "string" && (KINDS as string[]).includes(k);

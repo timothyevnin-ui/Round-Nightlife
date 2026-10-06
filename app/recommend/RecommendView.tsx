@@ -12,6 +12,7 @@ import { prettyPhone } from "@/lib/phone";
 import { ASKS, type Ask } from "@/lib/askQuestions";
 import type { NeighborhoodId } from "@/lib/types";
 import { submitRecommendation } from "./actions";
+import { PlaceSearch } from "@/components/PlaceSearch";
 
 export type Offer = { open: boolean; cap: number; amount: number; approved: number };
 
@@ -44,6 +45,8 @@ export function RecommendView({ offer }: { offer: Offer }) {
   const [kind, setKind] = useState<"bar" | "restaurant">("bar");
   const [hood, setHood] = useState<NeighborhoodId | undefined>();
   const [address, setAddress] = useState("");
+  // The pin, when the name came off the list (V35): the exact spot, no geocoding later.
+  const [pin, setPin] = useState<{ lat: number; lng: number; placeId?: string } | null>(null);
   const [words, setWords] = useState<Partial<Record<Ask["key"], string>>>({});
   const [venmo, setVenmo] = useState("");
   const [fromName, setFromName] = useState("");
@@ -74,6 +77,8 @@ export function RecommendView({ offer }: { offer: Offer }) {
       kind,
       neighborhood: hood,
       address,
+      lat: pin?.lat,
+      lng: pin?.lng,
       why: words.pitch ?? "",
       answers: {},
       words,
@@ -150,15 +155,31 @@ export function RecommendView({ offer }: { offer: Offer }) {
           {step === "name" && (
             <Screen key="name">
               <Prompt text="What's the place?" />
-              <input
+              <PlaceSearch
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && name.trim().length >= 2 && next()}
-                placeholder="The name"
+                onChange={(v) => {
+                  setName(v);
+                  setPin(null);
+                }}
+                onPick={(place) => {
+                  setName(place.name);
+                  setAddress(place.address);
+                  setPin({ lat: place.lat, lng: place.lng });
+                  if (place.neighborhood) setHood(place.neighborhood);
+                }}
+                placeholder="Start typing the name"
                 autoFocus
-                className="serif mt-6 w-full rounded-[18px] border px-4 text-[24px] outline-none"
-                style={{ height: 64, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
+                className="mt-6"
+                inputClassName="serif w-full rounded-[18px] border px-4 text-[24px] outline-none"
+                inputStyle={{ height: 64, background: "var(--surface)", borderColor: "var(--hairline-strong)", color: "var(--ink)" }}
+                testId="recommend-name"
               />
+              {pin && address && (
+                <p className="mt-2 text-[13px]" style={{ color: "var(--pine-bright)" }} data-recommend-pinned>
+                  {address}
+                  {hood ? ` · ${neighborhoodName(hood)}` : ""}
+                </p>
+              )}
               <div className="mt-3 grid grid-cols-2 gap-2">
                 {(["bar", "restaurant"] as const).map((k) => (
                   <button key={k} onClick={() => setKind(k)} className="pressable flex h-12 items-center justify-center rounded-full border text-[15px] font-semibold" style={kind === k ? { background: "var(--ink)", color: "var(--paper)", borderColor: "var(--ink)" } : { background: "var(--surface)", color: "var(--ink)", borderColor: "var(--hairline-strong)" }}>

@@ -169,6 +169,12 @@ Run the current `supabase/schema.sql` again: it adds `visited_at` to `venues` (t
 
 Run the current `supabase/schema.sql` again. It does two small things: moves the `bounty` row in `settings` from $4 (or $2) for 1,000 up to **$7 for the first 300** (an amount you changed yourself in the Studio is left alone; the Studio dashboard shows what's live), and adds `my_contributions()`, the function the You card calls for *You've sent 3 · 2 on ROUND · 1 paid*. Until it's run, the app still says $7 (that's the built-in default) but the Studio and the recommend flow's counter show whatever the row holds, and the You card simply skips the sent/paid line.
 
+## 24. Type it, tap it (V35)
+
+Run the current `supabase/schema.sql` again. It adds `lat` and `lng` to `suggestions` (the pin a recommendation carries when the bar was picked off the type-ahead) and lets `events` keep the new `miss` kind (*Not what I asked*). Until it's run, recommendations still save (without the pin) and the miss button still says *Noted* (the row just doesn't land).
+
+**The type-ahead's key.** In Google Cloud Console (console.cloud.google.com): create or pick a project → APIs & Services → Library → enable **Places API (New)** → Credentials → Create credentials → API key. Restrict the key to the Places API (New) only (Edit key → API restrictions). Google asks for a billing account even for the free tier; the type-ahead stays well inside it at launch (10,000 autocomplete calls and 10,000 details calls a month free). Then Vercel → Settings → Environment Variables → `GOOGLE_PLACES_KEY` → redeploy. Without it, the box still works through Photon (OpenStreetMap): every street address, fewer bars by name.
+
 ## If something's off
 
 - **Banner says "Read-only"** → the URL or publishable key isn't reaching Vercel. Check the spelling of the two `NEXT_PUBLIC_…` keys and that you redeployed after adding them.
