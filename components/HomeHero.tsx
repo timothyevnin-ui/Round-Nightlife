@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Wordmark } from "./Wordmark";
 import { SayIt } from "./SayIt";
-import { AskChips } from "./AskChips";
 import { useAuth } from "@/lib/auth";
 import { DAY_NAMES } from "@/lib/time";
 import { nowWhen } from "@/lib/when";
@@ -121,10 +120,7 @@ export function HomeHero() {
           </h1>
         </section>
 
-        {/* Tap it (V35): the ask as a sentence you fill in; Near me lives in its first blank. */}
-        <AskChips />
-
-        {/* Or say it: the box, for anything the blanks can't. */}
+        {/* The one thing on the first screen: the box, with the quick taps inside it (V35). */}
         <SayIt />
       </motion.div>
     </div>

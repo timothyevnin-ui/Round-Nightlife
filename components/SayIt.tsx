@@ -11,6 +11,7 @@ import { neighborhoodName } from "@/lib/neighborhoods";
 import { formatHour } from "@/lib/time";
 import { nightWhen } from "@/lib/when";
 import { useRoundStore } from "@/lib/store";
+import { AskChips, composeAsk, rememberHood, tappedParams, useSavedHood, type Hood } from "./AskChips";
 
 const EXAMPLES = [
   "Six of us in the West Village, want to dance but not a club, no line",
@@ -39,6 +40,65 @@ export function SayIt() {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  // The quick taps (V35): a neighborhood (last time's, remembered on the phone) and what the night is for.
+  const savedHood = useSavedHood();
+  const [hoodState, setHoodState] = useState<Hood | null | undefined>(undefined);
+  const hood: Hood | null = hoodState === undefined ? savedHood : hoodState;
+  const [picks, setPicks] = useState<string[]>([]);
+  const [me, setMe] = useState<{ lat: number; lng: number } | null>(null);
+  const [locNote, setLocNote] = useState<string | null>(null);
+  const composed = composeAsk(hood, picks);
+  const pickHood = async (h: Hood) => {
+    setLocNote(null);
+    if (hood === h) {
+      setHoodState(null);
+      return;
+    }
+    if (h === "me") {
+      const p = await locate("ask");
+      if (!p) {
+        setLocNote("Location is off for this site. Pick a neighborhood instead.");
+        return;
+      }
+      setMe(p);
+    }
+    setHoodState(h);
+    rememberHood(h);
+  };
+  const togglePick = (k: string) => setPicks((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
+  /** The arrow, with taps and no typing: straight to the three, no interpreting needed. */
+  const goTapped = async () => {
+    if (busy) return;
+    setBusy(true);
+    const w = nightWhen();
+    const params = new URLSearchParams({ t: String(w.hour), d: String(w.dow), q: composed });
+    const here = hood === "me" ? me : null;
+    if (here) {
+      params.set("m", "near");
+      params.set("lat", here.lat.toFixed(5));
+      params.set("lng", here.lng.toFixed(5));
+      params.set("g", "4");
+    } else if (hood && hood !== "me") {
+      params.set("m", "night");
+      params.set("n", hood);
+      params.set("g", "4");
+    } else {
+      // Taps without a neighborhood: wherever the phone is, if it already shares that; otherwise the box, to say where.
+      const silent = await locate("silent");
+      if (silent) {
+        params.set("m", "near");
+        params.set("lat", silent.lat.toFixed(5));
+        params.set("lng", silent.lng.toFixed(5));
+        params.set("g", "4");
+      } else {
+        setBusy(false);
+        openIt();
+        return;
+      }
+    }
+    for (const [k, v] of Object.entries(tappedParams(picks))) params.set(k, v);
+    router.push(`/results?${params.toString()}`);
+  };
   // What ROUND heard, and for which text; while the text has moved on, the dot pulses and the old chips stay until the new ones land.
   const [heardFor, setHeardFor] = useState<{ q: string; chips: string[] }>({ q: "", chips: [] });
   const q = text.trim();
@@ -72,7 +132,10 @@ export function SayIt() {
 
   /** Open and focus in the same tap: the screen is committed right away so the box exists to focus, and the keyboard comes up with it. */
   const openIt = () => {
-    flushSync(() => setOpen(true));
+    flushSync(() => {
+      if (!text.trim() && composed) setText(composed + (picks.length ? ", " : " "));
+      setOpen(true);
+    });
     box.current?.focus({ preventScroll: true });
   };
 
@@ -94,6 +157,8 @@ export function SayIt() {
       const w = nightWhen();
       if (i.hour === undefined) i.hour = w.hour;
       const params = toResultsParams(i, w.dow, text);
+      // What was tapped stays a must-have, whatever else was typed (V35).
+      for (const [k, v] of Object.entries(tappedParams(picks))) if (k === "must" || !params.get(k)) params.set(k, v);
       // If the phone already shares where it is, the walk is measured from there (never a prompt from here).
       const me = await locate("silent");
       if (me && params.get("m") !== "near") params.set("me", formatMe(me));
@@ -109,54 +174,47 @@ export function SayIt() {
 
   return (
     <>
-      {/* The box on the home screen (V33): a cream card on the night page, breathing while it waits, the examples drifting through it. */}
-      <motion.button
-        onClick={openIt}
+      {/* The box on the home screen (V33, V35): a cream card on the night page, breathing while it waits; the quick taps write the ask, the box takes the rest. */}
+      <motion.div
         animate={{ boxShadow: ["0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 0 rgba(217,72,43,0)", "0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 6px rgba(217,72,43,0.16)", "0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 0 rgba(217,72,43,0)"] }}
         transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut" }}
-        className="theme-paper pressable relative mt-4 w-full overflow-hidden rounded-[26px] p-4 text-left"
+        className="theme-paper relative mt-4 w-full overflow-hidden rounded-[26px]"
         style={{ background: "var(--surface)", color: "var(--ink)" }}
-        aria-label="Just say it"
-        data-sayit-open
+        data-sayit-card
       >
-        <span className="relative flex items-center gap-2.5">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
-            <span className="block h-2.5 w-2.5 rounded-full" style={{ background: "var(--on-photo)" }} />
+        <button onClick={openIt} className="pressable block w-full px-4 pt-4 text-left" style={{ background: "var(--surface)" }} aria-label="Just say it" data-sayit-open>
+          <span className="relative flex items-center gap-2.5">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
+              <span className="block h-2.5 w-2.5 rounded-full" style={{ background: "var(--on-photo)" }} />
+            </span>
+            <span className="serif" style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.015em" }} data-sayit-title>
+              Just say it.
+            </span>
+            <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato)" }}>
+              ROUND listens
+            </span>
           </span>
-          <span className="serif" style={{ fontSize: 24, lineHeight: 1, letterSpacing: "-0.015em" }} data-sayit-title>
-            Just say it.
-          </span>
-          <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato)" }}>
-            Or say it
-          </span>
-        </span>
-        <span className="relative mt-3 block" style={{ minHeight: 50 }}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={exampleAt}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8, transition: { duration: 0.3 } }}
-              transition={{ duration: 0.45 }}
-              className="serif block"
-              style={{ fontSize: 20, lineHeight: 1.2, color: "var(--ink-55)" }}
-              data-sayit-example-home
+        </button>
+        <div className="px-4 pb-4">
+          <AskChips hood={hood} picks={picks} onHood={(h) => void pickHood(h)} onPick={togglePick} locNote={locNote} />
+          <div className="relative mt-3.5 flex h-12 items-center rounded-full pl-4 pr-1.5" style={{ background: "var(--ink-6)", border: `1px solid ${composed ? "var(--hairline-strong)" : "var(--hairline)"}` }} data-sayit-box>
+            <button onClick={openIt} className="pressable min-w-0 flex-1 truncate text-left text-[14px]" style={{ color: composed ? "var(--ink)" : "var(--ink-55)" }} data-sayit-composed={composed ? "1" : "0"}>
+              {composed || "Or type it like a text."}
+            </button>
+            <button
+              onClick={() => (composed ? void goTapped() : openIt())}
+              className="pressable flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+              style={{ background: composed ? "var(--tomato)" : "var(--ink-20)", opacity: busy ? 0.6 : 1 }}
+              aria-label={composed ? `Show me three: ${composed}` : "Type it"}
+              data-ask-go={composed ? "1" : "0"}
             >
-              &ldquo;{EXAMPLES[exampleAt]}&rdquo;
-            </motion.span>
-          </AnimatePresence>
-        </span>
-        <span className="relative mt-3.5 flex h-12 items-center rounded-full pl-4 pr-1.5" style={{ background: "var(--ink-6)", border: "1px solid var(--hairline)" }}>
-          <span className="min-w-0 flex-1 truncate text-[14px]" style={{ color: "var(--ink-55)" }}>
-            Type it like a text, or talk.
-          </span>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--tomato)" }} aria-hidden>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="#F6F1E7" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </span>
-      </motion.button>
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
+                <path d="M4 10h11m0 0-4.5-4.5M15 10l-4.5 4.5" stroke="#F6F1E7" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Portaled to the body: the hero above is transformed while it scrolls, which would trap a fixed screen. */}
       {typeof document !== "undefined" &&
