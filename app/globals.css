@@ -111,6 +111,22 @@
   --walk-3: rgba(46, 107, 82, 0.2);
   --walk-4: rgba(22, 33, 58, 0.18);
   --walk-5: rgba(46, 68, 112, 0.18);
+  /*
+   * The legacy names again (V35). A custom property resolves its var() where
+   * it's declared, so `--chalk: var(--ink)` on :root is cream for good; it
+   * has to be said again here to turn navy with the paper. Without this,
+   * every Studio box and segmented button typed cream on cream.
+   */
+  --chalk-black: var(--paper);
+  --chalk: var(--ink);
+  --chalk-70: var(--ink-70);
+  --chalk-55: var(--ink-55);
+  --chalk-35: var(--ink-35);
+  --chalk-20: var(--ink-20);
+  --cobalt: var(--tomato);
+  --cobalt-bright: var(--tomato-bright);
+  --cobalt-deep: var(--tomato-deep);
+  --cobalt-ink: var(--pine-deep);
   color: var(--ink);
   color-scheme: light;
 }

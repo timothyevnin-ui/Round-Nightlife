@@ -1,6 +1,5 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { NEIGHBORHOODS } from "@/lib/neighborhoods";
 import { SEED_QUESTIONS } from "@/lib/crowdQuestions";
 import { encodeWants, type Wants } from "@/lib/questions";
@@ -17,7 +16,11 @@ import type { NeighborhoodId } from "@/lib/types";
 
 export type Hood = NeighborhoodId | "me";
 
-export const FOR = (SEED_QUESTIONS.find((q) => q.id === "best-bar")?.options ?? []).filter((o) => Object.values(o.attrs ?? {}).some((v) => (v ?? 0) >= 1));
+export type ForOption = { key: string; label: string; attrs?: Partial<Record<AttrKey, number>> };
+
+/** The Best-for words, as the chips: only the ones that mean one thing the engine can check. */
+export const forOptions = (options?: ForOption[] | null): ForOption[] => ((options?.length ? options : SEED_QUESTIONS.find((q) => q.id === "best-bar")?.options) ?? []).filter((o) => Object.values(o.attrs ?? {}).some((v) => (v ?? 0) >= 1));
+export const FOR = forOptions();
 
 const FOR_WORDS: Record<string, string> = {
   late: "a late one",
@@ -27,6 +30,8 @@ const FOR_WORDS: Record<string, string> = {
   game: "the game",
   date: "a date",
   group: "the whole group",
+  day: "day drinking",
+  happyHour: "happy hour",
 };
 
 export function hoodWords(h: Hood | null): string | null {
@@ -36,18 +41,18 @@ export function hoodWords(h: Hood | null): string | null {
 }
 
 /** "West Village · live music, a late one" */
-export function composeAsk(hood: Hood | null, picks: string[]): string {
+export function composeAsk(hood: Hood | null, picks: string[], options: ForOption[] = FOR): string {
   const where = hoodWords(hood);
-  const what = picks.map((k) => FOR_WORDS[k] ?? FOR.find((o) => o.key === k)?.label.toLowerCase() ?? k).join(", ");
+  const what = picks.map((k) => FOR_WORDS[k] ?? options.find((o) => o.key === k)?.label.toLowerCase() ?? k).join(", ");
   return [where, what].filter(Boolean).join(" · ");
 }
 
 /** The wants and the must-haves that the taps mean. */
-export function tappedWants(picks: string[]): { wants: Wants; must: AttrKey[] } {
+export function tappedWants(picks: string[], options: ForOption[] = FOR): { wants: Wants; must: AttrKey[] } {
   const wants: Wants = {};
   const must: AttrKey[] = [];
   for (const key of picks) {
-    const o = FOR.find((x) => x.key === key);
+    const o = options.find((x) => x.key === key);
     for (const [a, v] of Object.entries(o?.attrs ?? {}) as [AttrKey, number][]) {
       if (!v) continue;
       wants[a] = Math.max(wants[a] ?? 0, v);
@@ -57,35 +62,13 @@ export function tappedWants(picks: string[]): { wants: Wants; must: AttrKey[] } 
   return { wants, must };
 }
 
-export function tappedParams(picks: string[]): { w?: string; must?: string } {
-  const { wants, must } = tappedWants(picks);
+export function tappedParams(picks: string[], options: ForOption[] = FOR): { w?: string; must?: string } {
+  const { wants, must } = tappedWants(picks, options);
   const w = encodeWants(wants);
   return { ...(w ? { w } : {}), ...(must.length ? { must: must.join(",") } : {}) };
 }
 
-/* Last time's neighborhood, remembered on the phone, never the server. */
-const SAVED = "round:ask";
-const noop = () => () => {};
-function readSaved(): string {
-  try {
-    return localStorage.getItem(SAVED) ?? "";
-  } catch {
-    return "";
-  }
-}
-export function useSavedHood(): NeighborhoodId | null {
-  const saved = useSyncExternalStore(noop, readSaved, () => "");
-  return NEIGHBORHOODS.some((n) => n.id === saved) ? (saved as NeighborhoodId) : null;
-}
-export function rememberHood(h: Hood | null) {
-  try {
-    if (h && h !== "me") localStorage.setItem(SAVED, h);
-  } catch {
-    /* fine */
-  }
-}
-
-export function AskChips({ hood, picks, onHood, onPick, locNote }: { hood: Hood | null; picks: string[]; onHood: (h: Hood) => void; onPick: (key: string) => void; locNote?: string | null }) {
+export function AskChips({ hood, picks, onHood, onPick, locNote, options = FOR }: { hood: Hood | null; picks: string[]; onHood: (h: Hood) => void; onPick: (key: string) => void; locNote?: string | null; options?: ForOption[] }) {
   const chip = (on: boolean) => ({
     background: on ? "var(--ink)" : "transparent",
     color: on ? "var(--paper)" : "var(--ink)",
@@ -121,7 +104,7 @@ export function AskChips({ hood, picks, onHood, onPick, locNote }: { hood: Hood 
         <span className="mr-1 w-10 text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--ink-45)" }}>
           For
         </span>
-        {FOR.map((o) => (
+        {options.map((o) => (
           <button key={o.key} type="button" onClick={() => onPick(o.key)} className={cls} style={chip(picks.includes(o.key))} aria-pressed={picks.includes(o.key)} data-chip-for={o.key}>
             {o.label}
           </button>

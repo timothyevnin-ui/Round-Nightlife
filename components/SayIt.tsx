@@ -11,7 +11,7 @@ import { neighborhoodName } from "@/lib/neighborhoods";
 import { formatHour } from "@/lib/time";
 import { nightWhen } from "@/lib/when";
 import { useRoundStore } from "@/lib/store";
-import { AskChips, composeAsk, rememberHood, tappedParams, useSavedHood, type Hood } from "./AskChips";
+import { AskChips, composeAsk, forOptions, tappedParams, type ForOption, type Hood } from "./AskChips";
 
 const EXAMPLES = [
   "Six of us in the West Village, want to dance but not a club, no line",
@@ -34,20 +34,19 @@ const EXAMPLES = [
  * same picks as any door. It's not only for nights, so it asks "What are we
  * thinking?"
  */
-export function SayIt() {
+export function SayIt({ bestFor }: { bestFor?: ForOption[] | null } = {}) {
   const router = useRouter();
+  const options = forOptions(bestFor);
   const { state } = useRoundStore();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   // The quick taps (V35): a neighborhood (last time's, remembered on the phone) and what the night is for.
-  const savedHood = useSavedHood();
-  const [hoodState, setHoodState] = useState<Hood | null | undefined>(undefined);
-  const hood: Hood | null = hoodState === undefined ? savedHood : hoodState;
+  const [hood, setHoodState] = useState<Hood | null>(null);
   const [picks, setPicks] = useState<string[]>([]);
   const [me, setMe] = useState<{ lat: number; lng: number } | null>(null);
   const [locNote, setLocNote] = useState<string | null>(null);
-  const composed = composeAsk(hood, picks);
+  const composed = composeAsk(hood, picks, options);
   const pickHood = async (h: Hood) => {
     setLocNote(null);
     if (hood === h) {
@@ -63,7 +62,6 @@ export function SayIt() {
       setMe(p);
     }
     setHoodState(h);
-    rememberHood(h);
   };
   const togglePick = (k: string) => setPicks((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
   /** The arrow, with taps and no typing: straight to the three, no interpreting needed. */
@@ -96,7 +94,7 @@ export function SayIt() {
         return;
       }
     }
-    for (const [k, v] of Object.entries(tappedParams(picks))) params.set(k, v);
+    for (const [k, v] of Object.entries(tappedParams(picks, options))) params.set(k, v);
     router.push(`/results?${params.toString()}`);
   };
   // What ROUND heard, and for which text; while the text has moved on, the dot pulses and the old chips stay until the new ones land.
@@ -158,7 +156,7 @@ export function SayIt() {
       if (i.hour === undefined) i.hour = w.hour;
       const params = toResultsParams(i, w.dow, text);
       // What was tapped stays a must-have, whatever else was typed (V35).
-      for (const [k, v] of Object.entries(tappedParams(picks))) if (k === "must" || !params.get(k)) params.set(k, v);
+      for (const [k, v] of Object.entries(tappedParams(picks, options))) if (k === "must" || !params.get(k)) params.set(k, v);
       // If the phone already shares where it is, the walk is measured from there (never a prompt from here).
       const me = await locate("silent");
       if (me && params.get("m") !== "near") params.set("me", formatMe(me));
@@ -191,15 +189,26 @@ export function SayIt() {
               Just say it.
             </span>
             <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato)" }}>
-              ROUND listens
+              Tap or type
             </span>
           </span>
         </button>
         <div className="px-4 pb-4">
-          <AskChips hood={hood} picks={picks} onHood={(h) => void pickHood(h)} onPick={togglePick} locNote={locNote} />
+          <AskChips hood={hood} picks={picks} onHood={(h) => void pickHood(h)} onPick={togglePick} locNote={locNote} options={options} />
           <div className="relative mt-3.5 flex h-12 items-center rounded-full pl-4 pr-1.5" style={{ background: "var(--ink-6)", border: `1px solid ${composed ? "var(--hairline-strong)" : "var(--hairline)"}` }} data-sayit-box>
-            <button onClick={openIt} className="pressable min-w-0 flex-1 truncate text-left text-[14px]" style={{ color: composed ? "var(--ink)" : "var(--ink-55)" }} data-sayit-composed={composed ? "1" : "0"}>
-              {composed || "Or type it like a text."}
+            <button onClick={openIt} className="pressable relative min-w-0 flex-1 overflow-hidden text-left text-[14px]" style={{ color: composed ? "var(--ink)" : "var(--ink-55)", height: 46 }} data-sayit-composed={composed ? "1" : "0"}>
+              {composed ? (
+                <span className="block truncate leading-[46px]">
+                  {composed}
+                  <span style={{ color: "var(--ink-45)" }}> · add anything…</span>
+                </span>
+              ) : (
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span key={exampleAt} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6, transition: { duration: 0.25 } }} transition={{ duration: 0.4 }} className="block truncate leading-[46px]" data-sayit-example-home>
+                    Type it: &ldquo;{EXAMPLES[exampleAt]}&rdquo;
+                  </motion.span>
+                </AnimatePresence>
+              )}
             </button>
             <button
               onClick={() => (composed ? void goTapped() : openIt())}

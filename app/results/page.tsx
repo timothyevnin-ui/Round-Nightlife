@@ -59,6 +59,9 @@ function morePlans(shown: DatePlan[], ranked: DatePlan[], n = RESULT_COUNT): Dat
     .map((p) => ({ ...p, label: p.label === "The pick" ? "Also great" : p.label }));
 }
 
+/** How a tapped must-have reads in the note. */
+const MUST_WORDS: Partial<Record<AttrKey, string>> = { liveMusic: "live music", sports: "the game on", dance: "dancing", late: "a late night", chill: "a chill room", date: "a date feel", groups: "room for the group", daytime: "day drinking", happyHour: "a happy hour" };
+
 /** The engine's picks beyond the three are the hint list for Claude (and "Three more"); the first three are the answer without it. */
 const HINTS = 12;
 
@@ -74,7 +77,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
   const mustNote = (picks: { mustMiss?: boolean }[]) => {
     const short = picks.filter((p) => p.mustMiss).length;
     if (!must.length || !short) return undefined;
-    const thing = must.map((k) => ATTRS[k].label.toLowerCase()).join(" and ");
+    const thing = must.map((k) => MUST_WORDS[k] ?? ATTRS[k].label.toLowerCase()).join(" and ");
     const had = picks.length - short;
     return had === 0 ? `Nothing here has ${thing} tonight; these are the closest fits.` : `Only ${had === 1 ? "one" : "two"} ${had === 1 ? "has" : "have"} ${thing} here tonight; the rest ${short === 1 ? "is" : "are"} the closest fit.`;
   };

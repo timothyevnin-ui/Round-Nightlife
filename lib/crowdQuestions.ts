@@ -60,6 +60,8 @@ export const SEED_QUESTIONS: CrowdQuestion[] = [
       o("game", "Watching the game", { sports: 1 }),
       o("date", "A date", { date: 1 }),
       o("group", "The whole group", { groups: 1 }),
+      o("day", "Day drinking", { daytime: 1 }),
+      o("happyHour", "Happy hour", { happyHour: 1 }),
     ],
   },
   {

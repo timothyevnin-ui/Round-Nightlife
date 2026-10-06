@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Wordmark } from "./Wordmark";
 import { SayIt } from "./SayIt";
+import type { ForOption } from "./AskChips";
 import { useAuth } from "@/lib/auth";
 import { DAY_NAMES } from "@/lib/time";
 import { nowWhen } from "@/lib/when";
@@ -17,7 +18,7 @@ const noop = () => () => {};
  * as a cream card on the night page, and one button, Bars near me. Nothing
  * else on the first screen. The hero eases back as the rest rises.
  */
-export function HomeHero() {
+export function HomeHero({ bestFor }: { bestFor?: ForOption[] | null } = {}) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -121,7 +122,7 @@ export function HomeHero() {
         </section>
 
         {/* The one thing on the first screen: the box, with the quick taps inside it (V35). */}
-        <SayIt />
+        <SayIt bestFor={bestFor} />
       </motion.div>
     </div>
   );

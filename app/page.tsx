@@ -1,5 +1,7 @@
 import { TabBar } from "@/components/TabBar";
 import { HomeHero } from "@/components/HomeHero";
+import { getPool } from "@/lib/pool";
+import { bestQuestion } from "@/lib/crowdQuestions";
 import { HotShelf } from "@/components/HotShelf";
 import { CityRank } from "@/components/CityRank";
 import { InstallHint } from "@/components/InstallHint";
@@ -17,12 +19,14 @@ export const revalidate = 60;
  * went this week), the ask for the city's help, and the city's ranking.
  */
 export default async function Home() {
-  const venues = await getVenues();
+  const [venues, pool] = await Promise.all([getVenues(), getPool().catch(() => [])]);
+  // The quick taps use the live Best-for words (V35): the same ones the rating sheet asks with.
+  const bestFor = bestQuestion(pool, "bar")?.options ?? null;
   const hot = hotVenues(venues);
   const names = Object.fromEntries(venues.map((v) => [v.slug, v.name]));
   return (
     <main className="screen screen-with-tabs mx-auto w-full max-w-md">
-      <HomeHero />
+      <HomeHero bestFor={bestFor} />
       <HowWasIt names={names} />
       <HotShelf venues={hot.slice(0, 8)} />
       <HelpCard />
