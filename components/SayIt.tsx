@@ -114,7 +114,7 @@ export function SayIt() {
         onClick={openIt}
         animate={{ boxShadow: ["0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 0 rgba(217,72,43,0)", "0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 6px rgba(217,72,43,0.16)", "0 24px 60px -30px rgba(0,0,0,0.75), 0 0 0 0 rgba(217,72,43,0)"] }}
         transition={{ repeat: Infinity, duration: 3.2, ease: "easeInOut" }}
-        className="theme-paper pressable relative w-full overflow-hidden rounded-[26px] p-4 text-left"
+        className="theme-paper pressable relative mt-4 w-full overflow-hidden rounded-[26px] p-4 text-left"
         style={{ background: "var(--surface)", color: "var(--ink)" }}
         aria-label="Just say it"
         data-sayit-open
@@ -127,7 +127,7 @@ export function SayIt() {
             Just say it.
           </span>
           <span className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--tomato)" }}>
-            ROUND listens
+            Or say it
           </span>
         </span>
         <span className="relative mt-3 block" style={{ minHeight: 50 }}>

@@ -121,49 +121,11 @@ export function HomeHero() {
           </h1>
         </section>
 
-        {/* The one thing on the first screen. */}
-        <SayIt />
-
-        <div className="mt-3 flex items-center gap-3">
-          <Link
-            href="/near"
-            className="pressable flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-[13.5px] font-semibold"
-            style={{
-              borderColor: "var(--hairline-strong)",
-              color: "var(--ink)",
-            }}
-            aria-label="Bars near me"
-            data-near-me
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden
-              style={{ color: "var(--tomato)" }}
-            >
-              <path
-                d="M10 2v3M10 15v3M2 10h3M15 10h3"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-              <circle
-                cx="10"
-                cy="10"
-                r="4.5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <circle cx="10" cy="10" r="1.4" fill="currentColor" />
-            </svg>
-            Bars near me
-          </Link>
-        </div>
-
-        {/* Or tap it (V35): a neighborhood and what the night is for, no typing. */}
+        {/* Tap it (V35): the ask as a sentence you fill in; Near me lives in its first blank. */}
         <AskChips />
+
+        {/* Or say it: the box, for anything the blanks can't. */}
+        <SayIt />
       </motion.div>
     </div>
   );

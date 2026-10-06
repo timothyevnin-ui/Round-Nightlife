@@ -68,7 +68,7 @@ export function hoursFactor(venue: Venue, hour: number, dow: number): number | n
   return left <= 0.5 ? 0.6 : left <= 1 ? 0.8 : 1;
 }
 
-const anchorOf = (q: { neighborhood: NightQuery["neighborhood"]; me?: Point }): Anchor => ({ hood: q.neighborhood, me: q.me });
+const anchorOf = (q: { neighborhood: NightQuery["neighborhood"]; me?: Point; reach?: number }): Anchor => ({ hood: q.neighborhood, me: q.me, limit: q.reach });
 
 /** How a place answers "where?", through whichever of its doors answers best. */
 export function whereReadVenue(venue: Venue, anchor: Anchor): (WhereRead & { door: Door }) | null {

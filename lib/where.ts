@@ -26,6 +26,8 @@ export type Anchor = {
   hood?: NeighborhoodId;
   /** The person's own location, when they allowed it. */
   me?: Point;
+  /** How far past the neighborhood's edge still counts, in minutes (V35): WALK_LIMIT unless the neighborhood is thin and the page widens it, and says so. */
+  limit?: number;
 };
 
 const M_PER_DEG_LAT = 111_000;
@@ -110,9 +112,10 @@ export function whereRead(venue: Point & { neighborhood: NeighborhoodId }, ancho
   }
   if (!anchor.hood) return { where: 0.5, walk: 0, inHood: false, fromMe: false };
   if (inHood) return { where: 1, walk: 0, inHood: true, fromMe: false };
+  const limit = anchor.limit ?? WALK_LIMIT;
   const walk = walkMinutes(metersToNeighborhood(venue, anchor.hood));
-  if (walk > WALK_LIMIT) return null;
-  return { where: 0.92 - 0.62 * (walk / WALK_LIMIT), walk, inHood: false, fromMe: false };
+  if (walk > limit) return null;
+  return { where: 0.92 - 0.62 * (walk / limit), walk, inHood: false, fromMe: false };
 }
 
 /** "lat,lng" from a URL → a point in or around Manhattan, or null. */

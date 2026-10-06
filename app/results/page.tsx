@@ -15,7 +15,8 @@ import { FAV_COOKIE, NAME_COOKIE, TASTE_COOKIE } from "@/lib/tasteCookie";
 import { decodeWants, describeWants } from "@/lib/questions";
 import { ATTR_KEYS, ATTRS, type AttrKey } from "@/lib/attrs";
 import { formatHour, mealWord } from "@/lib/time";
-import { isNearby, parseMe } from "@/lib/where";
+import { isNearby, metersToNeighborhood, parseMe, WALK_LIMIT, walkMinutes } from "@/lib/where";
+import { doorsOf } from "@/lib/places";
 import type { DatePlan, DateStage, Mode, NightPick } from "@/lib/types";
 import { ResultsView } from "./ResultsView";
 
@@ -113,7 +114,7 @@ export default async function ResultsPage(props: PageProps<"/results">) {
       twelve.map((p) => ({ slug: p.venue.slug })),
     );
     const bySlug = new Map(twelve.map((p) => [p.venue.slug, p]));
-    const picks = applyToNight(ai, twelve, venues, undefined, RESULT_COUNT, must).map((p) => {
+    const picks = applyToNight(ai, twelve, venues, undefined, RESULT_COUNT, must, (v) => haversineMeters({ lat, lng }, v) <= 1500).map((p) => {
       const near = bySlug.get(p.venue.slug);
       const meters = near?.meters ?? Math.round(haversineMeters({ lat, lng }, p.venue));
       const walk = near?.walkMinutes ?? Math.max(1, Math.round(meters / 80));
@@ -160,15 +161,31 @@ export default async function ResultsPage(props: PageProps<"/results">) {
 
   if (mode === "night") {
     const group = Math.min(11, Math.max(2, num(sp.g, folded && m === "date" ? 2 : 4)));
-    const twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, must, been, me }, venues, HINTS);
+    // A thin neighborhood (V35): when fewer than three bars are within the usual walk, the walk widens, and the page says so, instead of the picker quietly wandering to another neighborhood.
+    let reach = WALK_LIMIT;
+    let twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, must, been, me }, venues, HINTS);
+    // Bars actually in the neighborhood that fit: fewer than three and the page says so, whatever the neighbors add.
+    const inHood = twelve.filter((p) => !p.far && !p.mustMiss).length;
+    if (twelve.length < RESULT_COUNT) {
+      reach = 40;
+      twelve = recommendNight({ neighborhood: n, group, hour, dow, wants, must, been, me, reach }, venues, HINTS);
+    }
+    const allowed = (v: NightPick["venue"]) => doorsOf(v).some((d) => walkMinutes(metersToNeighborhood(d, n)) <= reach);
     const ai = await pickWithClaude({ ...base, mode: "night", neighborhood: n, group }, venues, twelve.map((p) => ({ slug: p.venue.slug })));
-    const picks = applyToNight(ai, twelve, venues, undefined, RESULT_COUNT, must);
+    const picks = applyToNight(ai, twelve, venues, undefined, RESULT_COUNT, must, allowed);
+    const hoodName = neighborhoodName(n);
+    const thinNote =
+      inHood >= RESULT_COUNT
+        ? undefined
+        : must.length
+          ? `${inHood === 0 ? "No bar" : inHood === 1 ? "Only one bar" : "Only two bars"} ROUND knows in ${hoodName} ${inHood === 1 || inHood === 0 ? "fits" : "fit"} that yet; ${inHood === 0 ? "these" : "the rest"} are the closest, a walk away. Know one? Add it, below.`
+          : `ROUND knows ${inHood === 0 ? "no bars" : inHood === 1 ? "only one bar" : "only two bars"} in ${hoodName} so far; ${inHood === 0 ? "these" : "the rest"} are the closest, a walk away. Know one? Add it, below.`;
     const payload: PlanPayload = { m: "night", n, t: hour, g: group, s: picks.map((p) => ({ bar: p.venue.slug })) };
     const code = encodePlan(payload);
     const card = (p: NightPick) => ({ ...p, shareCode: encodePlan({ ...payload, s: [{ bar: p.venue.slug }] }) });
     shown(dayDoor ? "day" : "night", { neighborhood: n, group }, picks.map((p) => p.venue.slug), ai);
     const summary = [neighborhoodName(n), ...fromMe, groupWord(group), formatHour(hour, true), ...wantChips];
-    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} note={mustNote(picks)} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
+    return <ResultsView mode="night" title={dayDoor ? "Day out" : undefined} summary={summary} heard={ai.heard} note={[thinNote, mustNote(picks)].filter(Boolean).join(" ") || undefined} day={isDaytime(hour)} editHref={dayDoor ? "/plan/day" : "/plan/night"} code={code} night={picks.map(card)} moreNight={moreNight(picks, twelve).map(card)} />;
   }
 
   const bars = venues.filter((v) => v.kind === "bar");

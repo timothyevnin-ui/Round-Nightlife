@@ -155,6 +155,8 @@ export type NightQuery = {
   been?: string[];
   /** What they tapped (V35): every pick has these, enforced in code; the picker only orders within them. */
   must?: AttrKey[];
+  /** Minutes past the neighborhood's edge that still count (V35): the default unless the page widened it for a thin neighborhood. */
+  reach?: number;
 };
 
 export type DateQuery = {

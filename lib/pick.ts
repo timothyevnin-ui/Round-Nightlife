@@ -343,7 +343,7 @@ function clean(s: string): string {
 /* ───────────────────────── applying the answer ───────────────────────── */
 
 /** Reorder the rules engine's bar picks to Claude's answer; keep engine labels/why where Claude gave none. */
-export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = RESULT_COUNT, must?: AttrKey[]): NightPick[] {
+export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues: Venue[], lead?: NightPick, count = RESULT_COUNT, must?: AttrKey[], allowed?: (v: Venue) => boolean): NightPick[] {
   const fromRules = new Map(rulesPicks.map((p) => [p.venue.slug, p]));
   if (result.engine !== "claude") {
     // The engine's own order, minus anything the person said never again to.
@@ -364,6 +364,8 @@ export function applyToNight(result: PickResult, rulesPicks: NightPick[], venues
     const venue = bySlug.get(p.slug);
     if (!venue) continue;
     if (strict && !hasMust(venue, must)) continue;
+    // Out of reach (V35): the model was told twenty minutes away is not fair game; this is where that's checked.
+    if (allowed && !fromRules.has(p.slug) && !allowed(venue)) continue;
     const prior = fromRules.get(p.slug);
     let label: PickLabel = out.length === 0 ? "The pick" : p.label && !taken.has(p.label) ? p.label : prior?.label && !taken.has(prior.label) ? prior.label : nextLabel(taken);
     if (out.length > 0 && label === "The pick") label = nextLabel(taken);
